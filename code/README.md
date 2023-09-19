@@ -52,3 +52,5 @@ Para agregar dependencia
 ## Acceso
 El login es multidominio el registro por defecto es usando localhost
 https://localhost/
+usuario: master
+password: master
