@@ -1,0 +1,14 @@
+FROM registry.gitlab.com/yucatan/siamt/base-njs-16
+
+ARG GIT_USR=$GIT_USR
+ARG GIT_PASS=$GIT_PASS
+
+RUN set -ex && \
+    git clone --depth 1 --filter=blob:none --sparse https://$GIT_USR:$GIT_PASS@gitlab.com/yucatan/siamt.git /srv/siamt && \
+    cd /srv/siamt && \
+    git sparse-checkout add code/common-njs code/wss-njs && \
+    cd /srv/siamt/code/common-njs && npm install && \
+    cd /srv/siamt/code/wss-njs && npm install && \
+    rm /docker-entrypoint.d/init.sh
+
+CMD ["node", "/srv/siamt/code/wss-njs/app.js"]

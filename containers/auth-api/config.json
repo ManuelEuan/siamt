@@ -1,0 +1,24 @@
+{
+  "applications": {
+    "auth-api": {
+      "type": "php",
+      "root": "/srv/siamt/code/auth-api/public",
+      "working_directory": "/srv/siamt/code/auth-api",
+      "script": "index.php",
+      "limits": {
+        "timeout": 10,
+        "requests": 1000
+      },
+      "processes": {
+        "max": 10,
+        "spare": 2,
+        "idle_timeout": 60
+      }
+    }
+  },
+  "listeners": {
+    "*:80": {
+      "pass": "applications/auth-api"
+    }
+  }
+}

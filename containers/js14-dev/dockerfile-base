@@ -1,0 +1,18 @@
+FROM debian:bullseye-slim as BUILDER
+
+RUN set -x && \
+    apt-get update && \
+    apt-get install  --no-install-recommends --no-install-suggests  -y \
+    curl ca-certificates git ssh python2 make && \
+
+    curl -fsSL https://deb.nodesource.com/setup_14.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g yarn && \
+    mkfifo /.pause && \
+    apt-get remove --purge --auto-remove -y && rm -rf /var/lib/apt/lists/*
+
+EXPOSE 8080
+
+STOPSIGNAL SIGKILL
+
+CMD read < /.pause

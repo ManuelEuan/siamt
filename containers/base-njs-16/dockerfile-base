@@ -1,0 +1,22 @@
+FROM debian:bullseye-slim as BUILDER
+
+RUN set -x && \
+    apt-get update && \
+    apt-get install  --no-install-recommends --no-install-suggests  -y \
+    curl ca-certificates git ssh && \
+
+    curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g yarn && \
+    mkfifo /.pause && \
+    apt-get remove --purge --auto-remove -y && rm -rf /var/lib/apt/lists/*  && \
+    mkdir /docker-entrypoint.d
+
+COPY docker-entrypoint.sh /
+COPY init.sh /docker-entrypoint.d/
+
+EXPOSE 3000
+
+STOPSIGNAL SIGTERM
+
+ENTRYPOINT ["/docker-entrypoint.sh"]

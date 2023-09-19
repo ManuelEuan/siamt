@@ -1,0 +1,97 @@
+version: "3.9"
+services:
+  gateway:
+    image: registry.gitlab.com/yucatan/siamt/gateway-dv
+    ports:
+      - target: 80
+        published: 81
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 444
+        protocol: tcp
+        mode: host
+    volumes:
+      - "frontend:/srv/www"
+      - "/var/www:/var/www"
+    env_file:
+      - ../../../.dv-env
+    networks:
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "app-api"
+      - "auth-api"
+      - "app-ui"
+  wss-njs:
+    image: registry.gitlab.com/yucatan/siamt/wss-njs-dv
+    ports:
+      - target: 3000
+        published: 8444
+        protocol: tcp
+        mode: host
+    env_file:
+      - ../../../.dv-env
+    networks:
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
+  app-ui:
+    image: registry.gitlab.com/yucatan/siamt/app-ui-dv
+    volumes:
+      - "frontend:/srv/www"
+    env_file:
+      - ../../../.dv-env
+    networks:
+      - internal-services
+  auth-api:
+    image: registry.gitlab.com/yucatan/siamt/auth-api-dv
+    env_file:
+      - ../../../.dv-env
+    networks:
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
+  app-api:
+    image: registry.gitlab.com/yucatan/siamt/app-api-dv
+    env_file:
+      - ../../../.dv-env
+    networks:
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
+  redis:
+    image: redis
+    volumes:
+      - "queue:/data"
+    networks:
+      - internal-services
+    sysctls:
+      net.core.somaxconn: 1024
+  liquibase:
+    image: registry.gitlab.com/yucatan/siamt/liquibase-dv
+    env_file:
+      - ../../../.dv-env
+    networks:
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+volumes:
+  frontend:
+  queue:
+networks:
+  internal-services:
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.31.120.0/21"

@@ -1,0 +1,6 @@
+FROM registry.gitlab.com/yucatan/siamt/gateway
+
+COPY conf /etc/nginx
+
+RUN cp /etc/nginx/ui-pd.conf /etc/nginx/ui.conf
+RUN cp /etc/nginx/enc-ui-pd.conf /etc/nginx/enc-ui.conf

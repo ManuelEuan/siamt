@@ -1,0 +1,11 @@
+FROM registry.gitlab.com/yucatan/siamt/base-api
+
+ARG GIT_USR=$GIT_USR
+ARG GIT_PASS=$GIT_PASS
+
+COPY config.json /docker-entrypoint.d
+
+RUN set -ex && \
+    git clone --depth 1 --filter=blob:none --sparse https://$GIT_USR:$GIT_PASS@gitlab.com/yucatan/siamt.git /srv/siamt && \
+    cd /srv/siamt && \
+    git sparse-checkout add code/common-php code/app-api

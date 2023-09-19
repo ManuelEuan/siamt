@@ -1,0 +1,37 @@
+FROM openjdk:11-jre-slim-bullseye
+
+ARG LIQUIBASE_VERSION=4.7.1
+
+# Install GNUPG for package vefification and WGET for file download
+RUN apt-get update && \
+    apt-get --no-install-recommends --no-install-suggests -yqq install krb5-user libpam-krb5 && \
+    apt-get --no-install-recommends --no-install-suggests -y install gnupg wget unzip git ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN mkdir /liquibase
+WORKDIR /liquibase
+
+RUN ln -s /liquibase/liquibase /usr/local/bin/liquibase && \
+  ln -s /liquibase/bin/lpm /usr/local/bin/lpm
+
+RUN set -x \
+  && wget -O liquibase-${LIQUIBASE_VERSION}.tar.gz "https://github.com/liquibase/liquibase/releases/download/v${LIQUIBASE_VERSION}/liquibase-${LIQUIBASE_VERSION}.tar.gz" \
+  && tar -xzf liquibase-${LIQUIBASE_VERSION}.tar.gz \
+  && rm liquibase-${LIQUIBASE_VERSION}.tar.gz
+
+# Download and Install lpm \
+RUN mkdir /liquibase/bin && \
+    wget -q -O lpm.zip https://github.com/liquibase/liquibase-package-manager/releases/download/v0.1.0/lpm-0.1.0-linux.zip && \
+    unzip lpm.zip -d bin/ && rm lpm.zip && \
+    export LIQUIBASE_HOME=/liquibase
+
+RUN lpm add postgresql --global && ls -alh /liquibase/lib
+RUN mkdir /docker-entrypoint.d && mkfifo .pause
+
+COPY docker-entrypoint.sh /
+COPY init.sh /docker-entrypoint.d/
+
+STOPSIGNAL SIGKILL
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD read < .pause

@@ -1,0 +1,9 @@
+FROM registry.gitlab.com/yucatan/siamt/liquibase
+
+ARG GIT_USR=$GIT_USR
+ARG GIT_PASS=$GIT_PASS
+
+RUN set -ex && \
+    git clone --depth 1 --filter=blob:none --sparse https://$GIT_USR:$GIT_PASS@gitlab.com/yucatan/siamt.git /srv/siamt && \
+    cd /srv/siamt && rm -rf /liquibase/changelog && \
+    git sparse-checkout add code/migrations && ln -s /srv/siamt/code/migrations /liquibase/changelog

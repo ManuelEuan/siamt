@@ -1,0 +1,111 @@
+version: "3.9"
+services:
+  gateway:
+    image: registry.gitlab.com/yucatan/siamt/gateway
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
+    volumes:
+      - "./gateway/conf:/etc/nginx"
+    env_file:
+      - dv.env
+    networks:
+      - internal-services
+    depends_on:
+      - "app-api"
+      - "auth-api"
+      - "app-ui"
+  wss-njs:
+    image: registry.gitlab.com/yucatan/siamt/base-njs-16
+    command: ["node", "/srv/siamt/code/wss-njs/app.js"]
+    ports:
+      - target: 3000
+        published: 8443
+        protocol: tcp
+        mode: host
+    volumes:
+      - "../code/wss-njs:/srv/siamt/code/wss-njs"
+      - "../code/common-njs:/srv/siamt/code/common-njs"
+    env_file:
+      - dv.env
+    networks:
+      - internal-services
+    depends_on:
+      - "liquibase"
+      - "redis"
+  app-ui:
+    image: registry.gitlab.com/yucatan/siamt/base-njs-16
+    command: ["yarn","--cwd","/srv/siamt/code/app-ui","serve"]
+    tty: true
+    environment:
+      - HOST=0.0.0.0
+      - CHOKIDAR_USEPOLLING=true
+    ports:
+      - "81:3000"
+    volumes:
+      - "../code/app-ui:/srv/siamt/code/app-ui"
+    env_file:
+      - dv.env
+    networks:
+      - internal-services
+  auth-api:
+    image: registry.gitlab.com/yucatan/siamt/base-api
+    volumes:
+      - "./auth-api/config.json:/docker-entrypoint.d/config.json"
+      - "../code/auth-api:/srv/siamt/code/auth-api"
+      - "../code/common-php:/srv/siamt/code/common-php"
+    env_file:
+      - dv.env
+    networks:
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
+  app-api:
+    image: registry.gitlab.com/yucatan/siamt/base-api
+    volumes:
+      - "./app-api/config.json:/docker-entrypoint.d/config.json"
+      - "../code/app-api:/srv/siamt/code/app-api"
+      - "../code/common-php:/srv/siamt/code/common-php"
+    env_file:
+      - dv.env
+    networks:
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
+  redis:
+    image: redis/redis-stack
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+    networks:
+      - internal-services
+    sysctls:
+      net.core.somaxconn: 1024
+  liquibase:
+    image: registry.gitlab.com/yucatan/siamt/liquibase
+    volumes:
+      - "../code/migrations:/liquibase/changelog"
+    env_file:
+      - dv.env
+    networks:
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+networks:
+  internal-services:
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.31.248.0/21"
