@@ -31,8 +31,7 @@ $app->get('/modules/config', function () use ($app) {
     $response = App::getModules($mods);
 
     return $response;
-}
-);
+});
 
 $app->get('/modules/config/all', function () use ($app) {
     $request = $app->request;
@@ -41,8 +40,7 @@ $app->get('/modules/config/all', function () use ($app) {
     $token = $app->getSharedService("token");
     $domainId = $token->getDomainId();
     return App::getModuleUserDomainConfig($user, $module, $domainId);
-}
-);
+});
 
 $app->get('/users', function () use ($app, $config) {
 
@@ -52,3 +50,5 @@ $app->get('/users', function () use ($app, $config) {
 
     return $data;
 });
+
+include 'routes/admin.php';
