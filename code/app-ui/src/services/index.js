@@ -31,6 +31,7 @@ const getInstance = (classType, arg1) => { return classType._instance? classType
 export default {
 	security: () => getInstance(SecurityService, config.services.authUrl),
 	app: () => getInstance(AppService, config.services.appUrl),
+	users: () => getInstance(AppService, config.services.usersUrl),
 	event: () => getInstance(EventService, config.services.eventUrl),
 	callcenter: () => getInstance(CallcenterService,config.services.callcenterUrl),
 	admin: () => getInstance(AdminService, config.services.adminUrl),
