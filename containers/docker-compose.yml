@@ -84,21 +84,21 @@ services:
     depends_on:
       - "liquibase"
       - "redis"
-  users-api:
-    image: registry.gitlab.com/yucatan/siamt/base-api
-    volumes:
-      - "./users-api/config.json:/docker-entrypoint.d/config.json"
-      - "../code/usres-api:/srv/siamt/code/users-api"
-      - "../code/common-php:/srv/siamt/code/common-php"
-    env_file:
-      - dv.env
-    networks:
-      - internal-services
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    depends_on:
-      - "liquibase"
-      - "redis"
+#  users-api:
+#    image: registry.gitlab.com/yucatan/siamt/base-api
+#    volumes:
+#      - "./users-api/config.json:/docker-entrypoint.d/config.json"
+#      - "../code/users-api:/srv/siamt/code/users-api"
+#      - "../code/common-php:/srv/siamt/code/common-php"
+#    env_file:
+#      - dv.env
+#    networks:
+#      - internal-services
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"
+#    depends_on:
+#      - "liquibase"
+#      - "redis"
   redis:
     image: redis/redis-stack
     ports:

@@ -26,12 +26,13 @@ import CallcenterService from  './callcenter.service'
 import TrackerService from "@/services/tracker.service";
 import ComitesService from "@/services/comites.service";
 import FinderService from  './finder.service';
+// import UsersService from "./users.service";
 const getInstance = (classType, arg1) => { return classType._instance? classType._instance : (classType._instance = new classType(arg1)); }
 
 export default {
 	security: () => getInstance(SecurityService, config.services.authUrl),
 	app: () => getInstance(AppService, config.services.appUrl),
-	users: () => getInstance(AppService, config.services.usersUrl),
+	// users: () => getInstance(UsersService, config.services.usersUrl),
 	event: () => getInstance(EventService, config.services.eventUrl),
 	callcenter: () => getInstance(CallcenterService,config.services.callcenterUrl),
 	admin: () => getInstance(AdminService, config.services.adminUrl),

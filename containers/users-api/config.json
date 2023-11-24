@@ -2,8 +2,8 @@
   "applications": {
     "app-api": {
       "type": "php",
-      "root": "/srv/siamt/code/app-api/public",
-      "working_directory": "/srv/siamt/code/app-api",
+      "root": "/srv/siamt/code/users-api/public",
+      "working_directory": "/srv/siamt/code/users-api",
       "script": "index.php",
       "limits": {
         "timeout": 10,
@@ -26,7 +26,7 @@
   },
   "listeners": {
     "*:80": {
-      "pass": "applications/app-api"
+      "pass": "applications/users-api"
     }
   }
 }

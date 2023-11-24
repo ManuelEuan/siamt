@@ -7,6 +7,8 @@ use App\Library\Misc\Utils;
 use App\Controllers\TerritoryController;
 use App\Controllers\LayersController;
 use App\Controllers\SurveyController;
+use App\Controllers\UsersController;
+
 
 $app->get('/domain/config', function () use ($app, $config) {
 
@@ -52,3 +54,12 @@ $app->get('/users', function () use ($app, $config) {
 
     return $data;
 });
+
+$app->mount((new Collection())
+    ->setHandler(UsersController::class, true)
+    ->post("/users", "users")
+    ->put("/create", "create"));
+//$app->post('/users', function () use ($app, $config) {
+//
+//    return "Hola";
+//});
