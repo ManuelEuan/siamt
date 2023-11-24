@@ -10,6 +10,8 @@ export default class AdminService extends ApiService {
     console.log("AdminService Created");
   }
 
+  //Módulos
+
   async getModulesConfig() {
     let config = this.getLoadedModulesConfig();
 
@@ -20,19 +22,10 @@ export default class AdminService extends ApiService {
     return config;
   }
 
-  async fetchUsers() {
-    return await this.get("/users");
-  }
-
-  async getUsers(data) {
-    return await this.post("/users", JSON.stringify(data));
-  }
-
   async getModules(params = {}) {
     return await this.get("/modules", params);
   }
 
-  /* eslint-disable no-unused-vars */
   async updateModule(id, data) {
     return await this.post(`/modules/${id}`, data);
   }
@@ -61,7 +54,8 @@ export default class AdminService extends ApiService {
     return await this.post("/modules/batch", data);
   }
 
-  //Para los permisos y los perfiles
+ //Permisos
+
   async getAllUsers() {
     return await this.post("/users/");
   }
@@ -69,17 +63,30 @@ export default class AdminService extends ApiService {
     return await this.get("/permissions");
   }
 
-  //Para los roles (grupos)
+  //Roles
+  
   async getAllRoles() {
     return await this.get("/groups");
   }
 
-  //Para usuarios alta y edición
-  async getEditUserInfo(data) {
-    return await this.post("/users/getedituserinfo", JSON.stringify(data));
+  //Usuarios
+  async getUsers(data) {
+    return await this.post("/users", JSON.stringify(data));
+  }
+
+  async createUser(data) {
+    return await this.post('/users/new', JSON.stringify(data));
   }
 
   async deleteUser(id) {
     return await this.delete(`/users/${id}`);
+  }
+
+  async updateUser(id) {
+    return await this.put(`/users/${id}`);
+  }
+
+  async getEditUserInfo(data) {
+    return await this.post("/users/getedituserinfo", JSON.stringify(data));
   }
 }

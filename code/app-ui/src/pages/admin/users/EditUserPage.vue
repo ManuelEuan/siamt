@@ -36,26 +36,31 @@
                     <v-text-field
                       v-model="user.nombre"
                       label="Nombre*"
+                      :rules="[rules.required]"
                       outlined
                       clearable
                       dense
                       hide-details="auto"
+                      required
                     />
                   </v-col>
                   <v-col cols="4">
                     <v-text-field
                       v-model="user.apepat"
                       label="Apellido Paterno*"
+                      :rules="[rules.required]"
                       outlined
                       clearable
                       dense
                       hide-details="auto"
+                      required
                     />
                   </v-col>
                   <v-col cols="4">
                     <v-text-field
                       v-model="user.apemat"
                       label="Apellido Materno"
+                      hint="Este campo es opcional"
                       outlined
                       clearable
                       dense
@@ -66,10 +71,13 @@
                     <v-text-field
                       v-model="user.usuario"
                       label="Usuario*"
+                      hint="Se permiten: . _ - números y letras sin acentos ni espacios."
+                      :rules="[rules.required, rules.user]"
                       outlined
                       clearable
                       dense
                       hide-details="auto"
+                      required
                     />
                   </v-col>
                   <v-col cols="4">
@@ -77,6 +85,7 @@
                       v-model="user.clave"
                       :append-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
                       label="Contraseña*"
+                      :rules="[rules.required]"
                       :type="showPass ? 'text' : 'password'"
                       :hint="
                         isCreatingUser
@@ -87,12 +96,15 @@
                       clearable
                       dense
                       hide-details="auto"
+                      required
                       @click:append="showPass = !showPass"
                     />
                   </v-col>
                   <v-col cols="4">
                     <v-text-field
+                      v-model="clave"
                       label="Confirmar Contraseña"
+                      hint="Este campo es opcional"
                       :append-icon="showPass2 ? 'mdi-eye' : 'mdi-eye-off'"
                       :type="showPass2 ? 'text' : 'password'"
                       outlined
@@ -106,6 +118,7 @@
                     <v-text-field
                       v-model="user.correo"
                       label="Correo Electrónico"
+                      hint="Este campo es opcional"
                       outlined
                       clearable
                       dense
@@ -120,7 +133,7 @@
                 <v-checkbox
                   v-for="(role, id) in roles"
                   :key="id"
-                  v-model="selectedRoles"
+                  v-model="user.roles"
                   :value="role.id"
                 >
                   <template v-slot:label>
@@ -144,7 +157,7 @@
                     <v-checkbox
                       v-for="(permission, id) in item.permisos"
                       :key="id"
-                      v-model="selectedPermissions"
+                      v-model="user.permisos"
                       :value="permission.id"
                     >
                       <template v-slot:label>
@@ -167,7 +180,7 @@
                 color="primary"
                 text
                 :disabled="invalid"
-                @click="isCreatingUser ? saveUser() : updateUser()"
+                @click="isCreatingUser ? createUser() : updateUser()"
               >
                 Guardar
               </v-btn>
@@ -180,6 +193,7 @@
 </template>
 
 <script>
+import rules from '@/core/rules.forms';
 import services from "@/services";
 
 export default {
@@ -204,8 +218,6 @@ export default {
       showPass: false,
       showPass2: false,
       permissions: [],
-      selectedPermissions: [],
-      selectedRoles: [],
       roles: [],
       modules: [],
       user: {
@@ -222,6 +234,8 @@ export default {
         roles: [],
         permisos: [],
       },
+      rules: rules,
+      clave: "",
     };
   },
   methods: {
@@ -246,20 +260,34 @@ export default {
       let params = {
         id: this.$route.params.id,
       };
-      const res = await services.admin().getEditUserInfo(params);
-      console.log("=>(EditUserPage.vue:251) res", res);
-      this.user = res.usuario;
-      // this.selectedRoles = resw.perfiles;
-      // this.user.roles.forEach((role) => this.selectedRoles.push(role.id));
-      // console.log("(EditUserPage.vue:255) selectedRoles", this.selectedRoles);
-      // this.selectedPermissions = res.permisos;
+      const response = await services.admin().getEditUserInfo(params);
+      this.user = response.usuario;
       this.user.clave = "";
     },
-    updateUser() {},
-    saveUser() {},
+    updateUser() {
+      console.log("=>(EditUserPage.vue) updateUser()");
+    },
+    async createUser() {
+      if(!this.invalid) {
+        const response = await services.admin().createUser(this.user);
+        console.log(response);
+        this.exitWindow();
+      }
+    },
     exitWindow() {
       this.$router.push("/users");
     },
   },
+  watch: {
+    user: {
+      handler(actualUser) {
+        const valids = [];
+        const requiredData = ['nombre', 'apepat', 'usuario', 'clave'];
+        requiredData.forEach(d => valids.push(!(actualUser[d]?.trim()?.length)));
+        this.invalid = !valids.every(valid => !valid);
+      },
+      deep: true
+    }
+  }
 };
 </script>

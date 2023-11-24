@@ -9,11 +9,19 @@ export default {
 	max100chars: v => !v || (v && v.length <= 100) || 'Máximo 100 caracteres.',
 	max250chars: v => !v || (v && v.length <= 250) || 'Máximo 250 caracteres.',
 	max300chars: v => !v || (v && v.length <= 300) || 'Máximo 300 caracteres.',
-	intNumber: v => !v || /^\d*$/.test(v) || 'Número requerido',
-	positiveIntNumber: v => !v || /^\d*$/.test(v) || 'Número igual o mayor a cero requerido',
+	intNumber: v => !v || /^\d*$/.test(v) || 'Número requerido.',
+	positiveIntNumber: v => !v || /^\d*$/.test(v) || 'Número igual o mayor a cero requerido.',
 	json: v => {
 		let status = true;
 		try { JSON.parse(v); } catch(e){ status = false; }
-		return !v || status || 'JSON valido requerido'
+		return !v || status || 'JSON valido requerido.';
+	},
+	email: v => {
+		const regex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/g;
+		return regex.test(v) || 'Email valido requerido.';
+	},
+	user: v => {
+		const regex = /^[-.\w]+$/g;
+		return regex.test(v) || 'Solo se permiten: . _ - y números y letras sin acentos ni espacios.';
 	},
 };

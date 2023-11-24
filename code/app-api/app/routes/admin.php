@@ -2,17 +2,6 @@
 
 use App\Db\Admin;
 
-$app->post('/admin/users', function () use ($app) {
-    $data = $app->request->getJsonRawBody();
-    $currentPage = $data->currentPage;
-    $itemsPerPage = $data->itemsPerPage;
-    return Admin::getUsers($currentPage, $itemsPerPage);
-});
-
-$app->delete('/admin/users/{id}', function ($id) {
-    return Admin::deleteUser($id);
-});
-
 $app->get('/admin/modules', function () {
     return Admin::getModules();
 });
@@ -45,6 +34,28 @@ $app->get('/admin/permissions', function () {
 
 $app->get('/admin/groups', function () {
     return Admin::getAllRoles();
+});
+
+//Usuarios
+$app->post('/admin/users', function () use ($app) {
+    $data = $app->request->getJsonRawBody();
+    $currentPage = $data->currentPage;
+    $itemsPerPage = $data->itemsPerPage;
+    return Admin::getUsers($currentPage, $itemsPerPage);
+});
+
+$app->post('/admin/users/new', function () use ($app) {
+    $data = $app->request->getJsonRawBody();
+    return Admin::createUser($data);
+});
+
+$app->delete('/admin/users/{id}', function ($id) {
+    return Admin::deleteUser($id);
+});
+
+$app->put('/admin/users/{id}', function ($id) {
+    return array('ID' =>$id);
+    // return Admin::updateUser($id);
 });
 
 $app->post('/admin/users/getedituserinfo', function () use ($app) {
