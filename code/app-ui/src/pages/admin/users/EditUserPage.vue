@@ -268,6 +268,7 @@ export default {
       console.log("=>(EditUserPage.vue) updateUser()");
     },
     async createUser() {
+      this.user.admin = this.user.roles.includes(1);
       if(!this.invalid) {
         const response = await services.admin().createUser(this.user);
         console.log(response);

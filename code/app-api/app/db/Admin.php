@@ -3,6 +3,7 @@
 namespace App\Db;
 
 use App\Library\Db\Db;
+use App\Library\Http\Exceptions\HttpBadRequestException;
 use App\Models\User;
 use App\Models\Module;
 use Error;
@@ -87,42 +88,40 @@ class Admin
 
     public static function createUser($data)
     {
-        $sql = "SELECT id FROM usuario.usuario WHERE usuario = :usuario";
-        $params = array("usuario" => $data->usuario);
-        $id = Db::fetchColumn($sql, $params);
-        if ($id) return 'El nombre de usuario ya se encuentra en uso.';
+            $sql = 'SELECT id FROM usuario.usuario WHERE usuario = :usuario';
+            $params = array("usuario" => $data->usuario);
+            $id = Db::fetchColumn($sql, $params);
+            if($id) throw new Exception('El nombre de usuario ya se encuentra en uso.');
 
+            $sql = 'INSERT INTO usuario.usuario (usuario, nombre, apepat, apemat, correo, admin, activo) VALUES (:usuario, :nombre, :apepat, :apemat, :correo, :admin, :activo)';
+            $params = array("usuario" => $data->usuario, "nombre" => $data->nombre, "apepat" => $data->apepat, "apemat" => $data->apemat, "correo"  => $data->correo, "admin" => $data->admin ? 't' : 'f', "activo" => $data->activo ? 't' : 'f');
+            Db::execute($sql, $params);
 
-        $sql = 'INSERT INTO usuario.usuario (usuario, nombre, apepat, apemat, correo, admin, activo) VALUES (:usuario, :nombre, :apepat, :apemat, :correo, :admin, :activo)';
-        $params = array("usuario" => $data->usuario, "nombre"  => $data->nombre, "apepat"  => $data->apepat, "apemat"  => $data->apemat, "correo"  => $data->correo, "admin"   => $data->admin ? 'true' : 'false', "activo"  => $data->activo ? 'true' : 'false');
-        Db::execute($sql, $params);
+            $sql = 'UPDATE usuario.usuario SET clave = encode(sha256(:pass),\'hex\') WHERE usuario = :user';
+            $params = array("pass" => $data->clave, "user" => $data->usuario);
+            Db::execute($sql, $params);
 
-        $sql = "UPDATE usuario.usuario SET clave = encode(sha256(:pass),'hex') WHERE usuario = :user";
-        $params = array("pass" => $data->clave, "user" => $data->usuario);
-        Db::execute($sql, $params);
+            $sql = 'SELECT id FROM usuario.usuario WHERE usuario = :usuario';
+            $params = array("usuario" => $data->usuario);
+            $idusuario = Db::fetchColumn($sql, $params);
 
-
-        $sql = "SELECT id FROM usuario.usuario WHERE usuario = :usuario";
-        $params = array("usuario" => $data->usuario);
-        $idusuario = Db::fetchColumn($sql, $params);
-
-        foreach($data->roles as $r) {
             $sql = 'INSERT INTO usuario.perfil_usuario (idusuario, idperfil) VALUES (:idusuario, :idperfil)';
-            $params = array('idusuario' => $idusuario, 'idperfil' => $r);
-            Db::execute($sql, $params);
-        }
-        
-        foreach($data->modulos as $m) {
-            $sql = 'INSERT INTO usuario.usuario_dominio_modulo (idusuario, iddominio, idmodulo) VALUES (:idusuario, :idperfil, :idmodulo)';
-            $params = array('idusuario' => $idusuario, 'iddominio' => 1, 'idmodulo' => $m);
-            Db::execute($sql, $params);
-        }
-        
-        foreach($data->permisos as $p) {
+            foreach ($data->roles as $r) {
+                $params = array('idusuario' => $idusuario, 'idperfil' => $r);
+                Db::execute($sql, $params);
+            }
+
+            $sql = 'INSERT INTO usuario.usuario_dominio_modulo (idusuario, iddominio, idmodulo) VALUES (:idusuario, :iddominio, :idmodulo)';
+            foreach ($data->modulos as $m) {
+                $params = array('idusuario' => $idusuario, 'iddominio' => 1, 'idmodulo' => $m);
+                Db::execute($sql, $params);
+            }
+
             $sql = 'INSERT INTO usuario.usuario_permiso (idusuario, idpermiso) VALUES (:idusuario, :idpermiso)';
-            $params = array('idusuario' => $idusuario, 'idpermiso' => $p);
-            Db::execute($sql, $params);
-        }
+            foreach ($data->permisos as $p) {
+                $params = array('idusuario' => $idusuario, 'idpermiso' => $p);
+                Db::execute($sql, $params);
+            }
     }
 
     public static function deleteUser($id)
