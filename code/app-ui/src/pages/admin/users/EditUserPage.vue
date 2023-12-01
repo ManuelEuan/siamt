@@ -5,7 +5,10 @@
         <v-card flat>
           <v-toolbar>
             <v-toolbar-title
-              >{{ isCreatingUser ? "Nuevo" : "Editar" }} Usuario</v-toolbar-title
+              >{{
+                isCreatingUser ? "Nuevo" : "Editar"
+              }}
+              Usuario</v-toolbar-title
             >
           </v-toolbar>
         </v-card>
@@ -60,7 +63,7 @@
                     <v-text-field
                       v-model="user.apemat"
                       label="Apellido Materno"
-                      hint="Este campo es opcional"
+                      :hint="hint.optional"
                       outlined
                       clearable
                       dense
@@ -71,8 +74,8 @@
                     <v-text-field
                       v-model="user.usuario"
                       label="Usuario*"
-                      hint="Se permiten: . _ - números y letras sin acentos ni espacios."
-                      :rules="[rules.required, rules.user]"
+                      :hint="hint.uUser"
+                      :rules="[rules.required, rules.user, rule.uUser]"
                       outlined
                       clearable
                       dense
@@ -87,11 +90,7 @@
                       label="Contraseña*"
                       :rules="[rules.required]"
                       :type="showPass ? 'text' : 'password'"
-                      :hint="
-                        isCreatingUser
-                          ? ''
-                          : 'Si se deja en blanco la contraseña actual no se afectará'
-                      "
+                      :hint="hint.uPass"
                       outlined
                       clearable
                       dense
@@ -103,8 +102,8 @@
                   <v-col cols="4">
                     <v-text-field
                       v-model="clave"
-                      label="Confirmar Contraseña"
-                      hint="Este campo es opcional"
+                      label="Confirmar Contraseña*"
+                      :rules="[rules.required, rule.pass]"
                       :append-icon="showPass2 ? 'mdi-eye' : 'mdi-eye-off'"
                       :type="showPass2 ? 'text' : 'password'"
                       outlined
@@ -118,7 +117,7 @@
                     <v-text-field
                       v-model="user.correo"
                       label="Correo Electrónico"
-                      hint="Este campo es opcional"
+                      :hint="hint.optional"
                       outlined
                       clearable
                       dense
@@ -174,12 +173,12 @@
               </v-expansion-panels>
             </v-tab-item>
             <v-card-actions>
-              <v-spacer />
+              <v-spacer></v-spacer>
               <v-btn color="error" text @click="exitWindow()"> Cerrar </v-btn>
               <v-btn
                 color="primary"
                 text
-                :disabled="invalid"
+                :disabled="!isValid"
                 @click="isCreatingUser ? createUser() : updateUser()"
               >
                 Guardar
@@ -193,7 +192,7 @@
 </template>
 
 <script>
-import rules from '@/core/rules.forms';
+import rules from "@/core/rules.forms";
 import services from "@/services";
 
 export default {
@@ -202,24 +201,48 @@ export default {
     isCreatingUser() {
       return !this.$route.params.id;
     },
-  },
-  async mounted() {
-    await this.getModules();
-    await this.getPermissions();
-    await this.getRoles();
-    if (!this.isCreatingUser) {
-      await this.isEditMode();
-    }
+    isSamePassword() {
+      return this.user.clave === this.clave;
+    },
+    isValid() {
+      if (!this.isCreatingUser && this.user.clave === "")
+        return !!this.user.nombre && !!this.user.apepat && !!this.user.usuario;
+
+      return (
+        !!this.user.nombre &&
+        !!this.user.apepat &&
+        !!this.user.usuario &&
+        !!this.user.clave &&
+        this.isSamePassword
+      );
+    },
+    rule() {
+      return {
+        pass: this.isSamePassword || "Las contraseñas no coinciden.",
+        uUser: this.created || "El nombre de usuario ya se encuentra en uso.",
+      };
+    },
+    hint() {
+      return {
+        uUser: "Se permiten: . _ - números y letras sin acentos ni espacios.",
+        uPass: this.isCreatingUser
+          ? ""
+          : "Si se deja en blanco la contraseña actual no se verá afectada.",
+        optional: "Este campo es opcional.",
+      };
+    },
   },
   data() {
     return {
-      invalid: true,
       principalTabs: 0,
       showPass: false,
       showPass2: false,
       permissions: [],
       roles: [],
       modules: [],
+      rules: rules,
+      clave: "",
+      created: true,
       user: {
         id: 0,
         usuario: "",
@@ -234,8 +257,6 @@ export default {
         roles: [],
         permisos: [],
       },
-      rules: rules,
-      clave: "",
     };
   },
   methods: {
@@ -243,52 +264,60 @@ export default {
       this.roles = await services.admin().getAllRoles();
     },
     async getModules() {
-      const res = await services.admin().getModules();
-      this.modules = res.data;
+      this.modules = await services.admin().getModules();
     },
     async getPermissions() {
-      const resp = await services.admin().getAllPermissions();
-      this.modules.forEach((module) => {
-        let modulo = {
-          nombre: module.nombre,
-          permisos: resp.filter((p) => p.idmodulo === module.id),
+      const res = await services.admin().getAllPermissions();
+      this.modules.forEach((mod) => {
+        const m = {
+          nombre: mod.nombre,
+          permisos: res.filter((p) => p.idmodulo === mod.id),
         };
-        this.permissions.push(modulo);
+        this.permissions.push(m);
       });
     },
     async isEditMode() {
-      let params = {
-        id: this.$route.params.id,
-      };
-      const response = await services.admin().getEditUserInfo(params);
-      this.user = response.usuario;
+      let params = { id: this.$route.params.id };
+      const res = await services.admin().getEditUserInfo(params);
+      this.user = res.usuario;
       this.user.clave = "";
     },
-    updateUser() {
+    setUserModules() {
+      const um = this.permissions
+        .flatMap((p) => p.permisos)
+        .filter((p) => this.user.permisos.includes(p.id))
+        .map((p) => p.idmodulo);
+
+      this.user.modulos = [...new Set(um)];
+      this.user.admin = this.user.roles.includes(1);
+    },
+    async updateUser() {
       console.log("=>(EditUserPage.vue) updateUser()");
     },
     async createUser() {
-      this.user.admin = this.user.roles.includes(1);
-      if(!this.invalid) {
-        const response = await services.admin().createUser(this.user);
-        console.log(response);
-        this.exitWindow();
-      }
+      if (!this.isValid) return;
+      this.setUserModules();
+
+      const res = await services.admin().createUser(this.user);
+      this.created = res.created;
+      if (this.created) this.exitWindow();
     },
     exitWindow() {
       this.$router.push("/users");
     },
   },
-  watch: {
-    user: {
-      handler(actualUser) {
-        const valids = [];
-        const requiredData = ['nombre', 'apepat', 'usuario', 'clave'];
-        requiredData.forEach(d => valids.push(!(actualUser[d]?.trim()?.length)));
-        this.invalid = !valids.every(valid => !valid);
-      },
-      deep: true
+  async mounted() {
+    await this.getModules();
+    await this.getPermissions();
+    await this.getRoles();
+    if (!this.isCreatingUser) {
+      await this.isEditMode();
     }
-  }
+  },
+  watch: {
+    ["user.usuario"]() {
+      this.created = true;
+    },
+  },
 };
 </script>

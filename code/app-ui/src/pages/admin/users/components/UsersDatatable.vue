@@ -17,7 +17,13 @@
       <template v-slot:[`item.actions`]="{ item }">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <v-icon small class="mr-2" v-bind="attrs" v-on="on" @click="viewUser(item)">
+            <v-icon
+              small
+              class="mr-2"
+              v-bind="attrs"
+              v-on="on"
+              @click="viewUser(item)"
+            >
               mdi-eye
             </v-icon>
           </template>
@@ -25,7 +31,13 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <v-icon small class="mr-2" v-bind="attrs" v-on="on" @click="editUser(item)">
+            <v-icon
+              small
+              class="mr-2"
+              v-bind="attrs"
+              v-on="on"
+              @click="editUser(item)"
+            >
               mdi-account-edit
             </v-icon>
           </template>
@@ -47,7 +59,9 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <v-icon small v-bind="attrs" class="mr-2" v-on="on"> mdi-pencil-lock </v-icon>
+            <v-icon small v-bind="attrs" class="mr-2" v-on="on">
+              mdi-pencil-lock
+            </v-icon>
           </template>
           <span>Cambiar contraseña</span>
         </v-tooltip>
@@ -60,15 +74,23 @@
       </template>
     </v-data-table>
 
-    <v-dialog transition="dialog-top-transition" max-width="600" v-model="deleteDialog">
+    <v-dialog
+      transition="dialog-top-transition"
+      max-width="600"
+      v-model="deleteDialog"
+    >
       <v-card>
-        <v-card-title class="text-h4">Confirmar Borrado</v-card-title>
+        <v-card-title class="text-h5">Confirmar Borrado</v-card-title>
         <v-card-text class="text-body-1">
-          ¿Estás seguro de que deseas borrar este usuario?
+          ¿Estás seguro de que deseas eliminar definitivamente este usuario?
         </v-card-text>
         <v-card-actions class="justify-end">
-          <v-btn class="text-button" @click="deleteDialog = false">Cancelar</v-btn>
-          <v-btn color="primary" class="text-button" @click="deleteUser">Borrar</v-btn>
+          <v-btn class="text-button" @click="deleteDialog = false"
+            >Cancelar</v-btn
+          >
+          <v-btn color="primary" class="text-button" @click="deleteUser"
+            >Borrar</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -147,12 +169,13 @@ export default {
       this.filters.currentPage = page;
       this.filters.itemsPerPage = itemsPerPage;
 
-      const result = await services.admin().getUsers(this.filters);
-      this.users = result.data;
-      this.numberOfPages = result.pages;
-      this.totalItems = result.total;
+      const res = await services.admin().getUsers(this.filters);
+      this.users = res.data;
+      this.numberOfPages = res.pages;
+      this.totalItems = res.total;
+
       if (sortBy.length === 1 && sortDesc.length === 1) {
-        this.users = result.data.sort((a, b) => {
+        this.users = res.data.sort((a, b) => {
           const sortA = a[sortBy[0]];
           const sortB = b[sortBy[0]];
 

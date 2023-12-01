@@ -22,11 +22,11 @@
 
 
 <script>
-import CopyLabel from '@/components/common/CopyLabel'
+// import CopyLabel from '@/components/common/CopyLabel'
 
 export default {
   components: {
-    CopyLabel
+    // CopyLabel
   },
   data() {
     return {

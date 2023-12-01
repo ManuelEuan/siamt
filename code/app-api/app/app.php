@@ -7,6 +7,8 @@ use App\Library\Misc\Utils;
 use App\Controllers\TerritoryController;
 use App\Controllers\LayersController;
 use App\Controllers\SurveyController;
+use App\Controllers\UsersController;
+
 
 $app->get('/domain/config', function () use ($app, $config) {
 
@@ -51,4 +53,31 @@ $app->get('/users', function () use ($app, $config) {
     return $data;
 });
 
-include 'routes/admin.php';
+$app->get('/admin/modules', function () {
+    $sql = "SELECT * FROM usuario.modulo WHERE activo = true";
+    $modules = \App\Library\Db\Db::fetchAll($sql);
+    return $modules;
+});
+
+$app->get('/admin/permissions', function () {
+    $sql = "SELECT * FROM usuario.permiso WHERE activo = true";
+    $permissions = \App\Library\Db\Db::fetchAll($sql);
+    return $permissions;
+});
+
+$app->get('/admin/groups', function () {
+    $sql = "SELECT * FROM usuario.perfil WHERE activo = true";
+    $profiles = \App\Library\Db\Db::fetchAll($sql);
+    return $profiles;
+});
+
+$app->mount(
+    (new Collection())
+        ->setHandler(UsersController::class, true)
+        ->setPrefix('/admin')
+        ->post("/users", "getUsers")
+        ->post('/users/new', 'createUser')
+        ->post('/users/getedituserinfo', 'getEditUserInfo')
+        ->put('/users', 'updateUser')
+        ->delete('/users/{id}', 'deleteUser')
+);
