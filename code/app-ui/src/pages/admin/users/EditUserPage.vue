@@ -110,6 +110,7 @@
                       clearable
                       dense
                       hide-details="auto"
+                      required
                       @click:append="showPass2 = !showPass2"
                     />
                   </v-col>
@@ -122,6 +123,22 @@
                       clearable
                       dense
                       hide-details="auto"
+                    />
+                  </v-col>
+                  <v-col>
+                    <v-select
+                      v-model="user.dominios"
+                      :items="domains"
+                      item-text="name"
+                      item-value="id"
+                      label="Dominio*"
+                      clearable
+                      outlined
+                      dense
+                      multiple
+                      chips
+                      hide-details="auto"
+                      required
                     />
                   </v-col>
                 </v-row>
@@ -179,7 +196,7 @@
                 color="primary"
                 text
                 :disabled="!isValid"
-                @click="isCreatingUser ? createUser() : updateUser()"
+                @click="saveUser()"
               >
                 Guardar
               </v-btn>
@@ -188,6 +205,10 @@
         </v-tabs-items>
       </v-col>
     </v-row>
+
+    <v-snackbar v-model="snackbar" timeout="-1" bottom right>
+      {{ message }}
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -205,7 +226,7 @@ export default {
       return this.user.clave === this.clave;
     },
     isValid() {
-      if (!this.isCreatingUser && this.user.clave === "")
+      if (!this.isCreatingUser && !this.user.clave)
         return !!this.user.nombre && !!this.user.apepat && !!this.user.usuario;
 
       return (
@@ -213,13 +234,15 @@ export default {
         !!this.user.apepat &&
         !!this.user.usuario &&
         !!this.user.clave &&
+        !!this.user.dominios.length &&
         this.isSamePassword
       );
     },
     rule() {
+      const msg = "El nombre de usuario ya se encuentra en uso.";
       return {
         pass: this.isSamePassword || "Las contraseñas no coinciden.",
-        uUser: this.created || "El nombre de usuario ya se encuentra en uso.",
+        uUser: !this.message.includes(msg, 30) || msg,
       };
     },
     hint() {
@@ -240,9 +263,12 @@ export default {
       permissions: [],
       roles: [],
       modules: [],
+      domains: [],
       rules: rules,
       clave: "",
-      created: true,
+      message: "",
+      snackbar: false,
+      success: false,
       user: {
         id: 0,
         usuario: "",
@@ -253,6 +279,7 @@ export default {
         correo: "",
         admin: false,
         activo: true,
+        dominios: [],
         modulos: [],
         roles: [],
         permisos: [],
@@ -260,6 +287,10 @@ export default {
     };
   },
   methods: {
+    async getDomains() {
+      const res = await services.admin().getDomains();
+      res.forEach((d) => this.domains.push({ id: d.id, name: d.nombre }));
+    },
     async getRoles() {
       this.roles = await services.admin().getAllRoles();
     },
@@ -276,7 +307,7 @@ export default {
         this.permissions.push(m);
       });
     },
-    async isEditMode() {
+    async setEditMode() {
       let params = { id: this.$route.params.id };
       const res = await services.admin().getEditUserInfo(params);
       this.user = res.usuario;
@@ -291,32 +322,44 @@ export default {
       this.user.modulos = [...new Set(um)];
       this.user.admin = this.user.roles.includes(1);
     },
-    async updateUser() {
-      console.log("=>(EditUserPage.vue) updateUser()");
-    },
-    async createUser() {
+    async saveUser() {
       if (!this.isValid) return;
+
       this.setUserModules();
 
-      const res = await services.admin().createUser(this.user);
-      this.created = res.created;
-      if (this.created) this.exitWindow();
+      const { success, message } = await (this.isCreatingUser
+        ? services.admin().createUser(this.user)
+        : services.admin().updateUser(this.user));
+
+      this.success = success;
+      this.message = message;
+      this.snackbar = true;
+
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          this.snackbar = false;
+          resolve();
+        }, 1300);
+      });
+
+      if (this.success) this.exitWindow();
     },
     exitWindow() {
       this.$router.push("/users");
     },
   },
   async mounted() {
+    await this.getDomains();
     await this.getModules();
     await this.getPermissions();
     await this.getRoles();
     if (!this.isCreatingUser) {
-      await this.isEditMode();
+      await this.setEditMode();
     }
   },
   watch: {
     ["user.usuario"]() {
-      this.created = true;
+      this.message = "";
     },
   },
 };

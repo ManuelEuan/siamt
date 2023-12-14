@@ -53,20 +53,26 @@ $app->get('/users', function () use ($app, $config) {
     return $data;
 });
 
+$app->get('/admin/domains', function () {
+    $sql = "SELECT * FROM usuario.dominio WHERE activo=true";
+    $domains = \App\Library\Db\Db::fetchAll($sql);
+    return $domains;
+});
+
 $app->get('/admin/modules', function () {
-    $sql = "SELECT * FROM usuario.modulo WHERE activo = true";
+    $sql = "SELECT * FROM usuario.modulo WHERE activo=true";
     $modules = \App\Library\Db\Db::fetchAll($sql);
     return $modules;
 });
 
 $app->get('/admin/permissions', function () {
-    $sql = "SELECT * FROM usuario.permiso WHERE activo = true";
+    $sql = "SELECT * FROM usuario.permiso WHERE activo=true";
     $permissions = \App\Library\Db\Db::fetchAll($sql);
     return $permissions;
 });
 
 $app->get('/admin/groups', function () {
-    $sql = "SELECT * FROM usuario.perfil WHERE activo = true";
+    $sql = "SELECT * FROM usuario.perfil WHERE activo=true";
     $profiles = \App\Library\Db\Db::fetchAll($sql);
     return $profiles;
 });

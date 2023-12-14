@@ -25,9 +25,5 @@ return new \Phalcon\Config([
     'app' => [
         'auditQueue' => getenv('RD_AUDIT_QUEUE'),
         'whitelistedApis' => array('GET:/domain/config')
-    ],
-
-    'dns' => [
-        'id' => getenv('DNS_ID')
     ]
 ]);

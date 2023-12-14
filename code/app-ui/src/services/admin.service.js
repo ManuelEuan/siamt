@@ -69,6 +69,11 @@ export default class AdminService extends ApiService {
     return await this.get("/groups");
   }
 
+  //Dominios
+  async getDomains() {
+    return await this.get("/domains");
+  }
+
   //Usuarios
   async getUsers(data) {
     return await this.post("/users", JSON.stringify(data));
