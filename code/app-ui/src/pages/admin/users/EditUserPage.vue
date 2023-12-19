@@ -310,8 +310,8 @@ export default {
     async setEditMode() {
       let params = { id: this.$route.params.id };
       const res = await services.admin().getEditUserInfo(params);
-      this.user = res.usuario;
-      this.user.clave = "";
+      const { fecha_creacion, fecha_modificacion, ...usuario } = res.usuario;
+      this.user = { ...usuario, clave: "" };
     },
     setUserModules() {
       const um = this.permissions

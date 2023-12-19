@@ -32,16 +32,15 @@ class UsersController extends BaseController
         $itemsPerPage = $data->itemsPerPage;
         $offset = ($currentPage - 1) * $itemsPerPage;
 
-        $sql = 'SELECT * FROM usuario.usuario LIMIT :items OFFSET :offset';
-        $params = array('items' => $itemsPerPage, 'offset' => $offset);
+        $sql = 'SELECT id, usuario, NULL AS clave, nombre, apepat, apemat, correo, admin, activo, fecha_creacion, fecha_modificacion FROM usuario.usuario ';
+        $params = null;
 
-        if ($itemsPerPage < 0) {
-            $sql = 'SELECT * FROM usuario.usuario';
-            $params = null;
+        if ($itemsPerPage > 0) {
+            $sql .= 'LIMIT :items OFFSET :offset';
+            $params = array('items' => $itemsPerPage, 'offset' => $offset);
         }
 
         $users = Db::fetchAll($sql, $params);
-
         $totalItems = User::count();
         $totalPages = ceil($totalItems / $itemsPerPage);
 
@@ -58,7 +57,7 @@ class UsersController extends BaseController
         $params = array('id' => $data->id, 'activo' => 't');
 
         //usuario
-        $sql = 'SELECT id, usuario, clave, nombre, apepat, apemat, correo, admin, activo FROM usuario.usuario WHERE id=:id AND activo=:activo';
+        $sql = 'SELECT id, usuario, NULL AS clave, nombre, apepat, apemat, correo, admin, activo, TO_CHAR(fecha_creacion, \'DD-MM-YYYY HH24:MI:SS\') AS fecha_creacion, TO_CHAR(fecha_modificacion, \'DD-MM-YYYY HH24:MI:SS\') AS fecha_modificacion FROM usuario.usuario WHERE id=:id AND activo=:activo';
         $user['usuario'] = Db::fetchAll($sql, $params)[0];
 
         //dominios

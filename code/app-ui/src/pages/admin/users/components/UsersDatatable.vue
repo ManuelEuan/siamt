@@ -50,7 +50,7 @@
               class="mr-2"
               v-bind="attrs"
               v-on="on"
-              @click="showDeleteDialog(item)"
+              @click="showDialog('delete', item)"
             >
               mdi-trash-can
             </v-icon>
@@ -77,20 +77,85 @@
     <v-dialog
       transition="dialog-top-transition"
       max-width="600"
-      v-model="deleteDialog"
+      v-model="dialog.flag"
     >
-      <v-card>
-        <v-card-title class="text-h5">Confirmar Borrado</v-card-title>
+      <v-card v-if="dialog.type === 'delete'">
+        <v-card-title class="text-h5"> Confirmar Borrado </v-card-title>
         <v-card-text class="text-body-1">
           ¿Estás seguro de que deseas eliminar definitivamente este usuario?
         </v-card-text>
         <v-card-actions class="justify-end">
-          <v-btn class="text-button" @click="deleteDialog = false"
-            >Cancelar</v-btn
+          <v-btn class="text-button" @click="dialog.flag = false">
+            Cancelar
+          </v-btn>
+          <v-btn color="primary" class="text-button" @click="deleteUser">
+            Borrar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+
+      <v-card v-else>
+        <v-card-title class="text-uppercase primary--text">
+          Ver Usuario
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-card-text>
+          <v-list>
+            <v-container class="pa-0 ma-0">
+              <v-row dense>
+                <template v-for="(value, key, index) in user">
+                  <v-col v-if="!userChips.includes(key)" cols="6" :key="index">
+                    <v-list-item>
+                      <v-list-item-content>
+                        <v-list-item-title class="text-capitalize">
+                          {{ userHeaders[key] ?? key }}
+                        </v-list-item-title>
+                        <v-list-item-subtitle class="text-lowercase">
+                          {{ value }}
+                        </v-list-item-subtitle>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-col>
+                </template>
+              </v-row>
+            </v-container>
+          </v-list>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-text>
+          <v-list>
+            <v-container class="pa-0 ma-0">
+              <v-row dense>
+                <template v-for="(value, key, index) in user">
+                  <v-col v-if="userChips.includes(key)" cols="12" :key="index">
+                    <v-list-item>
+                      <v-list-item-content>
+                        <v-list-item-title class="text-capitalize">
+                          {{ userHeaders[key] ?? key }}
+                        </v-list-item-title>
+                        <v-list-item-subtitle>
+                          <v-chip
+                            v-for="(v, i) in value"
+                            :key="i"
+                            v-text="v"
+                          ></v-chip>
+                        </v-list-item-subtitle>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-col>
+                </template>
+              </v-row>
+            </v-container>
+          </v-list>
+        </v-card-text>
+        <v-card-actions class="justify-end">
+          <v-btn
+            color="primary"
+            class="text-button"
+            @click="dialog.flag = false"
           >
-          <v-btn color="primary" class="text-button" @click="deleteUser"
-            >Borrar</v-btn
-          >
+            Cerrar
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -114,6 +179,14 @@ export default {
   },
   data() {
     return {
+      user: {},
+      userHeaders: {
+        apepat: "apellido paterno",
+        apemat: "apellido materno",
+        fecha_creacion: "fecha de creacion",
+        fecha_modificacion: "fecha de modificación",
+      },
+      userChips: ["dominios", "modulos", "roles", "permisos"],
       users: [],
       filters: {},
       page: 1,
@@ -156,7 +229,10 @@ export default {
           width: "196px",
         },
       ],
-      deleteDialog: false,
+      dialog: {
+        type: "",
+        flag: false,
+      },
       deleteTarget: {
         id: null,
         nickname: null,
@@ -193,24 +269,51 @@ export default {
       this.loadingTable = false;
     },
 
-    viewUser(user) {
-      console.log(user);
+    async viewUser(user) {
+      const params = { id: user.id };
+      const { usuario } = await services.admin().getEditUserInfo(params);
+      let { dominios, modulos, roles, permisos, ...data } = usuario;
+
+      for (const key in data) {
+        if (!data[key]) delete data[key];
+      }
+
+      const domains = await services.admin().getDomains();
+      const modules = await services.admin().getModules();
+      const profiles = await services.admin().getAllRoles();
+      const permissions = await services.admin().getAllPermissions();
+
+      const getNamesById = (objs, ids) => {
+        return objs.filter((o) => ids.includes(o.id)).map((o) => o.nombre);
+      };
+
+      dominios = getNamesById(domains, dominios);
+      modulos = getNamesById(modules, modulos);
+      roles = getNamesById(profiles, roles);
+      permisos = getNamesById(permissions, permisos);
+
+      this.user = { ...data };
+      if (dominios.length > 0) this.user.dominios = dominios;
+      if (modulos.length > 0) this.user.modulos = modulos;
+      if (roles.length > 0) this.user.roles = roles;
+      if (permisos.length > 0) this.user.permisos = permisos;
+
+      this.showDialog("view");
     },
     editUser(user) {
       this.$router.push("/users/" + user.id + "/edit");
     },
-    showDeleteDialog(user) {
+    showDialog(type, user = {}) {
+      this.dialog.type = type;
       this.deleteTarget.id = user.id;
       this.deleteTarget.nickname = user.usuario;
-      this.deleteDialog = true;
+      this.dialog.flag = true;
     },
     async deleteUser() {
       await services.admin().deleteUser(this.deleteTarget.id);
       this.loadUsersTable();
-      this.deleteDialog = false;
+      this.dialog.flag = false;
     },
   },
 };
 </script>
-
-<style scoped></style>
