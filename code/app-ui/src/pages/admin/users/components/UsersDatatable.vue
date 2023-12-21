@@ -17,13 +17,7 @@
       <template v-slot:[`item.actions`]="{ item }">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <v-icon
-              small
-              class="mr-2"
-              v-bind="attrs"
-              v-on="on"
-              @click="viewUser(item)"
-            >
+            <v-icon small class="mr-2" v-bind="attrs" v-on="on" @click="viewUser(item)">
               mdi-eye
             </v-icon>
           </template>
@@ -31,13 +25,7 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <v-icon
-              small
-              class="mr-2"
-              v-bind="attrs"
-              v-on="on"
-              @click="editUser(item)"
-            >
+            <v-icon small class="mr-2" v-bind="attrs" v-on="on" @click="editUser(item)">
               mdi-account-edit
             </v-icon>
           </template>
@@ -45,13 +33,7 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <v-icon
-              small
-              class="mr-2"
-              v-bind="attrs"
-              v-on="on"
-              @click="showDialog('delete', item)"
-            >
+            <v-icon small class="mr-2" v-bind="attrs" v-on="on" @click="deleteUser(item)">
               mdi-trash-can
             </v-icon>
           </template>
@@ -59,58 +41,58 @@
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <v-icon small v-bind="attrs" class="mr-2" v-on="on">
+            <v-icon small class="mr-2" v-bind="attrs" v-on="on" @click="changeUserPass(item)">
               mdi-pencil-lock
             </v-icon>
           </template>
-          <span>Cambiar contraseña</span>
+          <span>Cambiar contrase&ntilde;a</span>
         </v-tooltip>
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <v-icon small v-bind="attrs" v-on="on"> mdi-lock-reset </v-icon>
+            <v-icon small class="mr-2" v-bind="attrs" v-on="on" @click="resetUserPass(item)">
+              mdi-lock-reset
+            </v-icon>
           </template>
-          <span>Restablecer contraseña</span>
+          <span>Restablecer contrase&ntilde;a</span>
         </v-tooltip>
       </template>
     </v-data-table>
 
-    <v-dialog
-      transition="dialog-top-transition"
-      max-width="600"
-      v-model="dialog.flag"
-    >
-      <v-card v-if="dialog.type === 'delete'">
-        <v-card-title class="text-h5"> Confirmar Borrado </v-card-title>
-        <v-card-text class="text-body-1">
-          ¿Estás seguro de que deseas eliminar definitivamente este usuario?
-        </v-card-text>
-        <v-card-actions class="justify-end">
-          <v-btn class="text-button" @click="dialog.flag = false">
-            Cancelar
-          </v-btn>
-          <v-btn color="primary" class="text-button" @click="deleteUser">
-            Borrar
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-
-      <v-card v-else>
-        <v-card-title class="text-uppercase primary--text">
-          Ver Usuario
+    <v-dialog transition="dialog-top-transition" max-width="600" v-model="dialogs.delete">
+      <v-card>
+        <v-card-title class="text-uppercase primary--text text-h6 py-2">
+          borrar usuario
         </v-card-title>
         <v-divider></v-divider>
-        <v-card-text>
-          <v-list>
+        <v-card-text class="text-lowercase text-body-1 py-2">
+          ¿est&aacute;s seguro de que deseas eliminar definitivamente este usuario?
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions class="justify-end py-2">
+          <v-btn class="text-button" @click="dialogs.delete = false" outlined text>
+            cancelar
+          </v-btn>
+          <v-btn class="text-button" color="primary" @click="deleteUser"> borrar </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog transition="dialog-top-transition" max-width="600" v-model="dialogs.view">
+      <v-card>
+        <v-card-title class="text-uppercase primary--text text-h6 py-2"> ver usuario </v-card-title>
+        <v-divider></v-divider>
+        <v-card-text class="py-0 my-0">
+          <v-list class="pa-0 ma-0">
             <v-container class="pa-0 ma-0">
               <v-row dense>
                 <template v-for="(value, key, index) in user">
-                  <v-col v-if="!userChips.includes(key)" cols="6" :key="index">
+                  <v-col v-if="!userChips.includes(key)" class="pa-0 ma-0" cols="6" :key="index">
                     <v-list-item>
-                      <v-list-item-content>
-                        <v-list-item-title class="text-capitalize">
+                      <v-list-item-content class="py-2">
+                        <v-list-item-title class="text-capitalize text-h7">
                           {{ userHeaders[key] ?? key }}
                         </v-list-item-title>
-                        <v-list-item-subtitle class="text-lowercase">
+                        <v-list-item-subtitle class="text-lowercase text-body-1">
                           {{ value }}
                         </v-list-item-subtitle>
                       </v-list-item-content>
@@ -122,23 +104,19 @@
           </v-list>
         </v-card-text>
         <v-divider></v-divider>
-        <v-card-text>
-          <v-list>
+        <v-card-text class="py-0 my-0">
+          <v-list class="pa-0 ma-0">
             <v-container class="pa-0 ma-0">
               <v-row dense>
                 <template v-for="(value, key, index) in user">
-                  <v-col v-if="userChips.includes(key)" cols="12" :key="index">
+                  <v-col v-if="userChips.includes(key)" class="pa-0 ma-0" cols="12" :key="index">
                     <v-list-item>
-                      <v-list-item-content>
-                        <v-list-item-title class="text-capitalize">
+                      <v-list-item-content class="py-2">
+                        <v-list-item-title class="text-capitalize text-h7">
                           {{ userHeaders[key] ?? key }}
                         </v-list-item-title>
-                        <v-list-item-subtitle>
-                          <v-chip
-                            v-for="(v, i) in value"
-                            :key="i"
-                            v-text="v"
-                          ></v-chip>
+                        <v-list-item-subtitle class="text-lowercase text-body-1">
+                          <v-chip v-for="(v, i) in value" :key="i" v-text="v"></v-chip>
                         </v-list-item-subtitle>
                       </v-list-item-content>
                     </v-list-item>
@@ -148,14 +126,73 @@
             </v-container>
           </v-list>
         </v-card-text>
-        <v-card-actions class="justify-end">
-          <v-btn
-            color="primary"
-            class="text-button"
-            @click="dialog.flag = false"
-          >
-            Cerrar
+        <v-divider></v-divider>
+        <v-card-actions class="justify-end py-2">
+          <v-btn color="primary" class="text-button" @click="dialogs.view = false"> cerrar </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog transition="dialog-top-transition" max-width="600" v-model="dialogs.change">
+      <v-card>
+        <v-card-title class="text-uppercase primary--text text-h6 py-2">
+          cambiar contrase&ntilde;a
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-card-text class="text-lowercase text-body-1 py-2">
+          <v-list class="pa-0 ma-0">
+            <v-container class="pa-0 ma-0">
+              <v-row dense>
+                <v-col class="pa-0 ma-0 pb-2" cols="12">
+                  <v-text-field
+                    v-model="user.clave"
+                    label="Contraseña*"
+                    hide-details="auto"
+                    clearable
+                    dense
+                    outlined
+                    required
+                  />
+                </v-col>
+                <v-col class="pa-0 ma-0" cols="12">
+                  <v-text-field
+                    v-model="clave"
+                    label="Confirmar contraseña*"
+                    :error-messages="errorMessages.pass"
+                    hide-details="auto"
+                    clearable
+                    dense
+                    outlined
+                    required
+                  />
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-list>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions class="justify-end py-2">
+          <v-btn class="text-button" @click="closeChangePass" outlined text> cancelar </v-btn>
+          <v-btn :disabled="!isValid" class="text-button" color="primary" @click="changeUserPass">
+            cambiar
           </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog transition="dialog-top-transition" max-width="600" v-model="dialogs.reset">
+      <v-card>
+        <v-card-title class="text-uppercase primary--text text-h6 py-2">
+          restablecer contrase&ntilde;a
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-card-text class="text-lowercase text-body-1 py-2">
+          ¿esta seguro que desea restablecer la contrase&ntilde;a?
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions class="justify-end py-2">
+          <v-btn class="text-button" @click="dialogs.reset = false" outlined text> cancelar </v-btn>
+          <v-btn class="text-button" color="primary" @click="resetUserPass"> restablecer </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -167,16 +204,6 @@ import services from "@/services";
 
 export default {
   name: "UsersDatatable",
-  computed: {},
-  created() {},
-  watch: {
-    options: {
-      handler() {
-        this.loadUsersTable();
-      },
-      deep: true,
-    },
-  },
   data() {
     return {
       user: {},
@@ -197,6 +224,7 @@ export default {
       sortDesc: false,
       numberOfPages: 0,
       itemsPerPage: 10,
+      clave: null,
       headers: [
         {
           text: "Usuario",
@@ -229,15 +257,26 @@ export default {
           width: "196px",
         },
       ],
-      dialog: {
-        type: "",
-        flag: false,
-      },
-      deleteTarget: {
-        id: null,
-        nickname: null,
+      dialogs: {
+        delete: false,
+        view: false,
+        change: false,
+        reset: false,
       },
     };
+  },
+  computed: {
+    isSamePass() {
+      return this.user.clave === this.clave;
+    },
+    isValid() {
+      return !!this.clave && !!this.user.clave && this.isSamePass;
+    },
+    errorMessages() {
+      return {
+        pass: this.isSamePass ? "" : "Las contraseñas no coinciden.",
+      };
+    },
   },
   methods: {
     async loadUsersTable() {
@@ -268,7 +307,6 @@ export default {
       }
       this.loadingTable = false;
     },
-
     async viewUser(user) {
       const params = { id: user.id };
       const { usuario } = await services.admin().getEditUserInfo(params);
@@ -298,21 +336,57 @@ export default {
       if (roles.length > 0) this.user.roles = roles;
       if (permisos.length > 0) this.user.permisos = permisos;
 
-      this.showDialog("view");
+      this.dialogs.view = true;
     },
     editUser(user) {
       this.$router.push("/users/" + user.id + "/edit");
     },
-    showDialog(type, user = {}) {
-      this.dialog.type = type;
-      this.deleteTarget.id = user.id;
-      this.deleteTarget.nickname = user.usuario;
-      this.dialog.flag = true;
+    async deleteUser(user) {
+      if (!user.id) {
+        await services.admin().deleteUser(this.user.id);
+        this.loadUsersTable();
+        this.dialogs.delete = false;
+        return;
+      }
+
+      this.user = user;
+      this.dialogs.delete = true;
     },
-    async deleteUser() {
-      await services.admin().deleteUser(this.deleteTarget.id);
-      this.loadUsersTable();
-      this.dialog.flag = false;
+    async changeUserPass(user) {
+      if (!user.id) {
+        if (!this.isValid) return;
+        const { id, clave } = this.user;
+        await services.admin().changeUserPass({ id, clave });
+        this.closeChangePass();
+        return;
+      }
+
+      this.user = user;
+      this.dialogs.change = true;
+    },
+    async resetUserPass(user) {
+      if (!user.id) {
+        const { id } = this.user;
+        await services.admin().resetUserPass({ id });
+        this.dialogs.reset = false;
+        return;
+      }
+
+      this.user = user;
+      this.dialogs.reset = true;
+    },
+    closeChangePass() {
+      this.dialogs.change = false;
+      this.clave = null;
+      this.user.clave = null;
+    },
+  },
+  watch: {
+    options: {
+      handler() {
+        this.loadUsersTable();
+      },
+      deep: true,
     },
   },
 };

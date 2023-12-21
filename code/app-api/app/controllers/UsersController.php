@@ -191,6 +191,47 @@ class UsersController extends BaseController
         }
     }
 
+    public function resetUserPass()
+    {
+        try {
+            $data = $this->request->getJsonRawBody();
+            Db::begin();
+
+            $sql = 'SELECT usuario FROM usuario.usuario WHERE id=:id';
+            $params = array('id' => $data->id);
+            $username = Db::fetchColumn($sql, $params);
+            if (!$username) throw new \Exception('recabar el nombre de usuario.');
+
+            $sql = 'UPDATE usuario.usuario SET clave=encode(sha256(:clave),\'hex\') WHERE id=:id';
+            $params = array('id' => $data->id, 'clave' => $username);
+            if (!Db::execute($sql, $params)) throw new \Exception('restablecer la contraseña.');
+
+            Db::commit();
+            return array('success' => true, 'message' => 'La contraseña a sido restablecida');
+        } catch (\Exception $e) {
+            $msg = 'Error al ' . $e->getMessage();
+            return array('success' => false, 'message' => $msg);
+        }
+    }
+
+    public function changeUserPass()
+    {
+        try {
+            $data = $this->request->getJsonRawBody();
+            Db::begin();
+
+            $sql = 'UPDATE usuario.usuario SET clave=encode(sha256(:clave),\'hex\') WHERE id=:id';
+            $params = array('id' => $data->id, 'clave' => $data->clave);
+            if (!Db::execute($sql, $params)) throw new \Exception('cambiar la contraseña.');
+
+            Db::commit();
+            return array('success' => true, 'message' => 'La contraseña a sido modificada');
+        } catch (\Exception $e) {
+            $msg = 'Error al ' . $e->getMessage();
+            return array('success' => false, 'message' => $msg);
+        }
+    }
+
     private function isUsernameInUse($username)
     {
         $sql = 'SELECT id FROM usuario.usuario WHERE usuario=:usuario';
@@ -207,8 +248,9 @@ class UsersController extends BaseController
 
     private function insert($table, $params)
     {
-        $cols = implode(', ', array_keys($params)); // table columns
-        $phs = ':' . str_replace(', ', ', :', $cols); // params place holders
+        $cols = implode(', ', array_keys($params));
+        $phs = ':' . str_replace(', ', ', :', $cols);
+        $phs = str_replace(':clave', 'encode(sha256(:clave),\'hex\')', $phs);
 
         $sql = "INSERT INTO usuario.$table ($cols) VALUES ($phs)";
         if (!Db::execute($sql, $params)) throw new \Exception("Error durante registro en $table");
@@ -223,8 +265,8 @@ class UsersController extends BaseController
 
     private function activate($table, $params)
     {
-        $cols = implode(', ', array_keys($params)); // table columns
-        $phs = ':' . str_replace(', ', ', :', $cols); // params place holders
+        $cols = implode(', ', array_keys($params));
+        $phs = ':' . str_replace(', ', ', :', $cols);
 
         $sql = "SELECT * FROM usuario.$table WHERE ($cols) IN (($phs))";
         $exist = Db::fetchOne($sql, $params);

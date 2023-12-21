@@ -85,5 +85,7 @@ $app->mount(
         ->post('/users/new', 'createUser')
         ->post('/users/getedituserinfo', 'getEditUserInfo')
         ->put('/users', 'updateUser')
+        ->put('/users/reset', 'resetUserPass')
+        ->put('/users/change', 'changeUserPass')
         ->delete('/users/{id}', 'deleteUser')
 );
