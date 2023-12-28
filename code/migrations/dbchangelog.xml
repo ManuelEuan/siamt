@@ -3,5 +3,7 @@
 
 	<include file="changes/javp-1.sql"/>
 	<include file="changes/javp-2.sql"/>
+	<include file="changes/aicf-1.sql"/>
+	<include file="changes/aicf-2.sql"/>
 
 </databaseChangeLog>

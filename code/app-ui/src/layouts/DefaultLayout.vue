@@ -164,21 +164,24 @@ export default {
     },
     transformModulesConfig(nav){
       console.log("🚀 ~ file: DefaultLayout.vue ~ line 165 ~ transformModulesConfig ~ nav", nav)
-      nav.forEach((e) => {
-        if(e.code){
-          let r = this.$router.getRoutes().find(r => r.meta.code == e.code);
-          if(r) e.link = r.path;
-        } else if (e.items){
-          this.transformModulesConfig(e.items);
-        }
-      })
+      if(Array.isArray(nav))
+      {
+        nav.forEach((e) => {
+          if (e.code) {
+            let r = this.$router.getRoutes().find(r => r.meta.code == e.code);
+            if (r) e.link = r.path;
+          } else if (e.items) {
+            this.transformModulesConfig(e.items);
+          }
+        })
+      }
     },
     async loadModules() {
       //this.navigation = 
       let nav = await services.app().getModulesConfig();  
       console.log("🚀 ~ file: DefaultLayout.vue ~ line 178 ~ loadModules ~ nav", nav)
       this.transformModulesConfig(nav);
-      this.navigation = nav;
+      this.navigation = Array.isArray(nav) ? nav: [];
     }
   },
   created() {
