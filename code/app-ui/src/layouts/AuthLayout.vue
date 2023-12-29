@@ -29,8 +29,23 @@ export default {
 }
 
 .strip-background {
-  background-image: url(@/assets/images/strip-pattern.png);
-  background-size: cover;
-  height: 100%;
+  background-image: url(@/assets/images/strip-pattern.png) !important;
+  background: linear-gradient(-45deg, #fff, #fff, #fff, #fff);
+  background-size: 400% 400%;
+  animation: gradient 18s ease infinite;
+
 }
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 </style>

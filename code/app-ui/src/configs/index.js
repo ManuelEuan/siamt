@@ -13,8 +13,8 @@ import geoserver from './geoserver';
 export default {
   // product display information
   product: {
-    name: 'Plataforma',
-    version: '2.0.0',
+    name: 'ATY',
+    version: '1.0.0',
     
   },
   

@@ -1,7 +1,8 @@
 <!-- eslint-disable no-unused-vars -->
 <template>
   <div>
-    <v-card class="text-center pa-1">
+    <v-card class="text-center pa-2">
+      <img :src="require('@/assets/images/Logo-oficial-ATY.svg')" alt="" width="70%" class="img-fluid d-inline-block align-text-top">
       <v-card-title class="justify-center display-1 mb-2">Iniciar sesión</v-card-title>
       <v-card-subtitle>Por favor ingresa tus credenciales para continuar</v-card-subtitle>
 
@@ -157,3 +158,9 @@ export default {
   }
 }
 </script>
+
+<style>
+:root {
+  --v-primary-base: #59AF31;
+}
+</style>

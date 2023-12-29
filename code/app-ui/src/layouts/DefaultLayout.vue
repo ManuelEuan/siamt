@@ -18,9 +18,12 @@
     >
       <!-- Navigation menu info -->
       <template v-slot:prepend>
-        <div class="pa-2">
-          <div class="title font-weight-bold text-uppercase primary--text">{{ product.name }}</div>
-          <div class="overline grey--text">{{ product.version }}</div>
+        <div class="pa-2 text-center">
+          <a href="/">
+            <img src="images/logo-ATY.svg" alt="" id="logo-nav" class="d-inline-block align-text-top text-center" height="40px">
+          </a>
+<!--          <div class="title font-weight-bold text-uppercase text-center primary&#45;&#45;text">{{ product.name }}</div>-->
+          <div class="overline grey--text text-center">{{ product.version }}</div>
         </div>
       </template>
 
@@ -189,9 +192,14 @@ export default {
   }
 }
 </script>
-
+<style>
+:root {
+  --v-primary-base: #59AF31 !important;
+}
+</style>
 <style scoped>
 .buy-button {
   box-shadow: 1px 1px 18px #ee44aa;
 }
+
 </style>
