@@ -63,6 +63,9 @@ export default {
   setUsuarios(state,usuarios) {
     state.usuarios = usuarios;
   },
+  setUsuariosFiltrados(state,usuariosFiltrados) {
+    state.usuariosFiltrados = usuariosFiltrados;
+  },
   setTotalUsuarios(state,totalUsuarios) {
     state.totalUsuarios = totalUsuarios
   },

@@ -1,5 +1,7 @@
 export default {
 	required: v => !!v || 'Requerido.',
+  min5char: v => !v || v.length >= 5 || 'Mínimo 5 caracteres.',
+  min8char: v => !v || v.length >= 8 || 'Mínimo 8 caracteres.',
 	max3chars: v => !v || (v && v.length <= 3) || 'Máximo 3 caracteres.',
 	max13chars: v => !v || (v && v.length <= 13) || 'Máximo 13 caracteres.',
 	max18chars: v => !v || (v && v.length <= 18) || 'Máximo 18 caracteres.',
@@ -22,6 +24,6 @@ export default {
 	},
 	user: v => {
 		const regex = /^[-.\w]+$/g;
-		return regex.test(v) || 'Solo se permiten: . _ - y números y letras sin acentos ni espacios.';
+		return regex.test(v) || 'El usuario contiene caracteres no admitidos.';
 	},
 };

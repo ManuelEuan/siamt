@@ -35,6 +35,7 @@ const state = {
 
   //Para usuarios
   usuarios : [],
+  usuariosFiltrados : [],
   totalUsuarios : 0,
   paginaActual : 1,
   porPagina : 10,

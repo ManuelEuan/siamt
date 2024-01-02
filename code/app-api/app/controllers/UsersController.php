@@ -1,6 +1,6 @@
 <?php
 
-namespace app\controllers;
+namespace App\Controllers;
 
 use Phalcon\Registry;
 
@@ -54,11 +54,13 @@ class UsersController extends BaseController
     public function getEditUserInfo()
     {
         $data = $this->request->getJsonRawBody();
-        $params = array('id' => $data->id, 'activo' => 't');
 
         //usuario
-        $sql = 'SELECT id, usuario, NULL AS clave, nombre, apepat, apemat, correo, admin, activo, TO_CHAR(fecha_creacion, \'DD-MM-YYYY HH24:MI:SS\') AS fecha_creacion, TO_CHAR(fecha_modificacion, \'DD-MM-YYYY HH24:MI:SS\') AS fecha_modificacion FROM usuario.usuario WHERE id=:id AND activo=:activo';
+        $sql = 'SELECT id, usuario, NULL AS clave, nombre, apepat, apemat, correo, admin, activo, TO_CHAR(fecha_creacion, \'DD-MM-YYYY HH24:MI:SS\') AS fecha_creacion, TO_CHAR(fecha_modificacion, \'DD-MM-YYYY HH24:MI:SS\') AS fecha_modificacion FROM usuario.usuario WHERE id=:id';
+        $params = array('id' => $data->id);
         $user['usuario'] = Db::fetchAll($sql, $params)[0];
+
+        $params = array('id' => $data->id, 'activo' => 't');
 
         //dominios
         $sql = 'SELECT iddominio FROM usuario.usuario_dominio WHERE idusuario=:id AND activo=:activo';
@@ -90,15 +92,16 @@ class UsersController extends BaseController
 
             Db::begin();
 
-            if ($this->isUsernameInUse($data->usuario)) throw new \Exception('El nombre de usuario ya se encuentra en uso.');
+            $id = $this->isUsernameInUse($data->usuario);
+            if ($id) throw new \Exception('El usuario ya se encuentra en uso.');
 
             $params = array(
                 'usuario' => $data->usuario,
-                'clave'   => $data->clave,
+                'clave'   => $data->usuario,
                 'nombre'  => $data->nombre,
                 'apepat'  => $data->apepat,
                 'apemat'  => empty($data->apemat) ? null : $data->apemat,
-                'correo'  => empty($data->apemat) ? null : $data->correo,
+                'correo'  => empty($data->correo) ? null : $data->correo,
                 'admin'   => $data->admin ? 't' : 'f',
                 'activo'  => $data->activo ? 't' : 'f'
             );
@@ -109,11 +112,17 @@ class UsersController extends BaseController
             $this->processUserAssociations($data, 'insert');
 
             Db::commit();
-            return array('success' => true, 'message' => 'El usuario ha sido creado.');
+            return array(
+                'success' => true,
+                'message' => 'El usuario ha sido creado.'
+            );
         } catch (\Exception $e) {
             Db::rollback();
-            $msg = 'No fue posible crear el usuario. ' . $e->getMessage();
-            return array('success' => false, 'message' => $msg);
+            return array(
+                'success' => false,
+                'message' => 'No fue posible crear el usuario.',
+                'error' => $e->getMessage()
+            );
         }
     }
 
@@ -124,18 +133,26 @@ class UsersController extends BaseController
 
             Db::begin();
 
-            if ($this->isUsernameChanged($data->usuario, $data->id) && $this->isUsernameInUse($data->usuario))
-                throw new \Exception('El nombre de usuario ya se encuentra en uso.');
+            if ($this->isUsernameChanged($data->usuario, $data->id)) {
+                if ($this->isUsernameInUse($data->usuario)) {
+                    throw new \Exception('El usuario ya se encuentra en uso.');
+                }
+            }
 
             $sql = '
                 UPDATE usuario.usuario 
-                SET usuario=:usuario, clave=encode(sha256(:clave),\'hex\'), nombre=:nombre, apepat=:apepat, apemat=:apemat, correo=:correo, admin=:admin, activo=:activo
+                SET usuario=:usuario, 
+                    nombre=:nombre, 
+                    apepat=:apepat, 
+                    apemat=:apemat, 
+                    correo=:correo, 
+                    admin=:admin, 
+                    activo=:activo
                 WHERE id=:id
             ';
 
             $params = array(
                 'usuario' => $data->usuario,
-                'clave'   => $data->clave,
                 'nombre'  => $data->nombre,
                 'apepat'  => $data->apepat,
                 'apemat'  => empty($data->apemat) ? null : $data->apemat,
@@ -145,16 +162,7 @@ class UsersController extends BaseController
                 'id'      => $data->id
             );
 
-            if (!$data->clave) {
-                unset($params['clave']);
-                $sql = '
-                    UPDATE usuario.usuario 
-                    SET usuario=:usuario, nombre=:nombre, apepat=:apepat, apemat=:apemat, correo=:correo, admin=:admin, activo=:activo
-                    WHERE id=:id
-                ';
-            }
-
-            if (!Db::execute($sql, $params)) throw new \Exception('Error durante registro.');
+            Db::execute($sql, $params);
 
             foreach ($this->tables as $t) {
                 if ($t === 'usuario' || $t === 'usuario_dominio_configuracion') continue;
@@ -164,11 +172,17 @@ class UsersController extends BaseController
             $this->processUserAssociations($data, 'activate');
 
             Db::commit();
-            return array('success' => true, 'message' => 'El usuario ha sido actualizado.');
+            return array(
+                'success' => true,
+                'message' => 'El usuario ha sido actualizado.'
+            );
         } catch (\Exception $e) {
             Db::rollback();
-            $msg = 'No fue posible actualizar el usuario. ' . $e->getMessage();
-            return array('success' => false, 'message' => $msg);
+            return array(
+                'success' => false,
+                'message' => 'No fue posible actualizar el usuario.',
+                'error' => $e->getMessage()
+            );
         }
     }
 
@@ -177,17 +191,28 @@ class UsersController extends BaseController
         try {
             Db::begin();
 
+            $sql = "SELECT activo FROM usuario.usuario WHERE id=:id";
             $params = array('id' => $id);
-            foreach ($this->tables as $t) {
-                $sql = "DELETE FROM usuario.$t WHERE " . ($t === 'usuario' ? 'id' : 'idusuario') . '=:id';
-                if (!Db::execute($sql, $params)) throw new \Exception("Error de borrado en $t");
-            }
+            $active = Db::fetchColumn($sql, $params);
+
+            $sql = "UPDATE usuario.usuario SET activo=:activo WHERE id=:id";
+            $params = array('activo' => $active ? 'f' : 't', 'id' => $id);
+            Db::execute($sql, $params);
 
             Db::commit();
-            return array('success' => true, 'message' => 'El usuario ha sido borrado.');
+            $msg = $active ? 'desactivado' : 'activado';
+            return array(
+                'success' => true,
+                'message' => "El usuario ha sido $msg."
+            );
         } catch (\Exception $e) {
-            $msg = 'No fue posible borrar el usuario. ' . $e->getMessage();
-            return array('success' => false, 'message' => $msg);
+            Db::rollback();
+            $msg = $active ? 'desactivar' : 'activar';
+            return array(
+                'success' => false,
+                'message' => "No fue posible $msg el usuario.",
+                'error' => $e->getMessage()
+            );
         }
     }
 
@@ -200,17 +225,23 @@ class UsersController extends BaseController
             $sql = 'SELECT usuario FROM usuario.usuario WHERE id=:id';
             $params = array('id' => $data->id);
             $username = Db::fetchColumn($sql, $params);
-            if (!$username) throw new \Exception('recabar el nombre de usuario.');
 
             $sql = 'UPDATE usuario.usuario SET clave=encode(sha256(:clave),\'hex\') WHERE id=:id';
             $params = array('id' => $data->id, 'clave' => $username);
-            if (!Db::execute($sql, $params)) throw new \Exception('restablecer la contraseña.');
+            Db::execute($sql, $params);
 
             Db::commit();
-            return array('success' => true, 'message' => 'La contraseña a sido restablecida');
+            return array(
+                'success' => true,
+                'message' => 'La contraseña a sido restablecida.'
+            );
         } catch (\Exception $e) {
-            $msg = 'Error al ' . $e->getMessage();
-            return array('success' => false, 'message' => $msg);
+            Db::rollback();
+            return array(
+                'success' => false,
+                'message' => 'No fue posible restablecer la contraseña.',
+                'error' => $e->getMessage()
+            );
         }
     }
 
@@ -222,13 +253,17 @@ class UsersController extends BaseController
 
             $sql = 'UPDATE usuario.usuario SET clave=encode(sha256(:clave),\'hex\') WHERE id=:id';
             $params = array('id' => $data->id, 'clave' => $data->clave);
-            if (!Db::execute($sql, $params)) throw new \Exception('cambiar la contraseña.');
+            Db::execute($sql, $params);
 
             Db::commit();
             return array('success' => true, 'message' => 'La contraseña a sido modificada');
         } catch (\Exception $e) {
-            $msg = 'Error al ' . $e->getMessage();
-            return array('success' => false, 'message' => $msg);
+            Db::rollback();
+            return array(
+                'success' => false,
+                'message' => 'No fue posible modificar la contraseña.',
+                'error' => $e->getMessage(),
+            );
         }
     }
 
@@ -260,7 +295,7 @@ class UsersController extends BaseController
     {
         $sql = "UPDATE usuario.$table SET activo=false WHERE idusuario=:idusuario";
         $params = array('idusuario' => $id);
-        if (!Db::execute($sql, $params)) throw new \Exception("Error durante desactivación en $table.");
+        Db::execute($sql, $params);
     }
 
     private function activate($table, $params)
@@ -275,7 +310,7 @@ class UsersController extends BaseController
             ? "UPDATE usuario.$table SET activo=true WHERE ($cols) IN (($phs))"
             : "INSERT INTO usuario.$table ($cols) VALUES ($phs)";
 
-        if (!Db::execute($sql, $params)) throw new \Exception("Error durante activación en $table.");
+        Db::execute($sql, $params);
     }
 
     private function processUserAssociations($data, $associationHandler)
