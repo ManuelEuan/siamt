@@ -1,22 +1,19 @@
 <template>
   <div class="d-flex flex-column flex-grow-1">
-    <div class="d-flex align-center py-1">
-      <div>
-        <div class="display-1">Debitaciones</div>
-        <v-breadcrumbs :items="breadcrumbs" class="pa-0 py-2"></v-breadcrumbs>
-      </div>
-<!--      <v-spacer></v-spacer>-->
-<!--      <v-btn color="primary">-->
-<!--        Agregar-->
-<!--      </v-btn>-->
-    </div>
-
-<!--    <v-card>-->
-<!--      <div class="embed-responsive embed-responsive-16by9 z-depth-1">-->
-        <iframe class="embed-responsive-item" src="https://vnd-balance-tool.vinden.cloud/?client_id=PTbV7govNXW2HJX&authorize=fwZfyDyz7pOReFujepJWkxAEvel0XSfo" style="width: 100%"
-                allowfullscreen></iframe>
+<!--    <div class="d-flex align-center py-1">-->
+<!--      <div>-->
+<!--        <div class="display-1">Debitaciones</div>-->
+<!--        <v-breadcrumbs :items="breadcrumbs" class="pa-0 py-2"></v-breadcrumbs>-->
 <!--      </div>-->
-<!--    </v-card>-->
+
+<!--    </div>-->
+
+
+    <iframe class="embed-responsive-item" src="https://vnd-balance-tool.vinden.cloud/?client_id=PTbV7govNXW2HJX&authorize=fwZfyDyz7pOReFujepJWkxAEvel0XSfo" style="height: 100%; width: 100%"
+            allowfullscreen>
+
+    </iframe>
+
   </div>
 </template>
 
