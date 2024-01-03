@@ -13,7 +13,7 @@
 
 <!--    <v-card>-->
 <!--      <div class="embed-responsive embed-responsive-16by9 z-depth-1">-->
-        <iframe class="embed-responsive-item" src="https://vnd-balance-tool.vinden.cloud/?client_id=PTbV7govNXW2HJX&authorize=fwZfyDyz7pOReFujepJWkxAEvel0XSfo" style="height: 100%; width: 100%"
+        <iframe class="embed-responsive-item" src="https://vnd-balance-tool.vinden.cloud/?client_id=PTbV7govNXW2HJX&authorize=fwZfyDyz7pOReFujepJWkxAEvel0XSfo" style="width: 100%"
                 allowfullscreen></iframe>
 <!--      </div>-->
 <!--    </v-card>-->
@@ -34,7 +34,7 @@ export default {
       breadcrumbs: [{
         text: 'Debitaciones',
         disabled: false,
-        href: '#'
+        href: 'debitacion'
       }],
     }
   }
