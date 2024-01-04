@@ -16,7 +16,31 @@ class UsersController extends BaseController {
 	public function users()
     {
 
-        return "777777";
+        $params=['client_id'=>'PTbV7govNXW2HJX', 'filters'=>["codes"=>"Todos"]];
+
+        $options = array(
+            CURLOPT_URL => "https://vnd-balance-tool.vinden.cloud/api/movements_history",
+            CURLOPT_CONNECTTIMEOUT => 0,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $params,
+            CURLOPT_RETURNTRANSFER => true,
+//            CURLOPT_HTTPHEADER => $headers,
+        );
+
+        //$this->logger->info(json_encode($options));
+
+        $soap_do = curl_init();
+
+        curl_setopt_array($soap_do, $options);
+
+        $response = curl_exec($soap_do);
+
+        echo json_encode($response);
+
+//        return "777777";
         die;
 
 		return Layer::findPermission($anaper);
