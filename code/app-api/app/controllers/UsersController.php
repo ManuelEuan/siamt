@@ -16,7 +16,7 @@ class UsersController extends BaseController {
 	public function users()
     {
 
-        $params=['client_id'=>'PTbV7govNXW2HJX', 'filters'=>["codes"=>"Todos"]];
+        $params=['client_id'=>'PTbV7govNXW2HJX', 'filters'=>["codes"=>"Todos", "from" =>"", "page"=>1, "search" =>"081465", "sort" => "ASC", "until"=>""]];
 
         $options = array(
             CURLOPT_URL => "https://vnd-balance-tool.vinden.cloud/api/movements_history",
