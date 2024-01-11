@@ -8,8 +8,10 @@ use Phalcon\Mvc\Micro;
 
 define('BASE_PATH', dirname(__DIR__));
 define('APP_PATH', BASE_PATH . '/app');
+define('ROOT_PATH', realpath(__DIR__."/../"));
 
 try {
+    require_once ROOT_PATH.'/vendor/autoload.php';
     include APP_PATH . '/config/loader.php';
 
     $di = new Di();

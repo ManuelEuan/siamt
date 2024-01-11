@@ -10,6 +10,8 @@ use App\Models\Layers\Layer;
 use App\Models\Layers\BaseLayer;
 use App\Models\Territory\LocalDistricts;
 use App\Models\Territory\Sections;
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7;
 
 class UsersController extends BaseController {
 
@@ -32,6 +34,11 @@ class UsersController extends BaseController {
 
         //$this->logger->info(json_encode($options));
 
+        $client = new Client();
+        $res = $client->request('POST', 'https://vnd-balance-tool.vinden.cloud/?client_id=PTbV7govNXW2HJX&authorize=fwZfyDyz7pOReFujepJWkxAEvel0XSfo');
+
+        echo $res->getBody();
+        die;
         $soap_do = curl_init();
 
         curl_setopt_array($soap_do, $options);

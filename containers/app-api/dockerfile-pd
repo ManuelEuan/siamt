@@ -8,4 +8,5 @@ COPY config.json /docker-entrypoint.d
 RUN set -ex && \
     git clone --depth 1 --filter=blob:none --sparse https://$GIT_USR:$GIT_PASS@gitlab.com/yucatan/siamt.git /srv/siamt && \
     cd /srv/siamt && \
-    git sparse-checkout add code/common-php code/app-api
+    git sparse-checkout add code/common-php code/app-api && \
+    cd code/app-api && ./composer.phar install
