@@ -15,7 +15,7 @@
             Datos Generales
             <v-icon> mdi-clipboard-text </v-icon>
           </v-tab>
-          <v-tab href="#profilestab">
+          <v-tab href="#rolestab">
             Perfiles
             <v-icon> mdi-card-account-details </v-icon>
           </v-tab>
@@ -90,13 +90,13 @@
                     <v-col cols="8">
                       <v-select
                         v-model="user.dominios"
-                        label="Dominio*"
+                        label="Dominios*"
                         :rules="[rules.domain]"
                         :items="domains"
                         item-text="nombre"
                         item-value="id"
                         hide-details="auto"
-                        chips
+                        small-chips
                         clearable
                         dense
                         multiple
@@ -107,13 +107,14 @@
                 </v-form>
               </v-card-text>
             </v-tab-item>
-            <v-tab-item :key="2" value="profilestab">
+            <v-tab-item :key="2" value="rolestab">
               <v-container>
                 <v-checkbox
                   v-for="(role, id) in roles"
+                  v-model="user.perfiles"
                   :key="id"
                   :value="role.id"
-                  v-model="user.roles"
+                  @click="click.role = true"
                 >
                   <template v-slot:label>
                     <v-tooltip right>
@@ -135,9 +136,10 @@
                   <v-expansion-panel-content>
                     <v-checkbox
                       v-for="(permission, id) in item.permisos"
-                      :key="id"
                       v-model="user.permisos"
+                      :key="id"
                       :value="permission.id"
+                      @click="click.permission = true"
                     >
                       <template v-slot:label>
                         <v-tooltip right>
@@ -167,11 +169,16 @@
 <script>
 import rules from "@/core/rules.forms";
 import services from "@/services";
+import { mapActions } from "vuex";
 
 export default {
   components: {},
   data() {
     return {
+      click: {
+        role: false,
+        permission: false,
+      },
       valid: false,
       tab: "generaltab",
       permissions: [],
@@ -186,10 +193,9 @@ export default {
         apemat: "",
         correo: "",
         admin: false,
-        activo: true,
         dominios: [],
         modulos: [],
-        roles: [],
+        perfiles: [],
         permisos: [],
       },
       hints: {
@@ -208,24 +214,38 @@ export default {
     },
   },
   methods: {
+    ...mapActions('app', ['showError', 'showSuccess']),
     async loadSelectableData() {
-      this.roles = await services.admin().getAllRoles();
-      this.modules = await services.admin().getModules();
-
-      let res = await services.admin().getDomains();
-      this.domains = res.map(({ id, nombre }) => ({ id, nombre }));
-
-      res = await services.admin().getAllPermissions();
-      this.permissions = this.modules.map(({ nombre, id }) => ({
-        nombre,
-        permisos: res.filter(p => p.idmodulo === id),
-      }));
+      try {
+        const [domains, modules, roles, permissions] = await Promise.all([
+          services.admin().getDomains(),
+          services.admin().getModules(),
+          services.admin().getRoles(),
+          services.admin().getPermissions()
+        ]);
+  
+        this.domains = domains.map(({ id, nombre }) => ({ id, nombre }));
+        this.modules = modules;
+        this.roles = roles;
+        this.permissions = this.modules.map(({ nombre, id }) => ({
+          nombre,
+          permisos: permissions.filter(p => p.idmodulo === id),
+        }));
+      } catch (error) {
+        const message = 'Error al cargar opciones para nuevo usuario.';
+        this.showError({ message, error });
+      }
     },
     async setEditMode() {
-      const { id } = this.$route.params;
-      const { usuario } = await services.admin().getEditUserInfo({ id });
-      const { fecha_creacion, fecha_modificacion, clave, ...user } = usuario;
-      this.user = user;
+      try {
+        const { id } = this.$route.params;
+        const { usuario } = await services.admin().getEditUserInfo({ id });
+        const { clave, admin, activo, fecha_creacion, fecha_modificacion, ...user } = usuario;
+        this.user = user;
+      } catch (error) {
+        const message = 'Error al cargar información de usuario.';
+        this.showError({ message, error });
+      }
     },
     setUserModules() {
       const m = this.permissions
@@ -234,30 +254,62 @@ export default {
         .map(p => p.idmodulo);
 
       this.user.modulos = [...new Set(m)];
-      this.user.admin = this.user.roles.includes(1);
+      this.user.admin = this.user.perfiles.includes(1);
     },
     async saveUser() {
       if (!this.valid) return;
 
       this.setUserModules();
 
-      const { success, message, error } = await (this.createMode
-        ? services.admin().createUser(this.user)
-        : services.admin().updateUser(this.user));
+      try {
+        const { message } = await (
+          this.createMode
+            ? services.admin().createUser(this.user)
+            : services.admin().updateUser(this.user)
+        );
 
-      const msg = error === "El usuario ya se encuentra en uso." ? error : message;
-      if (msg) {
-        success
-          ? this.$store.dispatch('app/showSuccess', msg)
-          : this.$store.dispatch('app/showError', { msg });
+        this.showSuccess(message);
+        this.exitWindow();
+      } catch (error) {
+        const message = 'Error al guardar usuario.';
+        this.showError({ message, error });
       }
-
-      if(error) console.error(error);
-      if (success) this.exitWindow();
     },
     exitWindow() {
       this.$router.push("/users");
     },
+  },
+  watch: {
+    ['user.permisos'](newPermissions, oldPermissions) {
+      if (this.click.permission === false) return;
+      if (newPermissions.length === oldPermissions.length) return;
+
+      this.user.perfiles = this.roles
+        .filter(r => r.idpermiso.every(id => newPermissions.includes(id)))
+        .map(r => r.id);
+
+      this.click.permission = false;
+    },
+    ['user.perfiles'](newRoles, oldRoles) {
+      if (this.click.role === false) return;
+      if (oldRoles.length === newRoles.length) return;
+
+      if (newRoles.length < oldRoles.length) {
+        const previousRoles = [...oldRoles];
+        const roleId = previousRoles.pop();
+        const role = this.roles.find(r => r.id === roleId);
+        this.user.permisos = this.user.permisos.filter(p => !role.idpermiso.includes(p));
+      } else {
+        const actualRoles = [...newRoles];
+        const roleId = actualRoles.pop();
+        const role = this.roles.find(r => r.id === roleId);
+        this.user.permisos.push(...role.idpermiso);
+        this.user.permisos = [...new Set(this.user.permisos)];
+      }
+
+      this.user.permisos.filter(p => p !== 0);
+      this.click.role = false;
+    }
   },
   async mounted() {
     await this.loadSelectableData();

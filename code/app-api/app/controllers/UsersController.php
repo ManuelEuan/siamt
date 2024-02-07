@@ -5,14 +5,10 @@ namespace App\Controllers;
 use Phalcon\Registry;
 
 use App\Library\Http\Controllers\BaseController;
-use App\Library\Misc\Utils;
-use App\Models\Layers\Layer;
-use App\Models\Layers\BaseLayer;
-use App\Models\Territory\LocalDistricts;
-use App\Models\Territory\Sections;
 use App\Library\Db\Db;
-use App\Models\User;
-use App\Models\Module;
+use App\Library\Http\Status;
+use App\Library\Http\Exceptions\HttpUnauthorizedException;
+use App\Library\Http\Exceptions\ValidatorBoomException;
 
 class UsersController extends BaseController
 {
@@ -26,246 +22,247 @@ class UsersController extends BaseController
     );
 
     public function getUsers()
-    {
+    {  
         $data = $this->request->getJsonRawBody();
-        $currentPage = $data->currentPage;
         $itemsPerPage = $data->itemsPerPage;
-        $offset = ($currentPage - 1) * $itemsPerPage;
+        $offset = ($data->page - 1) * $itemsPerPage;
 
-        $sql = 'SELECT id, usuario, NULL AS clave, nombre, apepat, apemat, correo, admin, activo, fecha_creacion, fecha_modificacion FROM usuario.usuario ';
-        $params = null;
+        $sql = '
+            WITH usuarios AS (
+                SELECT
+                    id,
+                    usuario,
+                    NULL AS clave,
+                    nombre,
+                    apepat,
+                    apemat,
+                    correo,
+                    admin,
+                    activo,
+                    fecha_creacion,
+                    fecha_modificacion,
+                    TRIM(TRAILING FROM CONCAT(nombre, \' \', apepat, \' \', apemat)) AS nombre_completo
+                FROM usuario.usuario
+            )
+        ';
+        $params = array();
 
+        if ($data->filters) {
+            list($sql2, $params2) = $this->filterUsers($data->filters);
+            $sql .= $sql2;
+            $params += $params2;
+        } else {
+            $sql .= 'SELECT u.*, COUNT(u.id) OVER() AS total_usuarios FROM usuarios u ';
+        }
+
+        $sql .= $this->sortUsers($data->sortBy, $data->sortDesc);
+ 
         if ($itemsPerPage > 0) {
             $sql .= 'LIMIT :items OFFSET :offset';
-            $params = array('items' => $itemsPerPage, 'offset' => $offset);
+            $params['items'] = $itemsPerPage;
+            $params['offset'] = $offset;
         }
 
         $users = Db::fetchAll($sql, $params);
-        $totalItems = User::count();
+        $totalItems = $users[0]->total_usuarios ?? 0;
         $totalPages = ceil($totalItems / $itemsPerPage);
 
         return array(
-            'data' => $users,
-            'pages' => $totalPages,
-            'total' => $totalItems,
+            'users' => $users,
+            'totalPages' => $totalPages,
+            'totalItems' => $totalItems,
         );
     }
 
     public function getEditUserInfo()
     {
+        $this->hasClientAuthorized('veus');
+
         $data = $this->request->getJsonRawBody();
 
-        //usuario
-        $sql = 'SELECT id, usuario, NULL AS clave, nombre, apepat, apemat, correo, admin, activo, TO_CHAR(fecha_creacion, \'DD-MM-YYYY HH24:MI:SS\') AS fecha_creacion, TO_CHAR(fecha_modificacion, \'DD-MM-YYYY HH24:MI:SS\') AS fecha_modificacion FROM usuario.usuario WHERE id=:id';
+        if (empty($data->id)) throw new ValidatorBoomException(422, 'Id requerido.');
+
+        $sql = '
+            SELECT 
+                id, 
+                usuario, 
+                NULL AS clave, 
+                nombre, 
+                apepat, 
+                apemat, 
+                correo, 
+                admin, 
+                activo,
+                TO_CHAR(fecha_creacion, \'DD-MM-YYYY HH24:MI:SS\') AS fecha_creacion,
+                TO_CHAR(fecha_modificacion, \'DD-MM-YYYY HH24:MI:SS\') AS fecha_modificacion
+            FROM usuario.usuario
+            WHERE id=:id
+        ';
         $params = array('id' => $data->id);
-        $user['usuario'] = Db::fetchAll($sql, $params)[0];
+        $user['usuario'] = Db::fetchOne($sql, $params);
 
-        $params = array('id' => $data->id, 'activo' => 't');
+        $sql = 'SELECT iddominio FROM usuario.usuario_dominio WHERE idusuario=:id AND activo=true';
+        $domains = Db::fetchAll($sql, $params);
+        $user['usuario']->dominios = array_column($domains, 'iddominio');
 
-        //dominios
-        $sql = 'SELECT iddominio FROM usuario.usuario_dominio WHERE idusuario=:id AND activo=:activo';
-        $dominios = Db::fetchAll($sql, $params);
-        $user['usuario']->dominios = array_column($dominios, 'iddominio');
-
-        //modulos
-        $sql = 'SELECT idmodulo FROM usuario.usuario_dominio_modulo WHERE idusuario=:id AND activo=:activo';
+        $sql = 'SELECT idmodulo FROM usuario.usuario_dominio_modulo WHERE idusuario=:id AND activo=true';
         $modules = Db::fetchAll($sql, $params);
         $user['usuario']->modulos = array_column($modules, 'idmodulo');
 
-        //roles
-        $sql = 'SELECT idperfil FROM usuario.perfil_usuario WHERE idusuario=:id AND activo=:activo';
-        $profiles = Db::fetchAll($sql, $params);
-        $user['usuario']->roles = array_column($profiles, 'idperfil');
+        $sql = 'SELECT idperfil FROM usuario.perfil_usuario WHERE idusuario=:id AND activo=true';
+        $roles = Db::fetchAll($sql, $params);
+        $user['usuario']->perfiles = array_column($roles, 'idperfil');
 
-        //permisos
-        $sql = 'SELECT idpermiso FROM usuario.usuario_permiso WHERE idusuario=:id AND activo=:activo';
+        $sql = '
+            WITH role_permissions AS (
+                SELECT r.idpermiso FROM usuario.perfil_permiso r
+                INNER JOIN usuario.perfil_usuario u ON r.idperfil = u.idperfil
+                WHERE u.idusuario = :id
+            ), user_permissions AS (
+                SELECT idpermiso FROM usuario.usuario_permiso 
+                WHERE idusuario = :id
+            )
+
+            SELECT idpermiso FROM role_permissions 
+            UNION 
+            SELECT idpermiso FROM user_permissions
+        ';
         $permissions = Db::fetchAll($sql, $params);
         $user['usuario']->permisos = array_column($permissions, 'idpermiso');
-
+        
         return $user;
     }
 
     public function createUser()
     {
-        try {
-            $data = $this->request->getJsonRawBody();
+        $this->hasClientAuthorized('crus');
 
-            Db::begin();
+        $data = $this->request->getJsonRawBody();
+        $this->validRequiredData($data);
 
-            $id = $this->isUsernameInUse($data->usuario);
-            if ($id) throw new \Exception('El usuario ya se encuentra en uso.');
+        Db::begin();
 
-            $params = array(
-                'usuario' => $data->usuario,
-                'clave'   => $data->usuario,
-                'nombre'  => $data->nombre,
-                'apepat'  => $data->apepat,
-                'apemat'  => empty($data->apemat) ? null : $data->apemat,
-                'correo'  => empty($data->correo) ? null : $data->correo,
-                'admin'   => $data->admin ? 't' : 'f',
-                'activo'  => $data->activo ? 't' : 'f'
-            );
+        $id = $this->isUsernameInUse($data->usuario);
+        if ($id) throw new ValidatorBoomException(422, 'El usuario ya se encuentra en uso.');
 
-            $this->insert('usuario', $params);
+        $params = array(
+            'usuario' => $data->usuario,
+            'clave'   => $data->usuario,
+            'nombre'  => $data->nombre,
+            'apepat'  => $data->apepat,
+            'apemat'  => empty($data->apemat) ? null : $data->apemat,
+            'correo'  => empty($data->correo) ? null : $data->correo,
+            'admin'   => $data->admin ? 't' : 'f'
+        );
 
-            $data->id = $this->isUsernameInUse($data->usuario);
-            $this->processUserAssociations($data, 'insert');
+        $this->insert('usuario', $params);
 
-            Db::commit();
-            return array(
-                'success' => true,
-                'message' => 'El usuario ha sido creado.'
-            );
-        } catch (\Exception $e) {
-            Db::rollback();
-            return array(
-                'success' => false,
-                'message' => 'No fue posible crear el usuario.',
-                'error' => $e->getMessage()
-            );
-        }
+        $data->id = $this->isUsernameInUse($data->usuario);
+
+        $this->processUserAssociations($data, 'insert');
+
+        Db::commit();
+        return array('message' => 'El usuario ha sido creado.');
     }
 
     public function updateUser()
     {
-        try {
-            $data = $this->request->getJsonRawBody();
+        $this->hasClientAuthorized('edus');
 
-            Db::begin();
+        $data = $this->request->getJsonRawBody();
+        $this->validRequiredData($data);
 
-            if ($this->isUsernameChanged($data->usuario, $data->id)) {
-                if ($this->isUsernameInUse($data->usuario)) {
-                    throw new \Exception('El usuario ya se encuentra en uso.');
-                }
+        Db::begin();
+
+        if ($this->isUsernameChanged($data->usuario, $data->id)) {
+            if ($this->isUsernameInUse($data->usuario)) {
+                throw new ValidatorBoomException(422, 'El usuario ya se encuentra en uso.');
             }
-
-            $sql = '
-                UPDATE usuario.usuario 
-                SET usuario=:usuario, 
-                    nombre=:nombre, 
-                    apepat=:apepat, 
-                    apemat=:apemat, 
-                    correo=:correo, 
-                    admin=:admin, 
-                    activo=:activo
-                WHERE id=:id
-            ';
-
-            $params = array(
-                'usuario' => $data->usuario,
-                'nombre'  => $data->nombre,
-                'apepat'  => $data->apepat,
-                'apemat'  => empty($data->apemat) ? null : $data->apemat,
-                'correo'  => empty($data->apemat) ? null : $data->correo,
-                'admin'   => $data->admin ? 't' : 'f',
-                'activo'  => $data->activo ? 't' : 'f',
-                'id'      => $data->id
-            );
-
-            Db::execute($sql, $params);
-
-            foreach ($this->tables as $t) {
-                if ($t === 'usuario' || $t === 'usuario_dominio_configuracion') continue;
-                $this->deactivate($t, $data->id);
-            }
-
-            $this->processUserAssociations($data, 'activate');
-
-            Db::commit();
-            return array(
-                'success' => true,
-                'message' => 'El usuario ha sido actualizado.'
-            );
-        } catch (\Exception $e) {
-            Db::rollback();
-            return array(
-                'success' => false,
-                'message' => 'No fue posible actualizar el usuario.',
-                'error' => $e->getMessage()
-            );
         }
+
+        $sql = '
+            UPDATE usuario.usuario 
+            SET 
+                usuario=:usuario, 
+                nombre=:nombre, 
+                apepat=:apepat, 
+                apemat=:apemat, 
+                correo=:correo,
+                admin=:admin
+            WHERE id=:id
+        ';
+
+        $params = array(
+            'usuario' => $data->usuario,
+            'nombre'  => $data->nombre,
+            'apepat'  => $data->apepat,
+            'apemat'  => empty(trim($data->apemat)) ? null : $data->apemat,
+            'correo'  => empty(trim($data->apemat)) ? null : $data->correo,
+            'admin'   => $data->admin ? 't' : 'f',
+            'id'      => $data->id
+        );
+
+        Db::execute($sql, $params);
+
+        foreach ($this->tables as $t) {
+            if ($t === 'usuario' || $t === 'usuario_dominio_configuracion') continue;
+            $this->deactivate($t, $data->id);
+        }
+
+        $this->processUserAssociations($data, 'activate');
+
+        Db::commit();
+        return array('message' => 'El usuario ha sido actualizado.');
     }
 
     public function deleteUser($id)
     {
-        try {
-            Db::begin();
+        $this->hasClientAuthorized('bous');
 
-            $sql = "SELECT activo FROM usuario.usuario WHERE id=:id";
-            $params = array('id' => $id);
-            $active = Db::fetchColumn($sql, $params);
+        $sql = "SELECT activo FROM usuario.usuario WHERE id=:id";
+        $params = array('id' => $id);
+        $active = Db::fetchColumn($sql, $params);
 
-            $sql = "UPDATE usuario.usuario SET activo=:activo WHERE id=:id";
-            $params = array('activo' => $active ? 'f' : 't', 'id' => $id);
-            Db::execute($sql, $params);
+        $sql = "UPDATE usuario.usuario SET activo=:activo WHERE id=:id";
+        $params = array('activo' => $active ? 'f' : 't', 'id' => $id);
+        Db::execute($sql, $params);
 
-            Db::commit();
-            $msg = $active ? 'desactivado' : 'activado';
-            return array(
-                'success' => true,
-                'message' => "El usuario ha sido $msg."
-            );
-        } catch (\Exception $e) {
-            Db::rollback();
-            $msg = $active ? 'desactivar' : 'activar';
-            return array(
-                'success' => false,
-                'message' => "No fue posible $msg el usuario.",
-                'error' => $e->getMessage()
-            );
-        }
+        $msg = $active ? 'desactivado' : 'activado';
+        return array('message' => "El usuario ha sido $msg.");
     }
 
     public function resetUserPass()
     {
-        try {
-            $data = $this->request->getJsonRawBody();
-            Db::begin();
+        $this->hasClientAuthorized('reco');
 
-            $sql = 'SELECT usuario FROM usuario.usuario WHERE id=:id';
-            $params = array('id' => $data->id);
-            $username = Db::fetchColumn($sql, $params);
+        $data = $this->request->getJsonRawBody();
 
-            $sql = 'UPDATE usuario.usuario SET clave=encode(sha256(:clave),\'hex\') WHERE id=:id';
-            $params = array('id' => $data->id, 'clave' => $username);
-            Db::execute($sql, $params);
+        $sql = 'SELECT usuario FROM usuario.usuario WHERE id=:id';
+        $params = array('id' => $data->id);
+        $username = Db::fetchColumn($sql, $params);
 
-            Db::commit();
-            return array(
-                'success' => true,
-                'message' => 'La contraseña a sido restablecida.'
-            );
-        } catch (\Exception $e) {
-            Db::rollback();
-            return array(
-                'success' => false,
-                'message' => 'No fue posible restablecer la contraseña.',
-                'error' => $e->getMessage()
-            );
-        }
+        $sql = 'UPDATE usuario.usuario SET clave=encode(sha256(:clave),\'hex\') WHERE id=:id';
+        $params = array('id' => $data->id, 'clave' => $username);
+        Db::execute($sql, $params);
+
+        return array('message' => 'La contraseña a sido restablecida.');
     }
 
     public function changeUserPass()
     {
-        try {
-            $data = $this->request->getJsonRawBody();
-            Db::begin();
+        $this->hasClientAuthorized('caco');
 
-            $sql = 'UPDATE usuario.usuario SET clave=encode(sha256(:clave),\'hex\') WHERE id=:id';
-            $params = array('id' => $data->id, 'clave' => $data->clave);
-            Db::execute($sql, $params);
+        $data = $this->request->getJsonRawBody();
+        $this->validPass($data);
 
-            Db::commit();
-            return array('success' => true, 'message' => 'La contraseña a sido modificada');
-        } catch (\Exception $e) {
-            Db::rollback();
-            return array(
-                'success' => false,
-                'message' => 'No fue posible modificar la contraseña.',
-                'error' => $e->getMessage(),
-            );
-        }
+        $sql = 'UPDATE usuario.usuario SET clave=encode(sha256(:clave),\'hex\') WHERE id=:id';
+        $params = array('id' => $data->id, 'clave' => $data->clave);
+        Db::execute($sql, $params);
+
+        return array('message' => 'La contraseña a sido modificada');
     }
+
+
 
     private function isUsernameInUse($username)
     {
@@ -281,6 +278,17 @@ class UsersController extends BaseController
         return !(Db::fetchColumn($sql, $params) === $username);
     }
 
+    private function hasClientAuthorized($permission) {
+        $permissions = $this->token->getPermissions()['usr'];
+
+        if (!in_array($permission, $permissions)) {
+            if ($permission === 'veus' && in_array('edus', $permissions)) return;
+            throw new HttpUnauthorizedException(401, 'Permisos insuficientes.');
+        }
+    }
+
+
+
     private function insert($table, $params)
     {
         $cols = implode(', ', array_keys($params));
@@ -288,7 +296,7 @@ class UsersController extends BaseController
         $phs = str_replace(':clave', 'encode(sha256(:clave),\'hex\')', $phs);
 
         $sql = "INSERT INTO usuario.$table ($cols) VALUES ($phs)";
-        if (!Db::execute($sql, $params)) throw new \Exception("Error durante registro en $table");
+        Db::execute($sql, $params);
     }
 
     private function deactivate($table, $id)
@@ -313,6 +321,23 @@ class UsersController extends BaseController
         Db::execute($sql, $params);
     }
 
+    private function verifyRolePermissions($role, $permissions) 
+    {
+        $sql = 'SELECT idpermiso FROM usuario.perfil_permiso WHERE idperfil=:idperfil';
+        $params = array('idperfil' => $r);
+        $rolePermissions = Db::fetchAll($sql, $params);
+
+        if (empty($rolePermissions)) return;
+            
+        $rolePermissions = array_column($rolePermissions, 'idpermiso');
+        $unmatchedPermissions = array_diff($rolePermissions, $permissions);
+
+        if (!empty($unmatchedPermissions)) {
+            $message = 'Los permisos no coinciden con los perfiles seleccionados.';
+            throw new ValidatorBoomException(422, $message);
+        }
+    }
+
     private function processUserAssociations($data, $associationHandler)
     {
         foreach ($data->dominios as $d) {
@@ -330,9 +355,146 @@ class UsersController extends BaseController
             $this->$associationHandler('usuario_permiso', $params);
         }
 
-        foreach ($data->roles as $r) {
+        foreach ($data->perfiles as $r) {
+            $this->verifyRolePermissions($r, $data->permisos);
             $params = array('idusuario' => $data->id, 'idperfil' => $r);
             $this->$associationHandler('perfil_usuario', $params);
         }
+    }
+
+    private function filterUsers($filters)
+    {
+        $sql = ',
+            roles AS (
+                SELECT
+                    idusuario,
+                    ARRAY_AGG(idperfil) AS perfiles
+                FROM usuario.perfil_usuario
+                GROUP BY idusuario
+            ),
+            filtro_roles AS (
+                SELECT idusuario
+                FROM roles
+                WHERE perfiles @> :roles::integer[]
+            )
+
+            SELECT 
+                u.*,
+                COUNT(u.id) OVER() AS total_usuarios 
+            FROM usuarios u
+            INNER JOIN filtro_roles r ON u.id=r.idusuario
+        ';
+        $params['roles'] = '{' . implode(', ', $filters->roles) . '}';
+        
+        if (!$filters->roles) { 
+            $sql = 'SELECT u.*, COUNT(u.id) OVER() AS total_usuarios FROM usuarios u ';
+            unset($params['roles']);
+        }
+
+        $sql2 = 'WHERE ';
+
+        foreach ($filters as $filter => $value) {
+            if (empty($value) || $filter === 'roles') continue;
+            if ($sql2 !== 'WHERE ') $sql2 .= 'AND ';
+
+            switch ($filter) {
+                case 'active':
+                    $sql2 .= 'u.activo = :active ';
+                    $params['active'] = $filters->active;
+                    break;
+                case 'name':
+                    $sql2 .= "u.nombre_completo ILIKE :name ";
+                    $params['name'] = '%' . $filters->name . '%';
+                    break;
+                case 'username':
+                    $sql2 .= "u.usuario ILIKE :username ";
+                    $params['username'] = '%' . $filters->username . '%';
+                    break;
+            }
+        }
+        
+        if ($sql2 !== 'WHERE ') $sql .= $sql2;
+
+        return array($sql, $params);
+    }
+
+    private function sortUsers($sortBy, $sortDesc)
+    {
+        $sortCount = count($sortBy);
+        if ($sortCount === 0) return 'ORDER BY id ';
+
+        $sql = 'ORDER BY ';
+        $comma = $sortCount - 1;
+
+        for ($i = 0; $i < $sortCount; $i++) {
+            $order = $sortDesc[$i] ? 'DESC ' : 'ASC ';
+            $column = $sortBy[$i];
+
+            switch ($column) {
+                case 'usuario': $sql .= 'u.usuario '; break;
+                case 'nombre_completo': $sql .= 'u.nombre_completo '; break;
+                case 'correo': $sql .= 'u.correo '; break;
+                case 'activo': $sql .= 'u.activo '; break;
+                default: $sql .= 'u.id';
+            }
+
+            $sql .= "$order NULLS LAST";
+            $sql .= $i < $comma ? ', ' : ' ';
+        }
+
+        return $sql;
+    }
+
+    private function validRequiredData($data) 
+    {
+        $requiredKeys = array('nombre', 'apepat', 'usuario', 'dominios');
+        $actualKeys = array_keys(get_object_vars($data));
+        $missingKeys = array_diff($requiredKeys, $actualKeys);
+
+        $message = 'Faltan valores requeridos.';
+        if (!empty($missingKeys)) throw new ValidatorBoomException(422, $message);
+
+        foreach($data as $key => $value) {
+            if (!in_array($key, $requiredKeys)) continue;
+
+            if ($key === 'dominios') {
+                $message = "Tipo de valor incorrecto en dominios.";
+                if (!is_array($value)) throw new ValidatorBoomException(422, $message);
+                
+                $message = "Valor vacío en dominios.";
+                if (empty($value)) throw new ValidatorBoomException(422, $message);
+                continue;
+            }
+
+            $message = "Tipo de valor incorrecto en $key.";
+            if (!is_string($value)) throw new ValidatorBoomException(422, $message);
+
+            $message = "Valor vacío en $key.";
+            if (empty(trim($value))) throw new ValidatorBoomException(422, $message);
+
+            if ($key === 'usuario') {
+                $regex = '/^[-.\w]+$/';
+                $message = "Caracteres no admitidos en usuario.";
+                if (!preg_match($regex, $value)) throw new ValidatorBoomException(422, $message);
+                $message = "Longitud incorrecta en usuario.";
+                if (strlen($value) < 5) throw new ValidatorBoomException(422, $message);
+            }
+        }
+    }
+
+    private function validPass($data) {
+        $dataKeys = array_keys(get_object_vars($data));
+
+        $message = 'Clave requerida.';
+        if (!in_array('clave', $dataKeys)) throw new ValidatorBoomException(422, $message);
+        
+        $message = 'Tipo de valor incorrecto en clave.';
+        if (!is_string($data->clave)) throw new ValidatorBoomException(422, $message);
+
+        $message = "Valor vacío en clave.";
+        if ($data->clave === '') throw new ValidatorBoomException(422, $message);
+
+        $message = 'Longitud incorrecta en clave.';
+        if (strlen($data->clave) < 8) throw new ValidatorBoomException(422, $message);
     }
 }

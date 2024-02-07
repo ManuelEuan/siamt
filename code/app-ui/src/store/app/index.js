@@ -33,18 +33,12 @@ const state = {
     timeout: 3000
   },
 
-  //Para usuarios
-  usuarios : [],
-  usuariosFiltrados : [],
-  totalUsuarios : 0,
-  paginaActual : 1,
-  porPagina : 10,
-
-  getters : {
-    getUsuarios(state) {
-      return state.usuarios;
-    }
-  }
+  // users filters and pagination
+  users: [],
+  usersData: {},
+  usersFilters: {},
+  usersTotalPages: 0,
+  usersTotalItems: 0,
 }
 
 export default {

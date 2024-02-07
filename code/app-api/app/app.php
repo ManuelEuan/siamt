@@ -71,10 +71,32 @@ $app->get('/admin/permissions', function () {
     return $permissions;
 });
 
-$app->get('/admin/groups', function () {
-    $sql = "SELECT * FROM usuario.perfil WHERE activo=true";
-    $profiles = \App\Library\Db\Db::fetchAll($sql);
-    return $profiles;
+$app->get('/admin/roles', function () {
+    $sql = "
+        WITH permissions AS (
+            SELECT 
+                idperfil, 
+                ARRAY_AGG(idpermiso) AS idpermiso
+            FROM usuario.perfil_permiso 
+            WHERE activo=true
+            GROUP BY idperfil
+        )
+        
+        SELECT r.*, p.idpermiso FROM usuario.perfil r
+        FULL JOIN permissions p ON id=p.idperfil
+        WHERE activo=true
+    ";
+    $roles = \App\Library\Db\Db::fetchAll($sql);
+
+    foreach($roles as $r) {
+        $permissions = $r->idpermiso;
+        $r->idpermiso = array_map(
+            'intval', 
+            explode(',', str_replace(['{', '}'], '', $permissions))
+        );
+    }
+
+    return $roles;
 });
 
 $app->mount(

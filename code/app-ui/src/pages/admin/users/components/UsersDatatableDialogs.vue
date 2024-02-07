@@ -16,7 +16,9 @@
                           {{ headers[key] ?? key }}
                         </v-list-item-title>
                         <v-list-item-subtitle class="text-lowercase text-body-1">
-                          {{ value }}
+                          {{ typeof value === 'boolean' ? '' : value }}
+                          <v-icon v-show="value===true" size="medium" color="green"> mdi-check </v-icon>
+                          <v-icon v-show="value===false" size="medium" color="red">mdi-close</v-icon>
                         </v-list-item-subtitle>
                       </v-list-item-content>
                     </v-list-item>
@@ -39,9 +41,11 @@
                           {{ headers[key] ?? key }}
                         </v-list-item-title>
                         <v-list-item-subtitle class="text-lowercase text-body-1">
-                          <v-chip v-for="(element, index) in value" :key="index">
-                            {{ element }}
-                          </v-chip>
+                          <v-chip-group column>
+                            <v-chip v-for="(element, index) in value" :key="index">
+                              {{ element }}
+                            </v-chip>
+                          </v-chip-group>
                         </v-list-item-subtitle>
                       </v-list-item-content>
                     </v-list-item>
@@ -92,8 +96,8 @@
               <v-col class="pa-0 ma-0 pb-2" cols="12">
                 <v-text-field
                   v-model="user.clave"
-                  :append-icon="cf.icon1"
-                  :type="cf.type1"
+                  :append-icon="showPass.icon1"
+                  :type="showPass.type1"
                   :rules="[rules.required, rules.min8char]"
                   @click:append="form.show1 = !form.show1"
                   label="Contraseña*"
@@ -106,8 +110,8 @@
               <v-col class="pa-0 ma-0" cols="12">
                 <v-text-field
                   v-model="form.pass"
-                  :append-icon="cf.icon2"
-                  :type="cf.type2"
+                  :append-icon="showPass.icon2"
+                  :type="showPass.type2"
                   :rules="[rules.required, rules.min8char, rules.samePass]"
                   @click:append="form.show2 = !form.show2"
                   label="Confirmar contraseña*"
@@ -152,6 +156,7 @@
 <script>
 import rules from "@/core/rules.forms";
 import services from "@/services";
+import { mapActions } from "vuex";
 
 export default {
   name: "UsersDatatableDialogs",
@@ -159,11 +164,12 @@ export default {
     return {
       chips: ["dominios", "modulos", "roles", "permisos"],
       headers: {
+        id: "no. usuario",
         roles: "perfiles",
         apepat: "apellido paterno",
         apemat: "apellido materno",
-        fecha_creacion: "fecha de creacion",
-        fecha_modificacion: "fecha de modificación",
+        fecha_creacion: "fecha creacion",
+        fecha_modificacion: "fecha modificación",
       },
       show: {
         view: false,
@@ -181,7 +187,7 @@ export default {
     };
   },
   computed: {
-    cf() {
+    showPass() {
       return {
         type1: this.form.show1 ? "text" : "password",
         type2: this.form.show2 ? "text" : "password",
@@ -200,66 +206,81 @@ export default {
         ...rules,
         samePass: this.samePass || "Las contraseñas no coinciden.",
       };
-    },
+    }
   },
   methods: {
+    ...mapActions('app', ['showError', 'showSuccess']),
     async viewUser() {
-      const { id } = this.user;
-      const { usuario } = await services.admin().getEditUserInfo({ id });
-      const { dominios, modulos, roles, permisos, ...data } = usuario;
+      try {
+        const { id } = this.user;
+        let [domains, modules, roles, permissions, { usuario }] = await Promise.all([
+          services.admin().getDomains(),
+          services.admin().getModules(),
+          services.admin().getRoles(),
+          services.admin().getPermissions(),
+          services.admin().getEditUserInfo({ id }),
+        ]);
+        
+        const { dominios, modulos, perfiles, permisos, ...user } = usuario;
+        for (const key in user) if (!user[key] || key === 'admin') delete user[key];
 
-      for (const k in data) if (!data[k] || k === "nombre_completo") delete data[k];
-
-      let dom = await services.admin().getDomains();
-      let mod = await services.admin().getModules();
-      let rol = await services.admin().getAllRoles();
-      let per = await services.admin().getAllPermissions();
-
-      const convToName = (objs, ids) => objs.filter(o => ids.includes(o.id)).map(o => o.nombre);
-      dom = convToName(dom, dominios);
-      mod = convToName(mod, modulos);
-      rol = convToName(rol, roles);
-      per = convToName(per, permisos);
-
-      this.user = { ...data };
-      if (dom.length > 0) this.user.dominios = dom;
-      if (mod.length > 0) this.user.modulos = mod;
-      if (rol.length > 0) this.user.roles = rol;
-      if (per.length > 0) this.user.permisos = per;
-
-      this.show.view = true;
+        const convToName = (objs, ids) => objs.filter(o => ids.includes(o.id)).map(o => o.nombre);
+        domains = convToName(domains, dominios);
+        modules = convToName(modules, modulos);
+        roles = convToName(roles, perfiles);
+        permissions = convToName(permissions, permisos);
+        
+        this.user = { ...user };
+        if (domains.length > 0) this.user.dominios = domains;
+        if (modules.length > 0) this.user.modulos = modules;
+        if (roles.length > 0) this.user.roles = roles;
+        if (permissions.length > 0) this.user.permisos = permissions;
+        
+        this.show.view = true;
+      }
+      catch(error) {
+        const message = 'Error al cargar la información.';
+        this.showError({ message, error });
+      }
     },
     async deleteUser() {
-      const { success, message, error } = await services.admin().deleteUser(this.user.id);
+      try {
+        const { message } = await services.admin().deleteUser(this.user.id);
+        this.$parent.loadUsersTable();
+        this.showSuccess(message);
+      } catch (error) {
+        const message = 'Error al activar/desactivar usuario.';
+        this.showError({ message, error });
+      }
 
-      if (success) this.$parent.loadUsersTable();
-      this.toast(success, message, error);
       this.show.delete = false;
     },
     async changePass() {
       if (!this.valid) return;
 
-      const { id, clave } = this.user;
-      const { success, message, error } = await services.admin().changeUserPass({ id, clave });
+      try {
+        const { id, clave } = this.user;
+        const { message } = await services.admin().changeUserPass({ id, clave });
+        this.showSuccess(message);
+      } catch (error) {
+        const message = 'Error al modificar contraseña de usuario.';
+        this.showError({ message, error });
+      }
 
-      this.toast(success, message, error);
-      if (success) this.show.change = false;
+      this.show.change = false;
     },
     async resetPass() {
-      const { id } = this.user;
-      const { success, message, error } = await services.admin().resetUserPass({ id });
+      try {
+        const { id } = this.user;
+        const { message } = await services.admin().resetUserPass({ id });
+        this.showSuccess(message);
+      } catch (error) {
+        const message = 'Error al restablecer contraseña de usuario.';
+        this.showError({ message, error });
+      }
 
-      this.toast(success, message, error);
       this.show.reset = false;
     },
-    toast(success, message, error) {
-      if (message) {
-        success
-          ? this.$store.dispatch('app/showSuccess', message)
-          : this.$store.dispatch('app/showError', { message });
-      }
-      if(error) console.error(error);
-    }
   },
   watch: {
     ["show.change"](newValue) {

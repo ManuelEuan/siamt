@@ -56,25 +56,24 @@ export default class AdminService extends ApiService {
 
   //Permisos
 
-  async getAllUsers() {
-    return await this.post("/users/");
-  }
-  async getAllPermissions() {
+  async getPermissions() {
     return await this.get("/permissions");
   }
 
-  //Roles
+  //Perfiles
 
-  async getAllRoles() {
-    return await this.get("/groups");
+  async getRoles() {
+    return await this.get("/roles");
   }
 
   //Dominios
+
   async getDomains() {
     return await this.get("/domains");
   }
 
   //Usuarios
+
   async getUsers(data) {
     return await this.post("/users", JSON.stringify(data));
   }

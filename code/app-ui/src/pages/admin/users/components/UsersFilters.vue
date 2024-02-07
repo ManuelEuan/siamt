@@ -3,7 +3,7 @@
   <v-toolbar>
     <v-toolbar-title>Usuarios</v-toolbar-title>
     <v-spacer></v-spacer>
-    <v-tooltip top>
+    <v-tooltip v-if="permissions.includes('crus')" top>
       <template v-slot:activator="{ on, attrs }">
         <v-btn
           color="primary"
@@ -23,11 +23,11 @@
     ></v-divider>
     <v-badge
       overlap
-      :content="numberOfActiveFilters"
-      :value="numberOfActiveFilters"
+      :content="activeFilters"
+      :value="activeFilters"
     >
       <v-dialog
-        v-model="filterDialog"
+        v-model="dialog"
         width="600"
       >
         <template v-slot:activator="{ on, attrs }">
@@ -43,59 +43,102 @@
         </template>
 
         <v-card>
-          <v-card-title class="text-uppercase primary--text text-h6 py-2"> Filtros </v-card-title>
-          <v-divider />
+          <v-card-title class="text-uppercase primary--text text-h6 py-2">Filtros</v-card-title>
+          <v-divider></v-divider>
           <v-card-text>
             <v-row dense>
               <v-col
                 cols="6"
                 md="6"
-                xl="6"
               >
-                <v-checkbox v-model="filter.active" @click="filter.inactive = false">
-                  <template v-slot:label> Activo </template>
-                </v-checkbox>
+                <v-select
+                  v-model="filters.active"
+                  label="Activo"
+                  :items="items.active"
+                  item-text="text"
+                  item-value="value"
+                  hide-details
+                  clearable
+                  outlined
+                  dense
+                >
+                  <template v-slot:prepend-inner>
+                    <div class="d-flex align-center" style="height: 25px;">
+                      <v-icon 
+                        v-if="filters.active==='t'" 
+                        size="medium" 
+                        color="green"
+                      > 
+                        mdi-check 
+                      </v-icon>
+                      <v-icon 
+                        v-else-if="filters.active==='f'" 
+                        size="medium" 
+                        color="red"
+                      >
+                        mdi-close
+                      </v-icon>
+                      <v-icon 
+                        v-else 
+                        size="medium"
+                      >
+                        mdi-minus
+                      </v-icon>
+                      <v-divider 
+                        class="mx-1" 
+                        vertical
+                      ></v-divider>
+                    </div>
+                  </template>
+                </v-select>
               </v-col>
               <v-col
                 cols="6"
                 md="6"
-                xl="6"
               >
-                <v-checkbox v-model="filter.inactive" @click="filter.active = false">
-                  <template v-slot:label> Inactivo </template>
-                </v-checkbox>
+                <v-select
+                  v-model="filters.roles"
+                  label="Perfiles"
+                  :items="items.roles"
+                  item-text="nombre"
+                  item-value="id"
+                  clearable
+                  dense
+                  hide-details
+                  multiple
+                  outlined
+                  small-chips
+                ></v-select>
               </v-col>
               <v-col
                 cols="12"
                 md="6"
-                xl="4"
               >
-              <v-text-field
-                v-model="filter.username"
-                label="Usuario"
-                hide-details="auto"
-                clearable
-                dense
-                outlined
-              />
+                <v-text-field
+                  v-model="filters.username"
+                  label="Usuario"
+                  hide-details="auto"
+                  clearable
+                  dense
+                  outlined
+                ></v-text-field>
               </v-col>
               <v-col
                 cols="12"
                 md="6"
-                xl="4"
               >
-              <v-text-field
-                v-model="filter.name"
-                label="Nombre"
-                hide-details="auto"
-                clearable
-                dense
-                outlined
-              />
+                <v-text-field
+                  v-model="filters.name"
+                  label="Nombre"
+                  hide-details="auto"
+                  clearable
+                  dense
+                  outlined
+                ></v-text-field>
               </v-col>
             </v-row>
           </v-card-text>
-          <v-divider />
+          <v-divider></v-divider>
           <v-card-actions class="justify-end py-2">
             <v-spacer></v-spacer>
             <v-btn
@@ -103,19 +146,19 @@
               text
               @click="cleanFilters"
             >
-              Borrar filtros
+              Limpiar
             </v-btn>
             <v-btn
               color="error"
               text
-              @click="filterDialog = false"
+              @click="closeFilters"
             >
               Cerrar
             </v-btn>
             <v-btn
               color="primary"
               text
-              @click="applyFilters()"
+              @click="applyFilters"
             >
               Aplicar
             </v-btn>
@@ -128,67 +171,68 @@
 </template>
 
 <script>
+import services from '@/services';
+import { mapActions, mapState } from 'vuex';
+
 export default {
   name: "UsersFilters",
   data() {
     return {
-      filterDialog: false,
-      filter: {
-        active: false,
-        inactive: false,
+      dialog: false,
+      permissions: [],
+      filters: {
+        active: '',
         name: '',
         username: '',
+        roles: [],
+      },
+      items: {
+        active: [
+          { text: 'activo', value: 't' },
+          { text: 'inactivo', value: 'f'},
+        ],
+        roles: [],
       },
     };
   },
   computed: {
-    numberOfActiveFilters() {
-      return Object.values(this.filter)
-        .filter(f => f===true || (typeof(f)==='string' && f.trim() !== ''))
+    ...mapState('app', ['usersFilters']),
+    activeFilters() {
+      return Object
+        .values(this.usersFilters)
+        .filter(v => v && (typeof(v) === 'string' ? v.trim() : v.length))
         .length;
-    },
-    users() {
-      return this.$store.state.app.usuarios;
     }
   },
   methods: {
+    ...mapActions('app', ['getUsers', 'showError']),
     cleanFilters() {
-      this.filter = {
-        active: false,
-        inactive: false,
-        name: '',
-        user: '',
-        email: ''
-      };
-
-      this.$store.commit('app/setUsuariosFiltrados', []);
-      this.filterDialog = false;
+      this.filters = { active: '', name: '', username: '', roles: [] };
     },
-    applyFilters() {
-      let usr = this.users;
-      if (this.filter.active) usr = usr.filter(u => u.activo);
-      if (this.filter.inactive) usr = usr.filter(u => !u.activo);
-      if (this.filter.username) usr = usr.filter(u => u.usuario.toLowerCase().includes(this.filter.username.toLowerCase()));
-      if (this.filter.name) usr = usr.filter(u => u.nombre_completo.toLowerCase().includes(this.filter.name.toLowerCase()));
-
-      if(!usr.length) {
-        const msg = 'No hay usuarios que cumplan con los criterios de filtrado.';
-        this.$store.dispatch('app/showError', { message: msg });
-      }
-
-      this.$store.commit('app/setUsuariosFiltrados', usr);
-      this.filterDialog = false;
+    async applyFilters() {
+      const filters = this.filters;
+      await this.getUsers({ filters });
+      this.dialog = false;
+    },
+    closeFilters() {
+      this.filters = { ...this.usersFilters };
+      this.dialog = false;
     },
     newUser() {
       this.$router.push("/users/new");
     },
   },
-  watch: {
-    users() {
-      this.applyFilters();
+  async mounted() {
+    try {
+      const response = await services.admin().getRoles();
+      this.items.roles = response.map(({ id, nombre}) => ({ id, nombre }));
+    } catch (error) {
+      const message = 'Error al cargar opciones de filtrado.';
+      this.showError({ message, error });
     }
-  }
+
+    const { usr } = await services.security().getPermissions();
+    if (usr) this.permissions = usr;
+  },
 };
 </script>
-
-<style scoped></style>
