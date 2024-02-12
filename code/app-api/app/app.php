@@ -33,8 +33,7 @@ $app->get('/modules/config', function () use ($app) {
     $response = App::getModules($mods);
 
     return $response;
-}
-);
+});
 
 $app->get('/modules/config/all', function () use ($app) {
     $request = $app->request;
@@ -43,8 +42,7 @@ $app->get('/modules/config/all', function () use ($app) {
     $token = $app->getSharedService("token");
     $domainId = $token->getDomainId();
     return App::getModuleUserDomainConfig($user, $module, $domainId);
-}
-);
+});
 
 $app->get('/users', function () use ($app, $config) {
 
@@ -55,11 +53,61 @@ $app->get('/users', function () use ($app, $config) {
     return $data;
 });
 
-$app->mount((new Collection())
-    ->setHandler(UsersController::class, true)
-    ->post("/users", "users")
-    ->put("/create", "create"));
-//$app->post('/users', function () use ($app, $config) {
-//
-//    return "Hola";
-//});
+$app->get('/admin/domains', function () {
+    $sql = "SELECT * FROM usuario.dominio WHERE activo=true";
+    $domains = \App\Library\Db\Db::fetchAll($sql);
+    return $domains;
+});
+
+$app->get('/admin/modules', function () {
+    $sql = "SELECT * FROM usuario.modulo WHERE activo=true";
+    $modules = \App\Library\Db\Db::fetchAll($sql);
+    return $modules;
+});
+
+$app->get('/admin/permissions', function () {
+    $sql = "SELECT * FROM usuario.permiso WHERE activo=true";
+    $permissions = \App\Library\Db\Db::fetchAll($sql);
+    return $permissions;
+});
+
+$app->get('/admin/roles', function () {
+    $sql = "
+        WITH permissions AS (
+            SELECT 
+                idperfil, 
+                ARRAY_AGG(idpermiso) AS idpermiso
+            FROM usuario.perfil_permiso 
+            WHERE activo=true
+            GROUP BY idperfil
+        )
+        
+        SELECT r.*, p.idpermiso FROM usuario.perfil r
+        FULL JOIN permissions p ON id=p.idperfil
+        WHERE activo=true
+    ";
+    $roles = \App\Library\Db\Db::fetchAll($sql);
+
+    foreach($roles as $r) {
+        $permissions = $r->idpermiso;
+        $r->idpermiso = array_map(
+            'intval', 
+            explode(',', str_replace(['{', '}'], '', $permissions))
+        );
+    }
+
+    return $roles;
+});
+
+$app->mount(
+    (new Collection())
+        ->setHandler(UsersController::class, true)
+        ->setPrefix('/admin')
+        ->post("/users", "getUsers")
+        ->post('/users/new', 'createUser')
+        ->post('/users/getedituserinfo', 'getEditUserInfo')
+        ->put('/users', 'updateUser')
+        ->put('/users/reset', 'resetUserPass')
+        ->put('/users/change', 'changeUserPass')
+        ->delete('/users/{id}', 'deleteUser')
+);

@@ -59,14 +59,22 @@ export default {
     state.isToolbarDetached = isDetached
   },
 
-  //Para usuarios
-  setUsuarios(state,usuarios) {
-    state.usuarios = usuarios;
+  /**
+   * Users Filters and Pagination
+   */
+  setUsers: (state, users) => {
+    state.users = users
   },
-  setTotalUsuarios(state,totalUsuarios) {
-    state.totalUsuarios = totalUsuarios
+  setUsersData: (state, data) => {
+    state.usersData = { ...data };
   },
-  setPaginaActual(state,paginaActual) {
-    state.paginaActual = paginaActual
-  }
+  setUsersFilters: (state, filters) => {
+    state.usersFilters = { ...filters };
+  },
+  setUsersTotalPages: (state, totalPages) => {
+    state.usersTotalPages = totalPages
+  },
+  setUsersTotalItems: (state, totalItems) => {
+    state.usersTotalItems = totalItems
+  },
 }

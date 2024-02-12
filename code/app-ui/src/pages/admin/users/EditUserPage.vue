@@ -1,205 +1,163 @@
 <template>
   <v-container fluid>
     <v-row justify="center">
-      <v-col cols = "12" class="pa-0">
+      <v-col cols="12" class="pa-0">
         <v-card flat>
           <v-toolbar>
-            <v-toolbar-title>{{ isCreatingUser ? 'Nuevo' : 'Editar' }} Usuario</v-toolbar-title>
+            <v-toolbar-title>{{ createMode ? "Nuevo" : "Editar" }} Usuario</v-toolbar-title>
           </v-toolbar>
         </v-card>
       </v-col>
-      <v-col cols = "12" class="pa-0 mt-2">
-        <!-- Inician los tabs de tipos de info-->
-        <v-tabs
-            v-model = "principalTabs"
-            centered
-            icons-and-text
-        >
-          <v-tabs-slider
-              color="primary"
-          >
-          </v-tabs-slider>
+      <v-col cols="12" class="pa-0 mt-2">
+        <v-tabs v-model="tab" centered icons-and-text>
+          <v-tabs-slider color="primary" />
           <v-tab href="#generaltab">
             Datos Generales
-            <v-icon>
-              mdi-clipboard-text
-            </v-icon>
+            <v-icon> mdi-clipboard-text </v-icon>
           </v-tab>
-          <v-tab href="#profilestab">
+          <v-tab href="#rolestab">
             Perfiles
-            <v-icon>
-              mdi-card-account-details
-            </v-icon>
+            <v-icon> mdi-card-account-details </v-icon>
           </v-tab>
-         <v-tab href="#permissionstab">
+          <v-tab href="#permissionstab">
             Permisos
-                <v-icon>
-                    mdi-list-status
-                </v-icon>
-            </v-tab>
+            <v-icon> mdi-list-status </v-icon>
+          </v-tab>
         </v-tabs>
-        <v-tabs-items
-            v-model = " principalTabs"
-        >
+        <v-tabs-items v-model="tab">
           <v-card flat>
-          <v-tab-item
-              :key = "1"
-              value = "generaltab"
-              class = "py-1"
-          >
+            <v-tab-item :key="1" value="generaltab" class="py-1">
               <v-card-text>
+                <v-form v-model="valid">
                   <v-row>
-                    <v-col cols = "4">
+                    <v-col cols="4">
                       <v-text-field
-                          v-model = "user.nombre"
-                          label = "Nombre*"
-                          outlined
-                          clearable
-                          dense
-                          hide-details = "auto"
+                        v-model="user.nombre"
+                        label="Nombre*"
+                        :rules="[rules.required]"
+                        hide-details="auto"
+                        clearable
+                        dense
+                        outlined
                       />
                     </v-col>
-                    <v-col cols = "4">
+                    <v-col cols="4">
                       <v-text-field
-                          v-model = "user.apepat"
-                          label = "Apellido Paterno*"
-                          outlined
-                          clearable
-                          dense
-                          hide-details = "auto"
+                        v-model="user.apepat"
+                        label="Apellido Paterno*"
+                        :rules="[rules.required]"
+                        hide-details="auto"
+                        clearable
+                        dense
+                        outlined
                       />
                     </v-col>
-                    <v-col cols = "4">
+                    <v-col cols="4">
                       <v-text-field
-                          v-model = "user.apemat"
-                          label = "Apellido Materno"
-                          outlined
-                          clearable
-                          dense
-                          hide-details = "auto"
+                        v-model="user.apemat"
+                        label="Apellido Materno"
+                        :hint="hints.optional"
+                        hide-details="auto"
+                        clearable
+                        dense
+                        outlined
                       />
                     </v-col>
-                    <v-col cols = "4">
+                    <v-col cols="5">
                       <v-text-field
-                          v-model = "user.usuario"
-                          label = "Usuario*"
-                          outlined
-                          clearable
-                          dense
-                          hide-details = "auto"
+                        v-model="user.usuario"
+                        label="Usuario*"
+                        :hint="hints.user"
+                        :rules="[rules.required, rules.user, rules.min5char]"
+                        hide-details="auto"
+                        clearable
+                        dense
+                        outlined
                       />
                     </v-col>
-                    <v-col cols = "4">
+                    <v-col cols="7">
                       <v-text-field
-                          v-model = "user.clave"
-                          :append-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
-                          label = "Contraseña*"
-                          :type="showPass ? 'text' : 'password'"
-                          :hint = "isCreatingUser?'':'Si se deja en blanco la contraseña actual no se afectará'"
-                          outlined
-                          clearable
-                          dense
-                          hide-details = "auto"
-                          @click:append="showPass = !showPass"
+                        v-model="user.correo"
+                        label="Correo Electrónico"
+                        :hint="hints.optional"
+                        :rules="!!user.correo ? [rules.email] : []"
+                        hide-details="auto"
+                        clearable
+                        dense
+                        outlined
                       />
                     </v-col>
-                    <v-col cols = "4">
-                      <v-text-field
-                          label = "Confirmar Contraseña"
-                          :append-icon="showPass2 ? 'mdi-eye' : 'mdi-eye-off'"
-                          :type="showPass2 ? 'text' : 'password'"
-                          outlined
-                          clearable
-                          dense
-                          hide-details = "auto"
-                          @click:append="showPass2 = !showPass2"
-                      />
-                    </v-col>
-                    <v-col cols = "6">
-                      <v-text-field
-                          v-model = "user.correo"
-                          label = "Correo Electrónico"
-                          outlined
-                          clearable
-                          dense
-                          hide-details = "auto"
+                    <v-col cols="8">
+                      <v-select
+                        v-model="user.dominios"
+                        label="Dominios*"
+                        :rules="[rules.domain]"
+                        :items="domains"
+                        item-text="nombre"
+                        item-value="id"
+                        hide-details="auto"
+                        small-chips
+                        clearable
+                        dense
+                        multiple
+                        outlined
                       />
                     </v-col>
                   </v-row>
+                </v-form>
               </v-card-text>
-
-          </v-tab-item>
-          <v-tab-item
-              :key = "2"
-              value = "profilestab"
-          >
+            </v-tab-item>
+            <v-tab-item :key="2" value="rolestab">
               <v-container>
-                  <v-checkbox
-                          v-for="(role,id) in roles"
-                          :key="id"
-                          v-model="selectedRoles"
-                          :value="role.id"
-                  >
-                      <template v-slot:label>
-                          <v-tooltip right>
-                              <template v-slot:activator="{ on }">
-                                  <span v-on = "on">{{ role.nombre }}</span>
-                              </template>
-                              {{role.descripcion}}
-                          </v-tooltip>
-                      </template>
-                  </v-checkbox>
-              </v-container>
-          </v-tab-item>
-          <v-tab-item
-              :key = "3"
-              value = "permissionstab"
-          >
-            <v-expansion-panels>
-                <v-expansion-panel
-                  v-for = "(item,i) in permissions"
-                  :key = "i"
+                <v-checkbox
+                  v-for="(role, id) in roles"
+                  v-model="user.perfiles"
+                  :key="id"
+                  :value="role.id"
+                  @click="click.role = true"
                 >
-                    <v-expansion-panel-header>
-                        {{ item.nombre }}
-                    </v-expansion-panel-header>
-                    <v-expansion-panel-content>
-                        <v-checkbox
-                          v-for = "(permission,id) in item.permisos"
-                          :key = "id"
-                          v-model = "selectedPermissions"
-                          :value = "permission.id"
-                        >
-                            <template v-slot:label>
-                                <v-tooltip right>
-                                    <template v-slot:activator="{ on }">
-                                        <span v-on = "on">{{ permission.nombre }}</span>
-                                    </template>
-                                    {{permission.descripcion}}
-                                </v-tooltip>
-                            </template>
-                        </v-checkbox>
-                    </v-expansion-panel-content>
+                  <template v-slot:label>
+                    <v-tooltip right>
+                      <template v-slot:activator="{ on }">
+                        <span v-on="on">{{ role.nombre }}</span>
+                      </template>
+                      {{ role.descripcion }}
+                    </v-tooltip>
+                  </template>
+                </v-checkbox>
+              </v-container>
+            </v-tab-item>
+            <v-tab-item :key="3" value="permissionstab">
+              <v-expansion-panels>
+                <v-expansion-panel v-for="(item, i) in permissions" :key="i">
+                  <v-expansion-panel-header>
+                    {{ item.nombre }}
+                  </v-expansion-panel-header>
+                  <v-expansion-panel-content>
+                    <v-checkbox
+                      v-for="(permission, id) in item.permisos"
+                      v-model="user.permisos"
+                      :key="id"
+                      :value="permission.id"
+                      @click="click.permission = true"
+                    >
+                      <template v-slot:label>
+                        <v-tooltip right>
+                          <template v-slot:activator="{ on }">
+                            <span v-on="on">{{ permission.nombre }}</span>
+                          </template>
+                          {{ permission.descripcion }}
+                        </v-tooltip>
+                      </template>
+                    </v-checkbox>
+                  </v-expansion-panel-content>
                 </v-expansion-panel>
-            </v-expansion-panels>
-          </v-tab-item>
+              </v-expansion-panels>
+            </v-tab-item>
             <v-card-actions>
               <v-spacer />
-              <v-btn
-                  color ="error"
-                  text
-                  @click="exitWindow()"
-              >
-                Cerrar
-              </v-btn>
-              <v-btn
-                  color ="primary"
-                  text
-                  :disabled = "invalid"
-                  @click = "isCreatingUser ? saveUser() : updateUser()"
-              >
-                Guardar
-              </v-btn>
+              <v-btn color="error" text @click="exitWindow()"> Cerrar </v-btn>
+              <v-btn color="primary" text :disabled="!valid" @click="saveUser()"> Guardar </v-btn>
             </v-card-actions>
           </v-card>
         </v-tabs-items>
@@ -209,89 +167,153 @@
 </template>
 
 <script>
-
-
+import rules from "@/core/rules.forms";
 import services from "@/services";
+import { mapActions } from "vuex";
 
 export default {
   components: {},
+  data() {
+    return {
+      click: {
+        role: false,
+        permission: false,
+      },
+      valid: false,
+      tab: "generaltab",
+      permissions: [],
+      roles: [],
+      modules: [],
+      domains: [],
+      user: {
+        id: 0,
+        usuario: "",
+        nombre: "",
+        apepat: "",
+        apemat: "",
+        correo: "",
+        admin: false,
+        dominios: [],
+        modulos: [],
+        perfiles: [],
+        permisos: [],
+      },
+      hints: {
+        user: "Solo . _ - números y letras sin acentos ni espacios.",
+        optional: "Opcional.",
+      },
+      rules: {
+        ...rules,
+        domain: v => v.length > 0 || "Requerido.",
+      },
+    };
+  },
   computed: {
-    isCreatingUser() {
+    createMode() {
       return !this.$route.params.id;
     },
   },
-  async mounted() {
-      await this.getModules();
-    await this.getPermissions();
-    await this.getRoles();
-    if (!this.isCreatingUser) {
-      await this.isEditMode();
-    }
-  },
-  data() {
-    return {
-      invalid : true,
-      principalTabs : 0,
-      showPass : false,
-      showPass2 : false,
-      permissions : [],
-        selectedPermissions : [],
-        selectedRoles : [],
-      roles : [],
-      modules : [],
-      user : {
-        id : 0,
-        usuario : "",
-        clave : "",
-        nombre : "",
-        apepat : "",
-        apemat : "",
-        correo : "",
-        admin : false,
-        activo : true,
-        modulos : [],
-        roles : [],
-        permisos : []
+  methods: {
+    ...mapActions('app', ['showError', 'showSuccess']),
+    async loadSelectableData() {
+      try {
+        const [domains, modules, roles, permissions] = await Promise.all([
+          services.admin().getDomains(),
+          services.admin().getModules(),
+          services.admin().getRoles(),
+          services.admin().getPermissions()
+        ]);
+  
+        this.domains = domains.map(({ id, nombre }) => ({ id, nombre }));
+        this.modules = modules;
+        this.roles = roles;
+        this.permissions = this.modules.map(({ nombre, id }) => ({
+          nombre,
+          permisos: permissions.filter(p => p.idmodulo === id),
+        }));
+      } catch (error) {
+        const message = 'Error al cargar opciones para nuevo usuario.';
+        this.showError({ message, error });
       }
-    }
-  },
-  methods : {
-    async getRoles() {
-      this.roles = await services.admin().getAllRoles();
     },
-    async getModules() {
-      const res = await services.admin().getModules();
-      this.modules = res.data;
+    async setEditMode() {
+      try {
+        const { id } = this.$route.params;
+        const { usuario } = await services.admin().getEditUserInfo({ id });
+        const { clave, admin, activo, fecha_creacion, fecha_modificacion, ...user } = usuario;
+        this.user = user;
+      } catch (error) {
+        const message = 'Error al cargar información de usuario.';
+        this.showError({ message, error });
+      }
     },
-    async getPermissions() {
-      const resp = await services.admin().getAllPermissions();
-      this.modules.forEach(module =>{
-        let modulo = {
-          nombre : module.nombre,
-          permisos : resp.filter(p=>p.idmodulo === module.id)
-        }
-        this.permissions.push(modulo);
-      });
-    },
-    async isEditMode() {
-        let params = {
-            id : this.$route.params.id
-        }
-      const res = await services.admin().getEditUserInfo(params);
-        console.log("=>(EditUserPage.vue:280) res", res);
-        this.selectedRoles = res.perfiles;
-        this.user = res.usuario;
-        this.user.clave = "";
-    },
-    updateUser(){
+    setUserModules() {
+      const m = this.permissions
+        .flatMap(p => p.permisos)
+        .filter(p => this.user.permisos.includes(p.id))
+        .map(p => p.idmodulo);
 
+      this.user.modulos = [...new Set(m)];
+      this.user.admin = this.user.perfiles.includes(1);
     },
-    saveUser() {
+    async saveUser() {
+      if (!this.valid) return;
 
+      this.setUserModules();
+
+      try {
+        const { message } = await (
+          this.createMode
+            ? services.admin().createUser(this.user)
+            : services.admin().updateUser(this.user)
+        );
+
+        this.showSuccess(message);
+        this.exitWindow();
+      } catch (error) {
+        const message = 'Error al guardar usuario.';
+        this.showError({ message, error });
+      }
     },
     exitWindow() {
-      this.$router.push('/users')
+      this.$router.push("/users");
+    },
+  },
+  watch: {
+    ['user.permisos'](newPermissions, oldPermissions) {
+      if (this.click.permission === false) return;
+      if (newPermissions.length === oldPermissions.length) return;
+
+      this.user.perfiles = this.roles
+        .filter(r => r.idpermiso.every(id => newPermissions.includes(id)))
+        .map(r => r.id);
+
+      this.click.permission = false;
+    },
+    ['user.perfiles'](newRoles, oldRoles) {
+      if (this.click.role === false) return;
+      if (oldRoles.length === newRoles.length) return;
+
+      if (newRoles.length < oldRoles.length) {
+        const previousRoles = [...oldRoles];
+        const roleId = previousRoles.pop();
+        const role = this.roles.find(r => r.id === roleId);
+        this.user.permisos = this.user.permisos.filter(p => !role.idpermiso.includes(p));
+      } else {
+        const actualRoles = [...newRoles];
+        const roleId = actualRoles.pop();
+        const role = this.roles.find(r => r.id === roleId);
+        this.user.permisos.push(...role.idpermiso);
+        this.user.permisos = [...new Set(this.user.permisos)];
+      }
+
+      this.user.permisos.filter(p => p !== 0);
+      this.click.role = false;
     }
-  }
-}
+  },
+  async mounted() {
+    await this.loadSelectableData();
+    if (!this.createMode) await this.setEditMode();
+  },
+};
 </script>

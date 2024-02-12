@@ -1,4 +1,5 @@
-import services from '../../services/index';
+import services from '@/services'
+
 const showToast = ({ state, commit }, message) => {
   if (state.toast.show) commit('hideToast')
 
@@ -35,27 +36,23 @@ const showSuccess = ({ state, commit }, message) => {
   })
 }
 
+const getUsers = async ({ state, commit }, { data, filters }) => {
+  if (data) commit('setUsersData', data)
+  if (filters) commit('setUsersFilters', filters)
 
-const fetchUsuarios = async ({commit, state}) => {
-  const filtros = {
-    paginaActual : state.paginaActual,
-    porPagina : state.porPagina
-  }
-  const usuarios = await services.admin().getUsers(filtros);
-  console.log("-> usuarios", usuarios);
-  commit('setUsuarios',usuarios);
-  commit('setTotalUsuarios', usuarios.totalUsuarios)
-}
-
-const cambiarPagina = ({commit, dispatch}, pagina) => {
-  commit('setPaginaActual', pagina);
-  dispatch('fetchUsuarios');
+  const { users, totalPages, totalItems } = await services.admin().getUsers({ 
+    ...state.usersData, 
+    filters: state.usersFilters 
+  })
+  
+  commit('setUsers', users)
+  commit('setUsersTotalPages', totalPages)
+  commit('setUsersTotalItems', totalItems)
 }
 
 export default {
   showToast,
   showError,
   showSuccess,
-  fetchUsuarios,
-  cambiarPagina,
+  getUsers,
 }
