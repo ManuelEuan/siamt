@@ -17,6 +17,18 @@ $app->get('/domain/config', function () use ($app, $config) {
     return $data;
 });
 
+
+$app->get('/user/info', function () use ($app, $config) {
+
+    $token = $app->getSharedService('token');
+    $sql = "SELECT * FROM usuario.usuario WHERE id=" . $token->getUserId();
+    $user = \App\Library\Db\Db::fetchAll($sql);
+    // dep($user);exit;
+
+    return $user;
+});
+
+
 $app->get('/user/config', function () use ($app, $config) {
 
     $token = $app->getSharedService('token');

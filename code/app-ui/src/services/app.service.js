@@ -80,7 +80,7 @@ export default class AppService extends ApiService {
 
 		return search(config);
 	}
-	
+
 	async getModulesConfig() {
 		let config = this.getLoadedModulesConfig();
 	
@@ -91,11 +91,18 @@ export default class AppService extends ApiService {
 		return config;
 	}
 	
+	async getUserConfig() {
+		let config = this.getLoadedUserConfig();
+		return config;
+	}
+	
 	async loadModulesConfig() {
 		console.log("LOAD_MODULES")
 		const response = await this.get("/modules/config");
-			
 		this.getServices().storage().set(AppService.MODULES_CONFIG_KEY, response);
+		console.log("LOAD USER")
+		const responseUser = await this.get("/user/info");
+		this.getServices().storage().set(AppService.USER_CONFIG_KEY, responseUser);
 	
 		return response;
 	}
@@ -106,6 +113,10 @@ export default class AppService extends ApiService {
 	
 	getLoadedModulesConfig() {
 		return this.getServices().storage().get(AppService.MODULES_CONFIG_KEY);
+	}
+
+	getLoadedUserConfig() {
+		return this.getServices().storage().get(AppService.USER_CONFIG_KEY);
 	}
 
 	getLoadedUserDomainModulesConfig() {
