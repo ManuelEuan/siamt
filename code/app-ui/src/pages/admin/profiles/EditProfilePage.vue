@@ -15,14 +15,6 @@
                     Datos Generales
                     <v-icon> mdi-clipboard-text </v-icon>
                 </v-tab>
-                <!-- <v-tab href="#rolestab">
-                    Perfiles
-                    <v-icon> mdi-card-account-details </v-icon>
-                </v-tab>
-                <v-tab href="#permissionstab">
-                    Permisos
-                    <v-icon> mdi-list-status </v-icon>
-                </v-tab> -->
             </v-tabs>
             <v-tabs-items v-model="tab">
                 <v-card flat>
@@ -30,13 +22,14 @@
                         <v-card-text>
                             <v-form v-model="valid">
                                 <v-row>
-                                    <v-col cols="6">
+                                    <v-col cols="12" md="6">
                                         <v-text-field v-model="user.nombre" label="Nombre*" :rules="[rules.required]" hide-details="auto" clearable dense outlined />
                                     </v-col>
-                                    <v-col cols="6">
-                                        <v-select v-model="user.dominios" label="Dominios*" :rules="[rules.domain]" :items="domains" item-text="nombre" item-value="id" hide-details="auto" small-chips clearable dense multiple outlined />
+                                    <v-col cols="12">
+                                        <v-textarea v-model="user.descripcion" label="Descripción*" :rules="[rules.required]" hide-details="auto" clearable dense outlined />
                                     </v-col>
-                                    <v-col>
+                                    <v-col cols="12" style="font-size: 20px;">Permisos</v-col>
+                                    <v-col cols="12">
                                         <v-expansion-panels>
                                             <v-expansion-panel v-for="(item, i) in permissions" :key="i">
                                                 <v-expansion-panel-header>
@@ -60,29 +53,6 @@
                                 </v-row>
                             </v-form>
                         </v-card-text>
-                    </v-tab-item>
-                    <!-- <v-tab-item :key="2" value="rolestab">
-              <v-container>
-                <v-checkbox
-                  v-for="(role, id) in roles"
-                  v-model="user.perfiles"
-                  :key="id"
-                  :value="role.id"
-                  @click="click.role = true"
-                >
-                  <template v-slot:label>
-                    <v-tooltip right>
-                      <template v-slot:activator="{ on }">
-                        <span v-on="on">{{ role.nombre }}</span>
-                      </template>
-                      {{ role.descripcion }}
-                    </v-tooltip>
-                  </template>
-                </v-checkbox>
-              </v-container>
-            </v-tab-item> -->
-                    <v-tab-item :key="3" value="permissionstab">
-
                     </v-tab-item>
                     <v-card-actions>
                         <v-spacer />
@@ -123,7 +93,8 @@ export default {
                 apemat: "",
                 correo: "",
                 admin: false,
-                dominios: [],
+                descripcion: [],
+                // dominios: [],
                 modulos: [],
                 perfiles: [],
                 permisos: [],
@@ -168,9 +139,14 @@ export default {
         },
         async setEditMode() {
             try {
-                // const { id } = this.$route.params;
-
-                // const { nombre } = await services.admin().getEditProfileInfo({ id });
+                const { id } = this.$route.params;
+                console.log(id)
+                const { perfiles } = await services.admin().getEditProfileInfo({ id });
+                console.log(perfiles)
+                const { usuarios, permisos } = perfiles
+                console.log(usuarios)
+                console.log(permisos)
+                
                 // const { ...profile } = nombre;
                 // this.profile = profile;
             } catch (error) {

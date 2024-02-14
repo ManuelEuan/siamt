@@ -3,7 +3,7 @@
     <v-toolbar>
         <v-toolbar-title>Perfiles</v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-tooltip v-if="permissions.includes('crus')" top>
+        <v-tooltip v-if="permissions.includes('vepe')" top>
             <template v-slot:activator="{ on, attrs }">
                 <v-btn color="primary" class="me-1" @click="newProfile" v-bind="attrs" v-on="on">
                     <v-icon> mdi-account-plus </v-icon>
@@ -135,8 +135,8 @@ export default {
             this.showError({ message, error });
         }
 
-        const { usr } = await services.security().getPermissions();
-        if (usr) this.permissions = usr;
+        const { per } = await services.security().getPermissions();
+        if (per) this.permissions = per;
     },
 };
 </script>

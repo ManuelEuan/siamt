@@ -164,8 +164,6 @@ export default {
     async loadUsersTable() {
       const { page, itemsPerPage, sortBy, sortDesc } = this.options;
       const data = { page, itemsPerPage, sortBy, sortDesc }; 
-      console.log('-----------usuarios')
-      console.log(data)
       this.getUsers({ data });
       console.log(this.users)
 
@@ -191,8 +189,6 @@ export default {
   },
   async mounted() {
     const { usr } = await services.security().getPermissions();
-        console.log('-----------usr')
-    console.log(usr)
     if (usr) this.permissions = usr;
   }
 };

@@ -43,7 +43,7 @@
                                             <v-list-item-subtitle class="text-lowercase text-body-1">
                                                 <v-chip-group column>
                                                     <v-chip v-for="(element, index) in value" :key="index">
-                                                        {{ element }}
+                                                        {{ element.element }}
                                                     </v-chip>
                                                 </v-chip-group>
                                             </v-list-item-subtitle>
@@ -151,41 +151,13 @@ export default {
                 let [ ...perfil ] = await Promise.all([
                     services.admin().getEditProfileInfo({ id }),
                 ]);
-                // console.log(...perfil);
-
-                // let [usuarios, permisos] = [...perfil[0].perfiles];
+                console.log('perfil---')
+                console.log(perfil)
                 let usuarios = perfil[0].perfiles.usuarios
                 let permisos = perfil[0].perfiles.permisos
-                // let {usuario} = ...
-                console.log(usuarios);
-                console.log(permisos);
-                console.log(perfil);
 
                 this.profile.usuarios = usuarios
                 this.profile.permisos = permisos
-                // let [domains, modules, roles, permissions, { usuario }] = await Promise.all([
-                //   services.admin().getDomains(),
-                //   services.admin().getModules(),
-                //   services.admin().getRoles(),
-                //   services.admin().getPermissions(),
-                //   services.admin().getEditProfileInfo({ id }),
-                // ]);
-              
-
-                // const { dominios, modulos, perfiles, permisos, ...profile } = usuario;
-                // for (const key in profile) if (!profile[key] || key === 'admin') delete profile[key];
-
-                // const convToName = (objs, ids) => objs.filter(o => ids.includes(o.id)).map(o => o.nombre);
-                // domains = convToName(domains, dominios);
-                // modules = convToName(modules, modulos);
-                // roles = convToName(roles, perfiles);
-                // permissions = convToName(permissions, permisos);
-
-                // this.profile = { ...profile };
-                // if (domains.length > 0) this.profile.dominios = domains;
-                // if (modules.length > 0) this.profile.modulos = modules;
-                // if (roles.length > 0) this.profile.roles = roles;
-                // if (permissions.length > 0) this.profile.permisos = permissions;
 
                 this.show.view = true;
             } catch (error) {

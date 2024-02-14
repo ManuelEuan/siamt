@@ -136,10 +136,7 @@ export default {
       console.log(sortDesc)
 
       const data = { page, itemsPerPage, sortBy, sortDesc }; 
-            console.log('-----------getProfiles')
-             console.log(data)
       this.getProfiles({ data });
-      console.log(this.profiles)
       this.loadingTable = false;
     },
     actionsHandler(profile, action) {

@@ -84,20 +84,21 @@ class ProfilesController extends BaseController
     }
     public function getEditProfileInfo()
     {
-        $this->hasClientAuthorized('vepe');
-
+        $this->hasClientAuthorized('edpe');
         $data = $this->request->getJsonRawBody(); //solo id del perfil
+
         if (empty($data->id)) throw new ValidatorBoomException(422, 'Id requerido.');
         $profile = [];
         
         // Permisos que tiene asignado este perfil
         $params = array('id' => $data->id);
         $sql = 'SELECT idpermiso FROM usuario.perfil_permiso WHERE idperfil=:id';
+        
         $permisos_with_perfil = Db::fetchAll($sql, $params);
         $profile['perfiles']->permisos = [];
         if(count($permisos_with_perfil) > 0){
             foreach($permisos_with_perfil as  $idPermiso){
-                $sql = 'SELECT id, nombre, descripcion, siglas, idmodulo, fecha_creacion, fecha_modificacion FROM usuario.permiso WHERE id=' . $idPermiso->idpermiso;
+                $sql = 'SELECT id, nombre as element, descripcion, siglas, idmodulo, fecha_creacion, fecha_modificacion FROM usuario.permiso WHERE id=' . $idPermiso->idpermiso;
                 $complete_permisos_with_perfil = Db::fetchOne($sql);
                 array_push($profile['perfiles']->permisos, $complete_permisos_with_perfil);
             }
@@ -109,13 +110,12 @@ class ProfilesController extends BaseController
         $profile['perfiles']->usuarios=[];
         if(count($usuarios_with_perfil) > 0){
             foreach($usuarios_with_perfil as  $idUsuario){
-                $sql = 'SELECT id, usuario, nombre, apepat, apemat, correo, activo FROM usuario.usuario WHERE id=' . $idUsuario->idusuario;
+                $sql = 'SELECT id, usuario as element, nombre, apepat, apemat, correo, activo FROM usuario.usuario WHERE id=' . $idUsuario->idusuario;
                 $complete_usuarios_with_perfil = Db::fetchOne($sql);
                 array_push($profile['perfiles']->usuarios, $complete_usuarios_with_perfil);
             }
         }
 
-   
         return $profile;
     }
 
