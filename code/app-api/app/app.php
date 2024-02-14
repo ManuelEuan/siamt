@@ -8,6 +8,8 @@ use App\Controllers\TerritoryController;
 use App\Controllers\LayersController;
 use App\Controllers\SurveyController;
 use App\Controllers\UsersController;
+use App\Controllers\ProfilesController;
+
 
 
 $app->get('/domain/config', function () use ($app, $config) {
@@ -57,11 +59,15 @@ $app->get('/modules/config/all', function () use ($app) {
 });
 
 $app->get('/users', function () use ($app, $config) {
-
     $token = $app->getSharedService('token');
-
     $data = App::findUsersByDomain($token->getDomainId());
+    return $data;
+});
 
+$app->get('/profiles', function () use ($app, $config) {
+    $token = $app->getSharedService('token');
+    $data = App::findProfilesByDomain($token->getDomainId());
+    dep($data);
     return $data;
 });
 
@@ -122,4 +128,13 @@ $app->mount(
         ->put('/users/reset', 'resetUserPass')
         ->put('/users/change', 'changeUserPass')
         ->delete('/users/{id}', 'deleteUser')
+   
+
+);
+$app->mount(
+    (new Collection())
+    ->setHandler(ProfilesController::class, true)
+    ->setPrefix('/admin')
+    ->post("/profiles", "getProfiles")
+    ->post('/profiles/geteditprofileinfo', 'getEditProfileInfo')
 );

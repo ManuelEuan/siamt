@@ -77,4 +77,23 @@ export default {
   setUsersTotalItems: (state, totalItems) => {
     state.usersTotalItems = totalItems
   },
+
+  /**
+   * Profiles Filters and Pagination
+   */
+  setProfiles: (state, profiles) => {
+    state.profiles = profiles
+  },
+  setProfilesData: (state, data) => {
+    state.profilesData = { ...data };
+  },
+  setProfilesFilters: (state, filters) => {
+    state.profilesFilters = { ...filters };
+  },
+  setProfilesTotalPages: (state, totalPages) => {
+    state.profilesTotalPages = totalPages
+  },
+  setProfilesTotalItems: (state, totalItems) => {
+    state.profilesTotalItems = totalItems
+  },
 }

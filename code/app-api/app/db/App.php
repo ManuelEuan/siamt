@@ -10,6 +10,7 @@ use App\Models\UserDomainModule;
 
 class App
 {
+	
     public static function getDomainConfigAsJson($domain)
     {
         $sql = '
@@ -140,6 +141,12 @@ FROM usuario.usuario_dominio_configuracion c WHERE idusuario = :userId and iddom
     }
 	
 	public static function findUsersByDomain($domainId) {
+		$sql = "SELECT u.id, u.usuario, u.nombre, u.apepat, u.apemat, u.correo, u.activo, u.fecha_creacion, u.fecha_modificacion FROM usuario.usuario_dominio AS ud LEFT JOIN usuario.usuario AS u ON (ud.idusuario=u.id) WHERE ud.iddominio = :domainId";
+		
+		return Db::fetchAll($sql, ['domainId' => $domainId]);
+	}
+
+	public static function findProfilesByDomain($domainId) {
 		$sql = "SELECT u.id, u.usuario, u.nombre, u.apepat, u.apemat, u.correo, u.activo, u.fecha_creacion, u.fecha_modificacion FROM usuario.usuario_dominio AS ud LEFT JOIN usuario.usuario AS u ON (ud.idusuario=u.id) WHERE ud.iddominio = :domainId";
 		
 		return Db::fetchAll($sql, ['domainId' => $domainId]);

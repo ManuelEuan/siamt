@@ -99,6 +99,7 @@ export default class AppService extends ApiService {
 	async loadModulesConfig() {
 		console.log("LOAD_MODULES")
 		const response = await this.get("/modules/config");
+		console.log(response)
 		this.getServices().storage().set(AppService.MODULES_CONFIG_KEY, response);
 		console.log("LOAD USER")
 		const responseUser = await this.get("/user/info");

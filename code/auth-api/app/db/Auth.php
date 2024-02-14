@@ -6,9 +6,9 @@ use App\Library\Db\Db;
 
 class Auth
 {
-    public static function login($username, $password, $domain)
-    {
-        $sql = '
+	public static function login($username, $password, $domain)
+	{
+		$sql = '
 SELECT t.idusuario,usr.nombre,t.iddominio,dmn.nombre AS dominio FROM usuario.usuario_dominio AS t 
 INNER JOIN
 (
@@ -20,12 +20,12 @@ INNER JOIN
 ) AS dmn ON t.iddominio = dmn.id
 WHERE t.activo = true';
 
-        return Db::fetch($sql, [$username,$password,$domain]);
-    }
+		return Db::fetch($sql, [$username, $password, $domain]);
+	}
 
-    public static function getUserPermissionsAsJson($userId, $domainId)
-    {	
-        $sql = "
+	public static function getUserPermissionsAsJson($userId, $domainId)
+	{
+		$sql = "
 		SELECT idusuario, json_object_agg(siglas, permisos) as permisos 
 		FROM (	
 				SELECT t.idusuario, mod.siglas, COALESCE(json_agg(prm.siglas) FILTER (WHERE prm.siglas IS NOT NULL ),'[]') AS permisos 
@@ -58,20 +58,20 @@ WHERE t.activo = true';
 				GROUP BY t.idusuario, mod.siglas
 		) AS sq GROUP BY sq.idusuario;";
 
-
-        return Db::fetch($sql, ['userId' => $userId,'domainId' => $domainId]);
-    }
-
+		return Db::fetch($sql, ['userId' => $userId, 'domainId' => $domainId]);
+	}
 
 
-	public static function changePassword($user, $pass) {  
-		$sql = 'UPDATE usuario.usuario SET clave = encode(sha256(\''.$pass.'\'),\'hex\') WHERE usuario LIKE \''.$user.'\'';
+
+	public static function changePassword($user, $pass)
+	{
+		$sql = 'UPDATE usuario.usuario SET clave = encode(sha256(\'' . $pass . '\'),\'hex\') WHERE usuario LIKE \'' . $user . '\'';
 		return Db::fetchAll($sql);
 	}
 
-	public static function getUsers( ) {  
+	public static function getUsers()
+	{
 		$sql = 'SELECT * FROM usuario.usuario WHERE activo = true';
 		return Db::fetchAll($sql);
 	}
-
 }

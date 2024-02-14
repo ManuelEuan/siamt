@@ -22,7 +22,7 @@ $app->post('/login', function () use($app, $config) {
         throw new HttpUnauthorizedException(101,'Usuario/Clave incorrecta');
     }
     $permissions = Auth::getUserPermissionsAsJson($user->idusuario, $user->iddominio);
-
+    // var_dump($permissions);exit;
     $now = time();
     $signer = new Hmac($config->jwt->alg);
     $builder = new JwtBuilder($signer);
@@ -63,3 +63,11 @@ $app->get('/users', function () use ($app, $config) {
     }
     return $data = json_encode(array('lError' => true));
 });
+// $app->get('/profiles', function () use ($app, $config) {
+//     $resp = Auth::getUsers();
+//     dep($resp);exit;
+//     if(count($resp)){
+//          return $data = json_encode(array('lError' => false, 'data' => $resp));
+//     }
+//     return $data = json_encode(array('lError' => true));
+// });

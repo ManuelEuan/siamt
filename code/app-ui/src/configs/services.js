@@ -4,6 +4,7 @@ export default {
   authUrl: BASE_URL + "/auth",
   appUrl: BASE_URL + "/app",
   usersUrl: BASE_URL + "/users",
+  profilesUrl: BASE_URL + "/profiles",
   eventUrl: BASE_URL + "/events",
   adminUrl: BASE_URL + "/admin",
   personsUrl: BASE_URL + "/persons",

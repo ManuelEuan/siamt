@@ -2,7 +2,7 @@ import configs from '../../configs'
 import actions from './actions'
 import mutations from './mutations'
 
-const { product, time, theme, currencies  } = configs
+const { product, time, theme, currencies } = configs
 
 const { globalTheme, menuTheme, toolbarTheme, isToolbarDetached, isContentBoxed, isRTL } = theme
 const { currency, availableCurrencies } = currencies
@@ -39,6 +39,13 @@ const state = {
   usersFilters: {},
   usersTotalPages: 0,
   usersTotalItems: 0,
+
+  // profiles filters and pagination
+  profiles: [],
+  profilesData: {},
+  profilesFilters: {},
+  profilesTotalPages: 0,
+  profilesTotalItems: 0,
 }
 
 export default {

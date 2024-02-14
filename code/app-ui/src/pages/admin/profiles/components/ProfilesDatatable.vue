@@ -1,14 +1,14 @@
 <template>
   <div class="wrapper">
-    <users-datatable-dialogs ref="dialogs" />
+    <profiles-datatable-dialogs ref="dialogs" />
 
     <v-data-table
       class="elevation-1"
       loading-text="Cargando información"
       :headers="headers"
-      :items="users"
-      :page-count="usersTotalPages"
-      :server-items-length="usersTotalItems"
+      :items="profiles"
+      :page-count="profilesTotalPages"
+      :server-items-length="profilesTotalItems"
       :options.sync="options"
       :loading="loadingTable"
     >
@@ -18,7 +18,7 @@
       </template>
 
       <template v-slot:item.acciones="{ item }">
-        <v-tooltip v-if="permissions.includes('veus')" bottom>
+        <v-tooltip v-if="permissions.includes('vepe')" bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-btn 
               v-bind="attrs" 
@@ -30,10 +30,10 @@
               <v-icon small> mdi-eye </v-icon>
             </v-btn>
           </template>
-          <span>Ver ficha de usuario</span>
+          <span>Ver perfil</span>
         </v-tooltip>
 
-        <v-tooltip v-if="permissions.includes('edus')" bottom>
+        <v-tooltip v-if="permissions.includes('edpe')" bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               v-bind="attrs" 
@@ -45,10 +45,10 @@
               <v-icon small> mdi-account-edit </v-icon>
             </v-btn>
           </template>
-          <span>Editar usuario</span>
+          <span>Editar perfil</span>
         </v-tooltip>
 
-        <v-tooltip v-if="permissions.includes('bous')" bottom>
+        <v-tooltip v-if="permissions.includes('bope')" bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               v-bind="attrs" 
@@ -61,61 +61,32 @@
               <v-icon small v-show="!item.activo"> mdi-delete-off </v-icon>
             </v-btn>
           </template>
-          <span>{{ item.activo ? "Desactivar" : "Activar" }} usuario</span>
+          <span>{{ item.activo ? "Desactivar" : "Activar" }} verfil</span>
         </v-tooltip>
 
-        <v-tooltip v-if="permissions.includes('caco')" bottom>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              v-bind="attrs" 
-              v-on="on" 
-              icon 
-              small
-              @click="actionsHandler(item, 'change')"
-            >
-              <v-icon small> mdi-pencil-lock </v-icon>
-            </v-btn>
-          </template>
-          <span>Cambiar contrase&ntilde;a</span>
-        </v-tooltip>
-
-        <v-tooltip v-if="permissions.includes('reco')" bottom>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              v-bind="attrs" 
-              v-on="on" 
-              icon 
-              small
-              @click="actionsHandler(item, 'reset')"
-            >
-              <v-icon small> mdi-lock-reset </v-icon>
-            </v-btn>
-          </template>
-          <span>Restablecer contrase&ntilde;a</span>
-        </v-tooltip>
       </template>
     </v-data-table>
   </div>
 </template>
 
 <script>
-import UsersDatatableDialogs from "@/pages/admin/users/components/UsersDatatableDialogs";
+import ProfilesDatatableDialogs from "@/pages/admin/profiles/components/ProfilesDatatableDialogs";
 import services from "@/services";
 import { mapActions, mapState } from "vuex";
 
 export default {
-  name: "UsersDatatable",
+  name: "ProfilesDatatable",
   components: {
-    UsersDatatableDialogs,
+    ProfilesDatatableDialogs,
   },
   data() {
     return {
       permissions: [],
       options: {
-        users: [],
+        profiles: [],
         page: 1,
         itemsPerPage: 10,
-        sortBy: ['usuario'],
+        sortBy: ['nombre'],//nombre
         sortDesc: [false],
         multiSort: true,
         mustSort: false,
@@ -123,20 +94,15 @@ export default {
       loadingTable: true,
       headers: [
         {
-          text: "Usuario",
-          value: "usuario",
-          align: "center",
-          class: "font-weight-bold",
-        },
-        {
           text: "Nombre",
-          value: "nombre_completo",
+          value: "nombre",
           align: "center",
           class: "font-weight-bold",
         },
+       
         {
-          text: "correo",
-          value: "correo",
+          text: "Descripción",
+          value: "descripcion",
           align: "center",
           class: "font-weight-bold",
         },
@@ -157,26 +123,31 @@ export default {
     };
   },
   computed: {
-    ...mapState('app', ['users', 'usersTotalPages', 'usersTotalItems']),
+    ...mapState('app', ['profiles', 'profilesTotalPages', 'profilesTotalItems']),
   },
   methods: {
-    ...mapActions('app', ['getUsers']),
-    async loadUsersTable() {
+    ...mapActions('app', ['getProfiles']),
+    async loadProfilesTable() {
+      console.log('----------data')
       const { page, itemsPerPage, sortBy, sortDesc } = this.options;
-      const data = { page, itemsPerPage, sortBy, sortDesc }; 
-      console.log('-----------usuarios')
-      console.log(data)
-      this.getUsers({ data });
-      console.log(this.users)
+      console.log(page)
+      console.log(itemsPerPage)
+      console.log(sortBy)
+      console.log(sortDesc)
 
+      const data = { page, itemsPerPage, sortBy, sortDesc }; 
+            console.log('-----------getProfiles')
+             console.log(data)
+      this.getProfiles({ data });
+      console.log(this.profiles)
       this.loadingTable = false;
     },
-    actionsHandler(user, action) {
-      this.$refs.dialogs.user = user;
+    actionsHandler(profile, action) {
+      this.$refs.dialogs.profile = profile;
 
       switch (action) {
-        case 'edit': this.$router.push(`/users/${user.id}/edit`); break;
-        case 'view': this.$refs.dialogs.viewUser(); break;
+        case 'edit': this.$router.push(`/profiles/${profile.id}/edit`); break;
+        case 'view': this.$refs.dialogs.viewProfile(); break;
         default: this.$refs.dialogs.show[action] = true;
       }
     },
@@ -184,16 +155,19 @@ export default {
   watch: {
     options: {
       handler() {
-        this.loadUsersTable();
+        this.loadProfilesTable();
       },
       deep: true,
     },
   },
   async mounted() {
-    const { usr } = await services.security().getPermissions();
-        console.log('-----------usr')
-    console.log(usr)
-    if (usr) this.permissions = usr;
+    const { per } = await services.security().getPermissions();
+    console.log('-----------per')
+    console.log(per)
+    console.log(this.permissions)
+    if (per) this.permissions = per;
+    console.log(this.permissions)
+
   }
 };
 </script>

@@ -18,7 +18,7 @@ const showError = ({ state, commit }, { message = 'Failed!', error }) => {
   setTimeout(() => {
     commit('showToast', {
       color: 'error',
-      message: message + ' ' + ((error && error.message)? error.message : ''),
+      message: message + ' ' + ((error && error.message) ? error.message : ''),
       timeout: 10000
     })
   })
@@ -40,19 +40,36 @@ const getUsers = async ({ state, commit }, { data, filters }) => {
   if (data) commit('setUsersData', data)
   if (filters) commit('setUsersFilters', filters)
 
-  const { users, totalPages, totalItems } = await services.admin().getUsers({ 
-    ...state.usersData, 
-    filters: state.usersFilters 
+  const { users, totalPages, totalItems } = await services.admin().getUsers({
+    ...state.usersData,
+    filters: state.usersFilters
   })
-  
+
   commit('setUsers', users)
   commit('setUsersTotalPages', totalPages)
   commit('setUsersTotalItems', totalItems)
 }
+
+const getProfiles = async ({ state, commit }, { data, filters }) => {
+  if (data) commit('setProfilesData', data)
+  if (filters) commit('setProfilesFilters', filters)
+
+  const { profiles, totalPages, totalItems } = await services.admin().getProfiles({
+    ...state.profilesData,
+    filters: state.profilesFilters
+  })
+
+  commit('setProfiles', profiles)
+  commit('setProfilesTotalPages', totalPages)
+  commit('setProfilesTotalItems', totalItems)
+}
+
+
 
 export default {
   showToast,
   showError,
   showSuccess,
   getUsers,
+  getProfiles,
 }

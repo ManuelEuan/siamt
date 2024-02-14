@@ -6,6 +6,7 @@ import config from '../configs';
 // Routes
 import UsersRoutes from "@/router/users.routes";
 import DebitacionRoutes from "@/router/debitacion.routes";
+import ProfilesRoutes from "@/router/profiles.routes";
 
 import services from '@/services';
 
@@ -32,6 +33,7 @@ export const routes = [{
 },
   ...UsersRoutes,
   ...DebitacionRoutes,
+  ...ProfilesRoutes,
 {
   path: '/blank',
   name: 'blank',
