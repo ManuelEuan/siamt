@@ -128,13 +128,7 @@ export default {
   methods: {
     ...mapActions('app', ['getProfiles']),
     async loadProfilesTable() {
-      console.log('----------data')
       const { page, itemsPerPage, sortBy, sortDesc } = this.options;
-      console.log(page)
-      console.log(itemsPerPage)
-      console.log(sortBy)
-      console.log(sortDesc)
-
       const data = { page, itemsPerPage, sortBy, sortDesc }; 
       this.getProfiles({ data });
       this.loadingTable = false;
@@ -159,12 +153,7 @@ export default {
   },
   async mounted() {
     const { per } = await services.security().getPermissions();
-    console.log('-----------per')
-    console.log(per)
-    console.log(this.permissions)
     if (per) this.permissions = per;
-    console.log(this.permissions)
-
   }
 };
 </script>

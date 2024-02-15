@@ -7,9 +7,9 @@ WITH modulo_insertado AS (
 permisos_insertados AS (
     INSERT INTO usuario.permiso (nombre, descripcion, siglas, idmodulo)
     VALUES 
-        ('Ver perfil', 'Ver información del usuario', 'vepe', (SELECT id FROM modulo_insertado)),
-        ('Editar perfil', 'Editar información y configuración del usuario', 'edpe', (SELECT id FROM modulo_insertado)),
-        ('Borrar perfil', 'Activar o desactivar usuario', 'bope', (SELECT id FROM modulo_insertado)),
+        ('Ver perfil', 'Ver información del perfil', 'vepe', (SELECT id FROM modulo_insertado)),
+        ('Editar perfil', 'Editar información y configuración del perfil', 'edpe', (SELECT id FROM modulo_insertado)),
+        ('Borrar perfil', 'Activar o desactivar perfil', 'bope', (SELECT id FROM modulo_insertado)),
         ('Crear perfil', 'Crear nuevo perfil', 'crpe', (SELECT id FROM modulo_insertado))
     RETURNING id
 ),
