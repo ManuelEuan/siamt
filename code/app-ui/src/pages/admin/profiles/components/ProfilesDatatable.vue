@@ -42,7 +42,7 @@
               small
               @click="actionsHandler(item, 'edit')"
             >
-              <v-icon small> mdi-human-edit </v-icon>
+              <v-icon small> mdi-square-edit-outline </v-icon>
             </v-btn>
           </template>
           <span>Editar perfil</span>

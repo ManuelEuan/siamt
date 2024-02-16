@@ -112,7 +112,7 @@ export default class AdminService extends ApiService {
       return await this.post("/profiles/geteditprofileinfo", JSON.stringify(data));
     }
 
-    async getUsersFromPerfil(id) {
+    async getUsersFromProfile(id) {
       return await this.post(`/profiles/${id}/users`, JSON.stringify(id));
     }
 
@@ -124,8 +124,16 @@ export default class AdminService extends ApiService {
       return await this.post(`/profiles/${id}/modules`, JSON.stringify(id));
     }
 
+    
+    async createProfile(data) {
+      return await this.post("/profiles/new", JSON.stringify(data));
+    }
+
     async deleteProfile(id) {
       return await this.delete(`/profiles/${id}`);
     }
-  
+
+    async updateProfile(data) {
+      return await this.put("/profiles", JSON.stringify(data));
+    }
 }

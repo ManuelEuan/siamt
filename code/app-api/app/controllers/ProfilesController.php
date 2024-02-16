@@ -19,13 +19,8 @@ use App\Library\Http\Exceptions\ValidatorBoomException;
 
 class ProfilesController extends BaseController
 {
-    private $tables = array(
-        'usuario_dominio_configuracion',
-        'usuario_dominio_modulo',
-        'usuario_dominio',
-        'perfil_usuario',
-        'usuario_permiso',
-        'usuario'
+    private $tables = array( // Tablas para activar/desactivar o eliminar que estén relacionadas con el perfil (dinámico)
+        'perfil_permiso',
     );
 
     public function getProfiles()
@@ -83,96 +78,6 @@ class ProfilesController extends BaseController
         $format .= print_r('</pre>');
         return $format;
     }
-    // public function getEditProfileInfo()
-    // {
-    //     $this->hasClientAuthorized('edpe');
-    //     $data = $this->request->getJsonRawBody(); //solo id (usuario.perfil)
-    //     if (empty($data->id)) throw new ValidatorBoomException(422, 'Id requerido.');
-
-    //     $params = array('idperfil' => $data->id);
-
-    //     // Se trae el perfil 
-    //     $sql = 'SELECT 
-    //             id, 
-    //             nombre, 
-    //             descripcion, 
-    //             activo,
-    //             TO_CHAR(fecha_creacion, \'DD-MM-YYYY HH24:MI:SS\') AS fecha_creacion,
-    //             TO_CHAR(fecha_modificacion, \'DD-MM-YYYY HH24:MI:SS\') AS fecha_modificacion
-    //             FROM usuario.perfil
-    //             WHERE id=:idperfil
-    //     ';
-    //     $profile['perfil'] = Db::fetchOne($sql, $params);
-
-    //     // Se traen todos los usuarios que tengan el perfil 
-    //     $sql = 'SELECT u.usuario, u.nombre, u.apepat, u.apemat, u.correo, u.admin, u.activo
-    //             FROM usuario.usuario u
-    //             WHERE u.id IN (
-    //                 SELECT idusuario
-    //                 FROM usuario.perfil_usuario
-    //                 WHERE idperfil = :idperfil
-    //             );';
-    //     $profile['perfil']->usuarios = Db::fetchAll($sql, $params);
-
-    //     // Se traen todos los permisos que tengan el perfil 
-
-    //     $sql = "SELECT
-    //                 m.id AS modulo_id,
-    //                 m.seccion,
-    //                 m.nombre AS modulo_nombre,
-    //                 m.descripcion AS modulo_descripcion,
-    //                 m.siglas AS modulo_siglas,
-    //                 m.icono,
-    //                 m.orden,
-    //                 m.activo AS modulo_activo,
-    //                 m.idpadre,
-    //                 m.configuracion,
-    //                 m.busqueda,
-    //                 m.fecha_creacion AS modulo_fecha_creacion,
-    //                 m.fecha_modificacion AS modulo_fecha_modificacion,
-    //                 p.permisos_por_modulo -- Columna que contendrá los permisos agrupados por módulo
-    //             FROM
-    //                 usuario.modulo m
-    //             LEFT JOIN
-    //                 (SELECT
-    //                     idmodulo,
-    //                     JSONB_AGG(
-    //                         JSONB_BUILD_OBJECT(
-    //                             'permiso_id', id,
-    //                             'permiso_nombre', nombre,
-    //                             'permiso_descripcion', descripcion,
-    //                             'permiso_siglas', siglas,
-    //                             'permiso_activo', activo,
-    //                             'fecha_creacion', fecha_creacion,
-    //                             'fecha_modificacion', fecha_modificacion
-    //                         ) ORDER BY id
-    //                     ) AS permisos_por_modulo
-    //                 FROM
-    //                     usuario.permiso
-    //                 GROUP BY
-    //                     idmodulo) p ON m.id = p.idmodulo
-    //             ORDER BY
-    //                 m.id; -- Ordenar por el nombre del módulo
-    //     ";
-    //     $profile['perfil']->modulos = Db::fetchAll($sql);
-    //     $sql = 'SELECT idpermiso FROM usuario.perfil_permiso WHERE idperfil = :idperfil';
-    //     $allPermisos = Db::fetchAll($sql, $params);
-    //     $allPermisos = array_column($allPermisos, 'idpermiso');
-
-    //     foreach ($profile['perfil']->modulos as $modulo) {
-    //         $modulo->permisos_por_modulo = json_decode($modulo->permisos_por_modulo);
-    //         $modulo->perfil_con_permisos = false;
-    //         foreach ($modulo->permisos_por_modulo as $key => $permiso) {
-    //             $modulo->permisos_por_modulo[$key]->tiene_permiso = false;
-    //             if (in_array($permiso->permiso_id, $allPermisos)) {
-    //                 $modulo->perfil_con_permisos = true;
-    //                 $modulo->permisos_por_modulo[$key]->tiene_permiso = true;
-    //             }
-    //         }
-    //     }
-    //     // $this->dep($allPermisos);
-    //     return $profile;
-    // }
 
     public function getEditProfileInfo()
     {
@@ -199,9 +104,13 @@ class ProfilesController extends BaseController
         $modules = Db::fetchAll($sql, $params);
         $profile['perfil']->modulos = array_column($modules, 'idmodulo');
 
-        $sql = 'SELECT idusuario FROM usuario.perfil_usuario WHERE idperfil=:id AND activo=true';
+        $sql = 'SELECT u.id, u.usuario, u.nombre, u.apepat, u.apemat
+        FROM usuario.usuario u
+        JOIN usuario.perfil_usuario pu ON u.id = pu.idusuario
+        WHERE pu.idperfil = :id;
+        ';
         $usuarios = Db::fetchAll($sql, $params);
-        $profile['perfil']->allUsers = array_column($usuarios, 'idusuario');
+        $profile['perfil']->usuarios = array_column($usuarios, 'usuario');
 
         $sql = 'SELECT idpermiso FROM usuario.perfil_permiso WHERE idperfil=:id AND activo=true';
         $permissions = Db::fetchAll($sql, $params);
@@ -211,12 +120,13 @@ class ProfilesController extends BaseController
         return $profile;
     }
 
-    public function getUsersFromPerfil($id){
+    public function getUsersFromProfile(){
         $data = $this->request->getJsonRawBody();
         $params = array('idperfil' => $data->id);
         $sql = 'SELECT idusuario FROM usuario.perfil_usuario WHERE idperfil = :idperfil';
         $usuarios = Db::fetchAll($sql, $params);
         $usuarios = array_column($usuarios, 'idusuario');
+        // var_dump($usuarios);exit;
         return $usuarios;
         // $this->dep($usuarios);exit;
     }
@@ -225,104 +135,90 @@ class ProfilesController extends BaseController
         $data = $this->request->getJsonRawBody();
         $params = array('idperfil' => $data->id);
         $sql = "SELECT p.id, p.nombre, p.descripcion, p.siglas, p.idmodulo, p.activo
-        FROM usuario.permiso p
-        WHERE p.id IN (
-            SELECT pp.idpermiso
-            FROM usuario.perfil_permiso pp
-            WHERE pp.idperfil = :idperfil
-        );
+                FROM usuario.permiso p
+                WHERE p.id IN (
+                    SELECT pp.idpermiso
+                    FROM usuario.perfil_permiso pp
+                    WHERE pp.idperfil = :idperfil
+                 );
         ";
 
         $permisos = Db::fetchAll($sql, $params);
-        // $permisos = array_column($permisos, 'idpermiso');
-        // $this->dep($data->id);exit;
         return $permisos;
-
-        // $sql = "SELECT * FROM usuario.permiso WHERE activo=true AND idperfil = :idperfil";
-        // $permissions = \App\Library\Db\Db::fetchAll($sql);
-        // return $permissions;
     }
 
-    public function createUser()
+    public function createProfile()
     {
-        $this->hasClientAuthorized('crus');
+        $this->hasClientAuthorized('crpe');
 
         $data = $this->request->getJsonRawBody();
         $this->validRequiredData($data);
-
         Db::begin();
 
-        $id = $this->isUsernameInUse($data->usuario);
-        if ($id) throw new ValidatorBoomException(422, 'El usuario ya se encuentra en uso.');
+        $id = $this->isProfilenameInUse($data->nombre);
+        if ($id) throw new ValidatorBoomException(422, 'El nombre del perfil ya se encuentra en uso.');
 
         $params = array(
-            'usuario' => $data->usuario,
-            'clave'   => $data->usuario,
             'nombre'  => $data->nombre,
-            'apepat'  => $data->apepat,
-            'apemat'  => empty($data->apemat) ? null : $data->apemat,
-            'correo'  => empty($data->correo) ? null : $data->correo,
-            'admin'   => $data->admin ? 't' : 'f'
+            'descripcion' => $data->descripcion,
         );
 
-        $this->insert('usuario', $params);
-
-        $data->id = $this->isUsernameInUse($data->usuario);
-
-        $this->processUserAssociations($data, 'insert');
+        $this->insert('perfil', $params);
+        
+        $data->id = $this->isProfilenameInUse($data->nombre);
+        $this->processProfileAssociations($data, 'insert');
 
         Db::commit();
-        return array('message' => 'El usuario ha sido creado.');
+        return array('message' => 'El perfil ha sido creado.');
     }
 
-    public function updateUser()
+    public function updateProfile()
     {
-        $this->hasClientAuthorized('edus');
+        $this->hasClientAuthorized('edpe');
 
         $data = $this->request->getJsonRawBody();
         $this->validRequiredData($data);
 
         Db::begin();
 
-        if ($this->isUsernameChanged($data->usuario, $data->id)) {
-            if ($this->isUsernameInUse($data->usuario)) {
-                throw new ValidatorBoomException(422, 'El usuario ya se encuentra en uso.');
+        if ($this->isProfilenameChanged($data->nombre, $data->id)) { //Verifica si es diferente
+            if ($this->isProfilenameInUse($data->nombre)) { // Si es diferente verifica que otro perfil no tenga el mismo
+                throw new ValidatorBoomException(422, 'El perfil ya se encuentra en uso.');
             }
         }
 
-        $sql = '
-            UPDATE usuario.usuario 
-            SET 
-                usuario=:usuario, 
-                nombre=:nombre, 
-                apepat=:apepat, 
-                apemat=:apemat, 
-                correo=:correo,
-                admin=:admin
-            WHERE id=:id
+        // Actualización de perfil
+        $sql = 'UPDATE usuario.perfil SET 
+                    nombre=:nombre, 
+                    descripcion=:descripcion
+                WHERE id=:id
         ';
 
         $params = array(
-            'usuario' => $data->usuario,
             'nombre'  => $data->nombre,
-            'apepat'  => $data->apepat,
-            'apemat'  => empty(trim($data->apemat)) ? null : $data->apemat,
-            'correo'  => empty(trim($data->apemat)) ? null : $data->correo,
-            'admin'   => $data->admin ? 't' : 'f',
+            'descripcion' => $data->descripcion,
             'id'      => $data->id
         );
 
         Db::execute($sql, $params);
 
-        foreach ($this->tables as $t) {
-            if ($t === 'usuario' || $t === 'usuario_dominio_configuracion') continue;
-            $this->deactivate($t, $data->id);
-        }
-
-        $this->processUserAssociations($data, 'activate');
+        // Actualización de permisos
+        $sql = 'DELETE FROM usuario.perfil_permiso WHERE idperfil=:id';
+        $params = array('id' => $data->id);
+        Db::execute($sql, $params);
+        $this->processProfileAssociations($data, 'insert');
 
         Db::commit();
         return array('message' => 'El perfil ha sido actualizado.');
+    }
+
+    private function isProfilenameChanged($nombreNuevo, $id)
+    {
+        $sql = 'SELECT nombre FROM usuario.perfil WHERE id=:id';
+        $params = array('id' => $id);
+        $nombreAntiguo = Db::fetchColumn($sql, $params);
+        $diferente = $nombreAntiguo !== $nombreNuevo;
+        return $diferente;
     }
 
     public function deleteProfile($id)
@@ -341,12 +237,22 @@ class ProfilesController extends BaseController
         return array('message' => "El perfil ha sido $msg.");
     }
 
-    private function isUsernameInUse($username)
+    private function isProfilenameInUse($profilename)
     {
-        $sql = 'SELECT id FROM usuario.usuario WHERE usuario=:usuario';
-        $params = array('usuario' => $username);
+        $sql = 'SELECT id FROM usuario.perfil WHERE nombre=:nombre';
+        $params = array('nombre' => $profilename);
         return Db::fetchColumn($sql, $params);
     }
+
+    private function insert($table, $params)
+    {
+        $cols = implode(', ', array_keys($params));
+        $phs = ':' . str_replace(', ', ', :', $cols);
+        $sql = "INSERT INTO usuario.$table ($cols) VALUES ($phs)";
+        Db::execute($sql, $params);
+        // Db::commit();
+    }
+
 
     private function isUsernameChanged($username, $id)
     {
@@ -366,17 +272,8 @@ class ProfilesController extends BaseController
 
 
 
-    private function insert($table, $params)
-    {
-        $cols = implode(', ', array_keys($params));
-        $phs = ':' . str_replace(', ', ', :', $cols);
-        $phs = str_replace(':clave', 'encode(sha256(:clave),\'hex\')', $phs);
 
-        $sql = "INSERT INTO usuario.$table ($cols) VALUES ($phs)";
-        Db::execute($sql, $params);
-    }
-
-    private function deactivate($table, $id)
+    private function updatePermissions($table, $id)
     {
         $sql = "UPDATE usuario.$table SET activo=false WHERE idusuario=:idusuario";
         $params = array('idusuario' => $id);
@@ -415,28 +312,14 @@ class ProfilesController extends BaseController
         }
     }
 
-    private function processUserAssociations($data, $associationHandler)
+    private function processProfileAssociations($data, $associationHandler)
     {
-        foreach ($data->dominios as $d) {
-            $params = array('idusuario' => $data->id, 'iddominio' => $d);
-            $this->$associationHandler('usuario_dominio', $params);
-
-            foreach ($data->modulos as $m) {
-                $params = array('idusuario' => $data->id, 'iddominio' => $d, 'idmodulo' => $m);
-                $this->$associationHandler('usuario_dominio_modulo', $params);
-            }
+        foreach ($data->permisos as $permiso) {
+            $this->verifyRolePermissions($permiso, $data->permisos);
+            $params = array('idperfil' => $data->id, 'idpermiso' => $permiso);
+            $this->$associationHandler('perfil_permiso', $params);
         }
-
-        foreach ($data->permisos as $p) {
-            $params = array('idusuario' => $data->id, 'idpermiso' => $p);
-            $this->$associationHandler('usuario_permiso', $params);
-        }
-
-        foreach ($data->perfiles as $r) {
-            $this->verifyRolePermissions($r, $data->permisos);
-            $params = array('idusuario' => $data->id, 'idperfil' => $r);
-            $this->$associationHandler('perfil_usuario', $params);
-        }
+        // Db::commit();
     }
 
     private function filterProfiles($filters)
@@ -529,7 +412,7 @@ class ProfilesController extends BaseController
 
     private function validRequiredData($data)
     {
-        $requiredKeys = array('nombre', 'apepat', 'usuario', 'dominios');
+        $requiredKeys = array('nombre', 'descripcion');
         $actualKeys = array_keys(get_object_vars($data));
         $missingKeys = array_diff($requiredKeys, $actualKeys);
 

@@ -133,8 +133,10 @@ $app->mount(
     ->setHandler(ProfilesController::class, true)
     ->setPrefix('/admin')
     ->post("/profiles", "getProfiles")
+    ->post('/profiles/new', 'createProfile')
+    ->put('/profiles', 'updateProfile')
     ->post('/profiles/geteditprofileinfo', 'getEditProfileInfo')
     ->delete('/profiles/{id}', 'deleteProfile')
-    ->post('/profiles/{id}/users', 'getUsersFromPerfil')
+    ->post('/profiles/{id}/users', 'getUsersFromProfile')
     ->post('/profiles/{id}/permissions', 'getPermissionsFromProfile')
 );

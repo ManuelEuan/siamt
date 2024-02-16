@@ -1,62 +1,66 @@
 <template>
-<v-container fluid>
-    <v-row justify="center">
-        <v-col cols="12" class="pa-0">
-            <v-card flat>
-                <v-toolbar>
-                    <v-toolbar-title>{{ createMode ? "Nuevo" : "Editar" }} Perfil</v-toolbar-title>
-                </v-toolbar>
-            </v-card>
-        </v-col>
-        <v-col cols="12" class="pa-0 mt-2">
-            <v-tabs v-model="tab" centered icons-and-text>
-                <v-tabs-slider color="primary" />
-                <v-tab href="#generaltab">
-                    Datos Generales
-                    <v-icon> mdi-clipboard-text </v-icon>
-                </v-tab>
-                <!-- <v-tab href="#usuariostab">
+    <v-container fluid>
+        <v-row justify="center">
+            <v-col cols="12" class="pa-0">
+                <v-card flat>
+                    <v-toolbar>
+                        <v-toolbar-title>{{ createMode ? "Nuevo" : "Editar" }} Perfil</v-toolbar-title>
+                    </v-toolbar>
+                </v-card>
+            </v-col>
+            <v-col cols="12" class="pa-0 mt-2">
+                <v-tabs v-model="tab" centered icons-and-text>
+                    <v-tabs-slider color="primary" />
+                    <v-tab href="#generaltab">
+                        Datos Generales
+                        <v-icon> mdi-clipboard-text </v-icon>
+                    </v-tab>
+                    <!-- <v-tab href="#usuariostab">
                     Usuarios
                     <v-icon> mdi-card-account-details </v-icon>
                 </v-tab> -->
-            </v-tabs>
-            <v-tabs-items v-model="tab">
-                <v-card flat>
-                    <v-tab-item :key="1" value="generaltab" class="py-1">
-                        <v-card-text>
-                            <v-form v-model="valid">
-                                <v-row>
-                                    <v-col cols="12" md="6">
-                                        <v-text-field v-model="profile.nombre" label="Nombre*" :rules="[rules.required]" hide-details="auto" clearable dense outlined />
-                                    </v-col>
-                                    <v-col cols="12">
-                                        <v-textarea v-model="profile.descripcion" label="Descripción*" :rules="[rules.required]" hide-details="auto" clearable dense outlined />
-                                    </v-col>
-                                    <v-col cols="12" style="font-size: 20px;">Permisos</v-col>
-                                    <v-expansion-panels>
-                                        <v-expansion-panel v-for="(item, i) in permissions" :key="i">
-                                            <v-expansion-panel-header>
-                                                {{ item.nombre }}
-                                            </v-expansion-panel-header>
-                                            <v-expansion-panel-content>
-                                                <v-checkbox v-for="(permission, id) in item.permisos" v-model="profile.permisos" :key="id" :value="permission.id" @click="click.permission = true">
-                                                    <template v-slot:label>
-                                                        <v-tooltip right>
-                                                            <template v-slot:activator="{ on }">
-                                                                <span v-on="on">{{ permission.nombre }}</span>
-                                                            </template>
-                                                            {{ permission.descripcion }}
-                                                        </v-tooltip>
-                                                    </template>
-                                                </v-checkbox>
-                                            </v-expansion-panel-content>
-                                        </v-expansion-panel>
-                                    </v-expansion-panels>
-                                </v-row>
-                            </v-form>
-                        </v-card-text>
-                    </v-tab-item>
-                    <!-- <v-tab-item :key="2" value="usuariostab">
+                </v-tabs>
+                <v-tabs-items v-model="tab">
+                    <v-card flat>
+                        <v-tab-item :key="1" value="generaltab" class="py-1">
+                            <v-card-text>
+                                <v-form v-model="valid">
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="profile.nombre" label="Nombre*" :rules="[rules.required]"
+                                                hide-details="auto" clearable dense outlined />
+                                        </v-col>
+                                        <v-col cols="12">
+                                            <v-textarea v-model="profile.descripcion" label="Descripción*"
+                                                :rules="[rules.required]" hide-details="auto" clearable dense outlined />
+                                        </v-col>
+                                        <v-col cols="12" style="font-size: 20px;">Permisos</v-col>
+                                        <v-expansion-panels>
+                                            <v-expansion-panel v-for="(item, i) in permissions" :key="i">
+                                                <v-expansion-panel-header>
+                                                    {{ item.nombre }}
+                                                </v-expansion-panel-header>
+                                                <v-expansion-panel-content>
+                                                    <v-checkbox v-for="(permission, id) in item.permisos"
+                                                        v-model="profile.permisos" :key="id" :value="permission.id"
+                                                        @click="click.permission = true">
+                                                        <template v-slot:label>
+                                                            <v-tooltip right>
+                                                                <template v-slot:activator="{ on }">
+                                                                    <span v-on="on">{{ permission.nombre }}</span>
+                                                                </template>
+                                                                {{ permission.descripcion }}
+                                                            </v-tooltip>
+                                                        </template>
+                                                    </v-checkbox>
+                                                </v-expansion-panel-content>
+                                            </v-expansion-panel>
+                                        </v-expansion-panels>
+                                    </v-row>
+                                </v-form>
+                            </v-card-text>
+                        </v-tab-item>
+                        <!-- <v-tab-item :key="2" value="usuariostab">
                         <v-container>
                             <v-checkbox v-for="(user, id) in usuarios" v-model="profile.usuarios" :key="id" :value="user.id" @click="click.user = true">
                                 <template v-slot:label>
@@ -70,16 +74,16 @@
                             </v-checkbox>
                         </v-container>
                     </v-tab-item> -->
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn color="error" text @click="exitWindow()"> Cerrar </v-btn>
-                        <v-btn color="primary" text :disabled="!valid" @click="saveProfile()"> Guardar </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-tabs-items>
-        </v-col>
-    </v-row>
-</v-container>
+                        <v-card-actions>
+                            <v-spacer />
+                            <v-btn color="error" text @click="exitWindow()"> Cerrar </v-btn>
+                            <v-btn color="primary" text :disabled="!valid" @click="saveProfile()"> Guardar </v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-tabs-items>
+            </v-col>
+        </v-row>
+    </v-container>
 </template>
 
   
@@ -105,13 +109,7 @@ export default {
             domains: [],
             profile: {
                 id: 0,
-                perfil: "",
                 nombre: "",
-                apepat: "",
-                apemat: "",
-                correo: "",
-                admin: false,
-                dominios: [],
                 modulos: [],
                 usuarios: [],
                 permisos: [],
@@ -139,7 +137,7 @@ export default {
 
                 const [modules, usuarios, permissions] = await Promise.all([
                     services.admin().getModules(),
-                    services.admin().getUsersFromPerfil({ id }),
+                    services.admin().getUsersFromProfile({ id }),
                     services.admin().getPermissions()
                 ]);
 
@@ -168,13 +166,12 @@ export default {
             }
         },
         setProfileModules() {
-            const m = this.permissions
-                .flatMap(p => p.permisos)
-                .filter(p => this.profile.permisos.includes(p.id))
-                .map(p => p.idmodulo);
-
-            this.profile.modulos = [...new Set(m)];
-            this.profile.admin = this.profile.usuarios.includes(1);
+            const m = this.permissions //trae los módulos
+                .flatMap(p => p.permisos) //trae todos los permisos de los módulos
+                .filter(p => this.profile.permisos.includes(p.id)) // trae los permisos seleccionados en this.profile actuales
+            // .map(p => p.idmodulo); //trae solo los módulos de los perfiles
+            // this.profile.modulos = [...new Set(m)]; // quita los elementos duplicados
+            console.log(m)
         },
         async saveProfile() {
             if (!this.valid) return;
@@ -184,8 +181,8 @@ export default {
             try {
                 const { message } = await (
                     this.createMode ?
-                    services.admin().createProfile(this.profile) :
-                    services.admin().updateProfile(this.profile)
+                        services.admin().createProfile(this.profile) :
+                        services.admin().updateProfile(this.profile)
                 );
 
                 this.showSuccess(message);
