@@ -111,5 +111,21 @@ export default class AdminService extends ApiService {
     async getEditProfileInfo(data) {
       return await this.post("/profiles/geteditprofileinfo", JSON.stringify(data));
     }
+
+    async getUsersFromPerfil(id) {
+      return await this.post(`/profiles/${id}/users`, JSON.stringify(id));
+    }
+
+    async getPermissionsFromProfile(id) {
+      return await this.post(`/profiles/${id}/permissions`, JSON.stringify(id));
+    }
+
+    async getModulesFromProfile(id) {
+      return await this.post(`/profiles/${id}/modules`, JSON.stringify(id));
+    }
+
+    async deleteProfile(id) {
+      return await this.delete(`/profiles/${id}`);
+    }
   
 }

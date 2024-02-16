@@ -3,13 +3,13 @@
         <v-toolbar>
             <v-toolbar-title>Perfiles</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-tooltip v-if="permissions.includes('vepe')" top>
+            <v-tooltip v-if="permissions.includes('crpe')" top>
                 <template v-slot:activator="{ on, attrs }">
                     <v-btn color="primary" class="me-1" @click="newProfile" v-bind="attrs" v-on="on">
-                        <v-icon> mdi-account-plus </v-icon>
+                        <v-icon> mdi-face-man-profile </v-icon>
                     </v-btn>
                 </template>
-                <span>Nuevo perfil</span>
+                <span>Agregar perfil</span>
             </v-tooltip>
             <v-divider vertical class="mx-2"></v-divider>
             <v-badge overlap :content="activeFilters" :value="activeFilters">

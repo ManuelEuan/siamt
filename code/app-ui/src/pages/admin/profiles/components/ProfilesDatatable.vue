@@ -42,7 +42,7 @@
               small
               @click="actionsHandler(item, 'edit')"
             >
-              <v-icon small> mdi-account-edit </v-icon>
+              <v-icon small> mdi-human-edit </v-icon>
             </v-btn>
           </template>
           <span>Editar perfil</span>
@@ -57,8 +57,8 @@
               small
               @click="actionsHandler(item, 'delete')"
             >
-              <v-icon small v-show="item.activo"> mdi-delete </v-icon>
-              <v-icon small v-show="!item.activo"> mdi-delete-off </v-icon>
+              <v-icon small v-show="item.activo"> mdi-close </v-icon>
+              <v-icon small v-show="!item.activo"> mdi-check </v-icon>
             </v-btn>
           </template>
           <span>{{ item.activo ? "Desactivar" : "Activar" }} verfil</span>

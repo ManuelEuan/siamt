@@ -1,184 +1,219 @@
 <template>
     <div class="wrapper">
-        <v-dialog transition="dialog-top-transition" max-width="600" v-model="show.view">
-            <v-card>
-                <v-card-title class="text-uppercase primary--text text-h6 py-2"> ver perfil e</v-card-title>
-                <v-divider></v-divider>
-                <v-card-text class="py-0 my-0">
-                    <v-list class="pa-0 ma-0">
-                        <v-container class="pa-0 ma-0">
-                            <v-row dense>
-                                <template v-for="(value, key, index) in profile">
-                                    <v-col v-if="!chips.includes(key)" class="pa-0 ma-0" cols="6" :key="index">
-                                        <v-list-item>
-                                            <v-list-item-content class="py-2">
-                                                <v-list-item-title class="text-capitalize text-h7">
-                                                    {{ headers[key] ?? key }}
-                                                </v-list-item-title>
-                                                <v-list-item-subtitle class="text-lowercase text-body-1">
-                                                    {{ typeof value === 'boolean' ? '' : value }}
-                                                    <v-icon v-show="value === true" size="medium" color="green"> mdi-check
-                                                    </v-icon>
-                                                    <v-icon v-show="value === false" size="medium" color="red">mdi-close</v-icon>
-                                                </v-list-item-subtitle>
-                                            </v-list-item-content>
-                                        </v-list-item>
-                                    </v-col>
-                                </template>
-                            </v-row>
-                        </v-container>
-                    </v-list>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-text class="py-0 my-0">
-                    <v-list class="pa-0 ma-0">
-                        <v-container class="pa-0 ma-0">
-                            <v-row dense>
-                                <template v-for="(value, key, index) in profile">
-                                    <v-col v-if="chips.includes(key)" class="pa-0 ma-0" cols="12" :key="index">
-                                        <v-list-item>
-                                            <v-list-item-content class="py-2">
-                                                <v-list-item-title class="text-capitalize text-h7 pb-2">
-                                                    {{ headers[key] ?? key }}
-                                                </v-list-item-title>
-                                                <v-list-item-subtitle class="text-lowercase text-body-1">
-                                                    <v-chip-group column>
-                                                        <template v-if="key === 'modulos'">
-                                                            <v-row class="max-w-100 mx-0" v-for="(element, index) in value" :key="index">
-                                                                <v-col cols="12" class="px-0 py-1">Módulo de {{
-                                                                    element.nombre_modulo }}</v-col>
-                                                                <v-chip cols="4" v-for="(permiso, permisoIndex) in JSON.parse(element.permisos)" :key="permisoIndex">
-                                                                    {{ permiso.nombre_permiso }}
-                                                                </v-chip>
-                                                            </v-row>
-                                                        </template>
-                                                        <template v-else>
-                                                            <v-chip v-for="(element, index) in value" :key="index">
-                                                                {{ element.usuario }}
-                                                            </v-chip>
-                                                        </template>
-                                                    </v-chip-group>
-                                                </v-list-item-subtitle>
-                                            </v-list-item-content>
-                                        </v-list-item>
-                                    </v-col>
-                                </template>
-                            </v-row>
-                        </v-container>
-                    </v-list>
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions class="py-2">
-                    <v-spacer></v-spacer>
-                    <v-btn color="error" text @click="show.view = false"> Cerrar </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-    
-        <v-dialog transition="dialog-top-transition" max-width="600" v-model="show.delete">
-            <v-card>
-                <v-card-title class="text-uppercase primary--text text-h6 py-2">
-                    {{ profile.activo ? "desactivar" : "activar" }} perfil
-                </v-card-title>
-                <v-divider></v-divider>
-                <v-card-text class="text-lowercase text-body-1 py-2">
-                    ¿est&aacute;s seguro de que deseas {{ profile.activo ? "desactivar" : "activar" }} este
-                    perfil?
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions class="py-2">
-                    <v-spacer></v-spacer>
-                    <v-btn color="error" text @click="show.delete = false"> Cerrar </v-btn>
-                    <v-btn color="primary" text @click="deleteProfile">
-                        {{ profile.activo ? "Desactivar" : "Activar" }}
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-    
+      <v-dialog transition="dialog-top-transition" max-width="600" v-model="show.view">
+        <v-card>
+          <v-card-title class="text-uppercase primary--text text-h6 py-2"> ver perfil </v-card-title>
+          <v-divider></v-divider>
+          <v-card-text class="py-0 my-0">
+            <v-list class="pa-0 ma-0">
+              <v-container class="pa-0 ma-0">
+                <v-row dense>
+                  <template v-for="(value, key, index) in profile">
+                    <v-col v-if="!chips.includes(key)" class="pa-0 ma-0" cols="6" :key="index">
+                      <v-list-item>
+                        <v-list-item-content class="py-2">
+                          <v-list-item-title class="text-capitalize text-h7">
+                            {{ headers[key] ?? key }}
+                          </v-list-item-title>
+                          <v-list-item-subtitle class="text-lowercase text-body-1">
+                            {{ typeof value === 'boolean' ? '' : value }}
+                            <v-icon v-show="value===true" size="medium" color="green"> mdi-check </v-icon>
+                            <v-icon v-show="value===false" size="medium" color="red">mdi-close</v-icon>
+                          </v-list-item-subtitle>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-col>
+                  </template>
+                </v-row>
+              </v-container>
+            </v-list>
+          </v-card-text>
+          <v-divider></v-divider>
+          <v-card-text class="py-0 my-0">
+            <v-list class="pa-0 ma-0">
+              <v-container class="pa-0 ma-0">
+                <v-row dense>
+                  <template v-for="(value, key, index) in profile">
+                    <v-col v-if="chips.includes(key)" class="pa-0 ma-0" cols="12" :key="index">
+                      <v-list-item>
+                        <v-list-item-content class="py-2">
+                          <v-list-item-title class="text-capitalize text-h7">
+                            {{ headers[key] ?? key }}
+                          </v-list-item-title>
+                          <v-list-item-subtitle class="text-lowercase text-body-1">
+                            <template v-if="key == 'permisos'">
+                                <div v-for="(item, i) in permissions" :key="i">
+                                    <div>
+                                    Módulo de {{ item.nombre }}
+                                    </div>
+                                    <div>
+                                        <v-chip v-for="(permission, id) in item.permisos" :key="id">
+                                            {{ permission.nombre }}
+                                        </v-chip>
+                                    </div>
+                                </div>
+                            </template>
+                            <template v-else>
+                                <v-chip-group column>
+                                  <v-chip v-for="(element, index) in value" :key="index">
+                                    {{ element }}
+                                  </v-chip>
+                                </v-chip-group>
+                            </template>
+                          </v-list-item-subtitle>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-col>
+                  </template>
+                </v-row>
+              </v-container>
+            </v-list>
+          </v-card-text>
+          <v-divider></v-divider>
+          <v-card-actions class="py-2">
+            <v-spacer></v-spacer>
+            <v-btn color="error" text @click="show.view = false"> Cerrar </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+  
+      <v-dialog transition="dialog-top-transition" max-width="600" v-model="show.delete">
+        <v-card>
+          <v-card-title class="text-uppercase primary--text text-h6 py-2">
+            {{ profile.activo ? "desactivar" : "activar" }} perfil
+          </v-card-title>
+          <v-divider></v-divider>
+          <v-card-text class="text-lowercase text-body-1 py-2">
+            ¿est&aacute;s seguro de que deseas {{ profile.activo ? "desactivar" : "activar" }} este
+            perfil?
+          </v-card-text>
+          <v-divider></v-divider>
+          <v-card-actions class="py-2">
+            <v-spacer></v-spacer>
+            <v-btn color="error" text @click="show.delete = false"> Cerrar </v-btn>
+            <v-btn color="primary" text @click="deleteProfile">
+              {{ profile.activo ? "Desactivar" : "Activar" }}
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </div>
-    </template>
-    
-    <script>
-    import rules from "@/core/rules.forms";
-    import services from "@/services";
-    import { mapActions } from "vuex";
-    
-    export default {
-        name: "ProfileDatatableDialogs",
-        data() {
-            return {
-                chips: ["usuarios", "modulos"],
-                headers: {
-                    id: "no. perfil",
-                    modulos: "Permisos",
-                },
-                show: {
-                    view: false,
-                    delete: false,
-                    change: false,
-                    reset: false,
-                },
-                profile: {},
-                modulos: {},
-                usuarios: {},
-                allPermissions: {},
-                form: {
-                    valid: false,
-                },
-            };
+  </template>
+  
+  <script>
+  import rules from "@/core/rules.forms";
+  import services from "@/services";
+  import { mapActions } from "vuex";
+  
+  export default {
+    name: "ProfilesDatatableDialogs",
+    data() {
+      return {
+        chips: ["modulos", "usuarios", "permisos"],
+        headers: {
+          id: "no. perfil",
+          nombre: "perfiles",
+          descripcion: "apellido paterno",
+          apemat: "apellido materno",
+          fecha_creacion: "fecha creacion",
+          fecha_modificacion: "fecha modificación",
         },
-        computed: {
-            valid() {
-                return this.form.valid;
-            },
-            rules() {
-                return {
-                    ...rules,
-                };
-            }
+        show: {
+          view: false,
+          delete: false,
+          change: false,
         },
-        methods: {
-            ...mapActions('app', ['showError', 'showSuccess']),
-            async viewProfile() {
-                try {
-                    const { id } = this.profile;
-    
-                    let allInfo = await Promise.all([
-                        services.admin().getEditProfileInfo({ id }),
-                    ]);
-                    let perfil = allInfo[0].perfil
-    
-                    this.profile = perfil
-                    this.modulos = perfil.modulos
-                    this.usuarios = perfil.usuarios
-                    this.allPermissions = perfil.allPermisos
-                    console.log(this.allPermissions[0].idpermiso)
-                    this.show.view = true;
-                } catch (error) {
-                    const message = 'Error al cargar la información.';
-                    this.showError({ message, error });
+        permissions: [],
+        profile: {},
+        form: {
+          valid: false,
+        },
+      };
+    },
+    computed: {
+      valid() {
+        return this.samePass && this.form.valid;
+      },
+      rules() {
+        return {
+          ...rules,
+          samePass: this.samePass || "Las contraseñas no coinciden.",
+        };
+      }
+    },
+    methods: {
+      ...mapActions('app', ['showError', 'showSuccess']),
+      async viewProfile() {
+        try {
+          const { id } = this.profile;
+          let [modules, usuarios, permissions, { perfil }] = await Promise.all([
+            services.admin().getModules(),
+            services.admin().getRoles(),
+            // services.admin().getPermissions(),
+            services.admin().getPermissionsFromProfile({ id }),
+            services.admin().getEditProfileInfo({ id }),
+          ]);
+          console.log('kkkkkkkkkkk');
+          console.log(permissions);
+          this.permissions = modules.map(({ nombre, id }) => (
+                {
+                    nombre,
+                    permisos: permissions.filter(p => p.idmodulo === id),
                 }
-            },
-            async deleteProfile() {
-                try {
-                    const { message } = await services.admin().deleteProfile(this.profile.id);
-                    this.$parent.loadProfilesTable();
-                    this.showSuccess(message);
-                } catch (error) {
-                    const message = 'Error al activar/desactivar usuario.';
-                    this.showError({ message, error });
-                }
-    
-                this.show.delete = false;
-            },
-        },
-        watch: {
-            ["show.change"](newValue) {
-                if (newValue) return;
-                this.$refs.form.reset();
-            },
-        },
-    };
-    </script>
-    
+                ));
+          
+          const { modulos, allUsers, permisos, ...profile } = perfil;
+        //   for (const key in profile) if (!profile[key] || key === 'admin') delete profile[key];
+        // console.log('profile')
+        //     console.log(profile)
+            console.log('modulos')
+            console.log(modulos)
+        //     console.log('allUsers')
+        //     console.log(allUsers)
+            console.log('permisos')
+            console.log(permisos)
+            
+          const convToName = (objs, ids) => objs.filter(o => ids.includes(o.id)).map(o => o.nombre);
+          modules = convToName(modules, modulos);
+          usuarios = convToName(usuarios, allUsers);
+          permissions = convToName(permissions, permisos);
+          console.log('modulos2')
+            console.log(modules)
+            console.log('permisos2')
+            console.log(permissions)
+          
+          this.profile = { ...profile };
+          if (modules.length > 0) this.profile.modulos = modules;
+          if (usuarios.length > 0) this.profile.usuarios = usuarios;
+          if (permissions.length > 0) this.profile.permisos = permissions;
+          
+          
+          this.show.view = true;
+        }
+        catch(error) {
+          const message = 'Error al cargar la información.';
+          this.showError({ message, error });
+        }
+      },
+      async deleteProfile() {
+        try {
+          const { message } = await services.admin().deleteProfile(this.profile.id);
+          this.$parent.loadProfilesTable();
+          this.showSuccess(message);
+        } catch (error) {
+          const message = 'Error al activar/desactivar perfil.';
+          this.showError({ message, error });
+        }
+  
+        this.show.delete = false;
+      },
+    },
+    watch: {
+      ["show.change"](newValue) {
+        if (newValue) return;
+        this.$refs.form.reset();
+      },
+    },
+  };
+  </script>
+  

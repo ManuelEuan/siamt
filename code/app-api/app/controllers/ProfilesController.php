@@ -83,40 +83,105 @@ class ProfilesController extends BaseController
         $format .= print_r('</pre>');
         return $format;
     }
+    // public function getEditProfileInfo()
+    // {
+    //     $this->hasClientAuthorized('edpe');
+    //     $data = $this->request->getJsonRawBody(); //solo id (usuario.perfil)
+    //     if (empty($data->id)) throw new ValidatorBoomException(422, 'Id requerido.');
+
+    //     $params = array('idperfil' => $data->id);
+
+    //     // Se trae el perfil 
+    //     $sql = 'SELECT 
+    //             id, 
+    //             nombre, 
+    //             descripcion, 
+    //             activo,
+    //             TO_CHAR(fecha_creacion, \'DD-MM-YYYY HH24:MI:SS\') AS fecha_creacion,
+    //             TO_CHAR(fecha_modificacion, \'DD-MM-YYYY HH24:MI:SS\') AS fecha_modificacion
+    //             FROM usuario.perfil
+    //             WHERE id=:idperfil
+    //     ';
+    //     $profile['perfil'] = Db::fetchOne($sql, $params);
+
+    //     // Se traen todos los usuarios que tengan el perfil 
+    //     $sql = 'SELECT u.usuario, u.nombre, u.apepat, u.apemat, u.correo, u.admin, u.activo
+    //             FROM usuario.usuario u
+    //             WHERE u.id IN (
+    //                 SELECT idusuario
+    //                 FROM usuario.perfil_usuario
+    //                 WHERE idperfil = :idperfil
+    //             );';
+    //     $profile['perfil']->usuarios = Db::fetchAll($sql, $params);
+
+    //     // Se traen todos los permisos que tengan el perfil 
+
+    //     $sql = "SELECT
+    //                 m.id AS modulo_id,
+    //                 m.seccion,
+    //                 m.nombre AS modulo_nombre,
+    //                 m.descripcion AS modulo_descripcion,
+    //                 m.siglas AS modulo_siglas,
+    //                 m.icono,
+    //                 m.orden,
+    //                 m.activo AS modulo_activo,
+    //                 m.idpadre,
+    //                 m.configuracion,
+    //                 m.busqueda,
+    //                 m.fecha_creacion AS modulo_fecha_creacion,
+    //                 m.fecha_modificacion AS modulo_fecha_modificacion,
+    //                 p.permisos_por_modulo -- Columna que contendrá los permisos agrupados por módulo
+    //             FROM
+    //                 usuario.modulo m
+    //             LEFT JOIN
+    //                 (SELECT
+    //                     idmodulo,
+    //                     JSONB_AGG(
+    //                         JSONB_BUILD_OBJECT(
+    //                             'permiso_id', id,
+    //                             'permiso_nombre', nombre,
+    //                             'permiso_descripcion', descripcion,
+    //                             'permiso_siglas', siglas,
+    //                             'permiso_activo', activo,
+    //                             'fecha_creacion', fecha_creacion,
+    //                             'fecha_modificacion', fecha_modificacion
+    //                         ) ORDER BY id
+    //                     ) AS permisos_por_modulo
+    //                 FROM
+    //                     usuario.permiso
+    //                 GROUP BY
+    //                     idmodulo) p ON m.id = p.idmodulo
+    //             ORDER BY
+    //                 m.id; -- Ordenar por el nombre del módulo
+    //     ";
+    //     $profile['perfil']->modulos = Db::fetchAll($sql);
+    //     $sql = 'SELECT idpermiso FROM usuario.perfil_permiso WHERE idperfil = :idperfil';
+    //     $allPermisos = Db::fetchAll($sql, $params);
+    //     $allPermisos = array_column($allPermisos, 'idpermiso');
+
+    //     foreach ($profile['perfil']->modulos as $modulo) {
+    //         $modulo->permisos_por_modulo = json_decode($modulo->permisos_por_modulo);
+    //         $modulo->perfil_con_permisos = false;
+    //         foreach ($modulo->permisos_por_modulo as $key => $permiso) {
+    //             $modulo->permisos_por_modulo[$key]->tiene_permiso = false;
+    //             if (in_array($permiso->permiso_id, $allPermisos)) {
+    //                 $modulo->perfil_con_permisos = true;
+    //                 $modulo->permisos_por_modulo[$key]->tiene_permiso = true;
+    //             }
+    //         }
+    //     }
+    //     // $this->dep($allPermisos);
+    //     return $profile;
+    // }
+
     public function getEditProfileInfo()
     {
-        $this->hasClientAuthorized('edpe');
-        $data = $this->request->getJsonRawBody(); //solo id (usuario.perfil)
+        $this->hasClientAuthorized('vepe');
+
+        $data = $this->request->getJsonRawBody();
+
         if (empty($data->id)) throw new ValidatorBoomException(422, 'Id requerido.');
-
-        // // Permisos que tiene asignado este perfil
-        // $profile = [];
-        // $params = array('id' => $data->id);
-
-        // $sql = 'SELECT idpermiso FROM usuario.perfil_permiso WHERE idperfil=:id';
-        // $permisos_with_perfil = Db::fetchAll($sql, $params);
-        // $profile['perfiles']->permisos = [];
-        // if(count($permisos_with_perfil) > 0){
-        //     foreach($permisos_with_perfil as  $idPermiso){
-        //         $sql = 'SELECT id, nombre as element, descripcion, siglas, idmodulo, fecha_creacion, fecha_modificacion FROM usuario.permiso WHERE id=' . $idPermiso->idpermiso;
-        //         $complete_permisos_with_perfil = Db::fetchOne($sql);
-        //         array_push($profile['perfiles']->permisos, $complete_permisos_with_perfil);
-        //     }
-        // }
-
-        // // Usuarios que tienen asignados este perfil
-        // $sql = 'SELECT idusuario FROM usuario.perfil_usuario WHERE idperfil=:id AND activo=true';
-        // $usuarios_with_perfil = Db::fetchAll($sql, $params);
-        // $profile['perfiles']->usuarios=[];
-        // if(count($usuarios_with_perfil) > 0){
-        //     foreach($usuarios_with_perfil as  $idUsuario){
-        //         $sql = 'SELECT id, usuario as element, nombre, apepat, apemat, correo, activo FROM usuario.usuario WHERE id=' . $idUsuario->idusuario;
-        //         $complete_usuarios_with_perfil = Db::fetchOne($sql);
-        //         array_push($profile['perfiles']->usuarios, $complete_usuarios_with_perfil);
-        //     }
-        // }
-        $params = array('idperfil' => $data->id);
-
+        $params = array('id' => $data->id);
         // Se trae el perfil 
         $sql = 'SELECT 
                 id, 
@@ -126,66 +191,56 @@ class ProfilesController extends BaseController
                 TO_CHAR(fecha_creacion, \'DD-MM-YYYY HH24:MI:SS\') AS fecha_creacion,
                 TO_CHAR(fecha_modificacion, \'DD-MM-YYYY HH24:MI:SS\') AS fecha_modificacion
                 FROM usuario.perfil
-                WHERE id=:idperfil
+                WHERE id=:id
         ';
         $profile['perfil'] = Db::fetchOne($sql, $params);
+        
+        $sql = 'SELECT idmodulo FROM usuario.usuario_dominio_modulo WHERE idusuario=:id AND activo=true';
+        $modules = Db::fetchAll($sql, $params);
+        $profile['perfil']->modulos = array_column($modules, 'idmodulo');
 
-        // Se traen todos los usuarios que tengan el perfil 
-        $sql = 'SELECT u.usuario, u.nombre, u.apepat, u.apemat, u.correo, u.admin, u.activo
-                FROM usuario.usuario u
-                WHERE u.id IN (
-                    SELECT idusuario
-                    FROM usuario.perfil_usuario
-                    WHERE idperfil = :idperfil
-                );';
-        $profile['perfil']->usuarios = Db::fetchAll($sql, $params);
+        $sql = 'SELECT idusuario FROM usuario.perfil_usuario WHERE idperfil=:id AND activo=true';
+        $usuarios = Db::fetchAll($sql, $params);
+        $profile['perfil']->allUsers = array_column($usuarios, 'idusuario');
 
-        // Se traen todos los permisos que tengan el perfil 
-
-        $sql = "SELECT
-        m.id AS modulo_id,
-        m.seccion,
-        m.nombre AS modulo_nombre,
-        m.descripcion AS modulo_descripcion,
-        m.siglas AS modulo_siglas,
-        m.icono,
-        m.orden,
-        m.activo AS modulo_activo,
-        m.idpadre,
-        m.configuracion,
-        m.busqueda,
-        m.fecha_creacion AS modulo_fecha_creacion,
-        m.fecha_modificacion AS modulo_fecha_modificacion,
-        p.permisos_por_modulo -- Columna que contendrá los permisos agrupados por módulo
-    FROM
-        usuario.modulo m
-    LEFT JOIN
-        (SELECT
-            idmodulo,
-            JSONB_AGG(
-                JSONB_BUILD_OBJECT(
-                    'permiso_id', id,
-                    'permiso_nombre', nombre,
-                    'permiso_descripcion', descripcion,
-                    'permiso_siglas', siglas,
-                    'permiso_activo', activo,
-                    'fecha_creacion', fecha_creacion,
-                    'fecha_modificacion', fecha_modificacion
-                ) ORDER BY id
-            ) AS permisos_por_modulo
-        FROM
-            usuario.permiso
-        GROUP BY
-            idmodulo) p ON m.id = p.idmodulo
-    ORDER BY
-        m.id; -- Ordenar por el nombre del módulo
-    ";
-        $profile['perfil']->modulos = Db::fetchAll($sql);
-        $this->dep($profile);exit;
-        $sql = 'SELECT idpermiso FROM usuario.perfil_permiso WHERE idperfil = :idperfil';
-        $profile['perfil']->allPermisos = Db::fetchAll($sql, $params);
-                        
+        $sql = 'SELECT idpermiso FROM usuario.perfil_permiso WHERE idperfil=:id AND activo=true';
+        $permissions = Db::fetchAll($sql, $params);
+        $profile['perfil']->permisos = array_column($permissions, 'idpermiso');
+        // $this->dep($profile);exit;        
+        
         return $profile;
+    }
+
+    public function getUsersFromPerfil($id){
+        $data = $this->request->getJsonRawBody();
+        $params = array('idperfil' => $data->id);
+        $sql = 'SELECT idusuario FROM usuario.perfil_usuario WHERE idperfil = :idperfil';
+        $usuarios = Db::fetchAll($sql, $params);
+        $usuarios = array_column($usuarios, 'idusuario');
+        return $usuarios;
+        // $this->dep($usuarios);exit;
+    }
+
+    public function getPermissionsFromProfile($id){
+        $data = $this->request->getJsonRawBody();
+        $params = array('idperfil' => $data->id);
+        $sql = "SELECT p.id, p.nombre, p.descripcion, p.siglas, p.idmodulo, p.activo
+        FROM usuario.permiso p
+        WHERE p.id IN (
+            SELECT pp.idpermiso
+            FROM usuario.perfil_permiso pp
+            WHERE pp.idperfil = :idperfil
+        );
+        ";
+
+        $permisos = Db::fetchAll($sql, $params);
+        // $permisos = array_column($permisos, 'idpermiso');
+        // $this->dep($data->id);exit;
+        return $permisos;
+
+        // $sql = "SELECT * FROM usuario.permiso WHERE activo=true AND idperfil = :idperfil";
+        // $permissions = \App\Library\Db\Db::fetchAll($sql);
+        // return $permissions;
     }
 
     public function createUser()
@@ -267,23 +322,23 @@ class ProfilesController extends BaseController
         $this->processUserAssociations($data, 'activate');
 
         Db::commit();
-        return array('message' => 'El usuario ha sido actualizado.');
+        return array('message' => 'El perfil ha sido actualizado.');
     }
 
-    public function deleteUser($id)
+    public function deleteProfile($id)
     {
-        $this->hasClientAuthorized('bous');
+        $this->hasClientAuthorized('bope');
 
-        $sql = "SELECT activo FROM usuario.usuario WHERE id=:id";
+        $sql = "SELECT activo FROM usuario.perfil WHERE id=:id";
         $params = array('id' => $id);
         $active = Db::fetchColumn($sql, $params);
 
-        $sql = "UPDATE usuario.usuario SET activo=:activo WHERE id=:id";
+        $sql = "UPDATE usuario.perfil SET activo=:activo WHERE id=:id";
         $params = array('activo' => $active ? 'f' : 't', 'id' => $id);
         Db::execute($sql, $params);
 
         $msg = $active ? 'desactivado' : 'activado';
-        return array('message' => "El usuario ha sido $msg.");
+        return array('message' => "El perfil ha sido $msg.");
     }
 
     private function isUsernameInUse($username)
