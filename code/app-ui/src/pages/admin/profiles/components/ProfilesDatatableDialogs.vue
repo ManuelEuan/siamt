@@ -160,25 +160,11 @@ export default {
         ));
 
         const { modulos, permisos, ...profile } = perfil;
-        //   for (const key in profile) if (!profile[key] || key === 'admin') delete profile[key];
-        // console.log('profile')
-        //     console.log(profile)
-        console.log('modulos')
-        console.log(modulos)
-        //     console.log('allUsers')
-        //     console.log(allUsers)
-        console.log('permisos')
-        console.log(permisos)
 
         const convToName = (objs, ids) => objs.filter(o => ids.includes(o.id)).map(o => o.nombre);
         modules = convToName(modules, modulos);
         usuarios = convToName(usuarios, usuarios);
         permissions = convToName(permissions, permisos);
-        console.log('modulos2')
-        console.log(modules)
-        console.log('permisos2')
-        console.log(permissions)
-
         this.profile = { ...profile };
         if (modules.length > 0) this.profile.modulos = modules;
         if (usuarios.length > 0) this.profile.usuarios = usuarios;

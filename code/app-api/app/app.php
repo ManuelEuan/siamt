@@ -125,6 +125,7 @@ $app->mount(
         ->put('/users/reset', 'resetUserPass')
         ->put('/users/change', 'changeUserPass')
         ->delete('/users/{id}', 'deleteUser')
+        ->post('/users/{id}/permissions', 'getPermissionsFromUser')
    
 
 );

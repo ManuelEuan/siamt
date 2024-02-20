@@ -29,7 +29,7 @@ class UsersController extends BaseController
     );
 
     public function getUsers()
-    {  
+    {
         $data = $this->request->getJsonRawBody();
         $itemsPerPage = $data->itemsPerPage;
         $offset = ($data->page - 1) * $itemsPerPage;
@@ -63,7 +63,7 @@ class UsersController extends BaseController
         }
 
         $sql .= $this->sortUsers($data->sortBy, $data->sortDesc);
- 
+
         if ($itemsPerPage > 0) {
             $sql .= 'LIMIT :items OFFSET :offset';
             $params['items'] = $itemsPerPage;
@@ -112,32 +112,103 @@ class UsersController extends BaseController
         $domains = Db::fetchAll($sql, $params);
         $user['usuario']->dominios = array_column($domains, 'iddominio');
 
-        $sql = 'SELECT idmodulo FROM usuario.usuario_dominio_modulo WHERE idusuario=:id AND activo=true';
-        $modules = Db::fetchAll($sql, $params);
-        $user['usuario']->modulos = array_column($modules, 'idmodulo');
+        // $sql = 'SELECT idmodulo FROM usuario.usuario_dominio_modulo WHERE idusuario=:id AND activo=true';
+        // $modules = Db::fetchAll($sql, $params);
+        // $user['usuario']->modulos = array_column($modules, 'idmodulo');
 
         $sql = 'SELECT idperfil FROM usuario.perfil_usuario WHERE idusuario=:id AND activo=true';
         $roles = Db::fetchAll($sql, $params);
         $user['usuario']->perfiles = array_column($roles, 'idperfil');
 
-        $sql = '
-            WITH role_permissions AS (
-                SELECT r.idpermiso FROM usuario.perfil_permiso r
-                INNER JOIN usuario.perfil_usuario u ON r.idperfil = u.idperfil
-                WHERE u.idusuario = :id
-            ), user_permissions AS (
-                SELECT idpermiso FROM usuario.usuario_permiso 
-                WHERE idusuario = :id
-            )
+        // $sql = '
+        //     WITH role_permissions AS (
+        //         SELECT r.idpermiso FROM usuario.perfil_permiso r
+        //         INNER JOIN usuario.perfil_usuario u ON r.idperfil = u.idperfil
+        //         WHERE u.idusuario = :id
+        //     ), user_permissions AS (
+        //         SELECT idpermiso FROM usuario.usuario_permiso 
+        //         WHERE idusuario = :id
+        //     )
 
-            SELECT idpermiso FROM role_permissions 
-            UNION 
-            SELECT idpermiso FROM user_permissions
+        //     SELECT idpermiso FROM role_permissions 
+        //     UNION 
+        //     SELECT idpermiso FROM user_permissions
+        // ';
+        $sql = '
+        WITH perfiles_activos AS (
+            -- Obtener los IDs de los perfiles activos del usuario con idusuario = 6
+            SELECT idperfil
+            FROM usuario.perfil_usuario
+            WHERE idusuario = :id AND activo = true
+        ),
+        permisos_activos AS (
+            -- Obtener los IDs de los permisos activos para los perfiles obtenidos
+            SELECT idpermiso
+            FROM usuario.perfil_permiso
+            WHERE idperfil IN (SELECT idperfil FROM perfiles_activos) AND activo = true
+        )
+        -- Seleccionar los permisos activos
+        SELECT *
+        FROM permisos_activos;
+        
         ';
         $permissions = Db::fetchAll($sql, $params);
         $user['usuario']->permisos = array_column($permissions, 'idpermiso');
-        
+
         return $user;
+    }
+
+    public function getPermissionsFromUser()
+    {
+        $data = $this->request->getJsonRawBody();
+        $params = array('id' => $data->id);
+        $sql = '
+        WITH perfiles_activos AS (
+            -- Obtener los IDs de los perfiles activos del usuario con idusuario = 6
+            SELECT idperfil
+            FROM usuario.perfil_usuario
+            WHERE idusuario = :id AND activo = true
+        ),
+        permisos_activos AS (
+            -- Obtener los IDs de los permisos activos para los perfiles obtenidos
+            SELECT *
+            FROM usuario.perfil_permiso
+            WHERE idperfil IN (SELECT idperfil FROM perfiles_activos) AND activo = true
+        )
+        -- Seleccionar los permisos activos
+        SELECT *
+        FROM permisos_activos;
+        ';
+        $permissions = Db::fetchAll($sql, $params);
+        $permissions = array_column($permissions, 'idpermiso');
+
+        $ids_permisos = implode(",", $permissions);
+
+        $sql = "WITH permisos_cte AS (SELECT * FROM usuario.permiso WHERE id IN ($ids_permisos))
+                SELECT * FROM permisos_cte;";
+        $permissions = Db::fetchAll($sql);
+        foreach ($permissions as $permission) {
+            $idmodulo = $permission->idmodulo;
+            if (!isset($arreglo_agrupado[$idmodulo])) {
+                $arreglo_agrupado[$idmodulo] = [];
+            }
+            $arreglo_agrupado[$idmodulo][] = $permission;
+        }
+        $claves = array_keys($arreglo_agrupado);
+        $ids_modulos = implode(",", $claves);
+        $sql = "WITH modulos AS (SELECT * FROM usuario.modulo WHERE id IN ($ids_modulos))
+                SELECT * FROM modulos;";
+
+        $modulos = Db::fetchAll($sql);
+        foreach ($modulos as $objeto) {
+            $id = $objeto->id;
+            if (isset($arreglo_agrupado[$id])) {
+                $objeto->permisos = $arreglo_agrupado[$id];
+            } else {
+                $objeto->permisos = array();
+            }
+        }
+        return $modulos;
     }
 
     public function createUser()
@@ -285,7 +356,8 @@ class UsersController extends BaseController
         return !(Db::fetchColumn($sql, $params) === $username);
     }
 
-    private function hasClientAuthorized($permission) {
+    private function hasClientAuthorized($permission)
+    {
         $permissions = $this->token->getPermissions()['usr'];
 
         if (!in_array($permission, $permissions)) {
@@ -328,14 +400,14 @@ class UsersController extends BaseController
         Db::execute($sql, $params);
     }
 
-    private function verifyRolePermissions($role, $permissions) 
+    private function verifyRolePermissions($role, $permissions)
     {
         $sql = 'SELECT idpermiso FROM usuario.perfil_permiso WHERE idperfil=:idperfil';
         $params = array('idperfil' => $r);
         $rolePermissions = Db::fetchAll($sql, $params);
 
         if (empty($rolePermissions)) return;
-            
+
         $rolePermissions = array_column($rolePermissions, 'idpermiso');
         $unmatchedPermissions = array_diff($rolePermissions, $permissions);
 
@@ -392,8 +464,8 @@ class UsersController extends BaseController
             INNER JOIN filtro_roles r ON u.id=r.idusuario
         ';
         $params['roles'] = '{' . implode(', ', $filters->roles) . '}';
-        
-        if (!$filters->roles) { 
+
+        if (!$filters->roles) {
             $sql = 'SELECT u.*, COUNT(u.id) OVER() AS total_usuarios FROM usuarios u ';
             unset($params['roles']);
         }
@@ -419,7 +491,7 @@ class UsersController extends BaseController
                     break;
             }
         }
-        
+
         if ($sql2 !== 'WHERE ') $sql .= $sql2;
 
         return array($sql, $params);
@@ -438,11 +510,20 @@ class UsersController extends BaseController
             $column = $sortBy[$i];
 
             switch ($column) {
-                case 'usuario': $sql .= 'u.usuario '; break;
-                case 'nombre_completo': $sql .= 'u.nombre_completo '; break;
-                case 'correo': $sql .= 'u.correo '; break;
-                case 'activo': $sql .= 'u.activo '; break;
-                default: $sql .= 'u.id';
+                case 'usuario':
+                    $sql .= 'u.usuario ';
+                    break;
+                case 'nombre_completo':
+                    $sql .= 'u.nombre_completo ';
+                    break;
+                case 'correo':
+                    $sql .= 'u.correo ';
+                    break;
+                case 'activo':
+                    $sql .= 'u.activo ';
+                    break;
+                default:
+                    $sql .= 'u.id';
             }
 
             $sql .= "$order NULLS LAST";
@@ -452,7 +533,7 @@ class UsersController extends BaseController
         return $sql;
     }
 
-    private function validRequiredData($data) 
+    private function validRequiredData($data)
     {
         $requiredKeys = array('nombre', 'apepat', 'usuario', 'dominios');
         $actualKeys = array_keys(get_object_vars($data));
@@ -461,13 +542,13 @@ class UsersController extends BaseController
         $message = 'Faltan valores requeridos.';
         if (!empty($missingKeys)) throw new ValidatorBoomException(422, $message);
 
-        foreach($data as $key => $value) {
+        foreach ($data as $key => $value) {
             if (!in_array($key, $requiredKeys)) continue;
 
             if ($key === 'dominios') {
                 $message = "Tipo de valor incorrecto en dominios.";
                 if (!is_array($value)) throw new ValidatorBoomException(422, $message);
-                
+
                 $message = "Valor vacío en dominios.";
                 if (empty($value)) throw new ValidatorBoomException(422, $message);
                 continue;
@@ -489,12 +570,13 @@ class UsersController extends BaseController
         }
     }
 
-    private function validPass($data) {
+    private function validPass($data)
+    {
         $dataKeys = array_keys(get_object_vars($data));
 
         $message = 'Clave requerida.';
         if (!in_array('clave', $dataKeys)) throw new ValidatorBoomException(422, $message);
-        
+
         $message = 'Tipo de valor incorrecto en clave.';
         if (!is_string($data->clave)) throw new ValidatorBoomException(422, $message);
 

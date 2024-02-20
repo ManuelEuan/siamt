@@ -90,6 +90,10 @@ export default class AdminService extends ApiService {
     return await this.put("/users", JSON.stringify(data));
   }
 
+  async getPermissionsFromUser(id) {
+    return await this.post(`/users/${id}/permissions`, JSON.stringify(id));
+  }
+
   async resetUserPass(data) {
     return await this.put("/users/reset", JSON.stringify(data));
   }

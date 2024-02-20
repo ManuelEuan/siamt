@@ -19,10 +19,10 @@
             Perfiles
             <v-icon> mdi-card-account-details </v-icon>
           </v-tab>
-          <v-tab href="#permissionstab">
+          <!-- <v-tab href="#permissionstab">
             Permisos
             <v-icon> mdi-list-status </v-icon>
-          </v-tab>
+          </v-tab> -->
         </v-tabs>
         <v-tabs-items v-model="tab">
           <v-card flat>
@@ -108,7 +108,7 @@
               </v-card-text>
             </v-tab-item>
             <v-tab-item :key="2" value="rolestab">
-              <v-container>
+              <!-- <v-container>
                 <v-checkbox
                   v-for="(role, id) in roles"
                   v-model="user.perfiles"
@@ -125,9 +125,29 @@
                     </v-tooltip>
                   </template>
                 </v-checkbox>
+              </v-container> -->
+              <v-container>
+                <v-checkbox
+                  v-for="(role, id) in roles"
+                  :key="id"
+                  v-model="user.perfiles"
+                  :value="role.id"
+                  :input-value="user.perfiles.includes(role.id)"
+                  @click="click.role = true"
+                  >
+                  <!-- @click="toggleCheckbox(role.id)" -->
+                  <template v-slot:label>
+                    <v-tooltip right>
+                      <template v-slot:activator="{ on }">
+                        <span v-on="on">{{ role.nombre }}</span>
+                      </template>
+                      {{ role.descripcion }}
+                    </v-tooltip>
+                  </template>
+                </v-checkbox>
               </v-container>
             </v-tab-item>
-            <v-tab-item :key="3" value="permissionstab">
+            <!-- <v-tab-item :key="3" value="permissionstab">
               <v-expansion-panels>
                 <v-expansion-panel v-for="(item, i) in permissions" :key="i">
                   <v-expansion-panel-header>
@@ -153,7 +173,7 @@
                   </v-expansion-panel-content>
                 </v-expansion-panel>
               </v-expansion-panels>
-            </v-tab-item>
+            </v-tab-item> -->
             <v-card-actions>
               <v-spacer />
               <v-btn color="error" text @click="exitWindow()"> Cerrar </v-btn>
@@ -291,21 +311,21 @@ export default {
       this.click.permission = false;
     },
     ['user.perfiles'](newRoles, oldRoles) {
-      if (this.click.role === false) return;
-      if (oldRoles.length === newRoles.length) return;
+      // if (this.click.role === false) return;
+      // if (oldRoles.length === newRoles.length) return;
 
-      if (newRoles.length < oldRoles.length) {
-        const previousRoles = [...oldRoles];
-        const roleId = previousRoles.pop();
-        const role = this.roles.find(r => r.id === roleId);
-        this.user.permisos = this.user.permisos.filter(p => !role.idpermiso.includes(p));
-      } else {
-        const actualRoles = [...newRoles];
-        const roleId = actualRoles.pop();
-        const role = this.roles.find(r => r.id === roleId);
-        this.user.permisos.push(...role.idpermiso);
-        this.user.permisos = [...new Set(this.user.permisos)];
-      }
+      // if (newRoles.length < oldRoles.length) {
+      //   const previousRoles = [...oldRoles];
+      //   const roleId = previousRoles.pop();
+      //   const role = this.roles.find(r => r.id === roleId);
+      //   this.user.permisos = this.user.permisos.filter(p => !role.idpermiso.includes(p));
+      // } else {
+      //   const actualRoles = [...newRoles];
+      //   const roleId = actualRoles.pop();
+      //   const role = this.roles.find(r => r.id === roleId);
+      //   this.user.permisos.push(...role.idpermiso);
+      //   this.user.permisos = [...new Set(this.user.permisos)];
+      // }
 
       this.user.permisos.filter(p => p !== 0);
       this.click.role = false;
