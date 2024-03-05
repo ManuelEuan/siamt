@@ -9,7 +9,7 @@ Instalar [Docker Desktop for Windows](https://hub.docker.com/editions/community/
 Una vez instalado:
 1. Iniciar sesion con las credenciales de gitlab
 
-	```docker login registry.gitlab.com -u <username> -p <token>```
+	```docker login gitaty.transporteyucatan.org.mx:5050 -u <username> -p <token>```
 	
 	**Nota:** ```<token>``` representa un [token personal de acceso](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html)
 1. Clonar repositorio
