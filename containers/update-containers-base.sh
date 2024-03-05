@@ -13,7 +13,7 @@ for i in "${array[@]}"
 do
 	echo "Building" $i
 	cd $i
-	docker build -t registry.gitlab.com/yucatan/siamt/$i -f ./dockerfile-base .
-	docker push registry.gitlab.com/yucatan/siamt/$i
+	docker build -t gitaty.transporteyucatan.org.mx:5050/aty/siamt/$i -f ./dockerfile-base .
+	docker push gitaty.transporteyucatan.org.mx:5050/aty/siamt/$i
 	cd ..
 done

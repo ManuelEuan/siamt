@@ -1,4 +1,4 @@
- FROM registry.gitlab.com/yucatan/siamt/base-njs-16
+ FROM gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-njs-16
 
 ARG GIT_USR=$GIT_USR
 ARG GIT_PASS=$GIT_PASS

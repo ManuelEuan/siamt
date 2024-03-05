@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   gateway:
-    image: registry.gitlab.com/yucatan/siamt/gateway-dv
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/gateway-dv
     ports:
       - target: 80
         published: 81
@@ -25,7 +25,7 @@ services:
       - "auth-api"
       - "app-ui"
   wss-njs:
-    image: registry.gitlab.com/yucatan/siamt/wss-njs-dv
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/wss-njs-dv
     ports:
       - target: 3000
         published: 8444
@@ -41,7 +41,7 @@ services:
       - "liquibase"
       - "redis"
   app-ui:
-    image: registry.gitlab.com/yucatan/siamt/app-ui-dv
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/app-ui-dv
     volumes:
       - "frontend:/srv/www"
     env_file:
@@ -49,7 +49,7 @@ services:
     networks:
       - internal-services
   auth-api:
-    image: registry.gitlab.com/yucatan/siamt/auth-api-dv
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/auth-api-dv
     env_file:
       - ../../../.dv-env
     networks:
@@ -60,7 +60,7 @@ services:
       - "liquibase"
       - "redis"
   app-api:
-    image: registry.gitlab.com/yucatan/siamt/app-api-dv
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/app-api-dv
     env_file:
       - ../../../.dv-env
     networks:
@@ -79,7 +79,7 @@ services:
     sysctls:
       net.core.somaxconn: 1024
   liquibase:
-    image: registry.gitlab.com/yucatan/siamt/liquibase-dv
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/liquibase-dv
     env_file:
       - ../../../.dv-env
     networks:
