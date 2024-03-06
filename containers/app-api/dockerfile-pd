@@ -6,7 +6,7 @@ ARG GIT_PASS=$GIT_PASS
 COPY config.json /docker-entrypoint.d
 
 RUN set -ex && \
-    git clone --depth 1 --filter=blob:none --sparse https://$GIT_USR:$GIT_PASS@transporteyucatan.org.mx/aty/siamt.git /srv/siamt && \
+    git clone --depth 1 --filter=blob:none --sparse https://$GIT_USR:$GIT_PASS@gitaty.transporteyucatan.org.mx/aty/siamt.git /srv/siamt && \
     cd /srv/siamt && \
     git sparse-checkout add code/common-php code/app-api && \
     cd code/app-api && ./composer.phar install
