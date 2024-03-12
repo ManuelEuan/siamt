@@ -7,6 +7,7 @@ export default {
   profilesUrl: BASE_URL + "/profiles",
   eventUrl: BASE_URL + "/events",
   adminUrl: BASE_URL + "/admin",
+  mantounidadesUrl: BASE_URL + "/mantounidades",
   personsUrl: BASE_URL + "/persons",
   structureUrl: BASE_URL + "/structure",
   dwhUrl: BASE_URL + "/dwh",

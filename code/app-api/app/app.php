@@ -64,7 +64,6 @@ $app->get('/users', function () use ($app, $config) {
 $app->get('/profiles', function () use ($app, $config) {
     $token = $app->getSharedService('token');
     $data = App::findProfilesByDomain($token->getDomainId());
-    dep($data);
     return $data;
 });
 

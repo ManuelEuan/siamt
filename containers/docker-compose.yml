@@ -84,6 +84,21 @@ services:
     depends_on:
       - "liquibase"
       - "redis"
+  app-manto-unidades-api:
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
+    volumes:
+      - "./app-manto-unidades-api/config.json:/docker-entrypoint.d/config.json"
+      - "../code/app-manto-unidades-api:/srv/siamt/code/app-manto-unidades-api"
+      - "../code/common-php:/srv/siamt/code/common-php"
+    env_file:
+      - dv.env
+    networks:
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
 #  users-api:
 #    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
 #    volumes:

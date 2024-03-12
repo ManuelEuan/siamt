@@ -4,15 +4,7 @@ namespace App\Controllers;
 
 use Phalcon\Registry;
 use App\Library\Http\Controllers\BaseController;
-use App\Library\Misc\Utils;
-use App\Models\Layers\Layer;
-use App\Models\Layers\BaseLayer;
-use App\Models\Territory\LocalDistricts;
-use App\Models\Territory\Sections;
-use GuzzleHttp\Client;
-use GuzzleHttp\Psr7;
 use App\Library\Db\Db;
-use App\Library\Http\Status;
 use App\Library\Http\Exceptions\HttpUnauthorizedException;
 use App\Library\Http\Exceptions\ValidatorBoomException;
 
