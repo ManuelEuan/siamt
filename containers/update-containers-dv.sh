@@ -21,9 +21,9 @@ do
 	  --no-cache \
 	  --build-arg GIT_USR=$GIT_USR \
 	  --build-arg GIT_PASS=$GIT_PASS \
-	  -t registry.gitlab.com/yucatan/siamt/$i-dv \
-	  -t registry.gitlab.com/yucatan/siamt/$i-dv:$timestamp \
+	  -t gitaty.transporteyucatan.org.mx:5050/aty/siamt/$i-dv \
+	  -t gitaty.transporteyucatan.org.mx:5050/aty/siamt/$i-dv:$timestamp \
 	  -f ./dockerfile-pd .
-	docker push registry.gitlab.com/yucatan/siamt/$i-dv --all-tags
+	docker push gitaty.transporteyucatan.org.mx:5050/aty/siamt/$i-dv --all-tags
 	cd ..
 done

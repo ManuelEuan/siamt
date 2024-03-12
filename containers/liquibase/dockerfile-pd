@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/yucatan/siamt/liquibase
+FROM gitaty.transporteyucatan.org.mx:5050/aty/siamt/liquibase
 
 ARG GIT_USR=$GIT_USR
 ARG GIT_PASS=$GIT_PASS

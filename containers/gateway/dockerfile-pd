@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/yucatan/siamt/gateway
+FROM gitaty.transporteyucatan.org.mx:5050/aty/siamt/gateway
 
 COPY conf /etc/nginx
 

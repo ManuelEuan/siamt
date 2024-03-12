@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   gateway:
-    image: registry.gitlab.com/yucatan/siamt/gateway
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/gateway
     ports:
       - target: 80
         published: 80
@@ -22,7 +22,7 @@ services:
       - "auth-api"
       - "app-ui"
   wss-njs:
-    image: registry.gitlab.com/yucatan/siamt/base-njs-16
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-njs-16
     command: ["node", "/srv/siamt/code/wss-njs/app.js"]
     ports:
       - target: 3000
@@ -40,7 +40,7 @@ services:
       - "liquibase"
       - "redis"
   app-ui:
-    image: registry.gitlab.com/yucatan/siamt/base-njs-16
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-njs-16
     command: ["yarn","--cwd","/srv/siamt/code/app-ui","serve"]
     tty: true
     environment:
@@ -55,7 +55,7 @@ services:
     networks:
       - internal-services
   auth-api:
-    image: registry.gitlab.com/yucatan/siamt/base-api
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
     volumes:
       - "./auth-api/config.json:/docker-entrypoint.d/config.json"
       - "../code/auth-api:/srv/siamt/code/auth-api"
@@ -70,7 +70,7 @@ services:
       - "liquibase"
       - "redis"
   app-api:
-    image: registry.gitlab.com/yucatan/siamt/base-api
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
     volumes:
       - "./app-api/config.json:/docker-entrypoint.d/config.json"
       - "../code/app-api:/srv/siamt/code/app-api"
@@ -85,7 +85,7 @@ services:
       - "liquibase"
       - "redis"
 #  users-api:
-#    image: registry.gitlab.com/yucatan/siamt/base-api
+#    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
 #    volumes:
 #      - "./users-api/config.json:/docker-entrypoint.d/config.json"
 #      - "../code/users-api:/srv/siamt/code/users-api"
@@ -109,7 +109,7 @@ services:
     sysctls:
       net.core.somaxconn: 1024
   liquibase:
-    image: registry.gitlab.com/yucatan/siamt/liquibase
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/liquibase
     volumes:
       - "../code/migrations:/liquibase/changelog"
     env_file:

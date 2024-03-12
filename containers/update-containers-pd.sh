@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-GIT_USR=gitlab+deploy-token-3443868
-GIT_PASS=muDmKDbsmjNysyBCkBvh
+GIT_USR= gitlab+deploy-token-1
+GIT_PASS=gldt-TeJh7jzKHXA2kiTC9kzW
 timestamp=$(TZ="America/Merida" date +"%d%m%y%H%M")
 
 #docker builder prune -af
@@ -21,9 +21,9 @@ do
 	  --no-cache \
 	  --build-arg GIT_USR=$GIT_USR \
 	  --build-arg GIT_PASS=$GIT_PASS \
-	  -t registry.gitlab.com/yucatan/siamt/$i-pd \
-	  -t registry.gitlab.com/yucatan/siamt/$i-pd:$timestamp \
+	  -t gitaty.transporteyucatan.org.mx:5050/aty/siamt/$i-pd \
+	  -t gitaty.transporteyucatan.org.mx:5050/aty/siamt/$i-pd:$timestamp \
 	  -f ./dockerfile-pd .
-	docker push registry.gitlab.com/yucatan/siamt/$i-pd --all-tags
+	docker push gitaty.transporteyucatan.org.mx:5050/aty/siamt/$i-pd --all-tags
 	cd ..
 done
