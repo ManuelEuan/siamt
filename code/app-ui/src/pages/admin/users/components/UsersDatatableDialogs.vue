@@ -41,11 +41,24 @@
                           {{ headers[key] ?? key }}
                         </v-list-item-title>
                         <v-list-item-subtitle class="text-lowercase text-body-1">
-                          <v-chip-group column>
-                            <v-chip v-for="(element, index) in value" :key="index">
-                              {{ element }}
-                            </v-chip>
-                          </v-chip-group>
+                          <template v-if="key == 'permisos'">
+                            <div v-for="(item, i) in user.permisos" :key="i">
+                              <v-row v-if="item.permisos.length > 0" class="mx-0">
+                                <v-col cols="12" class="px-0 py-1">Módulo de {{ item.nombre }}</v-col>
+                                <v-chip class="mr-2 my-1" v-for="(permission, id) in item.permisos" :key="id">
+                                  {{ permission.nombre }}
+                                </v-chip>
+                              </v-row>
+                            </div>
+                          </template>
+                          <template v-else>
+                            
+                            <v-chip-group column>
+                              <v-chip v-for="(element, index) in value" :key="index">
+                                {{ element }}
+                              </v-chip>
+                            </v-chip-group>
+                          </template>
                         </v-list-item-subtitle>
                       </v-list-item-content>
                     </v-list-item>
@@ -162,7 +175,7 @@ export default {
   name: "UsersDatatableDialogs",
   data() {
     return {
-      chips: ["dominios", "modulos", "roles", "permisos"],
+      chips: ["dominios", "permisos", "roles"],
       headers: {
         id: "no. usuario",
         roles: "perfiles",
@@ -213,28 +226,23 @@ export default {
     async viewUser() {
       try {
         const { id } = this.user;
-        let [domains, modules, roles, permissions, { usuario }] = await Promise.all([
+        let [domains, roles, permissions, { usuario }] = await Promise.all([
           services.admin().getDomains(),
-          services.admin().getModules(),
           services.admin().getRoles(),
-          services.admin().getPermissions(),
+          services.admin().getPermissionsFromUser({ id }),
+          // services.admin().getPermissions(),
           services.admin().getEditUserInfo({ id }),
         ]);
-        
-        const { dominios, modulos, perfiles, permisos, ...user } = usuario;
+        const { dominios, perfiles, ...user } = usuario;
         for (const key in user) if (!user[key] || key === 'admin') delete user[key];
-
         const convToName = (objs, ids) => objs.filter(o => ids.includes(o.id)).map(o => o.nombre);
         domains = convToName(domains, dominios);
-        modules = convToName(modules, modulos);
         roles = convToName(roles, perfiles);
-        permissions = convToName(permissions, permisos);
-        
         this.user = { ...user };
         if (domains.length > 0) this.user.dominios = domains;
-        if (modules.length > 0) this.user.modulos = modules;
         if (roles.length > 0) this.user.roles = roles;
-        if (permissions.length > 0) this.user.permisos = permissions;
+        // if (permissions.length > 0) this.user.permisos = permissions;
+        this.user.permisos = permissions;
         
         this.show.view = true;
       }

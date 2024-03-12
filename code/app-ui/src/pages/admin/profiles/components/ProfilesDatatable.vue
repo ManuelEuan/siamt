@@ -42,7 +42,7 @@
               small
               @click="actionsHandler(item, 'edit')"
             >
-              <v-icon small> mdi-account-edit </v-icon>
+              <v-icon small> mdi-square-edit-outline </v-icon>
             </v-btn>
           </template>
           <span>Editar perfil</span>
@@ -57,8 +57,8 @@
               small
               @click="actionsHandler(item, 'delete')"
             >
-              <v-icon small v-show="item.activo"> mdi-delete </v-icon>
-              <v-icon small v-show="!item.activo"> mdi-delete-off </v-icon>
+              <v-icon small v-show="item.activo"> mdi-close </v-icon>
+              <v-icon small v-show="!item.activo"> mdi-check </v-icon>
             </v-btn>
           </template>
           <span>{{ item.activo ? "Desactivar" : "Activar" }} verfil</span>
@@ -128,18 +128,9 @@ export default {
   methods: {
     ...mapActions('app', ['getProfiles']),
     async loadProfilesTable() {
-      console.log('----------data')
       const { page, itemsPerPage, sortBy, sortDesc } = this.options;
-      console.log(page)
-      console.log(itemsPerPage)
-      console.log(sortBy)
-      console.log(sortDesc)
-
       const data = { page, itemsPerPage, sortBy, sortDesc }; 
-            console.log('-----------getProfiles')
-             console.log(data)
       this.getProfiles({ data });
-      console.log(this.profiles)
       this.loadingTable = false;
     },
     actionsHandler(profile, action) {
@@ -162,12 +153,7 @@ export default {
   },
   async mounted() {
     const { per } = await services.security().getPermissions();
-    console.log('-----------per')
-    console.log(per)
-    console.log(this.permissions)
     if (per) this.permissions = per;
-    console.log(this.permissions)
-
   }
 };
 </script>

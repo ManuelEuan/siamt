@@ -90,6 +90,10 @@ export default class AdminService extends ApiService {
     return await this.put("/users", JSON.stringify(data));
   }
 
+  async getPermissionsFromUser(id) {
+    return await this.post(`/users/${id}/permissions`, JSON.stringify(id));
+  }
+
   async resetUserPass(data) {
     return await this.put("/users/reset", JSON.stringify(data));
   }
@@ -111,5 +115,29 @@ export default class AdminService extends ApiService {
     async getEditProfileInfo(data) {
       return await this.post("/profiles/geteditprofileinfo", JSON.stringify(data));
     }
-  
+
+    async getUsersFromProfile(id) {
+      return await this.post(`/profiles/${id}/users`, JSON.stringify(id));
+    }
+
+    async getPermissionsFromProfile(id) {
+      return await this.post(`/profiles/${id}/permissions`, JSON.stringify(id));
+    }
+
+    async getModulesFromProfile(id) {
+      return await this.post(`/profiles/${id}/modules`, JSON.stringify(id));
+    }
+
+    
+    async createProfile(data) {
+      return await this.post("/profiles/new", JSON.stringify(data));
+    }
+
+    async deleteProfile(id) {
+      return await this.delete(`/profiles/${id}`);
+    }
+
+    async updateProfile(data) {
+      return await this.put("/profiles", JSON.stringify(data));
+    }
 }

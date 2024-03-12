@@ -21,12 +21,9 @@ $app->get('/domain/config', function () use ($app, $config) {
 
 
 $app->get('/user/info', function () use ($app, $config) {
-
     $token = $app->getSharedService('token');
     $sql = "SELECT * FROM usuario.usuario WHERE id=" . $token->getUserId();
     $user = \App\Library\Db\Db::fetchAll($sql);
-    // dep($user);exit;
-
     return $user;
 });
 
@@ -67,7 +64,6 @@ $app->get('/users', function () use ($app, $config) {
 $app->get('/profiles', function () use ($app, $config) {
     $token = $app->getSharedService('token');
     $data = App::findProfilesByDomain($token->getDomainId());
-    dep($data);
     return $data;
 });
 
@@ -128,6 +124,7 @@ $app->mount(
         ->put('/users/reset', 'resetUserPass')
         ->put('/users/change', 'changeUserPass')
         ->delete('/users/{id}', 'deleteUser')
+        ->post('/users/{id}/permissions', 'getPermissionsFromUser')
    
 
 );
@@ -136,5 +133,10 @@ $app->mount(
     ->setHandler(ProfilesController::class, true)
     ->setPrefix('/admin')
     ->post("/profiles", "getProfiles")
+    ->post('/profiles/new', 'createProfile')
+    ->put('/profiles', 'updateProfile')
     ->post('/profiles/geteditprofileinfo', 'getEditProfileInfo')
+    ->delete('/profiles/{id}', 'deleteProfile')
+    ->post('/profiles/{id}/users', 'getUsersFromProfile')
+    ->post('/profiles/{id}/permissions', 'getPermissionsFromProfile')
 );

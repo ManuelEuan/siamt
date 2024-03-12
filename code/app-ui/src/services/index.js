@@ -10,6 +10,7 @@ import config from '@/configs';
 
 import SecurityService from './security.service';
 import AppService from './app.service';
+import MantoUnidadesService from './mantounidades.service';
 import EventService from './event.service';
 import AdminService from './admin.service';
 import PersonService from './person.service';
@@ -36,6 +37,7 @@ export default {
 	event: () => getInstance(EventService, config.services.eventUrl),
 	callcenter: () => getInstance(CallcenterService,config.services.callcenterUrl),
 	admin: () => getInstance(AdminService, config.services.adminUrl),
+	mantounidades: () => getInstance(MantoUnidadesService, config.services.mantounidadesUrl),
 	census: () => getInstance(CensusService, config.services.censusUrl),
 	person: () => getInstance(PersonService, config.services.personsUrl),
 	structure: () => getInstance(StructureService, config.services.structureUrl),

@@ -6,5 +6,6 @@
 	<include file="changes/aicf-1.sql"/>
 	<include file="changes/aicf-2.sql"/>
 	<include file="changes/aicf-3.sql"/>
+	<include file="changes/aicf-4.sql"/>
 
 </databaseChangeLog>
