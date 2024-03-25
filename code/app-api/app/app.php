@@ -9,6 +9,7 @@ use App\Controllers\LayersController;
 use App\Controllers\SurveyController;
 use App\Controllers\UsersController;
 use App\Controllers\ProfilesController;
+// use App\Controllers\InspectorsController;
 
 
 
@@ -140,3 +141,27 @@ $app->mount(
     ->post('/profiles/{id}/users', 'getUsersFromProfile')
     ->post('/profiles/{id}/permissions', 'getPermissionsFromProfile')
 );
+
+// $app->mount(
+//     (new Collection())
+//     ->setHandler(InspectorsController::class, true)
+//     ->setPrefix('/admin/inspections')
+//     ->get("/inspectors", "getInspectors")
+    // ->post('/profiles/new', 'createProfile')
+    // ->put('/profiles', 'updateProfile')
+    // ->post('/profiles/geteditprofileinfo', 'getEditProfileInfo')
+    // ->delete('/profiles/{id}', 'deleteProfile')
+    // ->post('/profiles/{id}/users', 'getUsersFromProfile')
+    // ->post('/profiles/{id}/permissions', 'getPermissionsFromProfile')
+// );
+
+// // Obtener la lista de rutas
+// $routes = $app->getRouter()->getRoutes();
+
+// // Imprimir la lista de rutas
+// foreach ($routes as $route) {
+//     echo "Ruta: " . $route->getPattern() . PHP_EOL;
+//     echo "Controlador: " . $route->getRouteId() . PHP_EOL;
+//     echo "Acción: " . $route->getHttpMethods() . PHP_EOL;
+//     echo PHP_EOL;
+// }

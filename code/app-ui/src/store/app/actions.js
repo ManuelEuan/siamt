@@ -64,6 +64,24 @@ const getProfiles = async ({ state, commit }, { data, filters }) => {
   commit('setProfilesTotalItems', totalItems)
 }
 
+const getInspectors = async ({ state, commit }, { data, filters }) => {
+  console.log('----------------filters ins2');
+  console.log(data);
+  console.log(filters);
+
+
+  if (data) commit('setInspectorsData', data)
+  if (filters) commit('setInspectorsFilters', filters)
+
+  const { inspectors, totalPages, totalItems } = await services.inspections().getInspectors({
+    ...state.inspectorsData,
+    filters: state.inspectorsFilters
+  })
+
+  commit('setInspectors', inspectors)
+  commit('setInspectorsTotalPages', totalPages)
+  commit('setInspectorsTotalItems', totalItems)
+}
 
 
 export default {
@@ -72,4 +90,5 @@ export default {
   showSuccess,
   getUsers,
   getProfiles,
+  getInspectors,
 }

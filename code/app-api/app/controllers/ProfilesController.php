@@ -346,7 +346,7 @@ class ProfilesController extends BaseController
             $sql = 'SELECT p.*, COUNT(p.id) OVER() AS total_perfiles FROM perfiles p '; // Obtener perfiles sin filtros
             unset($params['roles']); // Eliminar el parámetro de roles
         }
-
+      
         $sql2 = 'WHERE '; // Inicializar fragmento de consulta para filtros
 
         foreach ($filters as $filter => $value) { // Para cada filtro

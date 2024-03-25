@@ -96,4 +96,28 @@ export default {
   setProfilesTotalItems: (state, totalItems) => {
     state.profilesTotalItems = totalItems
   },
+
+
+   /**
+   * Inspectors Filters and Pagination
+   */
+   setInspectors: (state, inspectors) => {
+    console.log('inspectors')
+    console.log(inspectors)
+    state.inspectors = inspectors
+  },
+  setInspectorsData: (state, data) => {
+    state.inspectorsData = { ...data };
+  },
+  setInspectorsFilters: (state, filters) => {
+    console.log('mutation')
+    console.log(filters)
+    state.inspectorsFilters = { ...filters };
+  },
+  setInspectorsTotalPages: (state, totalPages) => {
+    state.inspectorsTotalPages = totalPages
+  },
+  setInspectorsTotalItems: (state, totalItems) => {
+    state.inspectorsTotalItems = totalItems
+  },
 }

@@ -46,6 +46,13 @@ const state = {
   profilesFilters: {},
   profilesTotalPages: 0,
   profilesTotalItems: 0,
+
+  // profiles filters and pagination
+  inspectors: [],
+  inspectorsData: {},
+  inspectorsFilters: {},
+  inspectorsTotalPages: 0,
+  inspectorsTotalItems: 0,
 }
 
 export default {

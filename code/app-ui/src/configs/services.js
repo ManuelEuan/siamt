@@ -8,6 +8,7 @@ export default {
   eventUrl: BASE_URL + "/events",
   adminUrl: BASE_URL + "/admin",
   mantounidadesUrl: BASE_URL + "/mantounidades",
+  inspectionsUrl: BASE_URL + "/inspections",
   personsUrl: BASE_URL + "/persons",
   structureUrl: BASE_URL + "/structure",
   dwhUrl: BASE_URL + "/dwh",

@@ -8,6 +8,7 @@ import UsersRoutes from "@/router/users.routes";
 import DebitacionRoutes from "@/router/debitacion.routes";
 import ProfilesRoutes from "@/router/profiles.routes";
 import mtoUnidades from "@/router/mtoUnidades.routes";
+import InspectionsRoutes from "@/router/inspections.routes";
 
 
 import services from '@/services';
@@ -37,6 +38,7 @@ export const routes = [{
   ...DebitacionRoutes,
   ...ProfilesRoutes,
   ...mtoUnidades,
+  ...InspectionsRoutes,
 {
   path: '/blank',
   name: 'blank',

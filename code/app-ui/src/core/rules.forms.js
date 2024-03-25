@@ -1,7 +1,7 @@
 export default {
 	required: v => !!v || 'Requerido.',
-  min5char: v => !v || v.length >= 5 || 'Mínimo 5 caracteres.',
-  min8char: v => !v || v.length >= 8 || 'Mínimo 8 caracteres.',
+	min5char: v => !v || v.length >= 5 || 'Mínimo 5 caracteres.',
+	min8char: v => !v || v.length >= 8 || 'Mínimo 8 caracteres.',
 	max3chars: v => !v || (v && v.length <= 3) || 'Máximo 3 caracteres.',
 	max13chars: v => !v || (v && v.length <= 13) || 'Máximo 13 caracteres.',
 	max18chars: v => !v || (v && v.length <= 18) || 'Máximo 18 caracteres.',
@@ -15,7 +15,7 @@ export default {
 	positiveIntNumber: v => !v || /^\d*$/.test(v) || 'Número igual o mayor a cero requerido.',
 	json: v => {
 		let status = true;
-		try { JSON.parse(v); } catch(e){ status = false; }
+		try { JSON.parse(v); } catch (e) { status = false; }
 		return !v || status || 'JSON valido requerido.';
 	},
 	email: v => {
@@ -26,4 +26,8 @@ export default {
 		const regex = /^[-.\w]+$/g;
 		return regex.test(v) || 'El usuario contiene caracteres no admitidos.';
 	},
+	curp: v => {
+		const regex = /^[A-Z]{4}[0-9]{6}[HM][A-Z]{5}[0-9]{2}$/;
+		return regex.test(v) || 'CURP válida requerida.'; 
+	}
 };
