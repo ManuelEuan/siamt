@@ -97,10 +97,8 @@
                             <v-tab-item :key="2" value="direccionestab" class="py-1">
                                 <v-card-text>
                                     <v-form v-model="valid">
-                                        <p>Direcciones</p>
-                                        <v-row>
-
-
+                                        <direction-verification></direction-verification>
+                                        <!-- <v-row>
                                             <v-col cols="12" md="4">
                                                 <v-select v-model="persona.iidestado_civil" label="Estado*"
                                                     :items="civilStatus" item-text="txtnombre"
@@ -114,13 +112,11 @@
                                                     small-chips clearable dense outlined />
                                             </v-col>
                                             <v-col cols="12" md="4">
-                                                <v-select v-model="persona.iidsexo" label="Código postal*" :items="sexes"
-                                                    item-text="txtnombre" item-value="iidsexo" hide-details="auto"
-                                                    small-chips clearable dense outlined />
+                                                <v-select v-model="persona.iidsexo" label="Código postal*"
+                                                    :items="sexes" item-text="txtnombre" item-value="iidsexo"
+                                                    hide-details="auto" small-chips clearable dense outlined />
                                             </v-col>
                                         </v-row>
-
-
                                         <v-row>
                                             <v-col cols="12" md="6">
                                                 <v-text-field v-model="persona.txtnombre" label="Calle principal/s*"
@@ -178,7 +174,7 @@
                                             </v-col>
 
 
-                                        </v-row>
+                                        </v-row> -->
                                     </v-form>
                                 </v-card-text>
                             </v-tab-item>
@@ -201,8 +197,8 @@
                                             </v-col>
 
                                             <v-col cols="12" md="6">
-                                                <v-text-field v-model="persona.txtine" label="Número" hide-details="auto"
-                                                    clearable dense outlined maxlength="19" />
+                                                <v-text-field v-model="persona.txtine" label="Número"
+                                                    hide-details="auto" clearable dense outlined maxlength="19" />
                                             </v-col>
                                             <v-col cols="12" md="12">
 
@@ -251,9 +247,13 @@
 import rules from "@/core/rules.forms";
 import services from "@/services";
 import { mapActions } from "vuex";
+import DirectionVerification from '@/components/common/DirectionVerification.vue';
 
 export default {
     name: 'ModalCreatePerson',
+    components: {
+        DirectionVerification
+    },
     data() {
         return {
             tab: "generaltab",

@@ -46,6 +46,10 @@ export default class InspectionsService extends ApiService {
     return await this.post("/persons/new", JSON.stringify(data));
   }
 
+  async getAllPostalCodes() {
+    return await this.get("/territory/getAllPostalCodes");
+  }
+
   async getAllCivilStatusPerson() {
     return await this.get("/persons/getAllCivilStatusPerson");
   }
