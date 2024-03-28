@@ -8,6 +8,7 @@ export default [
             code: 'ins'
         }
     },
+    // MÓDULO INSPECTORES
     {
         path: '/inspections/inspectors',
         name: 'inpsectors',
@@ -24,14 +25,26 @@ export default [
         component: () => import(/* webpackChunkName: "events-edit" */ '@/pages/inspections/inspectors/EditInspectorPage.vue'),
         meta: {
             layout: 'default',
-            code: 'nus',
-            parentCode: 'iin'
+            code: 'iin',
+            parentCode: 'ins'
         }
     }, 
     {
-        path: '/inspectors/workloads',
+        path: '/inspectors/:id/edit',
+        name: 'inspectors-edit',
+        component: () => import(/* webpackChunkName: "events-edit" */ '@/pages/inspections/inspectors/EditInspectorPage.vue'),
+        meta: {
+            layout: 'default',
+            code: 'iin',
+            parentCode: 'ins'
+        }
+    },
+
+    // MÓDULO CARGAS DE TRABAJO
+    {
+        path: '/workloads',
         name: 'workloads',
-        component: () => import(/* webpackChunkName: "debsons" */ '@/pages/inspections/workloads/IndexWorkLoadPage.vue'),
+        component: () => import(/* webpackChunkName: "debsons" */ '@/pages/inspections/workloads/IndexWorkloadPage.vue'),
         meta: {
             layout: 'default',
             code: 'ica',
@@ -39,33 +52,40 @@ export default [
         }
     },
     {
-        path: '/demos/inspectorsfge',
-        name: 'demosgewgname',
-        component: () => import(/* webpackChunkName: "debsons" */ '@/pages/inspections/inspectors/IndexInspectorPage.vue'),
+        path: '/workloads/new',
+        name: 'workloads-new',
+        component: () => import(/* webpackChunkName: "events-edit" */ '@/pages/inspections/workloads/EditWorkloadPage.vue'),
         meta: {
             layout: 'default',
-            code: 'ipu',
-            parentCode: 'ins'
+            code: 'iin',
+            parentCode: 'ica'
+        }
+    }, 
+    // MÓDULO EXTRA
+    {
+        path: '/works',
+        name: 'works',
+        component: () => import(/* webpackChunkName: "debsons" */ '@/pages/inspections/works/IndexWorkPage.vue'),
+        meta: {
+            layout: 'default',
+            code: 'itr',
+            // parentCode: 'ins'
         }
     },
     {
-        path: '/demos/inspectoregwes',
-        name: 'demogweegrgsname',
-        component: () => import(/* webpackChunkName: "debsons" */ '@/pages/inspections/inspectors/IndexInspectorPage.vue'),
+        path: '/works/new',
+        name: 'works-new',
+        component: () => import(/* webpackChunkName: "events-edit" */ '@/pages/inspections/works/EditWorkPage.vue'),
         meta: {
             layout: 'default',
-            code: 'iti',
-            parentCode: 'ins'
+            code: 'iin',
+            parentCode: 'ica'
         }
-    },
+    }, 
     {
-        path: '/demos/inspetjtrjctors',
-        name: 'demosnjtejtame',
-        component: () => import(/* webpackChunkName: "debsons" */ '@/pages/inspections/inspectors/IndexInspectorPage.vue'),
-        meta: {
-            layout: 'default',
-            code: 'itu',
-            parentCode: 'ins'
-        }
-    }
+        path: '/curp-demo',
+        name: 'curp-demo',
+        component: () => import(/* webpackChunkName: "events-edit" */ '@/components/common/CurpVerification.vue'),
+    }, 
+
 ]

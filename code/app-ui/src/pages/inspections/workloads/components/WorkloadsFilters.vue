@@ -1,16 +1,16 @@
 <template>
     <v-card flat>
-        <!-- filters {{ permissions.includes('crii') }} -- -->
+        filters {{ permissions }} --
         <v-toolbar>
-            <v-toolbar-title>Inspectores</v-toolbar-title>
+            <v-toolbar-title>Carga de trabajo</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-tooltip v-if="permissions.includes('crii')" top>
+            <v-tooltip v-if="permissions.includes('cric')" top>
                 <template v-slot:activator="{ on, attrs }">
-                    <v-btn color="primary" class="me-1" @click="newInspector" v-bind="attrs" v-on="on">
+                    <v-btn color="primary" class="me-1" @click="newWorkload" v-bind="attrs" v-on="on">
                         <v-icon> mdi-face-man-profile </v-icon>
                     </v-btn>
                 </template>
-                <span>Agregar inspector</span>
+                <span>Agregar carga de trabajo</span>
             </v-tooltip>
             <v-divider vertical class="mx-2"></v-divider>
             <v-badge overlap :content="activeFilters" :value="activeFilters">
@@ -30,7 +30,7 @@
                                     <v-text-field v-model="filters.name" label="Nombre" hide-details="auto" clearable dense outlined></v-text-field>
                                 </v-col>
                                 <v-col cols="12" md="6">
-                                    <v-text-field v-model="filters.tarjeton" label="Folio" hide-details="auto" clearable dense outlined></v-text-field>
+                                    <v-text-field v-model="filters.tarjeton" label="Tarjetón" hide-details="auto" clearable dense outlined></v-text-field>
                                 </v-col>
                                 <v-col cols="12" md="6">
                                     <v-text-field v-model="filters.etapa" label="Etapa" hide-details="auto" clearable dense outlined></v-text-field>
@@ -41,7 +41,7 @@
                                 <v-col cols="12" md="6">
                                     <v-text-field v-model="filters.categoria" label="Categoría" hide-details="auto" clearable dense outlined></v-text-field>
                                 </v-col>
-                                <!-- <v-col cols="12" md="6">
+                                <v-col cols="12" md="6">
                                     <v-select v-model="filters.active" label="Activo" :items="items.active" item-text="text" item-value="value" hide-details clearable outlined dense>
                                         <template v-slot:prepend-inner>
                                             <div class="d-flex align-center" style="height: 25px;">
@@ -58,7 +58,7 @@
                                             </div>
                                         </template>
                                     </v-select>
-                                </v-col> -->
+                                </v-col>
                                 
                             </v-row>
                         </v-card-text>
@@ -84,10 +84,11 @@
     
     <script>
     import services from '@/services';
-    import { mapActions,mapState } from 'vuex';
+    // import { mapActions,mapState } from 'vuex';
+    import { mapActions } from 'vuex';
     
     export default {
-        name: "InspectorsFilters",
+        name: "WorkloadsFilters",
         data() {
             return {
                 dialog: false,
@@ -110,30 +111,30 @@
             };
         },
         computed: {
-            ...mapState('app', ['inspectorsFilters']),
-            activeFilters() {
-                return Object
-                    .values(this.inspectorsFilters)
-                    .filter(v => v && (typeof (v) === 'string' ? v.trim() : v.length))
-                    .length;
-            }
+            // ...mapState('app', ['workloadsFilters']),
+            // activeFilters() {
+            //     return Object
+            //         .values(this.workloadsFilters)
+            //         .filter(v => v && (typeof (v) === 'string' ? v.trim() : v.length))
+            //         .length;
+            // }
         },
         methods: {
-            ...mapActions('app', ['getInspectors', 'showError']),
+            ...mapActions('app', ['getWorkloads', 'showError']),
             cleanFilters() {
                 this.filters = { active: '', name: '', username: '', roles: [] };
             },
             async applyFilters() {
                 const filters = this.filters;
-                await this.getInspectors({ filters });
+                await this.getWorkloads({ filters });
                 this.dialog = false;
             },
             closeFilters() {
-                this.filters = { ...this.inspectorsFilters };
+                this.filters = { ...this.workloadsFilters };
                 this.dialog = false;
             },
-            newInspector() {
-                this.$router.push("/inspectors/new");
+            newWorkload() {
+                this.$router.push("/workloads/new");
             },
         },
         async mounted() {
@@ -148,8 +149,8 @@
             console.log('---------------------------------------------hola')
             console.log(hola)
             // console.log(hola)
-            const { iin } = await services.security().getPermissions();
-            if (iin) this.permissions = iin;
+            const { ica } = await services.security().getPermissions();
+            if (ica) this.permissions = ica;
             console.log(this.permissions)
         },
     };

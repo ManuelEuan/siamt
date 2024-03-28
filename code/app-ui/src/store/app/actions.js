@@ -36,6 +36,8 @@ const showSuccess = ({ state, commit }, message) => {
   })
 }
 
+
+
 const getUsers = async ({ state, commit }, { data, filters }) => {
   if (data) commit('setUsersData', data)
   if (filters) commit('setUsersFilters', filters)
@@ -65,11 +67,6 @@ const getProfiles = async ({ state, commit }, { data, filters }) => {
 }
 
 const getInspectors = async ({ state, commit }, { data, filters }) => {
-  console.log('----------------filters ins2');
-  console.log(data);
-  console.log(filters);
-
-
   if (data) commit('setInspectorsData', data)
   if (filters) commit('setInspectorsFilters', filters)
 
@@ -82,7 +79,6 @@ const getInspectors = async ({ state, commit }, { data, filters }) => {
   commit('setInspectorsTotalPages', totalPages)
   commit('setInspectorsTotalItems', totalItems)
 }
-
 
 export default {
   showToast,

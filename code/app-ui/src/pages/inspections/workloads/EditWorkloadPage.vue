@@ -4,7 +4,7 @@
             <v-col cols="12" class="pa-0">
                 <v-card flat>
                     <v-toolbar>
-                        <v-toolbar-title>{{ createMode ? "Nuevo" : "Editar" }} Inspector</v-toolbar-title>
+                        <v-toolbar-title>{{ createMode ? "Nuevo" : "Editar" }} Cargar de trabajo</v-toolbar-title>
                     </v-toolbar>
                 </v-card>
             </v-col>
@@ -34,102 +34,264 @@
                             <v-card-text>
                                 <v-form v-model="valid">
                                     <v-row>
-                                        <v-col cols="6">
-                                            <!-- v-model="user.dominios" -->
-                                            <v-select
-                                                label="Personas*"
-                                                :rules="[rules.persona]"
-                                                :items="personas"
-                                                item-text="persona"
-                                                item-value="iidpersona"
-                                                hide-details="auto"
-                                                small-chips
-                                                clearable
-                                                dense
-                                                multiple
-                                                outlined
-                                            />
-                                        </v-col>
-                                        <v-col cols="6">
-                                            <!-- v-model="user.dominios" -->
-                                            <v-select
-                                                label="Categoría*"
-                                                :rules="[rules.categoria]"
-                                                :items="categorias"
-                                                item-text="categoria"
-                                                item-value="iidcategoria"
-                                                hide-details="auto"
-                                                small-chips
-                                                clearable
-                                                dense
-                                                multiple
-                                                outlined
-                                            />
-                                        </v-col>
                                         <v-col cols="12" md="6">
-                                            <v-text-field v-model="inspector.tarjeton" label="Tarjetón*" :rules="[rules.required]"
+                                            <v-text-field v-model="workload.txtnombre" label="Nombre*"
+                                                :rules="[rules.required]" hide-details="auto" clearable dense
+                                                outlined />
+                                        </v-col>
+
+                                        <v-col cols="12" md="6">
+                                            <v-select v-model="workload.iidzona" label="Zona*" :rules="[rules.required]"
+                                                :items="zones" item-text="txtnombre" item-value="iidzona"
+                                                hide-details="auto" small-chips clearable dense outlined />
+                                        </v-col>
+
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="workload.dfecha_inicio" label="Fecha inicial"
+                                                :min="minDate" :max="workload.dfecha_fin || '2999-12-12'"
+                                                :mask="'####/##/##'" type="date" small-chips clearable dense outlined>
+                                            </v-text-field>
+                                        </v-col>
+
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="workload.dfecha_fin" label="Fecha final"
+                                                :disabled="!workload.dfecha_inicio || workload.dfecha_inicio == '0000-00-00 00:00:00'"
+                                                :min="workload.dfecha_inicio" type="date" :mask="'####/##/##'"
+                                                small-chips clearable dense outlined>
+                                            </v-text-field>
+                                        </v-col>
+
+                                        <v-col cols="12">
+                                            <v-textarea v-model="workload.txtdescripcion" label="Descripcion"
                                                 hide-details="auto" clearable dense outlined />
                                         </v-col>
-                                      
-                                        <v-col cols="12">
-                                            <v-textarea v-model="inspector.comentarios" label="Comentarios*"
-                                                :rules="[rules.required]" hide-details="auto" clearable dense outlined />
-                                        </v-col>
-                                    
-                                        <!-- <v-col cols="12" style="font-size: 20px;">Permisos</v-col>
-                                        <v-expansion-panels>
-                                            <v-expansion-panel v-for="(item, i) in permissions" :key="i">
-                                                <v-expansion-panel-header>
-                                                    {{ item.nombre }}
-                                                </v-expansion-panel-header>
-                                                <v-expansion-panel-content>
-                                                    <v-checkbox v-for="(permission, id) in item.permisos"
-                                                        v-model="inspector.permisos" :key="id" :value="permission.id"
-                                                        @click="click.permission = true">
-                                                        <template v-slot:label>
-                                                            <v-tooltip right>
-                                                                <template v-slot:activator="{ on }">
-                                                                    <span v-on="on">{{ permission.nombre }}</span>
-                                                                </template>
-                                                                {{ permission.descripcion }}
-                                                            </v-tooltip>
-                                                        </template>
-                                                    </v-checkbox>
-                                                </v-expansion-panel-content>
-                                            </v-expansion-panel>
-                                        </v-expansion-panels> -->
-                                        
+
                                     </v-row>
                                 </v-form>
                             </v-card-text>
                         </v-tab-item>
                         <v-tab-item :key="2" value="turnostab" class="py-1">
-                          
+                            <v-card-text>
+                                <v-form v-model="valid">
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-select v-model="workload.iidturno" label="Turno*"
+                                                :rules="[rules.required]" :items="shifts" item-text="txtnombre"
+                                                item-value="iidturno" hide-details="auto" small-chips clearable dense
+                                                outlined />
+                                        </v-col>
+
+                                        <v-col cols="12" md="6">
+                                            <v-select v-model="workload.iidturno" label="Coordinador*"
+                                                :rules="[rules.required]" :items="shifts" item-text="txtnombre"
+                                                item-value="iidturno" hide-details="auto" small-chips clearable dense
+                                                outlined />
+                                        </v-col>
+
+                                        <v-col cols="12" md="12">
+                                            <v-btn depressed color="primary">
+                                                Agregar turno a carga de trabajo
+                                            </v-btn>
+                                        </v-col>
+                                        <v-col cols="12" md="12">
+
+                                            <v-simple-table>
+                                                <template v-slot:default>
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-left">
+                                                                Turno
+                                                            </th>
+                                                            <th class="text-left">
+                                                                Coordinador
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr v-for="item in desserts" :key="item.name">
+                                                            <td>{{ item.name }}</td>
+                                                            <td>{{ item.coordinator }}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </template>
+                                            </v-simple-table>
+                                            <!-- </template> -->
+                                        </v-col>
+                                    </v-row>
+                                </v-form>
+                            </v-card-text>
+
                         </v-tab-item>
                         <v-tab-item :key="3" value="ispectorestab" class="py-1">
-                            <v-flex xs6>
-                        <v-text-field
-                            v-model="carga_trabajo.fecha_inicio"
-                            label="Fecha de publicación"
-                            prepend-icon="event"
-                            :max="carga_trabajo.fecha_vencimiento || '2999-12-12'"
-                            type="date"
-                        ></v-text-field>
-                    </v-flex>
+                            <v-card-text>
+                                <v-form v-model="valid">
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-select v-model="workload.iidturno" label="Turno*"
+                                                :rules="[rules.required]" :items="shifts" item-text="txtnombre"
+                                                item-value="iidturno" hide-details="auto" small-chips clearable dense
+                                                outlined />
+                                        </v-col>
 
-                    <v-flex xs6>
-                        <v-text-field
-                            v-model="carga_trabajo.fecha_vencimiento"
-                            label="Fecha de vencimiento"
-                            :disabled="! carga_trabajo.fecha_inicio || carga_trabajo.fecha_inicio == '0000-00-00 00:00:00'"
-                            :min="carga_trabajo.fecha_inicio"
-                            prepend-icon="event"
-                            type="date"
-                        ></v-text-field>
-                    </v-flex>
+                                        <v-col cols="12" md="6">
+                                            <v-select v-model="workload.iidturno" label="Inspector*"
+                                                :rules="[rules.required]" :items="shifts" item-text="txtnombre"
+                                                item-value="iidturno" hide-details="auto" small-chips clearable dense
+                                                outlined />
+                                        </v-col>
+
+                                        <v-col cols="12" md="12">
+                                            <v-btn depressed color="primary">
+                                                Agregar inspector a carga de trabajo
+                                            </v-btn>
+                                        </v-col>
+                                        <v-col cols="12" md="12">
+
+                                            <v-simple-table>
+                                                <template v-slot:default>
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-left">
+                                                                Turno
+                                                            </th>
+                                                            <th class="text-left">
+                                                                Coordinador
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr v-for="item in desserts" :key="item.name">
+                                                            <td>{{ item.name }}</td>
+                                                            <td>{{ item.coordinator }}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </template>
+                                            </v-simple-table>
+                                            <!-- </template> -->
+                                        </v-col>
+                                    </v-row>
+                                </v-form>
+                            </v-card-text>
                         </v-tab-item>
                         <v-tab-item :key="4" value="trabajostab" class="py-1">
+                            <v-card-text>
+                                <v-form v-model="valid">
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-select v-model="workload.iidturno" label="Tipo*"
+                                                :rules="[rules.required]" :items="shifts" item-text="txtnombre"
+                                                item-value="iidturno" hide-details="auto" small-chips clearable dense
+                                                outlined />
+                                        </v-col>
+                                        <v-col cols="12">
+                                            <v-textarea v-model="workload.txtdescripcion" label="Descripcion"
+                                                hide-details="auto" clearable dense outlined />
+                                        </v-col>
 
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="workload.txtnombre" label="Latitud*"
+                                                :rules="[rules.required]" hide-details="auto" clearable dense
+                                                outlined />
+                                        </v-col>
+
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="workload.txtnombre" label="Longitud*"
+                                                :rules="[rules.required]" hide-details="auto" clearable dense
+                                                outlined />
+                                        </v-col>
+
+                                        <v-col cols="12" md="6">
+                                            <v-text-field type="time" v-model="workload.thora_inicio"
+                                                label="Hora de inicio*" :rules="[rules.required]" hide-details="auto"
+                                                clearable dense outlined />
+                                        </v-col>
+
+                                        <v-col cols="12" md="6">
+                                            <v-text-field type="time" v-model="workload.thora_fin"
+                                                label="Hora de finalización*" :rules="[rules.required]"
+                                                hide-details="auto" clearable dense outlined />
+                                        </v-col>
+
+                                        <v-col cols="12" md="6">
+                                            <v-select v-model="workload.iidturno" label="Turno*"
+                                                :rules="[rules.required]" :items="shifts" item-text="txtnombre"
+                                                item-value="iidturno" hide-details="auto" small-chips clearable dense
+                                                outlined />
+                                        </v-col>
+
+                                        <v-col cols="12" md="12">
+                                            <v-btn depressed color="primary">
+                                                Agregar carga de trabajo detalle
+                                            </v-btn>
+                                        </v-col>
+
+                                        <v-col cols="12" md="12">
+
+                                            <v-simple-table>
+                                                <template v-slot:default>
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-left">
+                                                                Turno
+                                                            </th>
+                                                            <th class="text-left">
+                                                                Coordinador
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr v-for="item in desserts" :key="item.name">
+                                                            <td>{{ item.name }}</td>
+                                                            <td>{{ item.coordinator }}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </template>
+                                            </v-simple-table>
+                                            <!-- </template> -->
+                                        </v-col>
+
+                                        <v-col cols="12" md="12">
+                                            <v-btn depressed color="primary">
+                                                Agregar carga de trabajo detalle inspector
+                                            </v-btn>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-select v-model="workload.iidturno" label="Carga de trabajo detalle*"
+                                                :rules="[rules.required]" :items="shifts" item-text="txtnombre"
+                                                item-value="iidturno" hide-details="auto" small-chips clearable dense
+                                                outlined />
+                                        </v-col>
+
+
+                                        <v-col cols="12" md="12">
+
+                                            <v-simple-table>
+                                                <template v-slot:default>
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-left">
+                                                                Turno
+                                                            </th>
+                                                            <th class="text-left">
+                                                                Coordinador
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr v-for="item in desserts" :key="item.name">
+                                                            <td>{{ item.name }}</td>
+                                                            <td>{{ item.coordinator }}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </template>
+                                            </v-simple-table>
+                                            <!-- </template> -->
+                                        </v-col>
+
+
+                                    </v-row>
+                                </v-form>
+                            </v-card-text>
                         </v-tab-item>
                         <v-card-actions>
                             <v-spacer />
@@ -143,8 +305,8 @@
     </v-container>
 </template>
 
-  
-  
+
+
 <script>
 import rules from "@/core/rules.forms";
 import services from "@/services";
@@ -163,38 +325,49 @@ export default {
             valid: false,
             tab: "generaltab",
             permissions: [],
-            usuarios: [],
-            modules: [],
-            personas: [],
-            categorias: [],
-            inspector: {
-                id: 0,
-                tarjeton: "",
-                comentarios: "",
-                modulos: [],
-                usuarios: [],
-                permisos: [],
-            },
-            hints: {
-                inspector: "Solo . _ - números y letras sin acentos ni espacios.",
-                optional: "Opcional.",
+            zones: [],
+            shifts: [],
+            workload: {
+                iidcarga_trabajo: 0,
+                txtnombre: "",
+                txtdescripcion: "",
+                iidzona: 0,
+                dfecha_inicio: '',
+                dfecha_fin: '',
+                activo: null,
+                fecha_creacion: null,
+                fecha_modificacion: null
             },
             rules: {
                 ...rules,
                 persona: v => v.length > 0 || "Requerido.",
                 categoria: v => v.length > 0 || "Requerido.",
             },
-            carga_trabajo: {
-                fecha_inicio: '',
-                fecha_vencimiento: '',
-            },
-           
+            desserts: [
+                {
+                    name: 'Nombre 1',
+                    coordinator: 'Coor 1',
+                },
+                {
+                    name: 'Nombre 1',
+                    coordinator: 'Coor 2',
+                }
+
+
+            ],
         };
     },
     computed: {
         createMode() {
             return !this.$route.params.id;
         },
+        minDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const day = today.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
@@ -202,18 +375,12 @@ export default {
             try {
                 const { id } = this.$route.params;
                 console.log(id);
-                // const [modules, usuarios, permissions] = await Promise.all([
-                //     services.admin().getModules(),
-                //     services.admin().getUsersFromInspector({ id }),
-                //     services.admin().getPermissions()
-                // ]);
+                console.log('idssuhfueihfiejfieojfiej');
+                // this.categories = await services.inspections().getAllCategoriesInspector();
+                // this.stages = await services.inspections().getAllStagesInspector();
+                this.zones = await services.inspections().getAllZonesInspector();
+                this.shifts = await services.inspections().getAllShiftsInspector();
 
-                // this.modules = modules;
-                // this.usuarios = usuarios;
-                // this.permissions = this.modules.map(({ nombre, id }) => ({
-                //     nombre,
-                //     permisos: permissions.filter(p => p.idmodulo === id),
-                // }));
             } catch (error) {
                 const message = 'Error al cargar opciones para nuevo inspector.';
                 this.showError({ message, error });
@@ -222,36 +389,26 @@ export default {
         async setEditMode() {
             try {
                 const { id } = this.$route.params;
-                const { inspector } = await services.admin().getEditInspectorInfo({ id });
-                console.log(inspector);
-                //   const { nombre, descripcion, activo, fecha_creacion, fecha_modificacion, ...inspector } = inspector;
-                //   this.inspector = inspector;
-                this.inspector = inspector;
+                this.inspector = { ...await services.inspections().getInspectorInfo({ id }) };
+                let curp = this.inspector.txtcurp;
+                this.persona = { ...await services.inspections().getPersonByCurp({ curp }) };
             } catch (error) {
                 const message = 'Error al cargar información de inspector.';
                 this.showError({ message, error });
             }
         },
-        setInspectorModules() {
-            const m = this.permissions //trae los módulos
-                .flatMap(p => p.permisos) //trae todos los permisos de los módulos
-                .filter(p => this.inspector.permisos.includes(p.id)) // trae los permisos seleccionados en this.inspector actuales
-            // .map(p => p.idmodulo); //trae solo los módulos de los inspectores
-            // this.inspector.modulos = [...new Set(m)]; // quita los elementos duplicados
-            console.log(m)
-        },
         async saveInspector() {
             if (!this.valid) return;
-
-            this.setInspectorModules();
-
+            // const message = 'Error al guardar inspector.';
+            //     this.showError({ message });
+            console.log('this.createMode ' + this.createMode);
+            console.log(this.inspector);
             try {
                 const { message } = await (
                     this.createMode ?
-                        services.admin().createInspector(this.inspector) :
-                        services.admin().updateInspector(this.inspector)
+                        services.inspections().createInspector(this.inspector) :
+                        services.inspections().updateInspector(this.inspector)
                 );
-
                 this.showSuccess(message);
                 this.exitWindow();
             } catch (error) {
@@ -260,42 +417,15 @@ export default {
             }
         },
         exitWindow() {
-            this.$router.push("/inspectors");
+            this.$router.push("/inspections/inspectors");
         },
     },
     watch: {
-        ['inspector.permisos'](newPermissions, oldPermissions) {
-            if (this.click.permission === false) return;
-            if (newPermissions.length === oldPermissions.length) return;
 
-            this.inspector.usuarios = this.usuarios
-                .filter(r => r.idpermiso.every(id => newPermissions.includes(id)))
-                .map(r => r.id);
-
-            this.click.permission = false;
-        },
-        ['inspector.usuarios'](newRoles, oldRoles) {
-            if (this.click.user === false) return;
-            if (oldRoles.length === newRoles.length) return;
-
-            if (newRoles.length < oldRoles.length) {
-                const previousRoles = [...oldRoles];
-                const userId = previousRoles.pop();
-                const user = this.usuarios.find(r => r.id === userId);
-                this.inspector.permisos = this.inspector.permisos.filter(p => !user.idpermiso.includes(p));
-            } else {
-                const actualRoles = [...newRoles];
-                const userId = actualRoles.pop();
-                const user = this.usuarios.find(r => r.id === userId);
-                this.inspector.permisos.push(...user.idpermiso);
-                this.inspector.permisos = [...new Set(this.inspector.permisos)];
-            }
-
-            this.inspector.permisos.filter(p => p !== 0);
-            this.click.user = false;
-        }
     },
     async mounted() {
+        console.log(this.createMode);
+        console.log('createMode');
         await this.loadSelectableData();
         if (!this.createMode) await this.setEditMode();
     },

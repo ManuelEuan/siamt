@@ -21,4 +21,56 @@ export default class InspectionsService extends ApiService {
     return await this.post("/inspectors/getPersonByCurp", JSON.stringify(curp));
   }
 
+  async getAllCategoriesInspector() {
+    console.log('suhdfiehfdiejofjmeowfjmowejfopw')
+    return await this.get("/inspectors/getAllCategoriesInspector");
+  }
+
+  async getAllStagesInspector() {
+    return await this.get("/inspectors/getAllStagesInspector");
+  }
+
+  async getAllShiftsInspector() {
+    return await this.get("/inspectors/getAllShiftsInspector");
+  }
+
+  async getAllZonesInspector() {
+    return await this.get("/workloads/getAllZonesInspector");
+  }
+
+  async getAllSexesPerson() {
+    return await this.get("/persons/getAllSexesPerson");
+  }
+
+  async createPerson(data) {
+    return await this.post("/persons/new", JSON.stringify(data));
+  }
+
+  async getAllCivilStatusPerson() {
+    return await this.get("/persons/getAllCivilStatusPerson");
+  }
+
+  async createInspector(data) {
+    return await this.post("/inspectors/new", JSON.stringify(data));
+  }
+
+  async updateInspector(data) {
+    return await this.put("/inspectors", JSON.stringify(data));
+  }
+  
+  async deleteInspector(id) {
+    return await this.delete(`/inspectors/${id}`);
+  }
+
+  async getInspectorInfo(id){
+    return await this.post("/inspectors/getInspectorInfo", JSON.stringify(id));
+  }
+  
+  async createWorkload(data) {
+    return await this.post("/workloads/new", JSON.stringify(data));
+  }
+
+  
+  
+  
 }

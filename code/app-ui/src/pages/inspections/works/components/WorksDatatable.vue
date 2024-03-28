@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <!-- inspectors datatable -->
-    <inspectors-datatable-dialogs ref="dialogs" />
+    <works-datatable-dialogs ref="dialogs" />
       
     <v-data-table
       class="elevation-1"
@@ -50,7 +50,7 @@
           <span>Editar inspector</span>
         </v-tooltip>
 
-        <!-- <v-tooltip v-if="permissions.includes('boii')" bottom>
+        <v-tooltip v-if="permissions.includes('boii')" bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               v-bind="attrs" 
@@ -64,7 +64,7 @@
             </v-btn>
           </template>
           <span>{{ item.activo ? "Desactivar" : "Activar" }} inspector</span>
-        </v-tooltip> -->
+        </v-tooltip>
 
       </template>
     </v-data-table>
@@ -72,14 +72,14 @@
 </template>
 
 <script>
-import InspectorsDatatableDialogs from "@/pages/inspections/inspectors/components/InspectorsDatatableDialogs";
+import WorksDatatableDialogs from "@/pages/inspections/inspectors/components/InspectorsDatatableDialogs";
 import services from "@/services";
 import { mapActions, mapState } from "vuex";
 
 export default {
-  name: "InspectorsDatatable",
+  name: "WorksDatatable",
   components: {
-    InspectorsDatatableDialogs,
+    WorksDatatableDialogs,
   },
   data() {
     return {
@@ -102,14 +102,14 @@ export default {
           class: "font-weight-bold",
         },
         {
-          text: "Etapa",
-          value: "txtinspector_etapa",
+          text: "Folio",
+          value: "txtfolio_inspector",
           align: "center",
           class: "font-weight-bold",
         },
         {
-          text: "Subetapa",
-          value: "txtinspector_subetapa",
+          text: "Etapa",
+          value: "txtinspector_etapa",
           align: "center",
           class: "font-weight-bold",
         },

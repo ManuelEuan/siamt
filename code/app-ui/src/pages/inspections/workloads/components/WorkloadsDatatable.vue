@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <!-- inspectors datatable -->
-    <inspectors-datatable-dialogs ref="dialogs" />
+    <workloads-datatable-dialogs ref="dialogs" />
       
     <v-data-table
       class="elevation-1"
@@ -32,7 +32,7 @@
               <v-icon small> mdi-eye </v-icon>
             </v-btn>
           </template>
-          <span>Ver perfil</span>
+          <span>Ver inspector</span>
         </v-tooltip>
 
         <v-tooltip v-if="permissions.includes('edii')" bottom>
@@ -42,12 +42,12 @@
               v-on="on" 
               icon 
               small
-              @click="actionsHandler(item, 'edii')"
+              @click="actionsHandler(item, 'edit')"
             >
               <v-icon small> mdi-square-edit-outline </v-icon>
             </v-btn>
           </template>
-          <span>Editar perfil</span>
+          <span>Editar inspector</span>
         </v-tooltip>
 
         <v-tooltip v-if="permissions.includes('boii')" bottom>
@@ -63,7 +63,7 @@
               <v-icon small v-show="!item.activo"> mdi-check </v-icon>
             </v-btn>
           </template>
-          <span>{{ item.activo ? "Desactivar" : "Activar" }} verfil</span>
+          <span>{{ item.activo ? "Desactivar" : "Activar" }} inspector</span>
         </v-tooltip>
 
       </template>
@@ -72,14 +72,14 @@
 </template>
 
 <script>
-import InspectorsDatatableDialogs from "@/pages/inspections/inspectors/components/InspectorsDatatableDialogs";
+import WorkloadsDatatableDialogs from "@/pages/inspections/inspectors/components/InspectorsDatatableDialogs";
 import services from "@/services";
 import { mapActions, mapState } from "vuex";
 
 export default {
-  name: "InspectorsDatatable",
+  name: "WorkloadsDatatable",
   components: {
-    InspectorsDatatableDialogs,
+    WorkloadsDatatableDialogs,
   },
   data() {
     return {
@@ -88,7 +88,7 @@ export default {
         inspectors: [],
         page: 1,
         itemsPerPage: 10,
-        sortBy: ['nombre'],//nombre
+        sortBy: ['txtnombre'],//nombre
         sortDesc: [false],
         multiSort: true,
         mustSort: false,
@@ -101,10 +101,27 @@ export default {
           align: "center",
           class: "font-weight-bold",
         },
-       
         {
-          text: "Descripción",
-          value: "descripcion",
+          text: "Folio",
+          value: "txtfolio_inspector",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Etapa",
+          value: "txtinspector_etapa",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Turno",
+          value: "txtinspector_turno",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Categoría",
+          value: "txtinspector_categoria",
           align: "center",
           class: "font-weight-bold",
         },
@@ -134,16 +151,17 @@ export default {
       console.log(this.inspectors);
       const { page, itemsPerPage, sortBy, sortDesc } = this.options;
       const data = { page, itemsPerPage, sortBy, sortDesc }; 
-      // console.log('es este')
-      // console.log(data)
       this.getInspectors({ data });
       this.loadingTable = false;
     },
     actionsHandler(inspector, action) {
+      console.log('actionsHandler')
+      console.log(inspector)
+      console.log(action)
       this.$refs.dialogs.inspector = inspector;
 
       switch (action) {
-        case 'edit': this.$router.push(`/inspectors/${inspector.id}/edit`); break;
+        case 'edit': this.$router.push(`/inspectors/${inspector.iidinspector}/edit`); break;
         case 'view': this.$refs.dialogs.viewInspector(); break;
         default: this.$refs.dialogs.show[action] = true;
       }

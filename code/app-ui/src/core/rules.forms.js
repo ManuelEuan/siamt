@@ -29,5 +29,9 @@ export default {
 	curp: v => {
 		const regex = /^[A-Z]{4}[0-9]{6}[HM][A-Z]{5}[0-9]{2}$/;
 		return regex.test(v) || 'CURP válida requerida.'; 
+	},
+	rfc: v => {
+		const regex = /^[A-Z&Ñ]{3,4}[0-9]{6}[A-V1-9][0-9A-Z][0-9]$/;
+		return regex.test(v) || 'RFC válido requerida.'; 
 	}
 };

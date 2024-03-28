@@ -15,89 +15,70 @@
                         Datos Generales
                         <v-icon> mdi-clipboard-text </v-icon>
                     </v-tab>
-                  
+
                 </v-tabs>
                 <v-tabs-items v-model="tab">
                     <v-card flat>
                         <v-tab-item :key="1" value="generaltab" class="py-1">
                             <v-card-text>
                                 <v-form v-model="valid">
-                                    <v-row>
+                                    <curp-verification v-if="createMode" @person-info="handlePersonInfo"
+                                        ref="curpVerification"></curp-verification>
+                                    <v-row v-if="!createMode">
                                         <v-col cols="12" md="6">
-                                            <v-text-field v-model="inspector.curp" label="CURP*" :rules="[rules.curp]" maxlength="18"
-                                                hide-details="auto" clearable dense outlined />
+                                            <v-text-field v-model="nombreCompleto" label="Folio*" hide-details="auto"
+                                                clearable dense :disabled="!createMode" outlined />
                                         </v-col>
-                                        <v-col cols="12" md="6" class="d-flex align-center">
-                                            <v-btn depressed color="primary" @click="verifyPerson()">
-                                                Verificar CURP
-                                            </v-btn>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="persona.txtcurp" label="CURP*" hide-details="auto"
+                                                clearable dense :disabled="!createMode" outlined />
                                         </v-col>
                                     </v-row>
-                                    <!-- CAMPOS DE PRE CARGA -->
-                                    <v-row v-if="personaEncontrada">
+                                    <v-row v-if="personaEncontrada && personaDisponible || !createMode">
                                         <v-col cols="12" md="6">
-                                            <v-text-field v-model="persona.txtnombre" label="Nombre/s"
-                                                hide-details="auto" clearable dense outlined disabled/>
+                                            <v-select v-model="inspector.iidturno" label="Turno*"
+                                                :rules="[rules.required]" :items="shifts" item-text="txtnombre"
+                                                item-value="iidturno" hide-details="auto" small-chips clearable dense
+                                                outlined />
                                         </v-col>
                                         <v-col cols="12" md="6">
-                                            <v-text-field v-model="persona.txtapepat" label="Apellido paterno"
-                                                hide-details="auto" clearable dense outlined disabled/>
-                                        </v-col>
-                                        <v-col cols="12" md="6">
-                                            <v-text-field v-model="persona.txtapemat" label="Apellido materno"
-                                                hide-details="auto" clearable dense outlined disabled/>
-                                        </v-col>
-                                        <v-col cols="12" md="6">
-                                            <v-text-field v-model="persona.txtrfc" label="RFC"
-                                                hide-details="auto" clearable dense outlined disabled/>
-                                        </v-col>
-                                        <!-- <v-col cols="12" md="6">
-                                            <v-text-field v-model="persona.txtcurp" label="CURP"
-                                                hide-details="auto" clearable dense outlined disabled/>
-                                        </v-col> -->
-                                        <v-col cols="12" md="6">
-                                            <v-text-field v-model="persona.txtestado_civil" label="Estado civil"
-                                                hide-details="auto" clearable dense outlined disabled/>
-                                        </v-col>
-                                        <v-col cols="12" md="6">
-                                            <v-text-field v-model="persona.txtsexo" label="Sexo"
-                                                hide-details="auto" clearable dense outlined disabled/>
-                                        </v-col>
-                                    </v-row>
-                                    <v-row>
-                                        <v-col cols="6">
-                                            <!-- v-model="user.dominios" -->
-                                            <v-select
-                                                label="Categoría*"
-                                                :rules="[rules.categoria]"
-                                                :items="categorias"
-                                                item-text="categoria"
-                                                item-value="iidcategoria"
-                                                hide-details="auto"
-                                                small-chips
-                                                clearable
-                                                dense
-                                                multiple
-                                                outlined
-                                            />
-                                        </v-col>
-                                        <v-col cols="12" md="6">
-                                            <v-text-field v-model="inspector.tarjeton" label="Tarjetón*" :rules="[rules.required]"
+                                            <v-text-field v-model="inspector.txtfolio_inspector" label="Folio*"
                                                 hide-details="auto" clearable dense outlined />
                                         </v-col>
-                                      
+
+                                        <v-col cols="12" md="6">
+                                            <v-select v-model="inspector.iidinspector_categoria"
+                                                @change="verifyCategorie" label="Categoría*" :rules="[rules.required]"
+                                                :items="categories" item-text="txtnombre"
+                                                item-value="iidinspector_categoria" hide-details="auto" small-chips
+                                                clearable dense outlined />
+                                        </v-col>
+
+                                        <v-col cols="12" md="6" v-if="genera_boleta">
+                                            <v-text-field v-model="inspector.dvigencia" clearable dense outlined
+                                                label="Vigencia" type="date" :min="getDate" :rules="[rules.required]"
+                                                :mask="'####/##/##'"></v-text-field>
+                                        </v-col>
+
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="inspector.dfecha_alta" clearable dense outlined
+                                                label="Fecha de alta" type="date" :mask="'####/##/##'"></v-text-field>
+                                        </v-col>
+
+                                        <v-col cols="12" md="6" v-if="!createMode">
+                                            <v-text-field v-model="inspector.dfecha_baja" clearable dense outlined
+                                                label="Fecha de baja" type="date" :mask="'####/##/##'"></v-text-field>
+                                        </v-col>
+
                                         <v-col cols="12">
-                                            <v-textarea v-model="inspector.comentarios" label="Comentarios*"
-                                                :rules="[rules.required]" hide-details="auto" clearable dense outlined />
+                                            <v-textarea v-model="inspector.txtcomentarios" label="Comentarios*"
+                                                hide-details="auto" clearable dense outlined />
                                         </v-col>
-                                    
-                                   
-                                        
                                     </v-row>
                                 </v-form>
                             </v-card-text>
                         </v-tab-item>
-                   
+
                         <v-card-actions>
                             <v-spacer />
                             <v-btn color="error" text @click="exitWindow()"> Cerrar </v-btn>
@@ -110,16 +91,16 @@
     </v-container>
 </template>
 
-  
-  
 <script>
 import rules from "@/core/rules.forms";
 import services from "@/services";
+import CurpVerification from '@/components/common/CurpVerification.vue';
 
 import { mapActions } from "vuex";
 
 export default {
     components: {
+        CurpVerification,
     },
     data() {
         return {
@@ -130,10 +111,15 @@ export default {
             valid: false,
             tab: "generaltab",
             permissions: [],
-            usuarios: [],
-            modules: [],
+
+            dialog: false,
+            personaEncontrada: false,
+            personaDisponible: false,
+            stages: [],
+            shifts: [],
+            categories: [],
             persona: {
-                iidpersona: null,
+                iidpersona: 0,
                 bfisica: null,
                 txtnombre: '',
                 txtapepat: '',
@@ -142,38 +128,46 @@ export default {
                 txtcurp: '',
                 txtestado_civil: '',
                 txtsexo: '',
-                activo: null,
+                activo: true,
                 fecha_creacion: null,
                 fecha_modificacion: null
             },
-            personaEncontrada: false,
-            categorias: [],
             inspector: {
-                id: 0,
-                curp: '',
-                tarjeton: "",
-                comentarios: "",
-                modulos: [],
-                usuarios: [],
-                permisos: [],
+                iidinspector: 0,
+                iidpersona: 0,
+                iidetapa: 1,
+                iidsubetapa: 1,
+                txtfolio_inspector: "",
+                iidturno: 0,
+                iidinspector_categoria: 0,
+                dvigencia: '',
+                dfecha_alta: '',
+                dfecha_baja: '',
+                txtcomentarios: '',
+                activo: '',
+                fecha_creacion: '',
+                fecha_modificacion: '',
             },
+            nombreCompleto: '',
             curpValida: false,
-            hints: {
-                inspector: "Solo . _ - números y letras sin acentos ni espacios.",
-                optional: "Opcional.",
-            },
+            curpVerificada: '',
+            genera_boleta: false,
             rules: {
                 ...rules,
-                categoria: v => v.length > 0 || "Requerido.",
             }
-          
-           
         };
     },
     computed: {
         createMode() {
             return !this.$route.params.id;
         },
+        getDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const day = today.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
@@ -181,18 +175,11 @@ export default {
             try {
                 const { id } = this.$route.params;
                 console.log(id);
-                // const [modules, usuarios, permissions] = await Promise.all([
-                //     services.admin().getModules(),
-                //     services.admin().getUsersFromInspector({ id }),
-                //     services.admin().getPermissions()
-                // ]);
+                console.log('idssuhfueihfiejfieojfiej');
+                this.categories = await services.inspections().getAllCategoriesInspector();
+                this.stages = await services.inspections().getAllStagesInspector();
+                this.shifts = await services.inspections().getAllShiftsInspector();
 
-                // this.modules = modules;
-                // this.usuarios = usuarios;
-                // this.permissions = this.modules.map(({ nombre, id }) => ({
-                //     nombre,
-                //     permisos: permissions.filter(p => p.idmodulo === id),
-                // }));
             } catch (error) {
                 const message = 'Error al cargar opciones para nuevo inspector.';
                 this.showError({ message, error });
@@ -201,67 +188,60 @@ export default {
         async setEditMode() {
             try {
                 const { id } = this.$route.params;
-                const { inspector } = await services.admin().getEditInspectorInfo({ id });
-                console.log(inspector);
-                //   const { nombre, descripcion, activo, fecha_creacion, fecha_modificacion, ...inspector } = inspector;
-                //   this.inspector = inspector;
-                this.inspector = inspector;
+                this.inspector = { ...await services.inspections().getInspectorInfo({ id }) };
+                let curp = this.inspector.txtcurp;
+                this.persona = { ...await services.inspections().getPersonByCurp({ curp }) };
+                let nombreCompleto = '';
+                if (this.persona.txtnombre) {
+                    nombreCompleto += this.persona.txtnombre + ' ';
+                }
+                if (this.persona.txtapepat) {
+                    nombreCompleto += this.persona.txtapepat + ' ';
+                }
+                if (this.persona.txtapemat) {
+                    nombreCompleto += this.persona.txtapemat + ' ';
+                }
+                this.nombreCompleto = nombreCompleto.trim();
             } catch (error) {
                 const message = 'Error al cargar información de inspector.';
                 this.showError({ message, error });
             }
         },
-        async verifyPerson(){
-            console.log(rules.curp(this.inspector.curp))
-            if(rules.curp(this.inspector.curp) === true){
-                try {
-                    let curp = this.inspector.curp;
-                    console.log(curp)
-                    console.log(this.persona);
-
-                    let response  = await services.inspections().getPersonByCurp({ curp });
-                    console.log(response);
-                    if(response){
-                        this.personaEncontrada = true
-                        this.persona = {...response}
-                    }else{
-                        this.personaEncontrada = false
-                        this.persona = {}
-                        alert('no encontrado')
-                    }
-                    // this.persona = response.data;
-                    // console.log(this.persona);
-                    //   const { nombre, descripcion, activo, fecha_creacion, fecha_modificacion, ...inspector } = inspector;
-                    //   this.inspector = inspector;
-                    // this.inspector = inspector;
-                } catch (error) {
-                    const message = 'Error al procesar curp.';
-                    this.showError({ message, error });
-                }
-            }else{
-                console.log('no válida')
+        verifyCategorie() {
+            let selectedCategorie = this.categories.find(item => item.iidinspector_categoria === this.inspector.iidinspector_categoria);
+            const bgenera_boleta = selectedCategorie.bgenera_boleta;
+            if (bgenera_boleta) {
+                this.genera_boleta = true;
+            } else {
+                this.genera_boleta = false;
+                this.inspector.dvigencia = null
             }
         },
-        setInspectorModules() {
-            const m = this.permissions //trae los módulos
-                .flatMap(p => p.permisos) //trae todos los permisos de los módulos
-                .filter(p => this.inspector.permisos.includes(p.id)) // trae los permisos seleccionados en this.inspector actuales
-            // .map(p => p.idmodulo); //trae solo los módulos de los inspectores
-            // this.inspector.modulos = [...new Set(m)]; // quita los elementos duplicados
-            console.log(m)
+        handlePersonInfo(isFound, isAvailable, person, curpVerified) {
+            this.persona = person
+            let tmp_inspector = this.inspector
+            this.inspector = {}
+            this.inspector = tmp_inspector
+            this.inspector.iidpersona = this.persona.iidpersona
+            this.personaEncontrada = isFound
+            this.personaDisponible = isAvailable
+            this.curpVerificada = curpVerified
         },
         async saveInspector() {
+            if (!this.maintainCurp()) return this.$refs.curpVerification.$data.dialogCurpChanged = true;
             if (!this.valid) return;
-
-            this.setInspectorModules();
-
+            console.log('this.createMode ' + this.createMode);
+            console.log('fue valida')
+            console.log('inspector')
+            console.log(this.inspector)
+            console.log('persona')
+            console.log(this.persona)
             try {
                 const { message } = await (
                     this.createMode ?
-                        services.admin().createInspector(this.inspector) :
-                        services.admin().updateInspector(this.inspector)
+                        services.inspections().createInspector(this.inspector) :
+                        services.inspections().updateInspector(this.inspector)
                 );
-
                 this.showSuccess(message);
                 this.exitWindow();
             } catch (error) {
@@ -269,45 +249,24 @@ export default {
                 this.showError({ message, error });
             }
         },
-        exitWindow() {
-            this.$router.push("/inspectors");
-        },
-    },
-    watch: {
-        ['inspector.permisos'](newPermissions, oldPermissions) {
-            if (this.click.permission === false) return;
-            if (newPermissions.length === oldPermissions.length) return;
-
-            this.inspector.usuarios = this.usuarios
-                .filter(r => r.idpermiso.every(id => newPermissions.includes(id)))
-                .map(r => r.id);
-
-            this.click.permission = false;
-        },
-        ['inspector.usuarios'](newRoles, oldRoles) {
-            if (this.click.user === false) return;
-            if (oldRoles.length === newRoles.length) return;
-
-            if (newRoles.length < oldRoles.length) {
-                const previousRoles = [...oldRoles];
-                const userId = previousRoles.pop();
-                const user = this.usuarios.find(r => r.id === userId);
-                this.inspector.permisos = this.inspector.permisos.filter(p => !user.idpermiso.includes(p));
-            } else {
-                const actualRoles = [...newRoles];
-                const userId = actualRoles.pop();
-                const user = this.usuarios.find(r => r.id === userId);
-                this.inspector.permisos.push(...user.idpermiso);
-                this.inspector.permisos = [...new Set(this.inspector.permisos)];
+        maintainCurp() {
+            console.log('Curp verificada: ' + this.curpVerificada)
+            console.log('Curp actual: ' + this.persona.txtcurp)
+            if (this.curpVerificada !== '' && this.curpVerificada !== this.$refs.curpVerification.$data.curp) {
+                return false
             }
+            return true
+        },
+        exitWindow() {
+            this.$router.push("/inspections/inspectors");
+        },
 
-            this.inspector.permisos.filter(p => p !== 0);
-            this.click.user = false;
-        }
     },
     async mounted() {
+        console.log(this.createMode);
+        console.log('createMode');
         await this.loadSelectableData();
         if (!this.createMode) await this.setEditMode();
-    },
+    }
 };
 </script>

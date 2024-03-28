@@ -2,14 +2,14 @@
   <div class="wrapper">
     <v-dialog transition="dialog-top-transition" max-width="600" v-model="show.view">
       <v-card>
-        <v-card-title class="primary--text text-h6 py-2"> VER INSPECTOR </v-card-title>
+        <v-card-title class="text-uppercase primary--text text-h6 py-2"> ver inspector </v-card-title>
         <v-divider></v-divider>
         <v-card-text class="py-0 my-0">
           <v-list class="pa-0 ma-0">
             <v-container class="pa-0 ma-0">
               <v-row dense>
                 <template v-for="(value, key, index) in inspector">
-                  <v-col v-if="!chips.includes(key) && value !== null && value !== ''" class="pa-0 ma-0" cols="6" :key="index">
+                  <v-col v-if="!chips.includes(key) && value !== null" class="pa-0 ma-0" cols="6" :key="index">
                     <v-list-item>
                       <v-list-item-content class="py-2">
                         <v-list-item-title class="text-capitalize text-h7">
@@ -74,8 +74,7 @@ export default {
       headers: {
         iidinspector: "no. inspector",
         txtinspector_etapa: "Etapa",
-        txtinspector_subetapa: "Subetapa",
-        // txtfolio_inspector: "Folio",
+        txttarjeton: "Tarjetón",
         txtinspector_turno: "Turno",
         txtnombre: "Nombre",
         txtapepat: "Apellido paterno",
@@ -85,7 +84,7 @@ export default {
         txtine: "INE",
         txtcomentarios: "Comentarios",
         txtinspector_categoria: "Categoría",
-        dvigencia: "Vigencia tarjeta",
+        dvigencia: "Vigencia tarjetón",
         dfecha_alta: "Fecha de alta",
         dfecha_baja: "Fecha de baja",
         fecha_creacion: "Fecha creacion",

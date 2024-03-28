@@ -25,7 +25,7 @@ try {
     $app->setEventsManager($app->getSharedService('eventsManager'));
 
     $responseMiddleware = ResponseMiddleware::register($app);
-
+    date_default_timezone_set('America/Mexico_City');
     include APP_PATH . '/app.php';
 
     // var_dump($_SERVER['REQUEST_URI']);exit;
