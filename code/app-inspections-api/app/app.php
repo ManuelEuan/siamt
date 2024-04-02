@@ -33,15 +33,17 @@ $app->mount(
     (new Collection())
     ->setHandler(PersonsController::class, true)
     ->get("/persons/getAllSexesPerson", "getAllSexesPerson")
+    ->get("/persons/getAllTypePhones", "getAllTypePhones")
     ->get("/persons/getAllCivilStatusPerson", "getAllCivilStatusPerson")
     ->post("/persons/new", "createPerson")
     ->post("/persons/direction/new", "createDirection")
     ->post("/persons/getPersonAddresses", "getPersonAddresses")
+    ->post("/persons/getPersonPhones", "getPersonPhones")
     ->post("/persons/updateCurrentAddress", "updateCurrentAddress")
     ->post("/persons/deleteAddress", "deleteAddress")
     ->put("/persons/direction", "updateAddress")
-
-    
+    ->post("/persons/phone/new", "createPhone")
+    ->put("/persons/phone", "updatePhone")
 );
 
 

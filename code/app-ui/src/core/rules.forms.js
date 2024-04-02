@@ -33,5 +33,17 @@ export default {
 	rfc: v => {
 		const regex = /^[A-Z&Ñ]{3,4}[0-9]{6}[A-V1-9][0-9A-Z][0-9]$/;
 		return regex.test(v) || 'RFC válido requerida.'; 
-	}
+	},
+	latitud: v => {
+		if (!v) return true; // Permitir que el campo esté vacío
+	
+		const regex = /^([-+]?)([\d]{1,2}(?:\.\d+)?|90(?:\.0+)?)$/;
+		return regex.test(v) || 'Formato de latitud inválido.';
+	},
+	longitud: v => {
+		if (!v) return true; // Permitir que el campo esté vacío
+	
+		const regex = /^([-+]?)([\d]{1,3}(?:\.\d+)?|180(?:\.0+)?)$/;
+		return regex.test(v) || 'Formato de longitud inválido.';
+	},
 };

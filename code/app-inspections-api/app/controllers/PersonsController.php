@@ -62,11 +62,28 @@ class PersonsController extends BaseController
         return $civilStatus;
     }
 
+    public function getAllTypePhones()
+    {
+        $sql = "SELECT 
+            iidtelefono_tipo,
+            txtnombre,
+            txtdescripcion,
+            bactivo AS activo,
+            TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
+            TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
+            FROM persona.cat_telefono_tipo
+            WHERE bactivo='t'
+        ";
+        $zones = Db::fetchAll($sql);
+        return $zones;
+    }
+
     public function getPersonAddresses()
     {
         $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
-        // $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        $data = 84;
+        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        // var_dump($data);exit;
+        // $data = 84;
         $params = array('iidpersona' => $data);
         $sql = "SELECT 
                 -- 
@@ -146,6 +163,63 @@ class PersonsController extends BaseController
         // $this->dep($addresses);
         // exit;
         return $addresses;
+    }
+
+    public function getPersonPhones()
+    {
+        $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
+        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        // var_dump($data);exit;
+        $params = array('iidpersona' => $data);
+        // $sql = "SELECT 
+        //     iidtelefono,
+        //     ilada,
+        //     inumero,
+        //     iidtelefono_tipo,
+        //     bactivo AS activo,
+        //     TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
+        //     TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
+        //     FROM persona.tbl_telefono
+        //     WHERE bactivo='t' AND iidpersona = :iidpersona
+        // ";
+        $sql = "SELECT
+                    tbl_persona_telefono.iidpersona_telefono,
+                    tbl_persona_telefono.iidpersona,
+                    cat_telefono_tipo.txtnombre AS txttelefono_tipo, 
+                    cat_telefono_tipo.txtdescripcion,
+                    tbl_telefono.ilada, 
+                    tbl_telefono.inumero, 
+                    tbl_telefono.iidtelefono, 
+                    tbl_telefono.iidtelefono_tipo, 	
+                    tbl_persona_telefono.bactual,
+                    tbl_telefono.bactivo, 
+                    tbl_persona_telefono.bactivo, 
+                    tbl_persona_telefono.dtfecha_creacion, 
+                    tbl_persona_telefono.dtfecha_modificacion
+                FROM
+                    persona.tbl_persona_telefono
+                INNER JOIN
+                    persona.tbl_telefono
+                ON 
+                    tbl_persona_telefono.iidtelefono = tbl_telefono.iidtelefono
+                INNER JOIN
+                    persona.tbl_persona
+                ON 
+                    tbl_persona_telefono.iidpersona = tbl_persona.iidpersona
+                INNER JOIN
+                    persona.cat_telefono_tipo
+                ON 
+                    tbl_telefono.iidtelefono_tipo = cat_telefono_tipo.iidtelefono_tipo
+                WHERE tbl_persona_telefono.iidpersona = :iidpersona
+        ";
+        // $this->dep($sql);
+        // exit;
+        $phones = Db::fetchAll($sql, $params);
+        // WHERE pd.iidpersona=:iidpersona";
+        // WHERE pd.bactivo='t' AND pd.iidpersona=:iidpersona";
+        // $this->dep($phones);
+        // exit;
+        return $phones;
     }
 
     public function createPerson()
@@ -244,6 +318,63 @@ class PersonsController extends BaseController
         return array('message' => 'La dirección ha sido creada.', 'data' => $data); // Devolver mensaje de éxito
     }
 
+    public function createPhone()
+    {
+        $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
+
+        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        if (empty($data->iidpersona)) {
+            throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona');
+        }
+        $iidpersona = $data->iidpersona;
+        var_dump($data);exit;
+
+        // if (empty($data->iidpersona)) throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona');
+        $this->validRequiredData($data->phone, 'phone'); // Validar datos requeridos
+        // var_dump($data->direction->inumero_exterior);exit;
+
+        Db::begin(); // Iniciar transacción en la base de datos
+
+        $params = array(
+            'ilada' => $data->phone->ilada,
+            'inumero' => $data->phone->inumero,
+            'iidtelefono_tipo' => $data->phone->iidtelefono_tipo,
+            'inumero_exterior' => $data->phone->inumero_exterior,
+        );
+
+        $iidtelefono = $this->insert('tbl_telefono', $params);
+        // if(!$iiddireccion){
+        //     throw new ValidatorBoomException(422, 'No se ha podido registrar la dirección');
+        // }
+
+        $paramsVerifyCurrently = array('iidpersona' => $iidpersona);
+        $sql = "SELECT 
+                    iidpersona,
+                    iidtelefono,
+                    bactual,
+                    bactivo AS activo,
+                    TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
+                    TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
+                FROM 
+                    persona.tbl_persona_telefono
+                WHERE 
+                    bactivo='t' AND bactual='t' AND iidpersona = :iidpersona";
+
+        $existsCurrently = Db::fetchAll($sql, $paramsVerifyCurrently);
+        if ($existsCurrently) {
+            $sql = "UPDATE persona.tbl_persona_telefono SET bactual = false WHERE iidpersona = :iidpersona";
+            Db::execute($sql, $paramsVerifyCurrently);
+            // var_dump('actualizado');
+        }
+
+        $paramsPersonDirection = array('iidpersona' => $iidpersona, 'iidtelefono' => $iidtelefono, 'bactual' => $data->bactual);
+        $this->insert('tbl_persona_telefono', $paramsPersonDirection);
+        Db::commit(); // Confirmar transacción en la base de datos
+        $data->phone->iidtelefono = $iidtelefono;
+
+        return array('message' => 'El teléfono ha sido creado.', 'data' => $data); // Devolver mensaje de éxito
+    }
+
     public function updateCurrentAddress()
     {
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
@@ -298,6 +429,9 @@ class PersonsController extends BaseController
             case 'direction':
                 $requiredKeys = array('iidcolonia', 'txtcalle'); // Claves requeridas
                 break;
+            case 'phone':
+                $requiredKeys = array('inumero', 'iidtelefono_tipo'); // Claves requeridas
+                break;
             default:
                 $message = "No se seleccionó un tipo de validación";
                 throw new ValidatorBoomException(422, $message);
@@ -315,6 +449,8 @@ class PersonsController extends BaseController
             // Validar tipos de valores según la clave
             switch ($key) {
                 case 'iidcolonia':
+                case 'inumero':
+                case 'iidtelefono_tipo':
                     $message = "Tipo de valor incorrectos en $key.";
                     if (!is_int($value)) throw new ValidatorBoomException(422, $message);
                     break;

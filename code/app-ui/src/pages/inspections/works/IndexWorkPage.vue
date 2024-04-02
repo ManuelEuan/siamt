@@ -4,19 +4,19 @@
         <curp-verification ref="curpVerification"></curp-verification>
         <!-- <curp-verification @person-info="handlePersonInfo" ref="curpVerification"></curp-verification> -->
     </v-row>
-        <direction-verification></direction-verification>
+        <!-- <direction-verification></direction-verification> -->
 </v-container>
 </template>
 
 <script>
 import CurpVerification from '@/components/common/CurpVerification.vue';
-import DirectionVerification from '@/components/common/DirectionVerification.vue';
+// import DirectionVerification from '@/components/common/DirectionVerification.vue';
 
 export default {
     name: 'InspectorsPage',
     components: {
         CurpVerification,
-        DirectionVerification,
+        // DirectionVerification,
 
     },
     data() {

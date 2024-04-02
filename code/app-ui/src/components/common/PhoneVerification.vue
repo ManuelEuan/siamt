@@ -1,42 +1,76 @@
 <template>
     <div>
+
         <v-card-text>
             <div class="row d-flex justify-space-around align-center mx-auto">
-                <p class="col-md-6 my-0">Direcciones</p>
-                <v-col cols="12" md="6" v-if="!newDirection">
-                    <v-btn depressed color="primary" @click="newDirection = true">
-                        Nueva dirección
+                <p class="col-md-6 my-0">Teléfonos</p>
+                <v-col cols="12" md="6" v-if="!newPhone">
+                    <v-btn depressed color="primary" @click="newPhone = true">
+                        Nuevo teléfono
                     </v-btn>
                 </v-col>
-                <v-col cols="12" md="3" v-if="newDirection">
-                    <v-btn depressed color="secondary" @click="codePostal = 0, newDirection = false">
-                        Ver direcciones
+                <v-col cols="12" md="3" v-if="newPhone">
+                    <v-btn depressed color="secondary" @click="codePostal = 0, newPhone = false">
+                        Ver teléfonos
                     </v-btn>
                 </v-col>
             </div>
-            <!-- TABLA DE DIRECCIONES -->
-            <!-- {{ Object.keys(personaAddresses).length }} -->
-            <v-row v-if="personaAddresses && Object.keys(personaAddresses).length > 0 && !newDirection">
+            Nuevo: {{ newPhone }}
+            Cant: {{ Object.keys(personaPhones).length }}+--
+            <v-form v-model="phoneValidation" v-if="newPhone">
+                <v-row>
+                    <v-col cols="12" md="4">
+                        <v-select v-model="phone.iidtelefono_tipo" label="Tipo*" :items="typePhones"
+                            item-text="txtnombre" item-value="iidtelefono_tipo" hide-details="auto" small-chips
+                            clearable dense outlined />
+                    </v-col>
+
+                    <!-- <v-col cols="12" md="4">
+                        <v-select v-model="phone.ilada" label="Lada*" :items="ladaIdentifiers" item-text="txtnombre"
+                            item-value="iidlada" hide-details="auto" small-chips clearable dense outlined />
+                    </v-col> -->
+                    <v-col cols="12" md="4">
+                        <v-text-field v-model="phone.ilada" label="Lada" hide-details="auto" clearable dense outlined
+                            maxlength="10" />
+                    </v-col>
+
+                    <v-col cols="12" md="4">
+                        <v-text-field v-model="phone.inumero" label="Número" hide-details="auto" clearable dense
+                            outlined maxlength="10" />
+                    </v-col>
+
+
+                </v-row>
+            </v-form>
+            <v-row v-if="personaPhones && Object.keys(personaPhones).length > 0 && !newPhone">
                 <v-col cols="12" md="12">
+
                     <v-simple-table>
                         <template v-slot:default>
                             <thead>
                                 <tr>
                                     <th class="text-left">
-                                        Dirección
+                                        Tipo
+                                    </th>
+                                    <th class="text-left">
+                                        Lada
+                                    </th>
+                                    <th class="text-left">
+                                        Teléfono
                                     </th>
                                     <th class="text-left">
                                         Actual
                                     </th>
-                                    <th class="text-left" style="min-width: 140px;">
+                                    <th class="text-left">
                                         Acciones
                                     </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in personaAddresses" :key="item.iiddireccion">
-                                    <!-- {{ item }} -->
-                                    <td>{{ item.direccion_completa }}</td>
+                                <tr v-for="item in personaPhones" :key="item.name">
+                                    <td>{{ item.txttelefono_tipo }}</td>
+                                    <td>+{{ item.ilada }}</td>
+                                    <td>{{ item.inumero }}</td>
                                     <td>
                                         <template item.bactual>
                                             <v-icon v-show="item.bactual" size="medium" color="green"> mdi-check
@@ -53,127 +87,46 @@
                                                         <v-icon small> mdi-square-edit-outline </v-icon>
                                                     </v-btn>
                                                 </template>
-                                                <span>Editar dirección</span>
+                                                <span>Editar teléfono</span>
                                             </v-tooltip>
                                             <v-tooltip bottom v-if="!item.bactual">
                                                 <template v-slot:activator="{ on, attrs }">
                                                     <v-btn v-bind="attrs" v-on="on" icon small
                                                         @click="actionsHandler(item, 'newCurrentAddress')">
                                                         <v-icon small v-show="item.bactivo"> mdi-close </v-icon>
-                                                        <v-icon small v-show="!item.bactivo"> mdi-check </v-icon>
+                                                        <v-icon small v-show="!item.bactivo"> mdi-check
+                                                        </v-icon>
                                                     </v-btn>
                                                 </template>
-                                                <span>Activar dirección</span>
+                                                <span>Activar teléfono</span>
                                             </v-tooltip>
                                             <v-tooltip bottom v-if="!item.bactual">
                                                 <template v-slot:activator="{ on, attrs }">
                                                     <v-btn v-bind="attrs" v-on="on" icon small
                                                         @click="actionsHandler(item, 'delete')">
-                                                        <v-icon small v-show="item.bactivo"> mdi-delete </v-icon>
-                                                        <v-icon small v-show="!item.bactivo"> mdi-check </v-icon>
+                                                        <v-icon small v-show="item.bactivo"> mdi-delete
+                                                        </v-icon>
+                                                        <v-icon small v-show="!item.bactivo"> mdi-check
+                                                        </v-icon>
                                                     </v-btn>
                                                 </template>
-                                                <span>Eliminar dirección</span>
+                                                <span>Eliminar teléfono</span>
                                             </v-tooltip>
                                         </template>
                                     </td>
                                 </tr>
                             </tbody>
-
                         </template>
                     </v-simple-table>
+                    <!-- </template> -->
                 </v-col>
             </v-row>
-
-            <!-- CAMPOS DE DIRECCIÓN -->
-            <v-form v-model="directionValidation" v-if="newDirection">
-                <v-row>
-                    <v-col cols="12" md="6" v-if="codePostal">
-                        <v-text-field v-model="entity" label="Estado" hide-details="auto" clearable dense outlined
-                            disabled />
-                    </v-col>
-                    <v-col cols="12" md="6" v-if="codePostal">
-                        <v-text-field v-model="municipality" label="Municipio*" hide-details="auto" clearable dense
-                            outlined disabled />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-select v-model="codePostal" label="Código postal*" :items="postalCodes"
-                            item-text="icodigo_postal" item-value="icodigo_postal" hide-details="auto" small-chips
-                            clearable dense :rules="[rules.required]" outlined />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-select v-model="direction.iidcolonia" label="Colonia*" :items="colonies"
-                            item-text="txtnombre" item-value="iidcolonia" hide-details="auto" small-chips clearable
-                            dense :rules="[rules.required]" outlined :disabled="!codePostal" />
-                    </v-col>
-                </v-row>
-                <v-row v-if="codePostal">
-                    <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.txtcalle" label="Calle principal/s*" hide-details="auto"
-                            clearable dense outlined :rules="[rules.required]" />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.txtcalle_letra" label="Calle letra*" hide-details="auto"
-                            clearable dense outlined />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.inumero_exterior" label="Número exterior*" hide-details="auto"
-                            clearable dense outlined :rules="[rules.number]" />
-
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.txtnumero_exterior_letra" label="Numero exterior letra*"
-                            hide-details="auto" clearable dense outlined />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.inumero_interior" label="Número interior*" hide-details="auto"
-                            clearable dense outlined :rules="[rules.number]" />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.txtnumero_interior_letra" label="Número interior letra*"
-                            hide-details="auto" clearable dense outlined />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.txtcruzamiento_uno" label="Cruzamiento uno" hide-details="auto"
-                            clearable dense outlined />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.txtcruzamiento_uno_letra" label="Cruzamiento uno letra"
-                            hide-details="auto" clearable dense outlined />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.txtcruzamiento_dos" label="Cruzamiento dos" hide-details="auto"
-                            clearable dense outlined />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.txtcruzamiento_dos_letra" label="Cruzamiento dos letra"
-                            hide-details="auto" clearable dense outlined />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.txtreferencia" label="Referencia" hide-details="auto" clearable
-                            dense outlined />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.flatitud" label="Latitud" hide-details="auto" clearable dense maxlength="15" 
-                            outlined :rules="[rules.latitud]" />
-                    </v-col>
-                    <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.flongitud" label="Longitud" hide-details="auto" clearable dense maxlength="15" 
-                            outlined :rules="[rules.longitud]" />
-                    </v-col>
-                    <v-col cols="12" md="6" v-if="direction.flatitud && direction.flongitud">
-                        <v-btn color="primary" text @click="verifyDirection()"> Verificar </v-btn>
-
-                    </v-col>
-
-
-                </v-row>
-            </v-form>
         </v-card-text>
-        <v-card-actions v-if="newDirection">
+
+        <v-card-actions v-if="newPhone">
             <v-spacer />
             <v-btn color="error" text @click="dialog = false"> Cerrar </v-btn>
-            <v-btn color="primary" text :disabled="!directionValidation" @click="saveDirection()"> Guardar
+            <v-btn color="primary" text :disabled="!phoneValidation" @click="savePhone()"> Guardar
             </v-btn>
         </v-card-actions>
         <!-- DIALOG ACTUALIZAR DIRECCION ACTUAL -->
@@ -237,33 +190,18 @@ export default {
     },
     data() {
         return {
-            newDirection: false,
-            directionValidation: false,
-            entity: '',
-            municipality: '',
-            codePostal: 0,
-            postalCodes: [],
-            colonies: [],
+            newPhone: false,
+            phoneValidation: false,
             dialogDelete: false,
             dialogNewCurrentAddress: false,
             updateCurrentAddress: 0,
             // iidpersona: null,
             // iidpersona: 84,
-            direction: {
-                iidcolonia: 0,
-                txtcalle: '',
-                txtcalle_letra: '',
-                inumero_exterior: null,
-                txtnumero_exterior_letra: '',
-                inumero_interior: null,
-                txtnumero_interior_letra: '',
-                txtcruzamiento_uno: '',
-                txtcruzamiento_uno_letra: '',
-                txtcruzamiento_dos: '',
-                txtcruzamiento_dos_letra: '',
-                txtreferencia: '',
-                flatitud: null,
-                flongitud: null,
+            phone: {
+                iidtelefono: 0,
+                ilada: '',
+                inumero: '',
+                iidtelefono_tipo: null,
                 bactivo: null,
                 dtfecha_creacion: null,
                 dtfecha_modificacion: null,
@@ -271,11 +209,10 @@ export default {
             bactual: true,
             rules: {
                 ...rules,
-                number: v => v === '' || v === null || v === undefined || /^\d+$/.test(v) || 'El campo solo puede contener números',
-                float: v => v === '' || v === null || v === undefined || /^\d+(\.\d+)?$/.test(v) || 'El campo solo puede contener números'
             },
-            personaAddresses: [],
-
+            typePhones: [],
+            ladaIdentifiers: [],
+            personaPhones: [],
         };
     },
     computed: {
@@ -291,72 +228,50 @@ export default {
                 this.showError({ message, error });
             }
         },
-        async loadDirectionsTable() {
+        async loadPhonesTable() {
             try {
-                console.log('LOAD DIRECTIONS')
-                let response = await services.inspections().getPersonAddresses(this.iidpersona);
-                this.personaAddresses = { ...response }
+                console.log('LOAD PHONES')
+                let response = await services.inspections().getPersonPhones(this.iidpersona);
+                this.typePhones = await services.inspections().getAllTypePhones()
+                // 
+                console.log(response)
+                console.log(this.typePhones)
+                this.personaPhones = { ...response }
             } catch (error) {
                 const message = 'Error al cargar las direcciones asociadas.';
                 this.showError({ message, error });
             }
         },
-        async getMunicipalityAndEntityByPostalCode() {
-            try {
-                let { entity, municipality } = await services.inspections().getMunicipalityAndEntityByPostalCode(this.codePostal);
-                this.entity = entity;
-                this.municipality = municipality;
-                this.colonies = await services.inspections().getColoniesByPostalCode(this.codePostal);
-            } catch (error) {
-                const message = 'Error al cargar opciones para nuevo inspector.';
-                this.showError({ message, error });
-            }
-        },
-        async saveDirection() {
-            console.log('Guardando Direction');
+        async savePhone() {
+            console.log('Guardando teléfono');
             try {
                 let data = {
                     iidpersona: this.iidpersona,
-                    direction: this.direction,
+                    phone: this.phone,
                     bactual: this.bactual
                 }
                 console.log(data)
-                if (!this.direction.iiddireccion) {
-                    let response = await services.inspections().createDirection(data);
+                if (!this.phone.iidtelefono) {
+                    let response = await services.inspections().createPhone(data);
                     console.log('response del create')
                     console.log(response)
                     this.showSuccess(response.message);
                 } else {
                     console.log('es edicion')
-                    let response = await services.inspections().updateAddress(data);
+                    let response = await services.inspections().updatePhone(data);
                     console.log('response del update')
                     console.log(response)
                     this.showSuccess(response.message);
 
                 }
-                // if (!this.direction.iiddireccion) {
-                //     let response = await services.inspections().createDirection(data);
-                //     console.log('response para create')
-                //     console.log(response)
-                //     this.showSuccess(response.message);
-                // } else {
-                //     let response = await services.inspections().updateDirection(data);
-                //     console.log('response para update')
-                //     console.log(response)
-                //     this.showSuccess(response.message);
-                // }
-                this.newDirection = false
-                await this.loadDirectionsTable();
+                this.newPhone = false
+                await this.loadPhonesTable();
                 // this.$emit('direction-created', 'Esta es la dirección creada: ', this.direction);
                 this.dialog = false
             } catch (error) {
-                const message = 'Error al guardar persona.';
+                const message = 'Error al guardar phone.';
                 this.showError({ message, error });
             }
-        },
-        verifyDirection(){
-            const url = `https://www.google.com/maps?q=${this.direction.flatitud},${this.direction.flongitud}`;
-            window.open(url);
         },
         actionsHandler(direction, action) {
             console.log('actionsHandler')
@@ -366,7 +281,7 @@ export default {
                 case 'edit':
                     this.direction = { ...direction }
                     this.codePostal = direction.icodigo_postal
-                    this.newDirection = true
+                    this.newPhone = true
                     break;
                 case 'newCurrentAddress':
                     this.dialogNewCurrentAddress = true;
@@ -388,7 +303,7 @@ export default {
                 console.log('data para update')
                 let response = await services.inspections().updateCurrentAddress(data);
                 console.log(response)
-                await this.loadDirectionsTable();
+                await this.loadPhonesTable();
                 this.dialogNewCurrentAddress = false
                 this.showSuccess(response.message);
             } catch (error) {
@@ -404,7 +319,7 @@ export default {
                 }
                 const { message } = await services.inspections().deleteAddress(data);
                 // await this.loadInspectorsTable();
-                await this.loadDirectionsTable();
+                await this.loadPhonesTable();
                 this.dialogDelete = false
                 this.showSuccess(message);
                 // this.showSuccess(response.message);
@@ -449,7 +364,7 @@ export default {
     },
     async mounted() {
         await this.getCodePostals();
-        await this.loadDirectionsTable();
+        await this.loadPhonesTable();
     }
 };
 </script>

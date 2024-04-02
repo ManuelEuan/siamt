@@ -24,14 +24,18 @@
                                 <v-form v-model="valid">
                                     <curp-verification v-if="createMode" @person-info="handlePersonInfo"
                                         ref="curpVerification"></curp-verification>
+                                        
                                     <v-row v-if="!createMode">
-                                        <v-col cols="12" md="6">
-                                            <v-text-field v-model="nombreCompleto" label="Folio*" hide-details="auto"
-                                                clearable dense :disabled="!createMode" outlined />
+                                        <v-col cols="12" md="4">
+                                            <v-text-field v-model="nombreCompleto" label="Nombre Completo*" hide-details="auto"
+                                            clearable dense :disabled="!createMode" outlined />
                                         </v-col>
-                                        <v-col cols="12" md="6">
+                                        <v-col cols="12" md="4">
                                             <v-text-field v-model="persona.txtcurp" label="CURP*" hide-details="auto"
-                                                clearable dense :disabled="!createMode" outlined />
+                                            clearable dense :disabled="!createMode" outlined />
+                                        </v-col>
+                                        <v-col cols="12" md="4" >
+                                            <v-btn color="primary" text @click=showDialogPerson(persona.iidpersona)>Información Completa 2</v-btn>
                                         </v-col>
                                     </v-row>
                                     <v-row v-if="personaEncontrada && personaDisponible || !createMode">
@@ -88,6 +92,8 @@
                 </v-tabs-items>
             </v-col>
         </v-row>
+        <modal-create-person ref="ModalCreatePerson" :isNewPerson="false" @person-created="handlefromCreatePerson" />
+
     </v-container>
 </template>
 
@@ -95,12 +101,13 @@
 import rules from "@/core/rules.forms";
 import services from "@/services";
 import CurpVerification from '@/components/common/CurpVerification.vue';
-
+import ModalCreatePerson from "@/components/common/ModalCreatePerson.vue";
 import { mapActions } from "vuex";
 
 export default {
     components: {
         CurpVerification,
+        ModalCreatePerson,
     },
     data() {
         return {
@@ -260,6 +267,21 @@ export default {
         exitWindow() {
             this.$router.push("/inspections/inspectors");
         },
+        showDialogPerson(iidpersona) {
+            console.log('se mostrará el dialog persona 2')
+            console.log(this.persona.txtcurp)
+            console.log(iidpersona)
+            this.dialogOpen = false
+            this.dialog = true;
+            if(iidpersona!=0){
+                this.$refs.ModalCreatePerson.$data.persona.iidpersona = this.persona.iidpersona;
+            }
+            this.$refs.ModalCreatePerson.$data.persona.txtcurp = this.persona.txtcurp;
+            this.$refs.ModalCreatePerson.$data.dialog = true;
+        },
+        handlefromCreatePerson(){
+            console.log('retorno del modal person')
+        }
 
     },
     async mounted() {

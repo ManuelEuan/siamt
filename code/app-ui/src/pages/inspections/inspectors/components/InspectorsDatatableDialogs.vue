@@ -75,7 +75,7 @@ export default {
         iidinspector: "no. inspector",
         txtinspector_etapa: "Etapa",
         txtinspector_subetapa: "Subetapa",
-        // txtfolio_inspector: "Folio",
+        txtfolio_inspector: "Folio",
         txtinspector_turno: "Turno",
         txtnombre: "Nombre",
         txtapepat: "Apellido paterno",

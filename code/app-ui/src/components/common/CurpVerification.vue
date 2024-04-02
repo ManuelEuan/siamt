@@ -1,11 +1,17 @@
 <template>
     <v-row class="d-flex align-center justify-center">
+        <v-col cols="12" md="12" class="d-flex align-center justify-between" style="height:30px">
+            CAUM990224HYNRCC05
+        </v-col>
         <v-col cols="12" md="6" class="d-flex align-center justify-between" style="height:30px">
             <v-text-field v-model="curp" label="CURP*" style="max-height: 40px;" :rules="[rules.curp]" maxlength="18"
                 hide-details="auto" clearable dense @input="toUpperCase" outlined />
-            <v-btn class="d-flex align-center ml-3" depressed color="primary" @click="verifyCurp"
+            <v-btn class="d-flex align-center ml-3" depressed color="primary" @click="verifyCurp(false)"
                 :disabled="!curpValida">
                 Verificar CURP
+            </v-btn>
+            <v-btn class="d-flex align-center ml-3" depressed color="primary" @click="verifyCurp(true)" v-if="personaEncontrada && personaDisponible">
+                Ver información completa 1
             </v-btn>
         </v-col>
         <v-card-text v-if="personaEncontrada && personaDisponible">
@@ -51,7 +57,7 @@
                     <v-card-actions>
                         <v-spacer />
                         <v-btn color="error" text @click="dialogOpen = false"> Cancelar </v-btn>
-                        <v-btn color="primary" text @click="showDialogPerson"> Aceptar </v-btn>
+                        <v-btn color="primary" text @click="showDialogPerson(0)"> Aceptar </v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
@@ -70,7 +76,7 @@
                     <v-card-actions>
                         <v-spacer />
                         <v-btn color="error" text @click="dialogCurpChanged = false"> Cancelar </v-btn>
-                        <v-btn color="primary" text @click="verifyCurp"> Verificar </v-btn>
+                        <v-btn color="primary" text @click="verifyCurp(false)"> Verificar </v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
@@ -93,7 +99,7 @@
                 </v-card>
             </v-dialog>
         </template>
-        <modal-create-person ref="ModalCreatePerson" @person-created="handlefromCreatePerson" />
+        <modal-create-person ref="ModalCreatePerson" :isNewPerson="true" @person-created="handlefromCreatePerson" />
     </v-row>
 </template>
 
@@ -145,27 +151,42 @@ export default {
         toUpperCase() {
             this.curp = this.curp.toUpperCase();
         },
-        showDialogPerson() {
+        showDialogPerson(iidpersona) {
             this.dialogOpen = false
             this.dialog = true;
-            this.$refs.ModalCreatePerson.$data.dialog = true;
+            console.log('se mostrará el dialog persona 1')
+            console.log(iidpersona) //0
+            console.log(this.curp) //CAUM990224HYNRCC06
+            this.$refs.ModalCreatePerson.$data.persona.iidpersona = iidpersona;
             this.$refs.ModalCreatePerson.$data.persona.txtcurp = this.curp;
+            if(iidpersona==0){
+                this.$refs.ModalCreatePerson.$data.dialog = true;
+            }
+            // else{
+                // this.$refs.ModalCreatePerson.$data.persona.iidpersona = iidpersona;
+            // }
         },
-        async verifyCurp() {
+        async verifyCurp(needModal) {
             this.dialogCurpChanged = false;
             let curp = this.curp;
             console.log('CURP A VERIFICAR 1 ' + curp)
+            console.log('NECESITA MODAL' + needModal)
+            
             try {
                 let curp = this.curp;
                 let response = await services.inspections().getPersonByCurp({ curp });
                 console.log(response)
 
-                if (response.isInspector === false) { // Si la persona no es inspector (esta disponible) muestra su información
+                if (response.isInspector === false) { // Si la persona no es inspector (esta disponible) devuelve la persona encontrada 
                     this.personaEncontrada = true
                     this.personaDisponible = true
                     this.persona = { ...response }
                     this.curpVerificada = this.persona.txtcurp
                     this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.isInspector);
+                    // abriendo el modal
+                    this.$refs.ModalCreatePerson.$data.dialog = needModal;
+                    this.$refs.ModalCreatePerson.$data.persona.iidpersona = this.persona.iidpersona;
+                    this.$refs.ModalCreatePerson.$data.persona.txtcurp = this.persona.txtcurp;
                 } else if (response.isInspector === true) { // Si la persona ya es inspector mostrará un modal de redirección
                     this.personaEncontrada = true
                     this.personaDisponible = false
@@ -178,6 +199,8 @@ export default {
                     console.log('CURP A VERIFICAR 5' + curp)
                     this.personaEncontrada = false
                     this.personaDisponible = true
+                    this.$refs.ModalCreatePerson.$data.persona.iidpersona = 0;
+                    this.$refs.ModalCreatePerson.$data.persona.txtcurp = this.persona.txtcurp;
                     this.$emit('person-info', false, true, this.persona, this.persona.txtcurp, this.persona.isInspector);
                     this.dialogOpen = true;
                 }
@@ -195,7 +218,7 @@ export default {
         handlefromCreatePerson(personCreated, curp) {
             if (personCreated) {
                 this.curp = curp
-                this.verifyCurp()
+                this.verifyCurp(false)
                 this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, curp);
             } else {
                 alert('no se pudo crear')
@@ -204,12 +227,15 @@ export default {
     },
     watch: {
         'curp': function () {
+
             const curpRules = this.rules.curp;
+            this.personaEncontrada=false
             if (curpRules) {
                 this.curpValida = curpRules(this.curp) === true;
-            } else {
-                this.curpValida = true; // Otra opción es asignar un valor predeterminado válido
-            }
+            } 
+            // else {
+            //     this.curpValida = true; // Otra opción es asignar un valor predeterminado válido
+            // }
         }
     }
 }
