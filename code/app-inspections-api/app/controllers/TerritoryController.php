@@ -32,84 +32,58 @@ class TerritoryController extends BaseController
 
     public function getAllPostalCodes()
     {
+        $default = 50; // Mérida
+        $params = array('iclave_municipio' => $default);
         $sql = "SELECT 
-            iidcolonia,
-            iclave_colonia,
-            txtnombre,
-            iidmunicipio,
-            icodigo_postal,
-            bactivo AS activo,
-            TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-            TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-            FROM territorio.cat_colonia
-            WHERE bactivo='t' AND iidmunicipio = 50
+                    icodigo_postal
+                FROM 
+                    territorio.cat_colonia
+                WHERE 
+                    bactivo='t' AND iclave_municipio = :iclave_municipio
+                GROUP BY 
+                    icodigo_postal;
         ";
-        $postalCodes = Db::fetchAll($sql);
+        $postalCodes = Db::fetchAll($sql, $params);
         return $postalCodes;
     }
 
-    public function createPerson()
+    public function getMunicipalityAndEntityByPostalCode()
     {
-        $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
-
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        $this->validRequiredData($data); // Validar datos requeridos
-        // var_dump($data);exit;
-        Db::begin(); // Iniciar transacción en la base de datos
-
-        $params = array(
-            'bfisica' => $data->bfisica,
-            'txtnombre' => $data->txtnombre,
-            'txtapepat' => $data->txtapepat,
-            'txtapemat' => $data->txtapemat,
-            'dfecha_nacimiento' => $data->dfecha_nacimiento !== '' ? $data->dfecha_nacimiento : null,
-            'txtrfc' => $data->txtrfc,
-            'txtcurp' => $data->txtcurp,
-            'txtine' => $data->txtine,
-            'iidestado_civil' => $data->iidestado_civil,
-            'iidsexo' => $data->iidsexo,
-            'txtcorreo' => $data->txtcorreo,
-            // 'bactivo' => $data->bactivo,
-            // 'dtfecha_creacion' => $data->dtfecha_creacion !== '' ? $data->dtfecha_creacion : date("Y/m/d H:i:s"),
-            // 'dtfecha_modificacion' => $data->dtfecha_modificacion !== '' ? $data->dtfecha_modificacion : date("Y/m/d H:i:s"),
-        );
-
-        $this->insert('tbl_persona', $params);
-        Db::commit(); // Confirmar transacción en la base de datos
-        return array('message' => 'La persona ha sido creada.'); // Devolver mensaje de éxito
+        $params = array('icodigo_postal' => $data);
+        $sql = "SELECT DISTINCT ON (m.txtnombre)
+                    m.txtnombre AS entity,
+                    e.txtnombre AS municipality
+                FROM
+                    territorio.cat_colonia AS c
+                JOIN
+                    territorio.cat_municipio AS m ON c.iclave_municipio = m.iclave_municipio
+                JOIN
+                    territorio.cat_estado AS e ON m.iclave_estado = e.iclave_estado
+                WHERE
+                    c.icodigo_postal = :icodigo_postal";
+        $municipalityAndEntity = Db::fetchOne($sql, $params);
+        return $municipalityAndEntity;
     }
 
-    private function insert($table, $params)
+    public function getColoniesByPostalCode()
     {
-        $cols = implode(', ', array_keys($params)); // Obtener nombres de columnas
-        $phs = ':' . str_replace(', ', ', :', $cols); // Obtener marcadores de posición para los valores
-        $sql = "INSERT INTO persona.$table ($cols) VALUES ($phs)"; // Consulta de inserción
-        // var_dump($sql);exit;
-        return Db::execute($sql, $params); // Ejecutar inserción en la base de datos
+        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        $params = array('icodigo_postal' => $data);
+        $sql = "SELECT 
+                    iidcolonia,
+                    txtnombre,
+                    icodigo_postal,
+                    bactivo AS activo,
+                    TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
+                    TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
+                FROM 
+                    territorio.cat_colonia
+                WHERE 
+                    bactivo='t' AND icodigo_postal = :icodigo_postal";
+
+        $colonies = Db::fetchAll($sql, $params);
+        return $colonies;
     }
 
-    // // Método para validar datos requeridos
-    private function validRequiredData($data)
-    {
-        $requiredKeys = array('bfisica', 'txtnombre', 'txtcurp'); // Claves requeridas
-        $actualKeys = array_keys(get_object_vars($data)); // Claves presentes en los datos
-        $missingKeys = array_diff($requiredKeys, $actualKeys); // Claves faltantes
-        $message = 'Faltan valores requeridos.';
-
-        if (!empty($missingKeys)) throw new ValidatorBoomException(422, $message);
-
-        foreach ($data as $key => $value) {
-            if (!in_array($key, $requiredKeys)) continue;
-
-            // Validar tipos de valores según la clave
-            switch ($key) {
-                default:
-                    $message = "Tipo de valor incorrecto en $key.";
-                    if (!is_string($value)) throw new ValidatorBoomException(422, $message);
-                    $message = "Valor vacío en $key.";
-                    if (empty(trim($value))) throw new ValidatorBoomException(422, $message);
-                    break;
-            }
-        }
-    }
 }

@@ -46,9 +46,39 @@ export default class InspectionsService extends ApiService {
     return await this.post("/persons/new", JSON.stringify(data));
   }
 
+  async updateAddress(data) {
+    console.log('pa1')
+    return await this.put("/persons/direction", JSON.stringify(data));
+  }
+
   async getAllPostalCodes() {
     return await this.get("/territory/getAllPostalCodes");
   }
+
+  async getMunicipalityAndEntityByPostalCode(data) {
+    return await this.post("/territory/getMunicipalityAndEntityByPostalCode", JSON.stringify(data));
+  }
+
+  async getColoniesByPostalCode(data) {
+    return await this.post("/territory/getColoniesByPostalCode", JSON.stringify(data));
+  }
+
+  async createDirection(data) {
+    return await this.post("/persons/direction/new", JSON.stringify(data));
+  }
+
+  async getPersonAddresses(data) {
+    return await this.post("/persons/getPersonAddresses", JSON.stringify(data));
+  }
+
+  async updateCurrentAddress(data) {
+    return await this.post("/persons/updateCurrentAddress", JSON.stringify(data));
+  }
+
+  async deleteAddress(data) {
+    return await this.post(`/persons/deleteAddress`, JSON.stringify(data));
+  }
+  
 
   async getAllCivilStatusPerson() {
     return await this.get("/persons/getAllCivilStatusPerson");

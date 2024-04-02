@@ -26,15 +26,7 @@ $app->mount(
 $app->mount(
     (new Collection())
     ->setHandler(WorkloadsController::class, true)
-    // ->post("/inspectors", "getInspectors")
-    // ->post("/inspectors/getPersonByCurp", "getPersonByCurp")
-    // ->get("/inspectors/getAllCategoriesInspector", "getAllCategoriesInspector")
-    // ->get("/inspectors/getAllStagesInspector", "getAllStagesInspector")
     ->get("/workloads/getAllZonesInspector", "getAllZonesInspector")
-    // ->post("/inspectors/new", "createInspector")
-    // ->put("/inspectors", "updateInspector")
-    // ->delete("/inspectors/{id}", "deleteInspector")
-    // ->post("/inspectors/getInspectorInfo", "getInspectorInfo")
 );
 
 $app->mount(
@@ -43,6 +35,13 @@ $app->mount(
     ->get("/persons/getAllSexesPerson", "getAllSexesPerson")
     ->get("/persons/getAllCivilStatusPerson", "getAllCivilStatusPerson")
     ->post("/persons/new", "createPerson")
+    ->post("/persons/direction/new", "createDirection")
+    ->post("/persons/getPersonAddresses", "getPersonAddresses")
+    ->post("/persons/updateCurrentAddress", "updateCurrentAddress")
+    ->post("/persons/deleteAddress", "deleteAddress")
+    ->put("/persons/direction", "updateAddress")
+
+    
 );
 
 
@@ -50,5 +49,7 @@ $app->mount(
     (new Collection())
     ->setHandler(TerritoryController::class, true)
     ->get("/territory/getAllPostalCodes", "getAllPostalCodes")
+    ->post("/territory/getMunicipalityAndEntityByPostalCode", "getMunicipalityAndEntityByPostalCode")
+    ->post("/territory/getColoniesByPostalCode", "getColoniesByPostalCode")
 );
 

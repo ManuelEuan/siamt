@@ -3,7 +3,7 @@
     <!-- Validación de direcciones -->
     <!-- Validación de teléfono -->
     <div class="">
-        <v-dialog v-model="dialog" max-width="600">
+        <v-dialog v-model="dialog" max-width="800">
             <v-card prepend-icon="mdi-account" title="Captura de persona">
 
                 <v-col cols="12" class="pa-0 mt-2">
@@ -27,7 +27,7 @@
                         <v-card flat>
                             <v-tab-item :key="1" value="generaltab" class="py-1">
                                 <v-card-text>
-                                    <v-form v-model="valid">
+                                    <v-form v-model="generalValidation">
                                         <p>Tipo de persona</p>
                                         <v-radio-group v-model="persona.bfisica" mandatory @change="validarRFC">
                                             <v-radio color="success" label="Física" value="true"
@@ -93,94 +93,19 @@
                                         </v-row>
                                     </v-form>
                                 </v-card-text>
+                                <v-card-actions>
+                                    <v-spacer />
+                                    <v-btn color="error" text @click="dialog = false"> Cerrar </v-btn>
+                                    <v-btn color="primary" text :disabled="!generalValidation" @click="savePersona()"> Guardar
+                                    </v-btn>
+                                </v-card-actions>
                             </v-tab-item>
                             <v-tab-item :key="2" value="direccionestab" class="py-1">
-                                <v-card-text>
-                                    <v-form v-model="valid">
-                                        <direction-verification></direction-verification>
-                                        <!-- <v-row>
-                                            <v-col cols="12" md="4">
-                                                <v-select v-model="persona.iidestado_civil" label="Estado*"
-                                                    :items="civilStatus" item-text="txtnombre"
-                                                    item-value="iidestado_civil" hide-details="auto" small-chips
-                                                    clearable dense outlined />
-                                            </v-col>
-
-                                            <v-col cols="12" md="4">
-                                                <v-select v-model="persona.iidsexo" label="Municipio*" :items="sexes"
-                                                    item-text="txtnombre" item-value="iidsexo" hide-details="auto"
-                                                    small-chips clearable dense outlined />
-                                            </v-col>
-                                            <v-col cols="12" md="4">
-                                                <v-select v-model="persona.iidsexo" label="Código postal*"
-                                                    :items="sexes" item-text="txtnombre" item-value="iidsexo"
-                                                    hide-details="auto" small-chips clearable dense outlined />
-                                            </v-col>
-                                        </v-row>
-                                        <v-row>
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="persona.txtnombre" label="Calle principal/s*"
-                                                    hide-details="auto" clearable dense outlined
-                                                    :rules="[rules.required]" />
-                                            </v-col>
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="persona.txtnombre" label="Calle letra*"
-                                                    hide-details="auto" clearable dense outlined
-                                                    :rules="[rules.required]" />
-                                            </v-col>
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="persona.txtnombre" label="Número exterior*"
-                                                    hide-details="auto" clearable dense outlined
-                                                    :rules="[rules.required]" />
-                                            </v-col>
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="persona.txtnombre" label="Numero exterior letra*"
-                                                    hide-details="auto" clearable dense outlined
-                                                    :rules="[rules.required]" />
-                                            </v-col>
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="persona.txtnombre" label="Número interior*"
-                                                    hide-details="auto" clearable dense outlined
-                                                    :rules="[rules.required]" />
-                                            </v-col>
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="persona.txtnombre" label="Número interior letra*"
-                                                    hide-details="auto" clearable dense outlined
-                                                    :rules="[rules.required]" />
-                                            </v-col>
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="persona.txtapepat" label="Cruzamiento uno"
-                                                    hide-details="auto" clearable dense outlined />
-                                            </v-col>
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="persona.txtapepat" label="Cruzamiento uno letra"
-                                                    hide-details="auto" clearable dense outlined />
-                                            </v-col>
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="persona.txtapepat" label="Cruzamiento dos"
-                                                    hide-details="auto" clearable dense outlined />
-                                            </v-col>
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="persona.txtapepat" label="Cruzamiento dos letra"
-                                                    hide-details="auto" clearable dense outlined />
-                                            </v-col>
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="persona.txtapepat" label="Latitud"
-                                                    hide-details="auto" clearable dense outlined />
-                                            </v-col>
-                                            <v-col cols="12" md="6">
-                                                <v-text-field v-model="persona.txtapepat" label="Longitud"
-                                                    hide-details="auto" clearable dense outlined />
-                                            </v-col>
-
-
-                                        </v-row> -->
-                                    </v-form>
-                                </v-card-text>
+                                <direction-verification></direction-verification>
                             </v-tab-item>
                             <v-tab-item :key="3" value="telefonostab" class="py-1">
                                 <v-card-text>
-                                    <v-form v-model="valid">
+                                    <v-form v-model="phoneValidation">
                                         <v-row>
                                             <v-col cols="12" md="6">
                                                 <v-select v-model="persona.iidestado_civil" label="Lada*"
@@ -228,12 +153,7 @@
                                     </v-form>
                                 </v-card-text>
                             </v-tab-item>
-                            <v-card-actions>
-                                <v-spacer />
-                                <v-btn color="error" text @click="dialog = false"> Cerrar </v-btn>
-                                <v-btn color="primary" text :disabled="!valid" @click="savePersona()"> Guardar
-                                </v-btn>
-                            </v-card-actions>
+                           
                         </v-card>
                     </v-tabs-items>
                 </v-col>
@@ -258,7 +178,8 @@ export default {
         return {
             tab: "generaltab",
             data: '',
-            valid: false,
+            generalValidation: false,
+            phoneValidation: false,
             dialog: false,
             civilStatus: [],
             sexes: [],
@@ -284,15 +205,13 @@ export default {
             },
             desserts: [
                 {
-                    name: 'Nombre 1',
+                    name: 'Nombre 12',
                     coordinator: 'Coor 1',
                 },
                 {
                     name: 'Nombre 1',
                     coordinator: 'Coor 2',
                 }
-
-
             ],
         }
     },
@@ -336,7 +255,7 @@ export default {
         validarRFC() {
             this.persona.txtrfc = this.persona.txtrfc.toUpperCase()
             let rfc = this.persona.txtrfc.trim();
-            if (rfc.length === 0) {
+            if (rfc.length === 0 && this.persona.bfisica === "true") {
                 this.$set(this, 'rfcValido', true); // RFC vacío, se considera válido
                 return;
             }

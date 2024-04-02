@@ -47,10 +47,24 @@ class Db
     return $pdo;
   }
 
+  // public static function execute(string $sql, ?array $params = null)
+  // {
+  //   $db = static::getDb();
+  //   return $db->execute($sql, $params);
+  // }
+
   public static function execute(string $sql, ?array $params = null)
   {
     $db = static::getDb();
-    return $db->execute($sql, $params);
+    $result = $db->execute($sql, $params);
+    
+    // Obtener el ID del último registro insertado si la operación fue una inserción
+    if (strpos($sql, 'INSERT') === 0) {
+        $lastInsertId = $db->lastInsertId();
+        return $lastInsertId;
+    }
+    
+    return $result;
   }
 
   public static function begin()
