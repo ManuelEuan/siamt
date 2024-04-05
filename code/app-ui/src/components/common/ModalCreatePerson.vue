@@ -20,6 +20,10 @@
                             Telefono
                             <v-icon> mdi-card-account-details </v-icon>
                         </v-tab>
+                        <v-tab href="#filestab">
+                            Archivos
+                            <v-icon> mdi-card-account-details </v-icon>
+                        </v-tab>
                     </v-tabs>
                     <v-tabs-items v-model="tab">
                         <v-card flat>
@@ -39,31 +43,26 @@
                                     @phone-validation="handleFromPhoneVerification"
                                     v-model="phoneValidation"></phone-verification>
                             </v-tab-item>
-                            <!-- Mostrar los valores de directionValidation y phoneValidation -->
-                            <div>
-                                <p>Se va a editar (existe persona) : {{ persona.iidpersona }}</p>
-                                <p>Se va a editar (existe persona) : {{ persona.txtcurp }}</p>
-                                <p>Validación de datos generales: {{ generalPersonDataValidation }}</p>
-                                <p>Validación de dirección: {{ directionValidation }}</p>
-                                <p>Validación de teléfono: {{ phoneValidation }}</p>
-                                dataPerson: {{ dataPerson }}
-                                dataPhone: {{ dataPhone }}
-                                editphone: {{ modeEditPhone }}
-                            </div>
+                            <v-tab-item :key="4" value="filestab" class="py-1">
+                              
+                                <!-- <phone-verification :iidpersona="persona.iidpersona"
+                                    @phone-validation="handleFromPhoneVerification"
+                                    v-model="phoneValidation"></phone-verification> -->
+                         
+                            </v-tab-item>
                         </v-card>
                     </v-tabs-items>
-                    <v-card-actions v-if="tab ==='generaltab'">
+                    <v-card-actions v-if="tab === 'generaltab' && !persona.iidpersona">
                         <v-spacer />
                         <v-btn color="error" text @click="dialog = false"> Cerrar </v-btn>
                         <v-btn color="primary" v-if="persona.iidpersona == 0" text
                             :disabled="!generalPersonDataValidation || !phoneValidation" @click="savePersona()">
                             Guardar (principal)
                         </v-btn>
-                        <v-btn color="primary" v-else text :disabled="!generalPersonDataValidation"
-                            @click="savePersona()">
-                            Guardar (principal)
-                        </v-btn>
-                        <!--</div> -->
+                    </v-card-actions>
+                    <v-card-actions v-else>
+                        <v-spacer />
+                        <v-btn color="error" text @click="dialog = false"> Cerrar </v-btn>
                     </v-card-actions>
                 </v-col>
             </v-card>
@@ -91,6 +90,7 @@ export default {
             tab: "generaltab",
             dataPerson: {},
             dataPhone: '',
+            files: [],
             modeEditPhone: false,
             generalPersonDataValidation: false, // Variable para almacenar la validación de datos generales
             directionValidation: false, // Variable para almacenar la validación de la dirección
@@ -101,6 +101,11 @@ export default {
                 iidpersona: 0,
                 txtcurp: '',
             }
+        }
+    },
+    computed: {
+        selectedFiles() {
+            return this.files.slice(); // Devuelve una copia de los archivos seleccionados
         }
     },
     methods: {

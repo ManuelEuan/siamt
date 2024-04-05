@@ -74,6 +74,33 @@
                                                 label="Fecha de baja" type="date" :mask="'####/##/##'"></v-text-field>
                                         </v-col>
 
+                                        <!-- PROCESOS -->
+                                        <v-col cols="12" md="6" v-if="!createMode">
+                                            <v-select v-model="inspector.iidproceso"
+                                                label="Proceso*" :rules="[rules.required]"
+                                                :items="processes" item-text="txtnombre"
+                                                item-value="iidproceso" hide-details="auto" small-chips
+                                                clearable dense outlined />
+                                        </v-col>
+
+                                        <!-- ETAPAS -->
+                                        <v-col cols="12" md="6" v-if="!createMode">
+                                            <v-select v-model="inspector.iidetapa"
+                                                @change="verifySubStages" label="Etapa*" :rules="[rules.required]"
+                                                :items="stages" item-text="txtetapa_nombre"
+                                                item-value="iidetapa" hide-details="auto" small-chips
+                                                clearable dense outlined />
+                                        </v-col>
+
+                                        <!-- SUBETAPAS -->
+                                        <!-- <v-col cols="12" md="6" v-if="!createMode">
+                                            <v-select v-model="inspector.iidsubetapa"
+                                                label="Subetapa*" :rules="[rules.required]"
+                                                :items="subStages" item-text="txtnombre"
+                                                item-value="iidsubetapa" hide-details="auto" small-chips
+                                                clearable dense outlined />
+                                        </v-col> -->
+
                                         <v-col cols="12">
                                             <v-textarea v-model="inspector.txtcomentarios" label="Comentarios*"
                                                 hide-details="auto" clearable dense outlined />
@@ -123,7 +150,9 @@ export default {
             dialog: false,
             personaEncontrada: false,
             personaDisponible: false,
+            processes: [],
             stages: [],
+            subStages: [],
             shifts: [],
             categories: [],
             persona: {
@@ -185,7 +214,10 @@ export default {
                 console.log(id);
                 console.log('idssuhfueihfiejfieojfiej');
                 this.categories = await services.inspections().getAllCategoriesInspector();
+                // let stages = await services.inspections().getAllStagesInspector();
+                this.processes = await services.inspections().getAllProcessesInspector();
                 this.stages = await services.inspections().getAllStagesInspector();
+                // this.stages = {...await services.inspections().getAllStagesInspector()};
                 this.shifts = await services.inspections().getAllShiftsInspector();
 
             } catch (error) {
@@ -198,6 +230,11 @@ export default {
                 const { id } = this.$route.params;
                 this.inspector = { ...await services.inspections().getInspectorInfo({ id }) };
                 let curp = this.inspector.txtcurp;
+                // let stage = this.inspector.iidetapa
+                // response = await services.inspections().getAllSubStagesByStage({stage});
+                // console.log('response stages')
+                // console.log(response)
+                // this.subStages
                 // this.persona = { ...await services.inspections().getPersonByCurp({ curp }) };
                 let data = {
                     typeSearch: 'CURP',
@@ -230,6 +267,9 @@ export default {
                 this.genera_boleta = false;
                 this.inspector.dvigencia = null
             }
+        },
+        verifySubStages(){
+            console.log('verifciar sub etapas de nueva etapa')
         },
         handlePersonInfo(isFound, isAvailable, person, curpVerified) {
             this.persona = person

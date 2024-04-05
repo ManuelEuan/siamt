@@ -32,8 +32,16 @@ export default class InspectionsService extends ApiService {
     return await this.get("/inspectors/getAllCategoriesInspector");
   }
 
+  async getAllProcessesInspector() {
+    return await this.get("/inspectors/getAllProcessesInspector");
+  }
+  
   async getAllStagesInspector() {
     return await this.get("/inspectors/getAllStagesInspector");
+  }
+
+  async getAllSubStagesByStage(stage){
+    return await this.post("/inspectors/getAllSubStagesByStage", JSON.stringify(stage));
   }
 
   async getAllShiftsInspector() {
@@ -50,6 +58,10 @@ export default class InspectionsService extends ApiService {
 
   async createPerson(data) {
     return await this.post("/persons/new", JSON.stringify(data));
+  }
+
+  async updatePerson(data) {
+    return await this.put("/persons/update", JSON.stringify(data));
   }
 
   async updateAddress(data) {

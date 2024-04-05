@@ -181,54 +181,6 @@ class InspectorsController extends BaseController
         return $sql; // Devolver fragmento de consulta para ordenamiento
     }
 
-    // public function getPersonByCurp()
-    // {
-    //     $data =  $this->request->getJsonRawBody();
-
-    //     $sql = "SELECT 
-    //             p.iidpersona,
-    //             p.bfisica,
-    //             p.txtnombre,
-    //             p.txtapepat,
-    //             p.txtapemat,
-    //             p.txtrfc,
-    //             p.txtine,
-    //             p.txtcurp,
-    //             p.txtcorreo,
-    //             p.iidestado_civil,
-    //             p.iidsexo,
-    //             ec.txtnombre AS txtestado_civil,
-    //             s.txtnombre AS txtsexo,
-    //             p.bactivo AS activo,
-    //             TO_CHAR(p.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-    //             TO_CHAR(p.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-    //         FROM persona.tbl_persona p 
-    //         LEFT JOIN persona.cat_estado_civil ec ON p.iidestado_civil = ec.iidestado_civil
-    //         LEFT JOIN persona.cat_sexo s ON p.iidsexo = s.iidsexo
-    //         WHERE p.txtcurp=:curp
-    //     ";
-    //     $params = array('curp' => $data->curp);
-    //     $persona = Db::fetchOne($sql, $params);
-
-    //     if(!$persona){
-    //         return 0;
-    //     }
-    //     $sql2 = "SELECT iidinspector, iidinspector, txtfolio_inspector
-    //         FROM inspeccion.tbl_inspector
-    //         WHERE iidpersona=:iidpersona
-    //     ";
-    //     $params2 = array('iidpersona' => $persona->iidpersona);
-    //     $inspector = Db::fetchOne($sql2, $params2);
-
-    //     if(!$inspector){
-    //         $persona->isInspector = false;
-    //     }else{
-    //         $persona->iidinspector = $inspector->iidinspector;
-    //         $persona->isInspector = true;
-    //     }
-    //     return $persona;
-    // }
-
     public function getPersonByDinamycSearch()
     {
         $data =  $this->request->getJsonRawBody();
@@ -361,6 +313,25 @@ class InspectorsController extends BaseController
         return $categories;
     }
 
+    public function getAllProcessesInspector()
+    {
+        $sql = "SELECT 
+            iidproceso,
+            iidmodulo,
+            txtnombre,
+            txtdescripcion,
+            txtsigla,
+            bactivo AS activo,
+            TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
+            TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
+            FROM comun.cat_proceso
+            WHERE bactivo='t'
+        ";
+        $processes = Db::fetchAll($sql);
+        return $processes;
+    }
+
+
     public function getAllStagesInspector()
     {
         $sql = "SELECT 
@@ -395,6 +366,48 @@ class InspectorsController extends BaseController
         return $stages;
     }
 
+    public function getAllSubStagesInspector()
+    {
+        $this->hasClientAuthorized('veii'); // Verificar si el cliente tiene autorización
+        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        $this->dep($data);exit;
+        if (empty($data->stage)) throw new ValidatorBoomException(422, 'Etapa requerida.'); // Lanzar excepción si el ID está vacío
+        $params = array('iidetapa' => $data->stage); // Parámetros para la consulta
+        $sql = "
+            SELECT
+                i.iidinspector,
+                i.iidpersona,
+                i.iidetapa,
+                ca.txtnombre as txtinspector_etapa,
+                i.txtfolio_inspector,
+                i.iidturno,
+                i.txtcomentarios,
+                it.txtnombre as txtinspector_turno,
+                p.txtnombre,
+                p.txtapepat,
+                p.txtapemat,
+                p.txtrfc,
+                p.txtcurp,
+                p.txtine,
+                i.iidinspector_categoria,
+                ic.txtnombre as txtinspector_categoria,
+                i.dvigencia,
+                i.dfecha_alta,
+                i.dfecha_baja,
+                i.bactivo as activo,
+                TO_CHAR(i.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
+                TO_CHAR(i.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
+            FROM inspeccion.tbl_inspector i
+            JOIN persona.tbl_persona p ON i.iidpersona = p.iidpersona
+            JOIN inspeccion.cat_turno it ON it.iidturno = i.iidturno
+            JOIN comun.cat_etapa ca ON ca.iidetapa = i.iidetapa
+            JOIN inspeccion.cat_inspector_categoria ic ON ic.iidinspector_categoria = i.iidinspector_categoria
+            WHERE iidinspector=:id
+        ";
+        $inspector = Db::fetchOne($sql, $params);
+        return $inspector; // Devolver información del inspector
+    }
+
     public function getAllShiftsInspector()
     {
         $sql = "SELECT 
@@ -418,18 +431,6 @@ class InspectorsController extends BaseController
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         if (empty($data->id)) throw new ValidatorBoomException(422, 'Id requerido.'); // Lanzar excepción si el ID está vacío
         $params = array('id' => $data->id); // Parámetros para la consulta
-
-        // Obtener información del inspector
-        // $sql = 'SELECT 
-        //         id, 
-        //         nombre, 
-        //         descripcion, 
-        //         activo,
-        //         TO_CHAR(fecha_creacion, \'DD-MM-YYYY HH24:MI:SS\') AS fecha_creacion,
-        //         TO_CHAR(fecha_modificacion, \'DD-MM-YYYY HH24:MI:SS\') AS fecha_modificacion
-        //         FROM usuario.inspector
-        //         WHERE id=:id
-        // ';
         $sql = "
             SELECT
                 i.iidinspector,

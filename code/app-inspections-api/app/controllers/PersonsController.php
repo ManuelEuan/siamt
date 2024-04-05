@@ -187,17 +187,6 @@ class PersonsController extends BaseController
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         // var_dump($data);exit;
         $params = array('iidpersona' => $data);
-        // $sql = "SELECT 
-        //     iidtelefono,
-        //     ilada,
-        //     inumero,
-        //     iidtelefono_tipo,
-        //     bactivo AS activo,
-        //     TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-        //     TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-        //     FROM persona.tbl_telefono
-        //     WHERE bactivo='t' AND iidpersona = :iidpersona
-        // ";
         $sql = "SELECT
                     tbl_persona_telefono.iidpersona_telefono,
                     tbl_persona_telefono.iidpersona,
@@ -267,6 +256,53 @@ class PersonsController extends BaseController
         $iiddpersona = $this->insert('tbl_persona', $params);
         Db::commit(); // Confirmar transacción en la base de datos
         return array('message' => 'La persona ha sido creada.', 'iidpersona' => $iiddpersona); // Devolver mensaje de éxito
+    }
+
+    // // Método para actualizar un persona
+    public function updatePerson()
+    {
+        $this->hasClientAuthorized('edii'); // Verificar si el cliente tiene autorización
+        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        $this->validRequiredData($data, 'person'); // Validar datos requeridos
+        Db::begin(); // Iniciar transacción en la base de datos
+
+        // Actualización de persona
+        $sql = 'UPDATE persona.tbl_persona SET 
+                    bfisica=:bfisica,
+                    txtnombre=:txtnombre,
+                    txtapemat=:txtapemat,
+                    dfecha_nacimiento=:dfecha_nacimiento,
+                    iidestado_nacimiento=:iidestado_nacimiento,
+                    -- txtrfc=:txtrfc,
+                    -- txtcurp=:txtcurp,
+                    txtine=:txtine,
+                    iidestado_civil=:iidestado_civil,
+                    iidsexo=:iidsexo,
+                    txtcorreo=:txtcorreo,
+                    bactivo=:bactivo,
+                    dtfecha_modificacion=:dtfecha_modificacion
+                WHERE iidpersona=:iidpersona
+            ';
+        $params = array(
+            'bfisica'  => $data->bfisica,
+            'txtnombre' => $data->txtnombre,
+            'txtapemat' => $data->txtapemat,
+            'dfecha_nacimiento' => $data->dfecha_nacimiento,
+            'iidestado_nacimiento' => $data->iidestado_nacimiento,
+            'txtine' => $data->txtine,
+            'iidestado_civil' => $data->iidestado_civil,
+            'iidsexo' => $data->iidsexo,
+            'txtcorreo' => $data->txtcorreo,
+            'bactivo' => $data->activo ? 't' : 'f',
+            'dtfecha_modificacion' => date('Y-m-d H:i:s'), // Formato de fecha correcto
+            'iidpersona'      => $data->iidpersona,
+        ); // Parámetros para la actualización de la persona
+        // $this->dep($data);exit;
+
+        Db::execute($sql, $params); // Ejecutar actualización de la persona en la base de datos
+        Db::commit(); // Confirmar transacción en la base de datos
+
+        return array('message' => 'La persona ha sido actualizada.'); // Devolver mensaje de éxito
     }
 
     public function createDirection()
@@ -389,6 +425,38 @@ class PersonsController extends BaseController
         $data->phone->iidtelefono = $iidtelefono;
 
         return array('message' => 'El teléfono ha sido creado.', 'data' => $data); // Devolver mensaje de éxito
+    }
+
+    public function updatePhone()
+    {
+        $this->hasClientAuthorized('edii'); // Verificar si el cliente tiene autorización
+        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        $this->validRequiredData($data->phone, 'phone'); // Validar datos requeridos
+        Db::begin(); // Iniciar transacción en la base de datos
+
+        // Actualización de telefono
+        $sql = 'UPDATE persona.tbl_telefono SET 
+                    ilada=:ilada,
+                    inumero=:inumero,
+                    iidtelefono_tipo=:iidtelefono_tipo,
+                    bactivo=:bactivo,
+                    dtfecha_modificacion=:dtfecha_modificacion
+                WHERE iidtelefono=:iidtelefono
+            ';
+        $params = array(
+            'ilada'  => $data->phone->ilada,
+            'inumero' => $data->phone->inumero,
+            'iidtelefono_tipo' => $data->phone->iidtelefono_tipo,
+            'bactivo' => $data->phone->activo ? 't' : 'f',
+            'dtfecha_modificacion' => date('Y-m-d H:i:s'), // Formato de fecha correcto
+            'iidtelefono'      => $data->phone->iidtelefono,
+        ); 
+        // Parámetros para la actualización del teléfono
+        // $this->dep($data);exit;
+        Db::execute($sql, $params); // Ejecutar actualización del teléfono en la base de datos
+        Db::commit(); // Confirmar transacción en la base de datos
+
+        return array('message' => 'El teléfono ha sido actualizado.'); // Devolver mensaje de éxito
     }
 
     public function updateCurrentAddress()
@@ -524,10 +592,10 @@ class PersonsController extends BaseController
             'iiddireccion' => $data->direction->iiddireccion,
 
         );
-        
+
         Db::execute($sql, $params);
         Db::commit();
-        
+
         return array('message' => 'La dirección ha sido actualizada.'); // Devolver mensaje de éxito
     }
 }

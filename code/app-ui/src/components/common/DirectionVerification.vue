@@ -333,17 +333,6 @@ export default {
                     this.showSuccess(response.message);
 
                 }
-                // if (!this.direction.iiddireccion) {
-                //     let response = await services.inspections().createDirection(data);
-                //     console.log('response para create')
-                //     console.log(response)
-                //     this.showSuccess(response.message);
-                // } else {
-                //     let response = await services.inspections().updateDirection(data);
-                //     console.log('response para update')
-                //     console.log(response)
-                //     this.showSuccess(response.message);
-                // }
                 this.newDirection = false
                 await this.loadDirectionsTable();
                 // this.$emit('direction-created', 'Esta es la dirección creada: ', this.direction);

@@ -11,7 +11,6 @@
                 <v-col cols="12" md="3" v-if="showFields">
                     <v-btn depressed color="primary" @click="showPersonPhones = true, showFields= false">
                         Ver teléfonos
-                        {{ phone.iidtelefono }}
                     </v-btn>
                 </v-col>
                 <v-col cols="12" md="3" v-if="showFields">
@@ -20,8 +19,8 @@
                     </v-btn>
                 </v-col>
             </div>
-            Telefono en : {{ newPhone ? 'Modo nuevo' : 'modo editar' }}
-            Cant: {{ Object.keys(personaPhones).length }}
+            <!-- Telefono en : {{ newPhone ? 'Modo nuevo' : 'modo editar' }}
+            Cant: {{ Object.keys(personaPhones).length }} -->
             <v-form v-model="phoneValidation" v-if="showFields">
                 <v-row>
                     <v-col cols="12" md="4">
