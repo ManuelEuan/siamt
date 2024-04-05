@@ -10,7 +10,7 @@ use App\Library\Http\Exceptions\ValidatorBoomException;
 
 class InspectorsController extends BaseController
 {
-   
+
 
     private function hasClientAuthorized($permission)
     {
@@ -69,8 +69,7 @@ class InspectorsController extends BaseController
                         JOIN comun.cat_subetapa cas ON cas.iidsubetapa = i.iidsubetapa
                         JOIN inspeccion.cat_inspector_categoria ic ON ic.iidinspector_categoria = i.iidinspector_categoria
                     )
-            "
-        ; 
+            ";
         $params = array();
         if ($data->filters) { // Aplicar filtros si están presentes en la solicitud
             list($sql2, $params2) = $this->filterInspectors($data->filters); // Aplicar filtros
@@ -152,25 +151,25 @@ class InspectorsController extends BaseController
             $column = $sortBy[$i]; // Obtener columna para ordenamiento
 
             switch ($column) { // Según la columna
-                    case 'txtnombre': // Ordenar por nombre completo
-                        $sql .= 'inspectores.txtnombre '; // Agregar columna de nombre completo
-                        break;
-                    case 'txtfolio_inspector': // Ordenar por usuario
-                        $sql .= 'inspectores.txtfolio_inspector '; // Agregar columna de usuario
-                        break;
-                  
-                    case 'txtinspector_etapa': // Ordenar por correo
-                        $sql .= 'inspectores.txtinspector_etapa '; // Agregar columna de correo
-                        break;
-                    case 'txtinspector_turno': // Ordenar por correo
-                        $sql .= 'inspectores.txtinspector_turno '; // Agregar columna de correo
-                        break;
-                    case 'txtinspector_categoria': // Ordenar por correo
-                        $sql .= 'inspectores.txtinspector_categoria '; // Agregar columna de correo
-                        break;
-                    case 'activo': // Ordenar por estado activo
-                        $sql .= 'inspectores.activo '; // Agregar columna de estado activo
-                        break;
+                case 'txtnombre': // Ordenar por nombre completo
+                    $sql .= 'inspectores.txtnombre '; // Agregar columna de nombre completo
+                    break;
+                case 'txtfolio_inspector': // Ordenar por usuario
+                    $sql .= 'inspectores.txtfolio_inspector '; // Agregar columna de usuario
+                    break;
+
+                case 'txtinspector_etapa': // Ordenar por correo
+                    $sql .= 'inspectores.txtinspector_etapa '; // Agregar columna de correo
+                    break;
+                case 'txtinspector_turno': // Ordenar por correo
+                    $sql .= 'inspectores.txtinspector_turno '; // Agregar columna de correo
+                    break;
+                case 'txtinspector_categoria': // Ordenar por correo
+                    $sql .= 'inspectores.txtinspector_categoria '; // Agregar columna de correo
+                    break;
+                case 'activo': // Ordenar por estado activo
+                    $sql .= 'inspectores.activo '; // Agregar columna de estado activo
+                    break;
                 default: // Si no se reconoce la columna
                     $sql .= 'inspectores.iidinspector '; // Ordenar por ID
             }
@@ -182,53 +181,169 @@ class InspectorsController extends BaseController
         return $sql; // Devolver fragmento de consulta para ordenamiento
     }
 
-    public function getPersonByCurp()
+    // public function getPersonByCurp()
+    // {
+    //     $data =  $this->request->getJsonRawBody();
+
+    //     $sql = "SELECT 
+    //             p.iidpersona,
+    //             p.bfisica,
+    //             p.txtnombre,
+    //             p.txtapepat,
+    //             p.txtapemat,
+    //             p.txtrfc,
+    //             p.txtine,
+    //             p.txtcurp,
+    //             p.txtcorreo,
+    //             p.iidestado_civil,
+    //             p.iidsexo,
+    //             ec.txtnombre AS txtestado_civil,
+    //             s.txtnombre AS txtsexo,
+    //             p.bactivo AS activo,
+    //             TO_CHAR(p.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
+    //             TO_CHAR(p.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
+    //         FROM persona.tbl_persona p 
+    //         LEFT JOIN persona.cat_estado_civil ec ON p.iidestado_civil = ec.iidestado_civil
+    //         LEFT JOIN persona.cat_sexo s ON p.iidsexo = s.iidsexo
+    //         WHERE p.txtcurp=:curp
+    //     ";
+    //     $params = array('curp' => $data->curp);
+    //     $persona = Db::fetchOne($sql, $params);
+
+    //     if(!$persona){
+    //         return 0;
+    //     }
+    //     $sql2 = "SELECT iidinspector, iidinspector, txtfolio_inspector
+    //         FROM inspeccion.tbl_inspector
+    //         WHERE iidpersona=:iidpersona
+    //     ";
+    //     $params2 = array('iidpersona' => $persona->iidpersona);
+    //     $inspector = Db::fetchOne($sql2, $params2);
+
+    //     if(!$inspector){
+    //         $persona->isInspector = false;
+    //     }else{
+    //         $persona->iidinspector = $inspector->iidinspector;
+    //         $persona->isInspector = true;
+    //     }
+    //     return $persona;
+    // }
+
+    public function getPersonByDinamycSearch()
     {
         $data =  $this->request->getJsonRawBody();
+        $typeSearch = $data->data->typeSearch;
+        $dataSearch = $data->data->dataSearch;
 
         $sql = "SELECT 
-                p.iidpersona,
-                p.bfisica,
-                p.txtnombre,
-                p.txtapepat,
-                p.txtapemat,
-                p.txtrfc,
-                p.txtine,
-                p.txtcurp,
-                p.txtcorreo,
-                p.iidestado_civil,
-                p.iidsexo,
-                ec.txtnombre AS txtestado_civil,
-                s.txtnombre AS txtsexo,
-                p.bactivo AS activo,
-                TO_CHAR(p.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-                TO_CHAR(p.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-            FROM persona.tbl_persona p 
-            LEFT JOIN persona.cat_estado_civil ec ON p.iidestado_civil = ec.iidestado_civil
-            LEFT JOIN persona.cat_sexo s ON p.iidsexo = s.iidsexo
-            WHERE p.txtcurp=:curp
-        ";
-        $params = array('curp' => $data->curp);
-        $persona = Db::fetchOne($sql, $params);
+            p.iidpersona,
+            p.bfisica,
+            p.txtnombre,
+            p.txtapepat,
+            p.txtapemat,
+            p.txtrfc,
+            p.txtine,
+            p.txtcurp,
+            p.txtcorreo,
+            p.iidestado_civil,
+            p.iidsexo,
+            p.dfecha_nacimiento,
+            ec.txtnombre AS txtestado_civil,
+            s.txtnombre AS txtsexo,
+            p.bactivo AS activo,
+            TO_CHAR(p.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
+            TO_CHAR(p.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
+        FROM persona.tbl_persona p 
+        LEFT JOIN persona.cat_estado_civil ec ON p.iidestado_civil = ec.iidestado_civil
+        LEFT JOIN persona.cat_sexo s ON p.iidsexo = s.iidsexo
+    ";
 
-        if(!$persona){
+        switch ($typeSearch) {
+            case 'NOMBRE':
+                // Se divide el valor de búsqueda en palabras individuales
+                $searchTerms = explode(' ', $dataSearch);
+
+                // Se inicializa un array para almacenar las condiciones de búsqueda
+                $conditions = [];
+
+                // Se construyen las condiciones para cada palabra de búsqueda
+                foreach ($searchTerms as $term) {
+                    if ($term != "") {
+
+                        $dataSearch = '%' . $term . '%';
+                        // Se agregan las condiciones para cada columna relevante
+                        $conditions[] = '(UPPER(p.txtnombre) ILIKE UPPER(:dataSearch) 
+                                     OR UPPER(p.txtapepat) ILIKE UPPER(:dataSearch) 
+                                     OR UPPER(p.txtapemat) ILIKE UPPER(:dataSearch))';
+                        $where = ' WHERE ' . implode(' OR ', $conditions);
+                    }
+                }
+
+                // Se unen las condiciones con OR para que cualquiera de ellas coincida
+                break;
+            case 'CURP':
+                $where = ' WHERE p.txtcurp=:dataSearch';
+                break;
+            case 'RFC':
+                $where = ' WHERE p.txtrfc=:dataSearch';
+                break;
+            default:
+                // Si el tipo de búsqueda no coincide con ninguno de los casos anteriores, usar la búsqueda por RFC como predeterminada
+                $where = ' WHERE p.txtrfc=:dataSearch';
+                break;
+        }
+
+        $sqlComplete = $sql . $where;
+
+        // $this->dep($sqlComplete);
+        // exit;
+        $params = array('dataSearch' => $dataSearch);
+        // $this->dep($sqlComplete);
+        // exit;
+        if ($typeSearch == 'CURP' || $typeSearch == 'RFC') {
+            $personas[] = Db::fetchOne($sqlComplete, $params);
+        } else {
+            $personas = Db::fetchAll($sqlComplete, $params);
+        }
+
+        // $this->dep(count($personas));
+
+        // SI NO EXISTE LA PERSONAs SE RETORNA VACÍO
+        if (!$personas) {
             return 0;
         }
-        $sql2 = "SELECT iidinspector, iidinspector, txtfolio_inspector
-            FROM inspeccion.tbl_inspector
-            WHERE iidpersona=:iidpersona
-        ";
-        $params2 = array('iidpersona' => $persona->iidpersona);
-        $inspector = Db::fetchOne($sql2, $params2);
 
-        if(!$inspector){
-            $persona->isInspector = false;
-        }else{
-            $persona->iidinspector = $inspector->iidinspector;
-            $persona->isInspector = true;
+        // SI EXISTE PERSONAs ÚNICA SE RETORNAN LOS DATOS ESPECÍFICOS
+        if (count($personas) > 0) {
+            foreach ($personas as $key => $persona) {
+                // Consulta adicional para obtener información de inspección
+                $sql2 = "SELECT iidinspector, iidinspector, txtfolio_inspector
+                    FROM inspeccion.tbl_inspector
+                    WHERE iidpersona=:iidpersona
+                ";
+    
+                $params2 = array('iidpersona' => $persona->iidpersona);
+                $inspector = Db::fetchOne($sql2, $params2);
+    
+                if (!$inspector) {
+                    $persona->isInspector = false;
+                } else {
+                    $persona->iidinspector = $inspector->iidinspector;
+                    $persona->isInspector = true;
+                }
+            }
         }
-        return $persona;
+        // $this->dep($personas);
+        // exit;
+        return $personas;
+        // elseif((count($persona) > 1)){
+
+        // }
+
+        // SI EXISTEN MUCHAS PERSONAS QUE COINCIDEN CON LA BÚSQUEDA SE RETORNAN TODAS
+        // return $persona;
     }
+
 
     public function getAllCategoriesInspector()
     {
@@ -345,8 +460,7 @@ class InspectorsController extends BaseController
             JOIN comun.cat_etapa ca ON ca.iidetapa = i.iidetapa
             JOIN inspeccion.cat_inspector_categoria ic ON ic.iidinspector_categoria = i.iidinspector_categoria
             WHERE iidinspector=:id
-        "
-        ; 
+        ";
         $inspector = Db::fetchOne($sql, $params);
         return $inspector; // Devolver información del inspector
     }
@@ -359,7 +473,7 @@ class InspectorsController extends BaseController
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         $this->validRequiredData($data); // Validar datos requeridos
         Db::begin(); // Iniciar transacción en la base de datos
-        
+
         $params = array(
             'iidpersona'  => $data->iidpersona,
             'iidturno' => $data->iidturno,
@@ -372,7 +486,7 @@ class InspectorsController extends BaseController
             'dfecha_baja' => $data->dfecha_baja !== '' ? $data->dfecha_baja : null,
             'txtcomentarios' => $data->txtcomentarios,
         );
-        
+
         $this->insert('tbl_inspector', $params);
 
         Db::commit(); // Confirmar transacción en la base de datos
@@ -415,10 +529,10 @@ class InspectorsController extends BaseController
             'dtfecha_modificacion' => date('Y-m-d H:i:s'), // Formato de fecha correcto
             'iidinspector'      => $data->iidinspector,
         ); // Parámetros para la actualización del inspector
-        
+
         Db::execute($sql, $params); // Ejecutar actualización del inspector en la base de datos
         Db::commit(); // Confirmar transacción en la base de datos
-        
+
         return array('message' => 'El inspector ha sido actualizado.'); // Devolver mensaje de éxito
     }
 
@@ -465,7 +579,7 @@ class InspectorsController extends BaseController
         $message = 'Faltan valores requeridos.';
 
         if (!empty($missingKeys)) throw new ValidatorBoomException(422, $message);
-    
+
         foreach ($data as $key => $value) {
             if (!in_array($key, $requiredKeys)) continue;
             // Validar tipos de valores según la clave

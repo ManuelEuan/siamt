@@ -3,14 +3,19 @@
         <v-card-text>
             <div class="row d-flex justify-space-around align-center mx-auto">
                 <p class="col-md-6 my-0">Direcciones</p>
-                <v-col cols="12" md="6" v-if="!newDirection">
+                <v-col cols="12" md="3" v-if="!newDirection">
                     <v-btn depressed color="primary" @click="newDirection = true">
                         Nueva dirección
                     </v-btn>
                 </v-col>
                 <v-col cols="12" md="3" v-if="newDirection">
-                    <v-btn depressed color="secondary" @click="codePostal = 0, newDirection = false">
+                    <v-btn depressed color="primary" @click="codePostal = 0, newDirection = false">
                         Ver direcciones
+                    </v-btn>
+                </v-col>
+                <v-col cols="12" md="3" v-if="newDirection">
+                    <v-btn depressed color="primary" :disabled="!directionValidation" @click="saveDirection()">
+                       Agregar dirección
                     </v-btn>
                 </v-col>
             </div>
@@ -170,12 +175,6 @@
                 </v-row>
             </v-form>
         </v-card-text>
-        <v-card-actions v-if="newDirection">
-            <v-spacer />
-            <v-btn color="error" text @click="dialog = false"> Cerrar </v-btn>
-            <v-btn color="primary" text :disabled="!directionValidation" @click="saveDirection()"> Guardar
-            </v-btn>
-        </v-card-actions>
         <!-- DIALOG ACTUALIZAR DIRECCION ACTUAL -->
         <template>
             <v-dialog v-model="dialogNewCurrentAddress" transition="dialog-bottom-transition" persistent
@@ -446,6 +445,12 @@ export default {
                 this.getMunicipalityAndEntityByPostalCode()
             }
         },
+        'directionValidation': function (){
+        // directionValidation(newValidation) {
+            console.log('validación dirección')
+            console.log(this.directionValidation)
+            this.$emit('direction-validation', this.directionValidation);
+        }
     },
     async mounted() {
         await this.getCodePostals();

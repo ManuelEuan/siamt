@@ -21,6 +21,12 @@ export default class InspectionsService extends ApiService {
     return await this.post("/inspectors/getPersonByCurp", JSON.stringify(curp));
   }
 
+  async getPersonByDinamycSearch(data) {
+    console.log('data search')
+    console.log(data)
+    return await this.post("/inspectors/getPersonByDinamycSearch", JSON.stringify(data));
+  }
+
   async getAllCategoriesInspector() {
     console.log('suhdfiehfdiejofjmeowfjmowejfopw')
     return await this.get("/inspectors/getAllCategoriesInspector");
@@ -54,7 +60,11 @@ export default class InspectionsService extends ApiService {
     return await this.get("/territory/getAllPostalCodes");
   }
 
+  async getAllLadas() {
+    return await this.get("/persons/getAllLadas");
+  }
 
+  
 
   async getMunicipalityAndEntityByPostalCode(data) {
     return await this.post("/territory/getMunicipalityAndEntityByPostalCode", JSON.stringify(data));

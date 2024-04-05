@@ -46,6 +46,22 @@ class PersonsController extends BaseController
         return $zones;
     }
 
+    public function getAllLadas()
+    {
+        $sql = "SELECT 
+            iidlada,
+            txtnombre,
+            txtdescripcion,
+            bactivo AS activo,
+            TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
+            TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
+            FROM persona.cat_lada
+            WHERE bactivo='t'
+        ";
+        $ladas = Db::fetchAll($sql);
+        return $ladas;
+    }
+
     public function getAllCivilStatusPerson()
     {
         $sql = "SELECT 
@@ -227,8 +243,8 @@ class PersonsController extends BaseController
         $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
 
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        $this->validRequiredData($data, 'person'); // Validar datos requeridos
         // var_dump($data);exit;
+        $this->validRequiredData($data, 'person'); // Validar datos requeridos
         Db::begin(); // Iniciar transacción en la base de datos
 
         $params = array(
@@ -248,9 +264,9 @@ class PersonsController extends BaseController
             // 'dtfecha_modificacion' => $data->dtfecha_modificacion !== '' ? $data->dtfecha_modificacion : date("Y/m/d H:i:s"),
         );
 
-        $this->insert('tbl_persona', $params);
+        $iiddpersona = $this->insert('tbl_persona', $params);
         Db::commit(); // Confirmar transacción en la base de datos
-        return array('message' => 'La persona ha sido creada.'); // Devolver mensaje de éxito
+        return array('message' => 'La persona ha sido creada.', 'iidpersona' => $iiddpersona); // Devolver mensaje de éxito
     }
 
     public function createDirection()
@@ -327,7 +343,7 @@ class PersonsController extends BaseController
             throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona');
         }
         $iidpersona = $data->iidpersona;
-        var_dump($data);exit;
+        // var_dump($data);exit;
 
         // if (empty($data->iidpersona)) throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona');
         $this->validRequiredData($data->phone, 'phone'); // Validar datos requeridos
@@ -339,7 +355,7 @@ class PersonsController extends BaseController
             'ilada' => $data->phone->ilada,
             'inumero' => $data->phone->inumero,
             'iidtelefono_tipo' => $data->phone->iidtelefono_tipo,
-            'inumero_exterior' => $data->phone->inumero_exterior,
+            'inumero' => $data->phone->inumero,
         );
 
         $iidtelefono = $this->insert('tbl_telefono', $params);
@@ -449,7 +465,6 @@ class PersonsController extends BaseController
             // Validar tipos de valores según la clave
             switch ($key) {
                 case 'iidcolonia':
-                case 'inumero':
                 case 'iidtelefono_tipo':
                     $message = "Tipo de valor incorrectos en $key.";
                     if (!is_int($value)) throw new ValidatorBoomException(422, $message);

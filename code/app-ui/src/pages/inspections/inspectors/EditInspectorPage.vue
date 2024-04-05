@@ -82,18 +82,19 @@
                                 </v-form>
                             </v-card-text>
                         </v-tab-item>
-
+                        Persona Encontrada: {{ personaEncontrada }} 
+                        Persona Disponible: {{ personaDisponible }}
                         <v-card-actions>
                             <v-spacer />
                             <v-btn color="error" text @click="exitWindow()"> Cerrar </v-btn>
-                            <v-btn color="primary" text :disabled="!valid" @click="saveInspector()"> Guardar </v-btn>
+                            <v-btn color="primary" text :disabled="!personaEncontrada || !personaDisponible" @click="saveInspector()"> Guardarss </v-btn>
                         </v-card-actions>
+
                     </v-card>
                 </v-tabs-items>
             </v-col>
         </v-row>
         <modal-create-person ref="ModalCreatePerson" :isNewPerson="false" @person-created="handlefromCreatePerson" />
-
     </v-container>
 </template>
 
@@ -197,7 +198,13 @@ export default {
                 const { id } = this.$route.params;
                 this.inspector = { ...await services.inspections().getInspectorInfo({ id }) };
                 let curp = this.inspector.txtcurp;
-                this.persona = { ...await services.inspections().getPersonByCurp({ curp }) };
+                // this.persona = { ...await services.inspections().getPersonByCurp({ curp }) };
+                let data = {
+                    typeSearch: 'CURP',
+                    dataSearch: curp
+                }
+                let response = { ...await services.inspections().getPersonByDinamycSearch({ data }) };
+                this.persona = response[0]
                 let nombreCompleto = '';
                 if (this.persona.txtnombre) {
                     nombreCompleto += this.persona.txtnombre + ' ';

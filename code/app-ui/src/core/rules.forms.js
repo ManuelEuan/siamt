@@ -46,4 +46,8 @@ export default {
 		const regex = /^([-+]?)([\d]{1,3}(?:\.\d+)?|180(?:\.0+)?)$/;
 		return regex.test(v) || 'Formato de longitud inválido.';
 	},
+	telefono: v => {
+		const regex = /^\d{10}$/;
+		return regex.test(v) || 'Número de teléfono válido requerido.';
+	},
 };
