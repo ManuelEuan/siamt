@@ -200,7 +200,12 @@
             </v-dialog>
         </template>
 
-        <modal-create-person ref="ModalCreatePerson" :isNewPerson="true" @person-created="handlefromCreatePerson" />
+        <modal-create-person    ref="ModalCreatePerson" 
+                                :iidpersona=iidpersona
+                                :curp=curp
+                                :activateModalPerson=activateModalPerson
+                                @person-created="handlefromCreatePerson" 
+        />
     </v-row>
 </template>
 <style>
@@ -224,16 +229,20 @@ export default {
     },
     data() {
         return {
+            // ENVIAR A MODAL DE PERSONAS
+            iidpersona: 0,
+            curp: '',
+            activateModalPerson: true,
+
+            // DATA DEL COMPONENTE
             search: 'CURP',
             nombre: '',
-            curp: '',
             rfc: '',
             nombreCurp: '',
             nombreValido: false,
             curpValida: false,
             rfcValida: false,
             nombreCurpValido: false,
-
             dialogOpen: false,
             dialogCurpChanged: false,
             dialogInspector: false,
@@ -275,16 +284,15 @@ export default {
             this.dialogOpen = false
             this.dialog = true;
             console.log('se mostrará el dialog persona 1')
-            console.log(iidpersona) //0
-            console.log(this.curp) //CAUM990224HYNRCC06
-            this.$refs.ModalCreatePerson.$data.persona.iidpersona = iidpersona;
-            this.$refs.ModalCreatePerson.$data.persona.txtcurp = this.curp;
+            console.log(iidpersona)
+            console.log(this.curp)
+            console.log('aqii')
+            this.iidpersona = iidpersona
             if (iidpersona == 0) {
-                this.$refs.ModalCreatePerson.$data.dialog = true;
+                // console.log(this.$refs);
+                this.$refs.modalCreatePerson.dialog = true
+                // this.activateModalPerson = true
             }
-            // else{
-            // this.$refs.ModalCreatePerson.$data.persona.iidpersona = iidpersona;
-            // }
         },
         async verifyCurp(needModal) {
             this.dialogCurpChanged = false;
@@ -318,19 +326,15 @@ export default {
                     }
                 }
                 response = await services.inspections().getPersonByDinamycSearch({ data });
-                console.log(response)
-                console.log(response.length)
-                console.log(response.length == 1)
-                console.log(typeof (response))
-                console.log(response[0] == false)
+           
                 // SI NO EXISTE SE AGREGA LA PERSONA
                 if (response[0] == false || !response) {
                     console.log('CURP A VERIFICAR 5' + curp)
                     console.log('PERSONA NO ENCONTRADA')
                     this.personaEncontrada = false
                     this.personaDisponible = true
-                    this.$refs.ModalCreatePerson.$data.persona.iidpersona = 0;
-                    this.$refs.ModalCreatePerson.$data.persona.txtcurp = this.persona.txtcurp;
+                    this.iidpersona = 0
+                    this.curp = this.persona.txtcurp
                     this.$emit('person-info', false, true, this.persona, this.persona.txtcurp, this.persona.isInspector);
                     this.dialogOpen = true;
                 } else if (typeof (response) === 'object' && response.length > 1) {
@@ -357,11 +361,15 @@ export default {
                         this.nombreCompleto = nombreCompleto.trim();
                         this.curpVerificada = this.persona.txtcurp
                         this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.isInspector);
-
-                        this.$refs.ModalCreatePerson.$data.dialog = needModal;
-                        this.$refs.ModalCreatePerson.$data.persona.iidpersona = this.persona.iidpersona;
-                        this.$refs.ModalCreatePerson.$data.persona.txtcurp = this.persona.txtcurp;
+                        console.log('aca entró')
+                        console.log(needModal)
+                        this.$refs.ModalCreatePerson.$data.dialog=needModal
+                        this.activateModalPerson = needModal
+                        this.iidpersona=this.persona.iidpersona;
+                        this.curp = this.persona.txtcurp;
                     } else if (response.isInspector === true) {  // Si la persona ya es inspector mostrará un modal de redirección
+                        console.log('aca entró 2')
+
                         this.personaEncontrada = true
                         this.personaDisponible = false
                         this.persona = { ...response }
@@ -398,10 +406,8 @@ export default {
             this.nombreCompleto = nombreCompleto.trim();
             this.curpVerificada = this.persona.txtcurp
             this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.isInspector);
-
-            // this.$refs.ModalCreatePerson.$data.dialog = needModal;
-            this.$refs.ModalCreatePerson.$data.persona.iidpersona = this.persona.iidpersona;
-            this.$refs.ModalCreatePerson.$data.persona.txtcurp = this.persona.txtcurp;
+            this.iidpersona = this.persona.iidpersona;
+            this.txtcurp = this.persona.txtcurp;
             this.dialogPeopleFounds = false
 
         },

@@ -321,10 +321,11 @@ export default {
             this.dialogOpen = false
             this.dialog = true;
             if(iidpersona!=0){
-                this.$refs.ModalCreatePerson.$data.persona.iidpersona = this.persona.iidpersona;
+                this.$refs.ModalCreatePerson.iidpersona = this.persona.iidpersona;
+                this.$refs.ModalCreatePerson.dialog = true
             }
-            this.$refs.ModalCreatePerson.$data.persona.txtcurp = this.persona.txtcurp;
-            this.$refs.ModalCreatePerson.$data.dialog = true;
+            this.$refs.ModalCreatePerson.curp = this.persona.txtcurp;
+            // this.$refs.ModalCreatePerson.dialog = true;
         },
         handlefromCreatePerson(){
             console.log('retorno del modal person')

@@ -11,11 +11,11 @@
                             Datos Generales
                             <v-icon> mdi-clipboard-text </v-icon>
                         </v-tab>
-                        <v-tab href="#direccionestab" v-if="persona.iidpersona">
+                        <v-tab href="#direccionestab" v-if="iidpersona">
                             Dirección
                             <v-icon> mdi-card-account-details </v-icon>
                         </v-tab>
-                        <!-- <v-tab href="#telefonostab" v-if="persona.iidpersona"> -->
+                        <!-- <v-tab href="#telefonostab" v-if="iidpersona"> -->
                         <v-tab href="#telefonostab">
                             Telefono
                             <v-icon> mdi-card-account-details </v-icon>
@@ -28,34 +28,34 @@
                     <v-tabs-items v-model="tab">
                         <v-card flat>
                             <v-tab-item :key="1" value="generaltab" class="py-1">
-                                <general-person-data-verification :iidpersona="persona.iidpersona"
-                                    :txtcurp="persona.txtcurp"
+                                <general-person-data-verification :iidpersona="iidpersona"
+                                    :txtcurp="curp"
                                     @general-person-data-validation="handleFromGeneralPersonDataVerification"
                                     v-model="generalPersonDataValidation"></general-person-data-verification>
                             </v-tab-item>
                             <v-tab-item :key="2" value="direccionestab" class="py-1">
-                                <direction-verification :iidpersona="persona.iidpersona"
+                                <direction-verification :iidpersona="iidpersona"
                                     @direction-validation="handleFromDirectionVerification"
                                     v-model="directionValidation"></direction-verification>
                             </v-tab-item>
                             <v-tab-item :key="3" value="telefonostab" class="py-1">
-                                <phone-verification :iidpersona="persona.iidpersona"
+                                <phone-verification :iidpersona="iidpersona"
                                     @phone-validation="handleFromPhoneVerification"
                                     v-model="phoneValidation"></phone-verification>
                             </v-tab-item>
                             <v-tab-item :key="4" value="filestab" class="py-1">
                               
-                                <!-- <phone-verification :iidpersona="persona.iidpersona"
+                                <!-- <phone-verification :iidpersona="iidpersona"
                                     @phone-validation="handleFromPhoneVerification"
                                     v-model="phoneValidation"></phone-verification> -->
                          
                             </v-tab-item>
                         </v-card>
                     </v-tabs-items>
-                    <v-card-actions v-if="tab === 'generaltab' && !persona.iidpersona">
+                    <v-card-actions v-if="tab === 'generaltab' && !iidpersona">
                         <v-spacer />
                         <v-btn color="error" text @click="dialog = false"> Cerrar </v-btn>
-                        <v-btn color="primary" v-if="persona.iidpersona == 0" text
+                        <v-btn color="primary" v-if="iidpersona == 0" text
                             :disabled="!generalPersonDataValidation || !phoneValidation" @click="savePersona()">
                             Guardar (principal)
                         </v-btn>
@@ -85,22 +85,31 @@ export default {
         DirectionVerification,
         PhoneVerification,
     },
+    props: {
+        iidpersona: {
+            type: Number,
+            default: 0 // Valor predeterminado
+        },
+        curp: {
+            type: String,
+            default: '' // Valor predeterminado
+        },
+        activateModal: {
+            type: Boolean,
+            default: true,
+        }
+    },
     data() {
         return {
+            newRegister: true,
             tab: "generaltab",
             dataPerson: {},
             dataPhone: '',
             files: [],
-            modeEditPhone: false,
             generalPersonDataValidation: false, // Variable para almacenar la validación de datos generales
             directionValidation: false, // Variable para almacenar la validación de la dirección
             phoneValidation: false, // Variable para almacenar la validación del teléfono
             dialog: false,
-            showDialog: false,
-            persona: {
-                iidpersona: 0,
-                txtcurp: '',
-            }
         }
     },
     computed: {
@@ -117,7 +126,7 @@ export default {
             console.log(this.$parent.personaEncontrada = true)
 
             try {
-                if (this.persona.iidpersona != 0) {
+                if (this.iidpersona != 0) {
                     console.log('se va a editar ')
                     // let { message } = await services.inspections().updatePerson(this.persona);
                     // this.showSuccess(message);
@@ -141,7 +150,7 @@ export default {
 
                 }
             } catch (error) {
-                const message = 'Error al guardar persona.';
+                const message = 'Error al guardar ';
                 this.showError({ message, error });
             }
         },
@@ -159,13 +168,15 @@ export default {
         }
     },
     watch: {
-        'dataPhone': function () {
-            if (this.dataPhone.dataPhone.iidpersona_telefono) {
-                this.modeEditPhone = true
-            } else {
-                this.modeEditPhone = false
+        'iidpersona': function(){
+            if(!this.iidpersona){
+                this.newRegister = false
             }
         },
+        'activateModal': function(){
+            this.dialog = this.activateModal;
+        }
+      
     }
 
 }
