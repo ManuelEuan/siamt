@@ -176,34 +176,41 @@ export default {
                 } else {
                     console.log('se va a crear')
                     console.log(this.dataPerson)
-                    let responsePerson = await services.inspections().createPerson(this.dataPerson);
+                    let all = {
+                        person: this.dataPerson,
+                        phone: this.dataPhone,
+                        direction: this.dataDirection,
+                    }
+                    let responsePerson = await services.inspections().createPerson(all);
                     console.log('responsePerson create')
                     console.log(responsePerson)
-                    let dataPhone = {
-                        iidpersona: responsePerson.iidpersona,
-                        phone: this.dataPhone,
-                        bactual: true
-                    }
-                    console.log('dataPhone por enviar');
-                    console.log(dataPhone);
-                    let responsePhone = await services.inspections().createPhone(dataPhone);
-                    console.log('responsePhone create')
-                    console.log(responsePhone.message);
+                    // let dataPhone = {
+                    //     iidpersona: responsePerson.iidpersona,
+                    //     phone: this.dataPhone,
+                    //     bactual: true
+                    // }
+                    // console.log('dataPhone por enviar');
+                    // console.log(dataPhone);
+                    // let responsePhone = await services.inspections().createPhone(dataPhone);
+                    // console.log('responsePhone create')
+                    // console.log(responsePhone.message);
+                    // this.showSuccess(responsePerson.message);
+
+
+                    // let dataDirection = {
+                    //     iidpersona: responsePerson.iidpersona,
+                    //     direction: this.dataDirection,
+                    //     bactual: true
+                    // }
+                    // console.log('dataDirection por enviar');
+                    // console.log(dataDirection);
+                    // let responseDirection = await services.inspections().createDirection(dataDirection);
+                    // console.log('responseDirection create')
+                    // console.log(responseDirection.message);
                     this.showSuccess(responsePerson.message);
+                    this.$emit('person-created', true, this.dataPerson.txtcurp);
 
-
-                    let dataDirection = {
-                        iidpersona: responsePerson.iidpersona,
-                        direction: this.dataDirection,
-                        bactual: true
-                    }
-                    console.log('dataDirection por enviar');
-                    console.log(dataDirection);
-                    let responseDirection = await services.inspections().createDirection(dataDirection);
-                    console.log('responseDirection create')
-                    console.log(responseDirection.message);
-                    this.showSuccess(responsePerson.message);
-
+                    this.dialog=false
                 }
             } catch (error) {
                 const message = 'Error al guardar ';

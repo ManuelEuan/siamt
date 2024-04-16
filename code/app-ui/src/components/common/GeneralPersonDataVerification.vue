@@ -262,10 +262,10 @@ export default {
             }
         },
         'txtcurp': function () {
-            console.log('capa 2 recibiendo este curpppp: ' + this.txtcurp)
+            console.log('capa curp recibiendo: ' + this.txtcurp)
         },
         'dataPerson': function () {
-            console.log('capa 2 recibiendo este curpppp: ' + this.dataPerson)
+            console.log('capa persona data recibiendo: ' + this.dataPerson)
             this.persona = this.dataPerson
         },
     },

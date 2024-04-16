@@ -123,16 +123,16 @@
             </v-row>
         </v-card-text>
 
-        <!-- DIALOG ACTUALIZAR DIRECCION ACTUAL -->
+        <!-- DIALOG ACTUALIZAR TELÉFONO ACTUAL -->
         <template>
             <v-dialog v-model="dialogNewCurrentPhone" transition="dialog-bottom-transition" persistent
                 max-width="600">
                 <v-card>
                     <v-card-title class="text-uppercase primary--text text-h6 py-2">
-                        Actualizar dirección principal
+                        Actualizar teléfono principal
                     </v-card-title>
                     <v-card-text>
-                        Este cambio implica que esta es la nueva dirección actual ¿Desea seguir con el proceso?
+                        Este cambio implica que este es el nuevo teléfono actual ¿Desea seguir con el proceso?
                     </v-card-text>
 
                     <v-card-actions>
@@ -144,23 +144,23 @@
                 </v-card>
             </v-dialog>
         </template>
-        <!-- DIALOG ACTUALIZAR DESACTIVAR DIRECCIÓN -->
+        <!-- DIALOG ACTUALIZAR DESACTIVAR TELÉFONO -->
         <template>
             <v-dialog transition="dialog-top-transition" max-width="600" v-model="dialogDelete">
                 <v-card>
                     <v-card-title class="text-uppercase primary--text text-h6 py-2">
-                        Eliminar dirección
+                        Eliminar teléfono
                     </v-card-title>
                     <v-divider></v-divider>
                     <v-card-text class="text-lowercase text-body-1 py-2">
                         ¿est&aacute;s seguro de que deseas Eliminar este
-                        dirección?
+                        teléfono?
                     </v-card-text>
                     <v-divider></v-divider>
                     <v-card-actions class="py-2">
                         <v-spacer></v-spacer>
                         <v-btn color="error" text @click="dialogDelete = false"> Cerrar </v-btn>
-                        <v-btn color="primary" text @click="deleteDirection">
+                        <v-btn color="primary" text @click="deletePhone">
                             Eliminar
                         </v-btn>
                     </v-card-actions>
@@ -233,7 +233,7 @@ export default {
                 console.log(this.typePhones)
                 this.personaPhones = { ...response }
             } catch (error) {
-                const message = 'Error al cargar las direcciones asociadas.';
+                const message = 'Error al cargar los teléfonos asociadas.';
                 this.showError({ message, error });
             }
         },
@@ -275,7 +275,6 @@ export default {
                 }
                
                 await this.loadPhonesTable();
-                // this.$emit('direction-created', 'Esta es la dirección creada: ', this.direction);
                 this.dialog = false
             } catch (error) {
                 const message = 'Error al guardar phone.';
@@ -321,7 +320,7 @@ export default {
                 this.showError({ message, error });
             }
         },
-        async deleteDirection() {
+        async deletePhone() {
             try {
                 let data = {
                     iidpersona: this.iidpersona,
@@ -361,6 +360,9 @@ export default {
                 this.resetPhone()
             }
         },
+        'iidpersona': function(){
+            this.loadPhonesTable()
+        },
     },
     async mounted() {
         await this.loadPhonesTable();
@@ -369,5 +371,4 @@ export default {
 </script>
 
 <style scoped>
-/* Estilos específicos para el componente DirectionVerification.vue */
 </style>

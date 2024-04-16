@@ -190,6 +190,11 @@ class PersonsController extends BaseController
                     d.txtcruzamiento_uno_letra,
                     d.flatitud,
                     d.flongitud,
+                    d.itipo_direccion,
+                    d.itipo_vialidad,
+                    d.txtavenida_kilometro,
+                    d.txttablaje,
+                    d.txtdescripcion_direccion,
                     c.icodigo_postal,
                     pd.bactual,
                     m.entity,
@@ -257,7 +262,7 @@ class PersonsController extends BaseController
                     persona.cat_telefono_tipo
                 ON 
                     tbl_telefono.iidtelefono_tipo = cat_telefono_tipo.iidtelefono_tipo
-                WHERE tbl_persona_telefono.iidpersona = :iidpersona
+                WHERE tbl_persona_telefono.iidpersona = :iidpersona AND tbl_persona_telefono.bactivo = true
         ";
         // $this->dep($sql);
         // exit;
@@ -273,8 +278,15 @@ class PersonsController extends BaseController
     {
         $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
 
-        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        // var_dump($data);exit;
+        $info = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        // var_dump(isset($info->phone));exit;
+        if(isset($info->person)){
+            $data = $info->person;
+            $phone = $info->phone;
+            $direction = $info->direction;
+        }else{
+            $data = $info;
+        }
         $this->validRequiredData($data, 'person'); // Validar datos requeridos
         Db::begin(); // Iniciar transacción en la base de datos
 
@@ -296,6 +308,18 @@ class PersonsController extends BaseController
         );
 
         $iiddpersona = $this->insert('tbl_persona', $params);
+
+        // $this->dep($phone);exit;
+        if(isset($phone)){
+            $phone->iidpersona = $iiddpersona;
+            $this->createPhone($phone);
+        }
+        if(isset($direction)){
+            $direction->iidpersona = $iiddpersona;
+            $this->createDirection($direction);
+        }
+
+
         Db::commit(); // Confirmar transacción en la base de datos
         return array('message' => 'La persona ha sido creada.', 'iidpersona' => $iiddpersona); // Devolver mensaje de éxito
     }
@@ -347,11 +371,20 @@ class PersonsController extends BaseController
         return array('message' => 'La persona ha sido actualizada.'); // Devolver mensaje de éxito
     }
 
-    public function createDirection()
+    public function createDirection($direction = '')
     {
         $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
 
-        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        if($direction != ''){
+            $data = new \stdClass();
+            $data->direction = $direction;
+            if (is_object($direction) && property_exists($direction, 'iidpersona')) {
+                $data->iidpersona = $direction->iidpersona;
+            }
+        }else{
+            $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        }
+        
         if (empty($data->iidpersona)) {
             throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona para asignar dirección');
         }
@@ -417,11 +450,26 @@ class PersonsController extends BaseController
         return array('message' => 'La dirección ha sido creada.', 'data' => $data); // Devolver mensaje de éxito
     }
 
-    public function createPhone()
+    public function createPhone($phone = '')
     {
         $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
 
-        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        if($phone != ''){
+            $data = new \stdClass();
+            $data->phone = $phone;
+            if (is_object($phone) && property_exists($phone, 'iidpersona')) {
+                $data->iidpersona = $phone->iidpersona;
+            }
+            if (is_object($data->phone) && property_exists($data->phone, 'inumero')) {
+                $data->phone->inumero = intval($data->phone->inumero);
+            }
+        }else{
+            $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+            $data->phone->inumero = intval($data->phone->inumero);
+
+        }
+        // $this->dep($data);exit;
+        // intval($data->phone->inumero);
         // var_dump($data);exit;
         if (empty($data->iidpersona)) {
             throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona para asignar Teléfono');
@@ -476,6 +524,7 @@ class PersonsController extends BaseController
     {
         $this->hasClientAuthorized('edii'); // Verificar si el cliente tiene autorización
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        $data->phone->inumero = intval($data->phone->inumero);
         $this->validRequiredData($data->phone, 'phone'); // Validar datos requeridos
         Db::begin(); // Iniciar transacción en la base de datos
 
@@ -490,7 +539,7 @@ class PersonsController extends BaseController
             ';
         $params = array(
             'ilada'  => $data->phone->ilada,
-            'inumero' => $data->phone->inumero,
+            'inumero' => intval($data->phone->inumero),
             'iidtelefono_tipo' => $data->phone->iidtelefono_tipo,
             'bactivo' => $data->phone->activo ? 't' : 'f',
             'dtfecha_modificacion' => date('Y-m-d H:i:s'), // Formato de fecha correcto
@@ -502,6 +551,24 @@ class PersonsController extends BaseController
         Db::commit(); // Confirmar transacción en la base de datos
 
         return array('message' => 'El teléfono ha sido actualizado.'); // Devolver mensaje de éxito
+    }
+
+    public function updateCurrentPhone()
+    {
+        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        // var_dump($data);exit;
+        if (empty($data->iidpersona) || empty($data->selectedPhone)) {
+            throw new ValidatorBoomException(422, 'Falta de información requerida');
+        }
+        Db::begin(); // Iniciar transacción en la base de datos
+        $paramsOld = array('iidpersona' => $data->iidpersona);
+        $sql = "UPDATE persona.tbl_persona_telefono SET bactual = false WHERE iidpersona = :iidpersona";
+        Db::execute($sql, $paramsOld);
+        $paramsNew = array('iidpersona' => $data->iidpersona, 'iidtelefono' => $data->selectedPhone);
+        $sql = "UPDATE persona.tbl_persona_telefono SET bactual = true WHERE iidpersona = :iidpersona AND iidtelefono = :iidtelefono";
+        Db::execute($sql, $paramsNew);
+        Db::commit(); // Confirmar transacción en la base de datos
+        return array('message' => 'El teléfono ha sido actualizado.', 'data' => $data);
     }
 
     public function updateCurrentAddress()
@@ -537,6 +604,22 @@ class PersonsController extends BaseController
         Db::commit(); // Confirmar transacción en la base de datos
         return array('message' => 'La dirección ha sido eliminada.', 'data' => $data);
     }
+
+        // // Método para eliminar un inspector
+        public function deletePhone()
+        {
+            $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+            // var_dump($data);exit;
+            if (empty($data->iidpersona) || empty($data->selectedPhone)) {
+                throw new ValidatorBoomException(422, 'Falta de información requerida');
+            }
+            Db::begin(); // Iniciar transacción en la base de datos
+            $paramsNew = array('iidpersona' => $data->iidpersona, 'iidtelefono' => $data->selectedPhone);
+            $sql = "UPDATE persona.tbl_persona_telefono SET bactivo = false WHERE iidpersona = :iidpersona AND iidtelefono = :iidtelefono";
+            Db::execute($sql, $paramsNew);
+            Db::commit(); // Confirmar transacción en la base de datos
+            return array('message' => 'El teléfono ha sido eliminado.', 'data' => $data);
+        }
 
     private function insert($table, $params)
     {
@@ -579,6 +662,11 @@ class PersonsController extends BaseController
             // Validar tipos de valores según la clave
             switch ($key) {
                 case 'iidcolonia':
+                case 'inumero':
+                    // var_dump(gettype($key));
+                    $message = "Tipo de valor incorrecto en $key.";
+                    if (!is_int($value)) throw new ValidatorBoomException(422, $message);
+                    break;
                 case 'iidtelefono_tipo':
                     $message = "Tipo de valor incorrectos en $key.";
                     if (!is_int($value)) throw new ValidatorBoomException(422, $message);

@@ -56,8 +56,8 @@ export default class InspectionsService extends ApiService {
     return await this.get("/persons/getAllSexesPerson");
   }
 
-  async createPerson(data) {
-    return await this.post("/persons/new", JSON.stringify(data));
+  async createPerson(info) {
+    return await this.post("/persons/new", JSON.stringify(info));
   }
 
   async updatePerson(data) {
@@ -105,6 +105,12 @@ export default class InspectionsService extends ApiService {
     return await this.post("/persons/getPersonPhones", JSON.stringify(data));
   }
 
+  
+
+  async updateCurrentPhone(data) {
+    return await this.post("/persons/updateCurrentPhone", JSON.stringify(data));
+  }
+
   async updateCurrentAddress(data) {
     return await this.post("/persons/updateCurrentAddress", JSON.stringify(data));
   }
@@ -112,6 +118,11 @@ export default class InspectionsService extends ApiService {
   async deleteAddress(data) {
     return await this.post(`/persons/deleteAddress`, JSON.stringify(data));
   }
+
+  async deletePhone(data) {
+    return await this.post(`/persons/deletePhone`, JSON.stringify(data));
+  }
+  
   
 
   async getAllCivilStatusPerson() {

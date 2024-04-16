@@ -433,6 +433,7 @@ export default {
         },
         handlefromCreatePerson(personCreated, curp) {
             if (personCreated) {
+                console.log(personCreated, curp, 'retorno desde el modal create person')
                 this.curp = curp
                 this.verifyCurp(false)
                 this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, curp);

@@ -1,7 +1,7 @@
 <template>
     <div class="col-md-6">
-        {{modelo}}
-        <v-file-input v-model="files" :color="color" :counter="counter" :label="label" :multiple="multiple"
+        {{ modelo }}
+        <v-file-input v-model="fileData" :color="color" :counter="counter" :label="label" :multiple="multiple"
             :placeholder="placeholder" :prepend-icon="prependIcon" :dense="dense" :outlined="outlined"
             :show-size="showSize" @change="validateFile($event)">
             <template v-slot:selection="{ index, text }">
@@ -10,7 +10,7 @@
                 </v-chip>
 
                 <span v-else-if="index === 2" class="text-overline grey--text text--darken-3 mx-2">
-                    +{{ files.length - 2 }} Archivo
+                    +{{ fileData.length - 2 }} Archivo
                 </span>
             </template>
         </v-file-input>
@@ -22,8 +22,7 @@ export default {
     data() {
         return {
             data: '',
-            file:[],
-            files: [],
+            fileData: [], // Cambiar el nombre de la propiedad a fileData
         }
     },
     props: {
@@ -39,10 +38,6 @@ export default {
             type: String,
             default: '',
         },
-    //   files: {
-    //     type: Array,
-    //     default: () => []
-    //   },
         color: {
             type: String,
             default: 'deep-purple accent-4'
@@ -81,16 +76,11 @@ export default {
         }
     },
     methods: {
-        validateFile(file){
-            console.log(file)
-            this.file = file
-            console.log(this.file)
-            console.log('this.model---')
-            console.log(this.modelo)
-            if(file.size > this.maxSize){
-                return alert('peso de archivo excedido')
+        validateFile(file) {
+            if (file.size > this.maxSize) {
+                return alert('Peso de archivo excedido');
             }
-            this.$emit('file-upload', this.modelo, this.file)
+            this.$emit('file-upload', this.modelo, file);
         }
     }
 };

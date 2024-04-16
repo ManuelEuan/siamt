@@ -6,18 +6,18 @@
                 v-if="!newRegisterPerson">
                 <p class="col-md-6 my-0">Direcciones</p>
                 <v-col cols="12" md="3" v-if="!newDirection">
-                    <v-btn depressed color="primary" @click="newDirection = true, showDirections=false">
+                    <v-btn depressed color="primary" @click="newDirection = true, showDirections=false, resetAddress()">
                         Nueva dirección
                     </v-btn>
                 </v-col>
                 <v-col cols="12" md="3" v-if="newDirection">
-                    <v-btn depressed color="info" @click="codePostal = 0, newDirection = false, showDirections=true">
+                    <v-btn depressed color="info" @click="newDirection = false, showDirections=true">
                         Ver direcciones
                     </v-btn>
                 </v-col>
                 <v-col cols="12" md="3" v-if="newDirection">
                     <v-btn depressed color="primary" :disabled="!directionValidation" @click="saveDirection()">
-                        Agregar dirección
+                        Guardar
                     </v-btn>
                 </v-col>
             </div>
@@ -351,6 +351,32 @@ export default {
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
+        resetAddress(){
+            this.direction= {
+                iidcolonia: 0,
+                txtcalle: '',
+                txtcalle_letra: '',
+                itipo_vialidad: 0,
+                itipo_direccion: null,
+                txttablaje: '',
+                txtdescripcion_direccion: '',
+                txtavenida_kilometro: '',
+                inumero_exterior: null,
+                txtnumero_exterior_letra: '',
+                inumero_interior: null,
+                txtnumero_interior_letra: '',
+                txtcruzamiento_uno: '',
+                txtcruzamiento_uno_letra: '',
+                txtcruzamiento_dos: '',
+                txtcruzamiento_dos_letra: '',
+                txtreferencia: '',
+                flatitud: null,
+                flongitud: null,
+                bactivo: null,
+                dtfecha_creacion: null,
+                dtfecha_modificacion: null,
+            }
+        },
         async getCodePostals() {
             try {
                 this.postalCodes = await services.inspections().getAllPostalCodes();
@@ -518,11 +544,13 @@ export default {
         },
         'newRegisterPerson': function(){
             if(this.newRegisterPerson){
-                // this.showFields = true
-                // this.showPersonPhones = false
-                // personaPhones
                 this.resetDirection()
             }
+        },
+        'iidpersona': function(){
+            // if(this.newRegisterPerson){
+                this.loadDirectionsTable()
+            // }
         },
        
     },
