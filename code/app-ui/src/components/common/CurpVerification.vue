@@ -61,151 +61,101 @@
             </v-row>
         </v-card-text>
         <!-- DIALOG REGISTRAR -->
-        <template>
-            <v-dialog v-model="dialogOpen" transition="dialog-bottom-transition" persistent max-width="600">
-                <v-card>
-                    <v-card-title>
-                        La clave ingresada no se encuentra en el sistema
-                    </v-card-title>
-                    <!-- {{search}} -->
-                    <v-card-text v-if="search === 'NOMBRE'">
-                        Para poder registrar al inspector deberá registrar su CURP
-                        <v-text-field v-model="nombreCurp" label="CURP*" style="max-height: 40px;" :rules="[rules.curp]"
-                            maxlength="18" hide-details="auto" clearable dense @input="toUpperCase" outlined />
-                    </v-card-text>
-                    <v-card-text v-else>
-                        ¿Desea registrarlo?
-                    </v-card-text>
+        <generic-dialog :dialogVisible="dialogRegisterPerson" dialogTitle="La clave ingresada no se encuentra en el sistema"
+            @update:dialogVisible="dialogRegisterPerson = $event" @confirm="showDialogPerson(0)">
+            <template v-slot:default>
+                <v-card-text v-if="search === 'NOMBRE'">
+                    Para poder registrar al inspector deberá registrar su CURP
+                    <v-text-field v-model="curpRegisterField" label="CURP*" style="max-height: 40px;" :rules="[rules.curp]"
+                        maxlength="18" hide-details="auto" clearable dense @input="toUpperCase" outlined />
+                </v-card-text>
+                <v-card-text v-else>
+                    ¿Desea registrarlo?
+                </v-card-text>
+            </template>
+        </generic-dialog>
 
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn color="error" text @click="dialogOpen = false"> Cancelar </v-btn>
-                        <v-btn class="" v-if="search === 'NOMBRE'" :disabled="!nombreCurpValido" color="primary" text @click="dialogOpen = false, resetSearch('CURP', nombreCurp, true)"> Registrar </v-btn>
-                        <v-btn v-else color="primary" text @click="showDialogPerson(0)"> Aceptar </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-        </template>
         <!-- DIALOG CAMBIO DE CURP -->
-        <template>
-            <v-dialog v-model="dialogCurpChanged" transition="dialog-bottom-transition" persistent max-width="600">
-                <v-card>
-                    <v-card-title>
-                        Se ha detectado un cambio en el curp verificado
-                    </v-card-title>
-                    <v-card-text>
-                        Favor de verificar de nuevo
-                    </v-card-text>
+        <generic-dialog :dialogVisible="dialogCurpChanged" dialogTitle="Se ha detectado un cambio en el CURP verificado"
+            @update:dialogVisible="dialogCurpChanged = $event" @confirm="verifyCurp(false)">
+            <template v-slot:default>
+                Favor de verificar de nuevo
+            </template>
+        </generic-dialog>
 
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn color="error" text @click="dialogCurpChanged = false"> Cancelar </v-btn>
-                        <v-btn color="primary" text @click="verifyCurp(false)"> Verificar </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-        </template>
         <!-- DIALOG INSPECTOR -->
-        <template>
-            <v-dialog v-model="dialogInspector" transition="dialog-bottom-transition" persistent max-width="600">
-                <v-card>
-                    <v-card-title>
-                        La clave ingresada pertenece a un inspector
-                    </v-card-title>
-                    <v-card-text>
-                        ¿Desea verificar la información?
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn color="error" text @click="dialogInspector = false"> Cancelar </v-btn>
-                        <v-btn color="primary" text @click="redirectInspector"> Aceptar </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-        </template>
+        <generic-dialog :dialogVisible="dialogInspector" dialogTitle="La clave ingresada pertenece a un inspector"
+            @update:dialogVisible="dialogInspector = $event" @confirm="redirectInspector">
+            <template v-slot:default>
+                ¿Desea verificar la información?
+            </template>
+        </generic-dialog>
+
         <!-- DIALOG MULTIPLE PEOPLE  -->
-        <template>
-            <v-dialog v-model="dialogPeopleFounds" transition="dialog-bottom-transition" persistent max-width="600">
-                <v-card>
-                    <v-card-title>
-                        Se han encontrado varios registros asociados a la búsqueda
-                    </v-card-title>
-                    <v-card-text>
-                        Favor de seleccionar uno
-                        <v-row>
-                            <v-col cols="12" md="12">
-                                <v-simple-table>
-                                    <template v-slot:default>
-                                        <thead>
-                                            <tr>
-                                                <th class="text-left">
-                                                    Nombre
-                                                </th>
-                                                <th class="text-left">
-                                                    Fecha de Nacimiento
-                                                </th>
-                                                <th class="text-left">
-                                                    ¿Es inspector?
-                                                </th>
-                                                <th class="text-left" style="min-width: 140px;">
-                                                    Acciones
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr v-for="item in peopleFounds" :key="item.iidpersona">
-                                                <!-- {{ item }} -->
-                                                <td>{{ item.txtnombre }}{{ item.txtapepat }}</td>
-                                                <td>{{ item.dfecha_nacimiento }}</td>
-
-                                                <td>
-                                                    <template item.isInspector>
-                                                        <v-icon v-show="item.isInspector" size="medium" color="green">
-                                                            mdi-check
-                                                        </v-icon>
-                                                        <v-icon v-show="!item.isInspector" size="medium"
-                                                            color="red">mdi-close</v-icon>
+        <generic-dialog :dialogVisible="dialogPeopleFounds" dialogTitle="Se han encontrado varios registros asociados a la búsqueda"
+            @update:dialogVisible="dialogPeopleFounds = $event" @confirm="redirectInspector">
+            <template v-slot:default>
+                Favor de seleccionar uno
+                <v-row>
+                    <v-col cols="12" md="12">
+                        <v-simple-table>
+                            <template v-slot:default>
+                                <thead>
+                                    <tr>
+                                        <th class="text-left">
+                                            Nombre
+                                        </th>
+                                        <th class="text-left">
+                                            Fecha de Nacimiento
+                                        </th>
+                                        <th class="text-left">
+                                            ¿Es inspector?
+                                        </th>
+                                        <th class="text-left" style="min-width: 140px;">
+                                            Acciones
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in peopleFounds" :key="item.iidpersona">
+                                        <td>{{ item.txtnombre }}{{ item.txtapepat }}</td>
+                                        <td>{{ item.dfecha_nacimiento }}</td>
+                                        <td>
+                                            <template item.isInspector>
+                                                <v-icon v-show="item.isInspector" size="medium" color="green">
+                                                    mdi-check
+                                                </v-icon>
+                                                <v-icon v-show="!item.isInspector" size="medium"
+                                                    color="red">mdi-close</v-icon>
+                                            </template>
+                                        </td>
+                                        <td>
+                                            <template>
+                                                <v-tooltip bottom v-if="!item.isInspector">
+                                                    <template v-slot:activator="{ on, attrs }">
+                                                        <v-btn v-bind="attrs" v-on="on" icon small
+                                                            @click="peopleSelected(item)">
+                                                            <v-icon small v-show="item.isInspector"> mdi-close
+                                                            </v-icon>
+                                                            <v-icon small v-show="!item.isInspector"> mdi-check
+                                                            </v-icon>
+                                                        </v-btn>
                                                     </template>
-                                                </td>
-                                                <td>
-                                                    <template>
-                                                        <v-tooltip bottom v-if="!item.isInspector">
-                                                            <template v-slot:activator="{ on, attrs }">
-                                                                <v-btn v-bind="attrs" v-on="on" icon small
-                                                                    @click="peopleSelected(item)">
-                                                                    <v-icon small v-show="item.isInspector"> mdi-close
-                                                                    </v-icon>
-                                                                    <v-icon small v-show="!item.isInspector"> mdi-check
-                                                                    </v-icon>
-                                                                </v-btn>
-                                                            </template>
-                                                            <span>Seleccionar persona</span>
-                                                        </v-tooltip>
-                                                    </template>
-                                                </td>
-                                            </tr>
-                                        </tbody>
+                                                    <span>Seleccionar persona</span>
+                                                </v-tooltip>
+                                            </template>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </template>
+                        </v-simple-table>
+                    </v-col>
+                </v-row>
+            </template>
+        </generic-dialog>
 
-                                    </template>
-                                </v-simple-table>
-                            </v-col>
-                        </v-row>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn color="error" text @click="dialogPeopleFounds = false"> Cancelar </v-btn>
-                        <v-btn color="primary" text @click="redirectInspector"> Aceptar </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-        </template>
-
-        <modal-create-person    ref="ModalCreatePerson" 
-                                :iidpersona=iidpersona
-                                :curp=curp
-                                :activateModalPerson=activateModalPerson
-                                @person-created="handlefromCreatePerson" 
-        />
+        <modal-create-person ref="ModalCreatePerson" :iidpersona=iidpersona :curp=curp
+            :activateModalPerson=activateModalPerson @person-created="handlefromCreatePerson" />
     </v-row>
 </template>
 <style>
@@ -220,10 +170,12 @@ import services from "@/services";
 import rules from "@/core/rules.forms";
 import { mapActions } from "vuex";
 import ModalCreatePerson from "@/components/common/ModalCreatePerson.vue";
+import GenericDialog from '@/components/common/GenericDialog.vue';
 
 export default {
     components: {
         ModalCreatePerson,
+        GenericDialog,
     },
     props: {
     },
@@ -238,12 +190,13 @@ export default {
             search: 'CURP',
             nombre: '',
             rfc: '',
-            nombreCurp: '',
+            curpRegisterField: '',
             nombreValido: false,
             curpValida: false,
             rfcValida: false,
-            nombreCurpValido: false,
-            dialogOpen: false,
+            curpRegisterFieldValido: false,
+            dialogRegisterPerson: false,
+            // DINAMYC DIALOGS 
             dialogCurpChanged: false,
             dialogInspector: false,
             dialogPeopleFounds: false,
@@ -278,17 +231,22 @@ export default {
             this.nombre = this.nombre.toUpperCase();
             this.curp = this.curp.toUpperCase();
             this.rfc = this.rfc.toUpperCase();
-            this.nombreCurp = this.nombreCurp.toUpperCase();
+            this.curpRegisterField = this.curpRegisterField.toUpperCase();
         },
+        // curpForRegister(){
+
+        // }
         showDialogPerson(iidpersona) {
-            this.dialogOpen = false
+        console.log(iidpersona)
+            if(this.search==='NOMBRE'){
+                this.curp = this.curpRegisterField
+            }
+            this.dialogRegisterPerson = false
             this.dialog = true;
             console.log('se mostrará el dialog persona 1')
             localStorage.setItem('newPerson', true);
             if (iidpersona == 0) {
                 this.$refs.ModalCreatePerson.dialog = true
-                // this.$refs.ModalCreatePerson.curp = this.persona.txtcurp
-                // this.activateModalPerson = true
             }
         },
         async verifyCurp(needModal) {
@@ -323,7 +281,7 @@ export default {
                     }
                 }
                 response = await services.inspections().getPersonByDinamycSearch({ data });
-           
+
                 // SI NO EXISTE SE AGREGA LA PERSONA
                 if (response[0] == false || !response) {
                     console.log('CURP A VERIFICAR 5' + curp)
@@ -334,7 +292,7 @@ export default {
                     this.curp = curp
                     this.persona.txtcurp = curp
                     this.$emit('person-info', false, true, this.persona, this.persona.txtcurp, this.persona.isInspector);
-                    this.dialogOpen = true;
+                    this.dialogRegisterPerson = true;
                 } else if (typeof (response) === 'object' && response.length > 1) {
                     // alert('fue búsqueda por nombre y hay más registros')
                     this.peopleFounds = response
@@ -343,7 +301,7 @@ export default {
                 } else {
                     response = response[0]
                     if (response.isInspector === false) { //Si la persona no es inspector(esta disponible) devuelve la persona encontrada
-                        this.persona= {}
+                        this.persona = {}
                         this.personaEncontrada = true
                         this.personaDisponible = true
                         this.persona = { ...response }
@@ -363,12 +321,12 @@ export default {
                         console.log('aca entró')
                         localStorage.setItem('newPerson', false);
                         console.log(needModal)
-                        this.$refs.ModalCreatePerson.dialog=needModal
-                        this.$refs.ModalCreatePerson.curp=this.persona.txtcurp
-                        this.$refs.ModalCreatePerson.iidpersona=this.persona.iidpersona
-                        this.$refs.ModalCreatePerson.dataPerson=this.persona
-                        
-                        this.iidpersona=this.persona.iidpersona;
+                        this.$refs.ModalCreatePerson.dialog = needModal
+                        this.$refs.ModalCreatePerson.curp = this.persona.txtcurp
+                        this.$refs.ModalCreatePerson.iidpersona = this.persona.iidpersona
+                        this.$refs.ModalCreatePerson.dataPerson = this.persona
+
+                        this.iidpersona = this.persona.iidpersona;
                         console.log('queeeeeeeeee')
                         console.log(this.iidpersona)
                         console.log(this.persona)
@@ -424,9 +382,9 @@ export default {
                 window.location.reload()
             }, 100);
         },
-        resetSearch(typeSearch, dataSearch, needModal){
+        resetSearch(typeSearch, dataSearch, needModal) {
             this.search = typeSearch
-            if(this.search == 'CURP'){
+            if (this.search == 'CURP') {
                 this.curp = dataSearch
             }
             this.verifyCurp(needModal)
@@ -473,11 +431,11 @@ export default {
                 this.nombreValido = nombreRules(this.nombre) === true;
             }
         },
-        'nombreCurp': function () {
+        'curpRegisterField': function () {
             const curpRules = this.rules.curp;
             this.personaEncontrada = false
             if (curpRules) {
-                this.nombreCurpValido = curpRules(this.nombreCurp) === true;
+                this.curpRegisterFieldValido = curpRules(this.curpRegisterField) === true;
             }
         },
     },
