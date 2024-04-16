@@ -223,7 +223,6 @@ export default {
             if (!this.dialog) {
                 console.log('se cerró')
                 localStorage.setItem('newPerson', false);
-                
             }else if(this.dialog && this.iidpersona==0){
                 console.log('se abrió')
                 localStorage.setItem('newPerson', true);

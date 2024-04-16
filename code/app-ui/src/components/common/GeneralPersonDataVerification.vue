@@ -170,19 +170,13 @@ export default {
                     dataSearch: this.txtcurp
                 }
                 console.log('response from curp verification')
-                console.log(this.iidpersona)
-                console.log(this.txtcurp)
                 this.persona.txtcurp = this.txtcurp
                 if (this.iidpersona != 0) {
-                    console.log('mode edit')
                     this.newMode = false
                     let response = { ...await services.inspections().getPersonByDinamycSearch({ data }) };
-                    console.log(response)
                     this.persona = response[0]
                 } else {
-                    console.log('mode new')
                     this.newMode = true
-
                 }
 
             } catch (error) {
@@ -236,14 +230,10 @@ export default {
     watch: {
         'persona.txtrfc': function () {
             if (!this.persona.bfisica) {
-
                 this.validarRFC()
             }
         },
         'generalPersonDataValidation': function () {
-            // generalPersonDataValidation(newValidation) {
-            console.log('validación de datos generales de persona')
-            console.log(this.generalPersonDataValidation)
             this.$emit('general-person-data-validation', this.generalPersonDataValidation, this.persona);
         },
         'persona.iidpersona': function () {
@@ -253,21 +243,10 @@ export default {
         },
         'newRegisterPerson': function () {
             if (this.newRegisterPerson) {
-                // this.showFields = true
-                // this.showPersonPhones = false
                 this.resetPerson()
                 this.persona.txtcurp = this.txtcurp
-            } else {
-                console.log('aqui entramoossssss')
             }
-        },
-        'txtcurp': function () {
-            console.log('capa curp recibiendo: ' + this.txtcurp)
-        },
-        'dataPerson': function () {
-            console.log('capa persona data recibiendo: ' + this.dataPerson)
-            this.persona = this.dataPerson
-        },
+        }
     },
     async mounted() {
         await this.loadSelectableData();

@@ -186,6 +186,10 @@ export default {
             type: String,
             default: '', // Valor predeterminado
         },
+        getInfoPerson: {
+            type: Boolean,
+            default: true, // Valor predeterminado
+        },
     },
     data() {
         return {
@@ -299,7 +303,8 @@ export default {
                     // this.iidpersona = 0
                     this.curp = curp
                     this.persona.txtcurp = curp
-                    this.$emit('person-info', false, true, this.persona, this.persona.txtcurp, this.persona.isInspector);
+                    console.log('1')
+                    this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.isInspector);
                     this.dialogRegisterPerson = true;
                 } else if (typeof (response) === 'object' && response.length > 1) {
                     // alert('fue búsqueda por nombre y hay más registros')
@@ -325,6 +330,7 @@ export default {
                         }
                         this.nombreCompleto = nombreCompleto.trim();
                         this.curpVerificada = this.persona.txtcurp
+                        console.log('2')
                         this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.isInspector);
                         console.log('aca entró')
                         localStorage.setItem('newPerson', false);
@@ -333,21 +339,17 @@ export default {
                         this.$refs.ModalCreatePerson.curp = this.persona.txtcurp
                         this.$refs.ModalCreatePerson.iidpersona = this.persona.iidpersona
                         this.$refs.ModalCreatePerson.dataPerson = this.persona
-
-                        // this.iidpersona = this.persona.iidpersona;
-                        console.log('queeeeeeeeee')
-                   
                         this.curp = this.persona.txtcurp;
                     } else if (response.isInspector === true) {  // Si la persona ya es inspector mostrará un modal de redirección
-                        console.log('aca entró 2')
-
                         this.personaEncontrada = true
                         this.personaDisponible = false
                         this.persona = { ...response }
                         this.curpVerificada = this.persona.txtcurp
                         this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.isInspector);
                         this.rutaInspector = `/inspectors/${response.iidinspector}/edit`;
-                        this.dialogInspector = true;
+                        if(needModal){
+                            this.dialogInspector = true;
+                        }
                     }
                 }
             } catch (error) {
@@ -356,11 +358,7 @@ export default {
             }
         },
         peopleSelected(persona) {
-            // console.log('se ha seleccionado esta perosna')
-            // console.log(persona)
-            console.log(persona)
             this.persona = persona
-            console.log(this.persona)
             this.personaEncontrada = true
             this.personaDisponible = true
             this.persona = { ...persona }
@@ -377,7 +375,6 @@ export default {
             this.nombreCompleto = nombreCompleto.trim();
             this.curpVerificada = this.persona.txtcurp
             this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.isInspector);
-            // this.iidpersona = this.persona.iidpersona;
             this.txtcurp = this.persona.txtcurp;
             this.dialogPeopleFounds = false
 
@@ -446,6 +443,11 @@ export default {
         },
         'receivedCurp': function () {
             this.curp = this.receivedCurp
+        },
+        'getInfoPerson': function () {
+            if(this.getInfoPerson){
+                this.verifyCurp(false)
+            }
         },
     },
     mounted() {

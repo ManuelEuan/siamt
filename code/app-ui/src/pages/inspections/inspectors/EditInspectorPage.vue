@@ -23,7 +23,9 @@
                             <v-card-text>
                                 <v-form v-model="valid">
                                     <curp-verification :style="{ display: createMode ? 'block' : 'none !important' }"
-                                        :iidpersona="persona.iidpersona" :receivedCurp="persona.txtcurp"
+                                        :iidpersona="persona.iidpersona" 
+                                        :receivedCurp="persona.txtcurp"
+                                        :getInfoPerson=getInfoPerson
                                         @person-info="handlePersonInfo" ref="curpVerification"></curp-verification>
 
                                     <v-row v-if="!createMode">
@@ -36,8 +38,7 @@
                                                 clearable dense :disabled="!createMode" outlined />
                                         </v-col>
                                         <v-col cols="12" md="4">
-                                            <v-btn color="primary" text @click=showDialogPerson()>Información Completa
-                                                2</v-btn>
+                                            <v-btn color="primary" text @click=showDialogPerson()>Información Completa 2</v-btn>
                                         </v-col>
                                     </v-row>
                                     <v-row v-if="personaEncontrada && personaDisponible || !createMode">
@@ -187,7 +188,8 @@ export default {
             genera_boleta: false,
             rules: {
                 ...rules,
-            }
+            },
+            getInfoPerson: false,
         };
     },
     computed: {
@@ -255,16 +257,6 @@ export default {
         verifySubStages() {
             console.log('verifciar sub etapas de nueva etapa')
         },
-        // handlePersonInfo(isFound, isAvailable, person, curpVerified) {
-        //     this.persona = person
-        //     let tmp_inspector = this.inspector
-        //     this.inspector = {}
-        //     this.inspector = tmp_inspector
-        //     this.inspector.iidpersona = this.persona.iidpersona
-        //     this.personaEncontrada = isFound
-        //     this.personaDisponible = isAvailable
-        //     this.curpVerificada = curpVerified
-        // },
         async saveInspector() {
             if (!this.maintainCurp()) return this.$refs.curpVerification.$data.dialogCurpChanged = true;
             if (!this.valid) return;
@@ -299,11 +291,19 @@ export default {
             this.$router.push("/inspections/inspectors");
         },
         showDialogPerson() {
+            this.getInfoPerson = true
             this.$refs.curpVerification.$refs.ModalCreatePerson.dialog = true
             this.$refs.curpVerification.$refs.ModalCreatePerson.curp = this.persona.txtcurp;
         },
-        handlePersonInfo() {
+        handlePersonInfo(personFound, availablePerson, person, personCurp, isInspector) {
             console.log('retorno del modal person')
+            console.log('Persona encontrada: ' + personFound)
+            console.log('Persona disponible: ' + availablePerson)
+            console.log('Persona Información Completa: ')
+            console.log(person)
+            console.log('Persona CURP: ' + personCurp)
+            console.log('Persona tipo inspector: ' + isInspector)
+            this.getInfoPerson = false
         }
     },
     async mounted() {

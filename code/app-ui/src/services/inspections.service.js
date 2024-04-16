@@ -10,25 +10,19 @@ export default class InspectionsService extends ApiService {
     console.log("InspectionsService Created");
   }
 
-  //Módulos
   async getInspectors(data) {
-    console.log(data)
     return await this.post("/inspectors", JSON.stringify(data));
   }
 
   async getPersonByCurp(curp) {
-    console.log(curp)
     return await this.post("/inspectors/getPersonByCurp", JSON.stringify(curp));
   }
 
   async getPersonByDinamycSearch(data) {
-    console.log('data search')
-    console.log(data)
     return await this.post("/inspectors/getPersonByDinamycSearch", JSON.stringify(data));
   }
 
   async getAllCategoriesInspector() {
-    console.log('suhdfiehfdiejofjmeowfjmowejfopw')
     return await this.get("/inspectors/getAllCategoriesInspector");
   }
 
@@ -105,8 +99,6 @@ export default class InspectionsService extends ApiService {
     return await this.post("/persons/getPersonPhones", JSON.stringify(data));
   }
 
-  
-
   async updateCurrentPhone(data) {
     return await this.post("/persons/updateCurrentPhone", JSON.stringify(data));
   }
@@ -122,8 +114,6 @@ export default class InspectionsService extends ApiService {
   async deletePhone(data) {
     return await this.post(`/persons/deletePhone`, JSON.stringify(data));
   }
-  
-  
 
   async getAllCivilStatusPerson() {
     return await this.get("/persons/getAllCivilStatusPerson");
