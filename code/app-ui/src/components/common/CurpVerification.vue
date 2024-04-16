@@ -67,7 +67,7 @@
                     <v-card-title>
                         La clave ingresada no se encuentra en el sistema
                     </v-card-title>
-                    {{search}}
+                    <!-- {{search}} -->
                     <v-card-text v-if="search === 'NOMBRE'">
                         Para poder registrar al inspector deberá registrar su CURP
                         <v-text-field v-model="nombreCurp" label="CURP*" style="max-height: 40px;" :rules="[rules.curp]"
@@ -284,13 +284,10 @@ export default {
             this.dialogOpen = false
             this.dialog = true;
             console.log('se mostrará el dialog persona 1')
-            console.log(iidpersona)
-            console.log(this.curp)
-            console.log('aqii')
-            this.iidpersona = iidpersona
+            localStorage.setItem('newPerson', true);
             if (iidpersona == 0) {
-                // console.log(this.$refs);
-                this.$refs.modalCreatePerson.dialog = true
+                this.$refs.ModalCreatePerson.dialog = true
+                // this.$refs.ModalCreatePerson.curp = this.persona.txtcurp
                 // this.activateModalPerson = true
             }
         },
@@ -334,7 +331,8 @@ export default {
                     this.personaEncontrada = false
                     this.personaDisponible = true
                     this.iidpersona = 0
-                    this.curp = this.persona.txtcurp
+                    this.curp = curp
+                    this.persona.txtcurp = curp
                     this.$emit('person-info', false, true, this.persona, this.persona.txtcurp, this.persona.isInspector);
                     this.dialogOpen = true;
                 } else if (typeof (response) === 'object' && response.length > 1) {
@@ -345,6 +343,7 @@ export default {
                 } else {
                     response = response[0]
                     if (response.isInspector === false) { //Si la persona no es inspector(esta disponible) devuelve la persona encontrada
+                        this.persona= {}
                         this.personaEncontrada = true
                         this.personaDisponible = true
                         this.persona = { ...response }
@@ -362,10 +361,18 @@ export default {
                         this.curpVerificada = this.persona.txtcurp
                         this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.isInspector);
                         console.log('aca entró')
+                        localStorage.setItem('newPerson', false);
                         console.log(needModal)
-                        this.$refs.ModalCreatePerson.$data.dialog=needModal
-                        this.activateModalPerson = needModal
+                        this.$refs.ModalCreatePerson.dialog=needModal
+                        this.$refs.ModalCreatePerson.curp=this.persona.txtcurp
+                        this.$refs.ModalCreatePerson.iidpersona=this.persona.iidpersona
+                        this.$refs.ModalCreatePerson.dataPerson=this.persona
+                        
                         this.iidpersona=this.persona.iidpersona;
+                        console.log('queeeeeeeeee')
+                        console.log(this.iidpersona)
+                        console.log(this.persona)
+                        console.log(this.$refs)
                         this.curp = this.persona.txtcurp;
                     } else if (response.isInspector === true) {  // Si la persona ya es inspector mostrará un modal de redirección
                         console.log('aca entró 2')

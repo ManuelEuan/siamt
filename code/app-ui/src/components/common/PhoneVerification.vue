@@ -1,15 +1,18 @@
 <template>
     <div>
         <v-card-text>
-            <div class="row d-flex justify-space-around align-center mx-auto">
+            {{ showPersonPhones }}--  {{ showFields }}
+            {{ !!newRegisterPerson }}--  {{ newRegisterPerson }}
+            <div class="row d-flex justify-space-around align-center mx-auto"  v-if="!newRegisterPerson">
                 <p class="col-md-6 my-0">Teléfonos</p>
+
                 <v-col cols="12" md="6" v-if="showPersonPhones">
                     <v-btn depressed color="primary" @click="resetPhone()">
                         Nuevo teléfono
                     </v-btn>
                 </v-col>
                 <v-col cols="12" md="3" v-if="showFields">
-                    <v-btn depressed color="primary" @click="showPersonPhones = true, showFields= false">
+                    <v-btn depressed color="info" @click="showPersonPhones = true, showFields= false">
                         Ver teléfonos
                     </v-btn>
                 </v-col>
@@ -21,21 +24,21 @@
             </div>
             <!-- Telefono en : {{ newPhone ? 'Modo nuevo' : 'modo editar' }}
             Cant: {{ Object.keys(personaPhones).length }} -->
-            <v-form v-model="phoneValidation" v-if="showFields">
+            <v-form v-model="phoneValidation" v-if="showFields || newRegisterPerson">
                 <v-row>
-                    <v-col cols="12" md="4">
+                    <v-col cols="12" md="6">
                         <v-select v-model="phone.iidtelefono_tipo" label="Tipo*" :items="typePhones"
                             item-text="txtnombre" item-value="iidtelefono_tipo" hide-details="auto" small-chips
                             clearable dense outlined :rules="[rules.required]" />
                     </v-col>
 
-                    <v-col cols="12" md="4">
+                    <!-- <v-col cols="12" md="6">
                         <v-select v-model="phone.ilada" label="Lada*" :items="ladas" item-text="txtnombre"
                             item-value="iidlada" hide-details="auto" small-chips clearable dense outlined
                             :rules="[rules.required]" />
-                    </v-col>
-                    <v-col cols="12" md="4">
-                        <v-text-field v-model="phone.inumero" label="Número" hide-details="auto" clearable dense
+                    </v-col> -->
+                    <v-col cols="12" md="6">
+                        <v-text-field v-model="phone.inumero" label="Número*" hide-details="auto" clearable dense
                             :rules="[rules.telefono]" outlined maxlength="10" />
                     </v-col>
                 </v-row>
@@ -49,9 +52,9 @@
                                     <th class="text-left">
                                         Tipo
                                     </th>
-                                    <th class="text-left">
+                                    <!-- <th class="text-left">
                                         Lada
-                                    </th>
+                                    </th> -->
                                     <th class="text-left">
                                         Teléfono
                                     </th>
@@ -66,7 +69,7 @@
                             <tbody>
                                 <tr v-for="item in personaPhones" :key="item.name">
                                     <td>{{ item.txttelefono_tipo }}</td>
-                                    <td>+{{ item.ilada }}</td>
+                                    <!-- <td>+{{ item.ilada }}</td> -->
                                     <td>{{ item.inumero }}</td>
                                     <td>
                                         <template item.bactual>
@@ -142,7 +145,6 @@
             </v-dialog>
         </template>
         <!-- DIALOG ACTUALIZAR DESACTIVAR DIRECCIÓN -->
-
         <template>
             <v-dialog transition="dialog-top-transition" max-width="600" v-model="dialogDelete">
                 <v-card>
@@ -174,6 +176,10 @@ import services from "@/services";
 import { mapActions } from "vuex";
 export default {
     props: {
+        newRegisterPerson: {
+            type: Boolean,
+            default: false // Valor predeterminado
+        },
         iidpersona: {
             type: Number,
             default: 0 // Valor predeterminado
@@ -192,7 +198,7 @@ export default {
             // iidpersona: 84,
             phone: {
                 iidtelefono: 0,
-                ilada: '',
+                // ilada: '',
                 inumero: '',
                 iidtelefono_tipo: null,
                 bactivo: null,
@@ -204,7 +210,7 @@ export default {
                 ...rules,
             },
             typePhones: [],
-            ladas: [],
+            // ladas: [],
             ladaIdentifiers: [],
             personaPhones: [],
         };
@@ -214,16 +220,6 @@ export default {
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
-        async getCodePostals() {
-            try {
-                this.postalCodes = await services.inspections().getAllPostalCodes();
-                this.ladas = await services.inspections().getAllLadas();
-                console.log(this.ladas)
-            } catch (error) {
-                const message = 'Error al cargar opciones para nuevo inspector.';
-                this.showError({ message, error });
-            }
-        },
         async loadPhonesTable() {
             try {
                 console.log('LOAD PHONES')
@@ -247,7 +243,7 @@ export default {
             this.newPhone = true
             this.phone= {
                 iidtelefono: 0,
-                ilada: '',
+                // ilada: '',
                 inumero: '',
                 iidtelefono_tipo: null,
                 bactivo: null,
@@ -357,10 +353,16 @@ export default {
         },
         'persona.inumero': function(){
             this.persona.inumero = parseInt(this.persona.inumero);
-        }
+        },
+        'newRegisterPerson': function(){
+            if(this.newRegisterPerson){
+                this.showFields = true
+                this.showPersonPhones = false
+                this.resetPhone()
+            }
+        },
     },
     async mounted() {
-        await this.getCodePostals();
         await this.loadPhonesTable();
     }
 };

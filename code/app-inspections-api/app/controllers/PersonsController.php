@@ -106,40 +106,82 @@ class PersonsController extends BaseController
                     pd.iiddireccion, 
                     c.txtnombre as colony,
                     CONCAT(
-                    CASE
-                        WHEN d.txtcalle_letra <> '' THEN CONCAT('Calle ', d.txtcalle, ' ', d.txtcalle_letra)
-                        ELSE d.txtcalle
-                    END,
-                    CASE
-                        WHEN d.inumero_exterior IS NOT NULL THEN CONCAT(' #', d.inumero_exterior)
-                        ELSE ''
-                    END,
-                    CASE
-                        WHEN d.txtcruzamiento_uno <> '' THEN CONCAT(' POR ', d.txtcruzamiento_uno)
-                        ELSE ''
-                    END,
-                    CASE
-                        WHEN d.txtcruzamiento_uno_letra <> '' THEN CONCAT(' ', d.txtcruzamiento_uno_letra)
-                        ELSE ''
-                    END,
-                    CASE
-                        WHEN d.txtcruzamiento_dos <> '' THEN CONCAT(' Y ', d.txtcruzamiento_dos)
-                        ELSE ''
-                    END,
-                    CASE
-                        WHEN d.txtcruzamiento_dos_letra <> '' THEN CONCAT(' ', d.txtcruzamiento_dos_letra)
-                        ELSE ''
-                    END,
-                    CONCAT(' C.P. ', c.icodigo_postal),
-                    CASE
-                        WHEN c.txtnombre <> '' THEN CONCAT(' Colonia. ', c.txtnombre)
-                        ELSE ''
-                    END,
-                    CASE
-                        WHEN m.entity <> '' THEN CONCAT(' Municipio. ', m.entity)
-                        ELSE ''
-                    END
-                ) AS direccion_completa,
+                        CASE
+                            WHEN d.itipo_direccion = 1 THEN
+                                CONCAT(
+                                    CASE
+                                        WHEN d.txtcalle_letra <> '' THEN CONCAT('Calle ', d.txtcalle, ' ', d.txtcalle_letra)
+                                        ELSE d.txtcalle
+                                    END,
+                                    CASE
+                                        WHEN d.inumero_exterior IS NOT NULL THEN CONCAT(' #', d.inumero_exterior)
+                                        ELSE ''
+                                    END,
+                                    CASE
+                                        WHEN d.txtcruzamiento_uno <> '' THEN CONCAT(' POR ', d.txtcruzamiento_uno)
+                                        ELSE ''
+                                    END,
+                                    CASE
+                                        WHEN d.txtcruzamiento_uno_letra <> '' THEN CONCAT(' ', d.txtcruzamiento_uno_letra)
+                                        ELSE ''
+                                    END,
+                                    CASE
+                                        WHEN d.txtcruzamiento_dos <> '' THEN CONCAT(' Y ', d.txtcruzamiento_dos)
+                                        ELSE ''
+                                    END,
+                                    CASE
+                                        WHEN d.txtcruzamiento_dos_letra <> '' THEN CONCAT(' ', d.txtcruzamiento_dos_letra)
+                                        ELSE ''
+                                    END,
+                                    CONCAT(' C.P. ', c.icodigo_postal),
+                                    CASE
+                                        WHEN c.txtnombre <> '' THEN CONCAT(' Colonia. ', c.txtnombre)
+                                        ELSE ''
+                                    END,
+                                    CASE
+                                        WHEN m.entity <> '' THEN CONCAT(' Municipio. ', m.entity)
+                                        ELSE ''
+                                    END
+                                )
+                            WHEN d.itipo_direccion = 2 THEN
+                                CONCAT('Tablaje ', d.txttablaje,
+                                    CONCAT(
+                                        CASE
+                                            WHEN d.inumero_exterior IS NOT NULL THEN CONCAT(' #', d.inumero_exterior)
+                                            ELSE ''
+                                        END,
+                                        CONCAT(' C.P. ', c.icodigo_postal),
+                                        CASE
+                                            WHEN c.txtnombre <> '' THEN CONCAT(' Colonia. ', c.txtnombre)
+                                            ELSE ''
+                                        END,
+                                        CASE
+                                            WHEN m.entity <> '' THEN CONCAT(' Municipio. ', m.entity)
+                                            ELSE ''
+                                        END
+                                    )
+                                )
+                            WHEN d.itipo_direccion = 3 THEN
+                                CONCAT('Dirección conocida ', d.txtdescripcion_direccion,
+                                    CONCAT(
+                                        CASE
+                                            WHEN d.inumero_exterior IS NOT NULL THEN CONCAT(' #', d.inumero_exterior)
+                                            ELSE ''
+                                        END,
+                                        CONCAT(' C.P. ', c.icodigo_postal),
+                                        CASE
+                                            WHEN c.txtnombre <> '' THEN CONCAT(' Colonia. ', c.txtnombre)
+                                            ELSE ''
+                                        END,
+                                        CASE
+                                            WHEN m.entity <> '' THEN CONCAT(' Municipio. ', m.entity)
+                                            ELSE ''
+                                        END
+                                    )
+                                )
+                            ELSE '' -- Manejo de otro tipo de dirección, si es necesario
+                        END
+                    ) AS direccion_completa,
                     d.iidcolonia,
                     d.txtcalle,
                     d.txtcalle_letra,
@@ -311,7 +353,7 @@ class PersonsController extends BaseController
 
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         if (empty($data->iidpersona)) {
-            throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona');
+            throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona para asignar dirección');
         }
         $iidpersona = $data->iidpersona;
         // if (empty($data->iidpersona)) throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona');
@@ -324,6 +366,11 @@ class PersonsController extends BaseController
             'iidcolonia' => $data->direction->iidcolonia,
             'txtcalle' => $data->direction->txtcalle,
             'txtcalle_letra' => $data->direction->txtcalle_letra,
+            'itipo_vialidad' => $data->direction->itipo_vialidad,
+            'itipo_direccion' => $data->direction->itipo_direccion,
+            'txtavenida_kilometro' => $data->direction->txtavenida_kilometro,
+            'txttablaje' => $data->direction->txttablaje,
+            'txtdescripcion_direccion' => $data->direction->txtdescripcion_direccion,
             'inumero_exterior' => $data->direction->inumero_exterior,
             'txtnumero_exterior_letra' => $data->direction->txtnumero_exterior_letra,
             'inumero_interior' => $data->direction->inumero_interior,
@@ -375,13 +422,11 @@ class PersonsController extends BaseController
         $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
 
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        // var_dump($data);exit;
         if (empty($data->iidpersona)) {
-            throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona');
+            throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona para asignar Teléfono');
         }
         $iidpersona = $data->iidpersona;
-        // var_dump($data);exit;
-
-        // if (empty($data->iidpersona)) throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona');
         $this->validRequiredData($data->phone, 'phone'); // Validar datos requeridos
         // var_dump($data->direction->inumero_exterior);exit;
 
@@ -511,7 +556,7 @@ class PersonsController extends BaseController
                 $requiredKeys = array('bfisica', 'txtnombre', 'txtcurp'); // Claves requeridas
                 break;
             case 'direction':
-                $requiredKeys = array('iidcolonia', 'txtcalle'); // Claves requeridas
+                $requiredKeys = array('iidcolonia'); // Claves requeridas
                 break;
             case 'phone':
                 $requiredKeys = array('inumero', 'iidtelefono_tipo'); // Claves requeridas
@@ -523,6 +568,7 @@ class PersonsController extends BaseController
         }
         $actualKeys = array_keys(get_object_vars($data)); // Claves presentes en los datos
         $missingKeys = array_diff($requiredKeys, $actualKeys); // Claves faltantes
+        
         $message = 'Faltan valores requeridosss.';
 
         if (!empty($missingKeys)) throw new ValidatorBoomException(422, $message);

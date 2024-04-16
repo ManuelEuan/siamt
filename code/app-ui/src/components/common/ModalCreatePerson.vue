@@ -9,37 +9,66 @@
                         <v-tabs-slider color="primary" />
                         <v-tab href="#generaltab">
                             Datos Generales
-                            <v-icon> mdi-clipboard-text </v-icon>
+                            <v-badge v-if="newRegisterPerson" :color="generalPersonDataValidation ? 'success' : 'warning'">
+                                <v-icon> mdi-clipboard-text </v-icon>
+                            </v-badge>
+                            <v-icon v-else> mdi-clipboard-text </v-icon>
+
                         </v-tab>
-                        <v-tab href="#direccionestab" v-if="iidpersona">
+                        <v-tab href="#direccionestab">
                             Dirección
-                            <v-icon> mdi-card-account-details </v-icon>
+                            <v-badge v-if="newRegisterPerson" :color="directionValidation ? 'success' : 'warning'">
+                                <v-icon> mdi-card-account-details </v-icon>
+                            </v-badge>
+                            <!-- <v-badge v-else :color="directionValidation ? 'success' : 'warning'"> -->
+                                <v-icon v-else> mdi-card-account-details </v-icon>
+                            <!-- </v-badge> -->
+                            
                         </v-tab>
-                        <!-- <v-tab href="#telefonostab" v-if="iidpersona"> -->
                         <v-tab href="#telefonostab">
                             Telefono
-                            <v-icon> mdi-card-account-details </v-icon>
+                            <v-badge v-if="newRegisterPerson" :color="phoneValidation ? 'success' : 'warning'">
+                                <v-icon> mdi-card-account-details </v-icon>
+                            </v-badge>
+                            <!-- <v-badge v-else :color="phoneValidation ? 'success' : 'warning'"> -->
+                                <v-icon v-else> mdi-card-account-details </v-icon>
+                            <!-- </v-badge> -->
                         </v-tab>
                         <v-tab href="#filestab">
                             Archivos
-                            <v-icon> mdi-card-account-details </v-icon>
+                            <v-badge v-if="newRegisterPerson" :color="directionValidation ? 'success' : 'warning'">
+                                <v-icon> mdi-card-account-details </v-icon>
+                            </v-badge>
+                            <!-- <v-badge v-else :color="directionValidation ? 'success' : 'warning'"> -->
+                                <v-icon v-else> mdi-card-account-details </v-icon>
+                            <!-- </v-badge> -->
                         </v-tab>
                     </v-tabs>
                     <v-tabs-items v-model="tab">
                         <v-card flat>
                             <v-tab-item :key="1" value="generaltab" class="py-1">
-                                <general-person-data-verification :iidpersona="iidpersona"
+                                <general-person-data-verification 
+                                    :iidpersona="iidpersona" 
+                                    :reset="reset"
+                                    :newRegisterPerson="newRegisterPerson"
                                     :txtcurp="curp"
+                                    :dataPerson="dataPerson"
                                     @general-person-data-validation="handleFromGeneralPersonDataVerification"
                                     v-model="generalPersonDataValidation"></general-person-data-verification>
                             </v-tab-item>
                             <v-tab-item :key="2" value="direccionestab" class="py-1">
-                                <direction-verification :iidpersona="iidpersona"
+                                <direction-verification 
+                                    :iidpersona="iidpersona"
+                                    :reset="reset" 
+                                    :newRegisterPerson="newRegisterPerson"
                                     @direction-validation="handleFromDirectionVerification"
                                     v-model="directionValidation"></direction-verification>
                             </v-tab-item>
                             <v-tab-item :key="3" value="telefonostab" class="py-1">
-                                <phone-verification :iidpersona="iidpersona"
+                                <phone-verification 
+                                    :iidpersona="iidpersona"
+                                    :reset="reset" 
+                                    :newRegisterPerson="newRegisterPerson"
                                     @phone-validation="handleFromPhoneVerification"
                                     v-model="phoneValidation"></phone-verification>
                             </v-tab-item>
@@ -52,12 +81,13 @@
                             </v-tab-item>
                         </v-card>
                     </v-tabs-items>
-                    <v-card-actions v-if="tab === 'generaltab' && !iidpersona">
+                    new register? {{newRegisterPerson}}
+                    <v-card-actions v-if="!iidpersona">
                         <v-spacer />
                         <v-btn color="error" text @click="dialog = false"> Cerrar </v-btn>
                         <v-btn color="primary" v-if="iidpersona == 0" text
-                            :disabled="!generalPersonDataValidation || !phoneValidation" @click="savePersona()">
-                            Guardar (principal)
+                            :disabled="!generalPersonDataValidation || !directionValidation || !phoneValidation" @click="savePersona()">
+                            Guardar
                         </v-btn>
                     </v-card-actions>
                     <v-card-actions v-else>
@@ -69,6 +99,14 @@
         </v-dialog>
     </div>
 </template>
+
+<style>
+.v-badge__badge {
+    inset: auto auto calc(100% - 4px) calc(100% - -8px) !important;
+    height: 15px !important;
+    min-width: 15px !important;
+}
+</style>
 
 <script>
 // import rules from "@/core/rules.forms";
@@ -101,9 +139,12 @@ export default {
     },
     data() {
         return {
+            reset: false,
+            newRegisterPerson: false,
             newRegister: true,
             tab: "generaltab",
             dataPerson: {},
+            dataDirection: '',
             dataPhone: '',
             files: [],
             generalPersonDataValidation: false, // Variable para almacenar la validación de datos generales
@@ -119,7 +160,9 @@ export default {
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
-
+        getMode(){
+            this.newRegisterPerson = localStorage.getItem('newPerson');
+        },
         async savePersona() {
             console.log('Guardando persona');
             console.log(this.persona);
@@ -148,6 +191,19 @@ export default {
                     console.log(responsePhone.message);
                     this.showSuccess(responsePerson.message);
 
+
+                    let dataDirection = {
+                        iidpersona: responsePerson.iidpersona,
+                        direction: this.dataDirection,
+                        bactual: true
+                    }
+                    console.log('dataDirection por enviar');
+                    console.log(dataDirection);
+                    let responseDirection = await services.inspections().createDirection(dataDirection);
+                    console.log('responseDirection create')
+                    console.log(responseDirection.message);
+                    this.showSuccess(responsePerson.message);
+
                 }
             } catch (error) {
                 const message = 'Error al guardar ';
@@ -158,8 +214,10 @@ export default {
             this.generalPersonDataValidation = generalPersonDataVerify
             this.dataPerson = person
         },
-        handleFromDirectionVerification(directionVerify) {
+        handleFromDirectionVerification(directionVerify, direction) {
             this.directionValidation = directionVerify
+            this.dataDirection = direction
+
         },
         handleFromPhoneVerification(phoneVerify, phone) {
             this.phoneValidation = phoneVerify
@@ -175,9 +233,40 @@ export default {
         },
         'activateModal': function(){
             this.dialog = this.activateModal;
-        }
+        },
+        'dialog': function () {
+            // directionValidation(newValidation) {
+            if (!this.dialog) {
+                console.log('se cerró')
+                localStorage.setItem('newPerson', false);
+                
+            }else if(this.dialog && this.iidpersona==0){
+                console.log('se abrió')
+                localStorage.setItem('newPerson', true);
+                
+                console.log(this.persona)
+                console.log(this.dataPerson)
+            }
+            this.reset = true
+            // console.log(this.dataPerson)
+            // console.log(this.persona)
+            // console.log(this.iidpersona)
+            this.newRegisterPerson = localStorage.getItem('newPerson');
+            this.newRegisterPerson = this.newRegisterPerson === 'true';
+           
+        },  
+        'curp': function(){
+            console.log('recibiendo este curpppp: '+this.curp)
+        },  
       
+    },
+    mounted(){
+        this.newRegisterPerson = localStorage.getItem('newPerson');
+        if(this.newRegisterPerson){
+            this.dataPerson={}
+        }
     }
+
 
 }
 </script>
