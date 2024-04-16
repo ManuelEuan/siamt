@@ -22,20 +22,22 @@
                         <v-tab-item :key="1" value="generaltab" class="py-1">
                             <v-card-text>
                                 <v-form v-model="valid">
-                                    <curp-verification v-if="createMode" @person-info="handlePersonInfo"
-                                        ref="curpVerification"></curp-verification>
-                                        
+                                    <curp-verification :style="{ display: createMode ? 'block' : 'none !important' }"
+                                        :iidpersona="persona.iidpersona" :receivedCurp="persona.txtcurp"
+                                        @person-info="handlePersonInfo" ref="curpVerification"></curp-verification>
+
                                     <v-row v-if="!createMode">
                                         <v-col cols="12" md="4">
-                                            <v-text-field v-model="nombreCompleto" label="Nombre Completo*" hide-details="auto"
-                                            clearable dense :disabled="!createMode" outlined />
+                                            <v-text-field v-model="nombreCompleto" label="Nombre Completo*"
+                                                hide-details="auto" clearable dense :disabled="!createMode" outlined />
                                         </v-col>
                                         <v-col cols="12" md="4">
                                             <v-text-field v-model="persona.txtcurp" label="CURP*" hide-details="auto"
-                                            clearable dense :disabled="!createMode" outlined />
+                                                clearable dense :disabled="!createMode" outlined />
                                         </v-col>
-                                        <v-col cols="12" md="4" >
-                                            <v-btn color="primary" text @click=showDialogPerson(persona.iidpersona)>Información Completa 2</v-btn>
+                                        <v-col cols="12" md="4">
+                                            <v-btn color="primary" text @click=showDialogPerson()>Información Completa
+                                                2</v-btn>
                                         </v-col>
                                     </v-row>
                                     <v-row v-if="personaEncontrada && personaDisponible || !createMode">
@@ -76,20 +78,18 @@
 
                                         <!-- PROCESOS -->
                                         <v-col cols="12" md="6" v-if="!createMode">
-                                            <v-select v-model="inspector.iidproceso"
-                                                label="Proceso*" :rules="[rules.required]"
-                                                :items="processes" item-text="txtnombre"
-                                                item-value="iidproceso" hide-details="auto" small-chips
-                                                clearable dense outlined />
+                                            <v-select v-model="inspector.iidproceso" label="Proceso*"
+                                                :rules="[rules.required]" :items="processes" item-text="txtnombre"
+                                                item-value="iidproceso" hide-details="auto" small-chips clearable dense
+                                                outlined />
                                         </v-col>
 
                                         <!-- ETAPAS -->
                                         <v-col cols="12" md="6" v-if="!createMode">
-                                            <v-select v-model="inspector.iidetapa"
-                                                @change="verifySubStages" label="Etapa*" :rules="[rules.required]"
-                                                :items="stages" item-text="txtetapa_nombre"
-                                                item-value="iidetapa" hide-details="auto" small-chips
-                                                clearable dense outlined />
+                                            <v-select v-model="inspector.iidetapa" @change="verifySubStages"
+                                                label="Etapa*" :rules="[rules.required]" :items="stages"
+                                                item-text="txtetapa_nombre" item-value="iidetapa" hide-details="auto"
+                                                small-chips clearable dense outlined />
                                         </v-col>
 
                                         <!-- SUBETAPAS -->
@@ -109,19 +109,19 @@
                                 </v-form>
                             </v-card-text>
                         </v-tab-item>
-                        Persona Encontrada: {{ personaEncontrada }} 
+                        Persona Encontrada: {{ personaEncontrada }}
                         Persona Disponible: {{ personaDisponible }}
                         <v-card-actions>
                             <v-spacer />
                             <v-btn color="error" text @click="exitWindow()"> Cerrar </v-btn>
-                            <v-btn color="primary" text :disabled="!personaEncontrada || !personaDisponible" @click="saveInspector()"> Guardarss </v-btn>
+                            <v-btn color="primary" text :disabled="!personaEncontrada || !personaDisponible"
+                                @click="saveInspector()"> Guardarss </v-btn>
                         </v-card-actions>
 
                     </v-card>
                 </v-tabs-items>
             </v-col>
         </v-row>
-        <modal-create-person ref="ModalCreatePerson" :isNewPerson="false" @person-created="handlefromCreatePerson" />
     </v-container>
 </template>
 
@@ -129,13 +129,11 @@
 import rules from "@/core/rules.forms";
 import services from "@/services";
 import CurpVerification from '@/components/common/CurpVerification.vue';
-import ModalCreatePerson from "@/components/common/ModalCreatePerson.vue";
 import { mapActions } from "vuex";
 
 export default {
     components: {
         CurpVerification,
-        ModalCreatePerson,
     },
     data() {
         return {
@@ -146,8 +144,6 @@ export default {
             valid: false,
             tab: "generaltab",
             permissions: [],
-
-            dialog: false,
             personaEncontrada: false,
             personaDisponible: false,
             processes: [],
@@ -210,16 +206,10 @@ export default {
         ...mapActions('app', ['showError', 'showSuccess']),
         async loadSelectableData() {
             try {
-                const { id } = this.$route.params;
-                console.log(id);
-                console.log('idssuhfueihfiejfieojfiej');
                 this.categories = await services.inspections().getAllCategoriesInspector();
-                // let stages = await services.inspections().getAllStagesInspector();
                 this.processes = await services.inspections().getAllProcessesInspector();
                 this.stages = await services.inspections().getAllStagesInspector();
-                // this.stages = {...await services.inspections().getAllStagesInspector()};
                 this.shifts = await services.inspections().getAllShiftsInspector();
-
             } catch (error) {
                 const message = 'Error al cargar opciones para nuevo inspector.';
                 this.showError({ message, error });
@@ -230,12 +220,6 @@ export default {
                 const { id } = this.$route.params;
                 this.inspector = { ...await services.inspections().getInspectorInfo({ id }) };
                 let curp = this.inspector.txtcurp;
-                // let stage = this.inspector.iidetapa
-                // response = await services.inspections().getAllSubStagesByStage({stage});
-                // console.log('response stages')
-                // console.log(response)
-                // this.subStages
-                // this.persona = { ...await services.inspections().getPersonByCurp({ curp }) };
                 let data = {
                     typeSearch: 'CURP',
                     dataSearch: curp
@@ -268,19 +252,19 @@ export default {
                 this.inspector.dvigencia = null
             }
         },
-        verifySubStages(){
+        verifySubStages() {
             console.log('verifciar sub etapas de nueva etapa')
         },
-        handlePersonInfo(isFound, isAvailable, person, curpVerified) {
-            this.persona = person
-            let tmp_inspector = this.inspector
-            this.inspector = {}
-            this.inspector = tmp_inspector
-            this.inspector.iidpersona = this.persona.iidpersona
-            this.personaEncontrada = isFound
-            this.personaDisponible = isAvailable
-            this.curpVerificada = curpVerified
-        },
+        // handlePersonInfo(isFound, isAvailable, person, curpVerified) {
+        //     this.persona = person
+        //     let tmp_inspector = this.inspector
+        //     this.inspector = {}
+        //     this.inspector = tmp_inspector
+        //     this.inspector.iidpersona = this.persona.iidpersona
+        //     this.personaEncontrada = isFound
+        //     this.personaDisponible = isAvailable
+        //     this.curpVerificada = curpVerified
+        // },
         async saveInspector() {
             if (!this.maintainCurp()) return this.$refs.curpVerification.$data.dialogCurpChanged = true;
             if (!this.valid) return;
@@ -306,7 +290,7 @@ export default {
         maintainCurp() {
             console.log('Curp verificada: ' + this.curpVerificada)
             console.log('Curp actual: ' + this.persona.txtcurp)
-            if (this.curpVerificada !== '' && this.curpVerificada !== this.$refs.curpVerification.$data.curp) {
+            if (this.curpVerificada !== '' && this.curpVerificada !== this.$refs.curpVerification.curp) {
                 return false
             }
             return true
@@ -314,27 +298,15 @@ export default {
         exitWindow() {
             this.$router.push("/inspections/inspectors");
         },
-        showDialogPerson(iidpersona) {
-            console.log('se mostrará el dialog persona 2')
-            console.log(this.persona.txtcurp)
-            console.log(iidpersona)
-            this.dialogOpen = false
-            this.dialog = true;
-            if(iidpersona!=0){
-                this.$refs.ModalCreatePerson.iidpersona = this.persona.iidpersona;
-                this.$refs.ModalCreatePerson.dialog = true
-            }
-            this.$refs.ModalCreatePerson.curp = this.persona.txtcurp;
-            // this.$refs.ModalCreatePerson.dialog = true;
+        showDialogPerson() {
+            this.$refs.curpVerification.$refs.ModalCreatePerson.dialog = true
+            this.$refs.curpVerification.$refs.ModalCreatePerson.curp = this.persona.txtcurp;
         },
-        handlefromCreatePerson(){
+        handlePersonInfo() {
             console.log('retorno del modal person')
         }
-
     },
     async mounted() {
-        console.log(this.createMode);
-        console.log('createMode');
         await this.loadSelectableData();
         if (!this.createMode) await this.setEditMode();
     }

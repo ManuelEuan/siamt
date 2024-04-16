@@ -178,11 +178,19 @@ export default {
         GenericDialog,
     },
     props: {
+        iidpersona: {
+            type: Number,
+            default: 0 // Valor predeterminado
+        },
+        receivedCurp: {
+            type: String,
+            default: '', // Valor predeterminado
+        },
     },
     data() {
         return {
             // ENVIAR A MODAL DE PERSONAS
-            iidpersona: 0,
+            // iidpersona: 0,
             curp: '',
             activateModalPerson: true,
 
@@ -288,7 +296,7 @@ export default {
                     console.log('PERSONA NO ENCONTRADA')
                     this.personaEncontrada = false
                     this.personaDisponible = true
-                    this.iidpersona = 0
+                    // this.iidpersona = 0
                     this.curp = curp
                     this.persona.txtcurp = curp
                     this.$emit('person-info', false, true, this.persona, this.persona.txtcurp, this.persona.isInspector);
@@ -326,11 +334,9 @@ export default {
                         this.$refs.ModalCreatePerson.iidpersona = this.persona.iidpersona
                         this.$refs.ModalCreatePerson.dataPerson = this.persona
 
-                        this.iidpersona = this.persona.iidpersona;
+                        // this.iidpersona = this.persona.iidpersona;
                         console.log('queeeeeeeeee')
-                        console.log(this.iidpersona)
-                        console.log(this.persona)
-                        console.log(this.$refs)
+                   
                         this.curp = this.persona.txtcurp;
                     } else if (response.isInspector === true) {  // Si la persona ya es inspector mostrará un modal de redirección
                         console.log('aca entró 2')
@@ -371,7 +377,7 @@ export default {
             this.nombreCompleto = nombreCompleto.trim();
             this.curpVerificada = this.persona.txtcurp
             this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.isInspector);
-            this.iidpersona = this.persona.iidpersona;
+            // this.iidpersona = this.persona.iidpersona;
             this.txtcurp = this.persona.txtcurp;
             this.dialogPeopleFounds = false
 
@@ -437,6 +443,9 @@ export default {
             if (curpRules) {
                 this.curpRegisterFieldValido = curpRules(this.curpRegisterField) === true;
             }
+        },
+        'receivedCurp': function () {
+            this.curp = this.receivedCurp
         },
     },
     mounted() {
