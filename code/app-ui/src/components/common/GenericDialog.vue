@@ -1,15 +1,16 @@
 <template>
     <v-dialog v-model="dialogVisibleProp" :max-width="maxWidth">
       <v-card>
-        <v-card-title>{{ dialogTitle }}</v-card-title>
+        <v-card-title class="text-uppercase primary--text text-h6 py-2">{{ dialogTitle }}</v-card-title>
         <!-- <v-card-text>{{ dialogText }}</v-card-text> -->
         <!-- Aquí usamos v-html para interpretar HTML -->
         <!-- <v-card-text v-html="dialogText"></v-card-text>  -->
         <v-card-text>
             <slot></slot> <!-- Insertamos el contenido del slot -->
         </v-card-text>
-        <v-card-actions>
-          <v-spacer />
+        <v-divider></v-divider>
+        <v-card-actions class="justify-end" >
+          <!-- <v-spacer /> -->
           <v-btn color="error" text @click="cancelAction">Cancelar</v-btn>
           <v-btn color="primary" text @click="confirmAction">Aceptar</v-btn>
         </v-card-actions>

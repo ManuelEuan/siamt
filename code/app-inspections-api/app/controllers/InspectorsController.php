@@ -181,122 +181,6 @@ class InspectorsController extends BaseController
         return $sql; // Devolver fragmento de consulta para ordenamiento
     }
 
-    public function getPersonByDinamycSearch()
-    {
-        $data =  $this->request->getJsonRawBody();
-        $typeSearch = $data->data->typeSearch;
-        $dataSearch = $data->data->dataSearch;
-
-        $sql = "SELECT 
-            p.iidpersona,
-            p.bfisica,
-            p.txtnombre,
-            p.txtapepat,
-            p.txtapemat,
-            p.txtrfc,
-            p.txtine,
-            p.txtcurp,
-            p.txtcorreo,
-            p.iidestado_civil,
-            p.iidsexo,
-            p.dfecha_nacimiento,
-            ec.txtnombre AS txtestado_civil,
-            s.txtnombre AS txtsexo,
-            p.bactivo AS activo,
-            TO_CHAR(p.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-            TO_CHAR(p.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-        FROM persona.tbl_persona p 
-        LEFT JOIN persona.cat_estado_civil ec ON p.iidestado_civil = ec.iidestado_civil
-        LEFT JOIN persona.cat_sexo s ON p.iidsexo = s.iidsexo
-    ";
-
-        switch ($typeSearch) {
-            case 'NOMBRE':
-                // Se divide el valor de búsqueda en palabras individuales
-                $searchTerms = explode(' ', $dataSearch);
-
-                // Se inicializa un array para almacenar las condiciones de búsqueda
-                $conditions = [];
-
-                // Se construyen las condiciones para cada palabra de búsqueda
-                foreach ($searchTerms as $term) {
-                    if ($term != "") {
-
-                        $dataSearch = '%' . $term . '%';
-                        // Se agregan las condiciones para cada columna relevante
-                        $conditions[] = '(UPPER(p.txtnombre) ILIKE UPPER(:dataSearch) 
-                                     OR UPPER(p.txtapepat) ILIKE UPPER(:dataSearch) 
-                                     OR UPPER(p.txtapemat) ILIKE UPPER(:dataSearch))';
-                        $where = ' WHERE ' . implode(' OR ', $conditions);
-                    }
-                }
-
-                // Se unen las condiciones con OR para que cualquiera de ellas coincida
-                break;
-            case 'CURP':
-                $where = ' WHERE p.txtcurp=:dataSearch';
-                break;
-            case 'RFC':
-                $where = ' WHERE p.txtrfc=:dataSearch';
-                break;
-            default:
-                // Si el tipo de búsqueda no coincide con ninguno de los casos anteriores, usar la búsqueda por RFC como predeterminada
-                $where = ' WHERE p.txtrfc=:dataSearch';
-                break;
-        }
-
-        $sqlComplete = $sql . $where;
-
-        // $this->dep($sqlComplete);
-        // exit;
-        $params = array('dataSearch' => $dataSearch);
-        // $this->dep($sqlComplete);
-        // exit;
-        if ($typeSearch == 'CURP' || $typeSearch == 'RFC') {
-            $personas[] = Db::fetchOne($sqlComplete, $params);
-        } else {
-            $personas = Db::fetchAll($sqlComplete, $params);
-        }
-
-        // $this->dep(count($personas));
-
-        // SI NO EXISTE LA PERSONAs SE RETORNA VACÍO
-        if (!$personas) {
-            return 0;
-        }
-
-        // SI EXISTE PERSONAs ÚNICA SE RETORNAN LOS DATOS ESPECÍFICOS
-        if (count($personas) > 0) {
-            foreach ($personas as $key => $persona) {
-                // Consulta adicional para obtener información de inspección
-                $sql2 = "SELECT iidinspector, iidinspector, txtfolio_inspector
-                    FROM inspeccion.tbl_inspector
-                    WHERE iidpersona=:iidpersona
-                ";
-    
-                $params2 = array('iidpersona' => $persona->iidpersona);
-                $inspector = Db::fetchOne($sql2, $params2);
-    
-                if (!$inspector) {
-                    $persona->isInspector = false;
-                } else {
-                    $persona->iidinspector = $inspector->iidinspector;
-                    $persona->isInspector = true;
-                }
-            }
-        }
-        // $this->dep($personas);
-        // exit;
-        return $personas;
-        // elseif((count($persona) > 1)){
-
-        // }
-
-        // SI EXISTEN MUCHAS PERSONAS QUE COINCIDEN CON LA BÚSQUEDA SE RETORNAN TODAS
-        // return $persona;
-    }
-
-
     public function getAllCategoriesInspector()
     {
         $sql = "SELECT 
@@ -370,7 +254,8 @@ class InspectorsController extends BaseController
     {
         $this->hasClientAuthorized('veii'); // Verificar si el cliente tiene autorización
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        $this->dep($data);exit;
+        $this->dep($data);
+        exit;
         if (empty($data->stage)) throw new ValidatorBoomException(422, 'Etapa requerida.'); // Lanzar excepción si el ID está vacío
         $params = array('iidetapa' => $data->stage); // Parámetros para la consulta
         $sql = "

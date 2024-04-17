@@ -14,7 +14,6 @@ $app->mount(
     ->setHandler(InspectorsController::class, true)
     ->post("/inspectors", "getInspectors")
     ->post("/inspectors/getPersonByCurp", "getPersonByCurp")
-    ->post("/inspectors/getPersonByDinamycSearch", "getPersonByDinamycSearch")
     ->get("/inspectors/getAllCategoriesInspector", "getAllCategoriesInspector")
     ->get("/inspectors/getAllProcessesInspector", "getAllProcessesInspector")
     ->get("/inspectors/getAllStagesInspector", "getAllStagesInspector")
@@ -51,6 +50,8 @@ $app->mount(
     ->put("/persons/direction", "updateAddress")
     ->post("/persons/phone/new", "createPhone")
     ->put("/persons/phone", "updatePhone")
+    ->post("/persons/getPersonByDinamycSearch", "getPersonByDinamycSearch")
+
 );
 
 

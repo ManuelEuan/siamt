@@ -66,15 +66,15 @@
             dialogTitle="La clave ingresada no se encuentra en el sistema"
             @update:dialogVisible="dialogRegisterPerson = $event" @confirm="showDialogPerson(0)">
             <template v-slot:default>
-                <v-card-text v-if="search === 'NOMBRE'">
+                <div v-if="search === 'NOMBRE'">
                     Para poder registrar al inspector deberá registrar su CURP
                     <v-text-field v-model="curpRegisterField" label="CURP*" style="max-height: 40px;"
                         :rules="[rules.curp]" maxlength="18" hide-details="auto" clearable dense @input="toUpperCase"
                         outlined />
-                </v-card-text>
-                <v-card-text v-else>
+                </div>
+                <div v-else>
                     ¿Desea registrarlo?
-                </v-card-text>
+                </div>
             </template>
         </generic-dialog>
 
@@ -112,7 +112,7 @@
                                         <th class="text-left">
                                             Fecha de Nacimiento
                                         </th>
-                                        <th class="text-left">
+                                        <th class="text-left" v-if="typeOfRequest">
                                             ¿Es inspector?
                                         </th>
                                         <th class="text-left" style="min-width: 140px;">
@@ -124,7 +124,7 @@
                                     <tr v-for="item in peopleFounds" :key="item.iidpersona">
                                         <td>{{ item.txtnombre }}{{ item.txtapepat }}</td>
                                         <td>{{ item.dfecha_nacimiento }}</td>
-                                        <td>
+                                        <td v-if="typeOfRequest">
                                             <template item.isInspector>
                                                 <v-icon v-show="item.isInspector" size="medium" color="green">
                                                     mdi-check
@@ -135,13 +135,13 @@
                                         </td>
                                         <td>
                                             <template>
-                                                <v-tooltip bottom v-if="!item.isInspector">
+                                                <v-tooltip bottom v-if="!item.foundRequestSearched">
                                                     <template v-slot:activator="{ on, attrs }">
                                                         <v-btn v-bind="attrs" v-on="on" icon small
                                                             @click="peopleSelected(item)">
-                                                            <v-icon small v-show="item.isInspector"> mdi-close
+                                                            <v-icon small v-show="item.foundRequestSearched"> mdi-close
                                                             </v-icon>
-                                                            <v-icon small v-show="!item.isInspector"> mdi-check
+                                                            <v-icon small v-show="!item.foundRequestSearched"> mdi-check
                                                             </v-icon>
                                                         </v-btn>
                                                     </template>
@@ -284,78 +284,74 @@ export default {
                     console.log('seleccionó nombre')
                     data = {
                         typeSearch: this.search,
-                        dataSearch: this.nombre
+                        dataSearch: this.nombre,
+                        typeOfRequest: this.typeOfRequest
                     }
                 }
                 if (this.search === 'CURP') {
                     console.log('seleccionó curp')
                     data = {
                         typeSearch: this.search,
-                        dataSearch: this.curp
+                        dataSearch: this.curp,
+                        typeOfRequest: this.typeOfRequest
                     }
                 }
                 if (this.search === 'RFC') {
                     console.log('seleccionó rfc')
                     data = {
                         typeSearch: this.search,
-                        dataSearch: this.rfc
+                        dataSearch: this.rfc,
+                        typeOfRequest: this.typeOfRequest
                     }
                 }
+
+                console.log('*************typeOfRequest*************')
+                console.log(this.typeOfRequest)
+
                 response = await services.inspections().getPersonByDinamycSearch({ data });
 
                 // SI NO EXISTE SE AGREGA LA PERSONA
-                if (response[0] == false || !response) {
-                    // console.log('CURP A VERIFICAR 5' + curp)
+                if (!response) {
                     console.log('PERSONA NO ENCONTRADA')
                     this.personaEncontrada = false
                     this.personaDisponible = true
-                    // this.iidpersona = 0
-                    // this.curp = curp
-                    // this.persona.txtcurp = curp
                     console.log('1')
-                    this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.isInspector);
+                    localStorage.setItem('newPerson', true);
+                    // this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.isInspector);
                     this.dialogRegisterPerson = true;
-                } else if (typeof (response) === 'object' && response.length > 1) {
-                    // alert('fue búsqueda por nombre y hay más registros')
+                } else if (response.length > 1) {
+                    console.log('MÁS DE UN REGISTRO ENCONTRADO')
                     this.peopleFounds = response
                     this.dialogPeopleFounds = true
-                    // SI SOLO SE ENCONTRÓ UNA SEA POR NOMBRE, RFC O CURP SE VERIFICA SI ES INSPECTOR
-                } else {
+                } else { 
+                    console.log('BIEN, SOLO UN REGISTRO')
                     response = response[0]
-                    if (response.isInspector === false) { //Si la persona no es inspector(esta disponible) devuelve la persona encontrada
-                        this.persona = {}
-                        this.personaEncontrada = true
-                        this.personaDisponible = true
-                        this.persona = { ...response }
-                        let nombreCompleto = '';
-                        if (this.persona.txtnombre) {
-                            nombreCompleto += this.persona.txtnombre + ' ';
+                    this.personaEncontrada = true
+                    this.persona = { ...response }
+                    let nombreCompleto = '';
+                    if (this.persona.txtnombre) {
+                        nombreCompleto += this.persona.txtnombre + ' ';
+                    }
+                    if (this.persona.txtapepat) {
+                        nombreCompleto += this.persona.txtapepat + ' ';
+                    }
+                    if (this.persona.txtapemat) {
+                        nombreCompleto += this.persona.txtapemat + ' ';
+                    }
+                    this.nombreCompleto = nombreCompleto.trim();
+                    this.curpVerificada = this.persona.txtcurp
+                    localStorage.setItem('newPerson', false);
+                    this.personaDisponible = true
+                    if(this.typeOfRequest){
+                        if (response.foundRequestSearched === true) {  // Si la persona ya es inspector mostrará un modal de redirección
+                            this.personaDisponible = false
+                            this.curpVerificada = this.persona.txtcurp
+                            this.rutaInspector = `/inspectors/${response.iidOfSearchedRequest}/edit`;
+                            this.dialogInspector = true;
                         }
-                        if (this.persona.txtapepat) {
-                            nombreCompleto += this.persona.txtapepat + ' ';
-                        }
-                        if (this.persona.txtapemat) {
-                            nombreCompleto += this.persona.txtapemat + ' ';
-                        }
-                        this.nombreCompleto = nombreCompleto.trim();
-                        this.curpVerificada = this.persona.txtcurp
-                        console.log('2')
-                        this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.isInspector);
-                        console.log('aca entró')
-                        localStorage.setItem('newPerson', false);
-                        console.log(needModal)
-                        this.$refs.ModalCreatePerson.dialog = needModal
-                        console.log('$refs.ModalCreatePerson de verificación')
-                        console.log(this.$refs.ModalCreatePerson)
-                    } else if (response.isInspector === true) {  // Si la persona ya es inspector mostrará un modal de redirección
-                        this.personaEncontrada = true
-                        this.personaDisponible = false
-                        this.persona = { ...response }
-                        this.curpVerificada = this.persona.txtcurp
-                        this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.isInspector);
-                        this.rutaInspector = `/inspectors/${response.iidinspector}/edit`;
-                        console.log(this.rutaInspector)
-                        this.dialogInspector = true;
+                        this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.foundRequestSearched);
+                    }else{
+                        this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.foundRequestSearched);
                     }
                 }
             } catch (error) {

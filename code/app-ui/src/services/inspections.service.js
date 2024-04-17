@@ -19,7 +19,7 @@ export default class InspectionsService extends ApiService {
   }
 
   async getPersonByDinamycSearch(data) {
-    return await this.post("/inspectors/getPersonByDinamycSearch", JSON.stringify(data));
+    return await this.post("/persons/getPersonByDinamycSearch", JSON.stringify(data));
   }
 
   async getAllCategoriesInspector() {

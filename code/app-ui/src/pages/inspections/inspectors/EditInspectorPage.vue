@@ -24,8 +24,7 @@
                                 <v-form v-model="valid">
                                     <!-- :receivedCurp="persona.txtcurp" -->
                                     <curp-verification :style="{ display: createMode ? 'block' : 'none !important' }"
-                                        :getInfoPerson=getInfoPerson
-                                        :typeOfRequest="Inspectores"
+                                        :typeOfRequest="'Inspector'"
                                         @person-info="handlePersonInfo" ref="curpVerification"></curp-verification>
 
                                     <v-row v-if="!createMode">
@@ -189,7 +188,6 @@ export default {
             rules: {
                 ...rules,
             },
-            getInfoPerson: false,
         };
     },
     computed: {
@@ -302,7 +300,6 @@ export default {
             console.log(person)
             console.log('Persona CURP: ' + personCurp)
             console.log('Persona tipo inspector: ' + isInspector)
-            this.getInfoPerson = false
         }
     },
     async mounted() {

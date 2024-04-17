@@ -30,6 +30,112 @@ class PersonsController extends BaseController
         return $format;
     }
 
+    public function getPersonByDinamycSearch()
+    {
+        $data =  $this->request->getJsonRawBody();
+        $typeSearch = $data->data->typeSearch;
+        $dataSearch = $data->data->dataSearch;
+        $typeOfRequest = $data->data->typeOfRequest;
+
+        $sql = "SELECT 
+                    p.iidpersona,
+                    p.bfisica,
+                    p.txtnombre,
+                    p.txtapepat,
+                    p.txtapemat,
+                    p.txtrfc,
+                    p.txtine,
+                    p.txtcurp,
+                    p.txtcorreo,
+                    p.iidestado_civil,
+                    p.iidsexo,
+                    p.dfecha_nacimiento,
+                    ec.txtnombre AS txtestado_civil,
+                    s.txtnombre AS txtsexo,
+                    p.bactivo AS activo,
+                    TO_CHAR(p.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
+                    TO_CHAR(p.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
+                FROM persona.tbl_persona p 
+                LEFT JOIN persona.cat_estado_civil ec ON p.iidestado_civil = ec.iidestado_civil
+                LEFT JOIN persona.cat_sexo s ON p.iidsexo = s.iidsexo
+        ";
+
+        switch ($typeSearch) {
+            case 'NOMBRE':
+                // Se divide el valor de búsqueda en palabras individuales
+                $searchTerms = explode(' ', $dataSearch);
+
+                // Se inicializa un array para almacenar las condiciones de búsqueda
+                $conditions = [];
+
+                // Se construyen las condiciones para cada palabra de búsqueda
+                foreach ($searchTerms as $term) {
+                    if ($term != "") {
+
+                        $dataSearch = '%' . $term . '%';
+                        // Se agregan las condiciones para cada columna relevante
+                        $conditions[] = '(UPPER(p.txtnombre) ILIKE UPPER(:dataSearch) 
+                                     OR UPPER(p.txtapepat) ILIKE UPPER(:dataSearch) 
+                                     OR UPPER(p.txtapemat) ILIKE UPPER(:dataSearch))';
+                        $where = ' WHERE ' . implode(' OR ', $conditions);
+                    }
+                }
+
+                // Se unen las condiciones con OR para que cualquiera de ellas coincida
+                break;
+            case 'CURP':
+                $where = ' WHERE p.txtcurp=:dataSearch';
+                break;
+            case 'RFC':
+                $where = ' WHERE p.txtrfc=:dataSearch';
+                break;
+            default:
+                // Si el tipo de búsqueda no coincide con ninguno de los casos anteriores, usar la búsqueda por RFC como predeterminada
+                $where = ' WHERE p.txtrfc=:dataSearch';
+                break;
+        }
+
+        $sqlComplete = $sql . $where;
+        $params = array('dataSearch' => $dataSearch);
+        if ($typeSearch == 'CURP' || $typeSearch == 'RFC') {
+            $personas[] = Db::fetchOne($sqlComplete, $params);
+        } else {
+            $personas = Db::fetchAll($sqlComplete, $params);
+        }
+        // $this->dep($personas);exit;
+        // SI NO EXISTE LA PERSONA SE RETORNA VACÍO
+        if (!$personas) {
+            return;
+        }
+
+        // SI EXISTE PERSONA ÚNICA SE RETORNAN LOS DATOS ESPECÍFICOS
+        if($typeOfRequest == 'Inspector'){
+            if (count($personas) > 0) {
+                foreach ($personas as $key => $persona) {
+                    // Consulta adicional para obtener información de inspección
+                    $sql2 = "SELECT iidinspector, iidinspector, txtfolio_inspector
+                        FROM inspeccion.tbl_inspector
+                        WHERE iidpersona=:iidpersona
+                    ";
+    
+                    $params2 = array('iidpersona' => $persona->iidpersona);
+                    $inspector = Db::fetchOne($sql2, $params2);
+    
+                    if (!$inspector) {
+                        $persona->foundRequestSearched = false;
+                    } else {
+                        $persona->iidOfSearchedRequest = $inspector->iidinspector;
+                        $persona->foundRequestSearched = true;
+                    }
+                }
+            }
+        }
+        
+        // SI EXISTEN MUCHAS PERSONAS QUE COINCIDEN CON LA BÚSQUEDA SE RETORNAN TODAS
+        return $personas;
+        // return $persona;
+    }
+
     public function getAllSexesPerson()
     {
         $sql = "SELECT 
