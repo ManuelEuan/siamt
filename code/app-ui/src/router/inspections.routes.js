@@ -1,4 +1,5 @@
 export default [
+    // MÓDULO INSPECCIONES
     {
         path: '/dropdown',
         name: 'dropdown',

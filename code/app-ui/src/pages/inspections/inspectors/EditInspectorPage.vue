@@ -144,7 +144,7 @@ export default {
             },
             valid: false,
             tab: "generaltab",
-            permissions: [],
+            peopleModulePermissions: [],
             personaEncontrada: false,
             personaDisponible: false,
             processes: [],
@@ -309,6 +309,13 @@ export default {
     async mounted() {
         await this.loadSelectableData();
         if (!this.createMode) await this.setEditMode();
+        const { pel } = await services.security().getPermissions();
+        console.log('permisos para el módulo persona')
+        console.log(pel)
+        if (pel) this.peopleModulePermissions = pel;
+        // console.log('permisos para módulo persona')
+        // console.log(pel)
+        // if (pel) this.permissions = pel;
     }
 };
 </script>

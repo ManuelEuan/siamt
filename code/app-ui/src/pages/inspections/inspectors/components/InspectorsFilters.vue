@@ -149,8 +149,13 @@
             console.log(hola)
             // console.log(hola)
             const { iin } = await services.security().getPermissions();
+            console.log('permisos para módulo inspectores')
+            console.log(iin)
             if (iin) this.permissions = iin;
-            console.log(this.permissions)
+            // const { pel } = await services.security().getPermissions();
+            // console.log('permisos para módulo persona')
+            // console.log(pel)
+            // if (pel) this.permissions = pel;
         },
     };
     </script>
