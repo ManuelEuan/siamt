@@ -22,10 +22,10 @@
                         <v-tab-item :key="1" value="generaltab" class="py-1">
                             <v-card-text>
                                 <v-form v-model="valid">
+                                    <!-- :receivedCurp="persona.txtcurp" -->
                                     <curp-verification :style="{ display: createMode ? 'block' : 'none !important' }"
-                                        :iidpersona="persona.iidpersona" 
-                                        :receivedCurp="persona.txtcurp"
                                         :getInfoPerson=getInfoPerson
+                                        :typeOfRequest="Inspectores"
                                         @person-info="handlePersonInfo" ref="curpVerification"></curp-verification>
 
                                     <v-row v-if="!createMode">
@@ -38,7 +38,7 @@
                                                 clearable dense :disabled="!createMode" outlined />
                                         </v-col>
                                         <v-col cols="12" md="4">
-                                            <v-btn color="primary" text @click=showDialogPerson()>Información Completa 2</v-btn>
+                                            <v-btn color="primary" text @click=showDialogPerson>Información Completa 2</v-btn>
                                         </v-col>
                                     </v-row>
                                     <v-row v-if="personaEncontrada && personaDisponible || !createMode">
@@ -291,12 +291,11 @@ export default {
             this.$router.push("/inspections/inspectors");
         },
         showDialogPerson() {
-            this.getInfoPerson = true
+            this.$refs.curpVerification.persona = this.persona;
             this.$refs.curpVerification.$refs.ModalCreatePerson.dialog = true
-            this.$refs.curpVerification.$refs.ModalCreatePerson.curp = this.persona.txtcurp;
         },
         handlePersonInfo(personFound, availablePerson, person, personCurp, isInspector) {
-            console.log('retorno del modal person')
+            console.log('retorno del componente Curp Verification')
             console.log('Persona encontrada: ' + personFound)
             console.log('Persona disponible: ' + availablePerson)
             console.log('Persona Información Completa: ')

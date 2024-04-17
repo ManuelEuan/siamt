@@ -280,8 +280,6 @@ export default {
             dialogDelete: false,
             dialogNewCurrentAddress: false,
             updateCurrentAddress: 0,
-            // iidpersona: null,
-            // iidpersona: 84,
             selectedDirectionType: null,
             directionOptions: [
                 {
@@ -343,11 +341,7 @@ export default {
     },
     created() {
         // Establecer el primer elemento como seleccionado por defecto
-        // this.selectedDirectionType = this.directionTypes[0];
         this.direction.itipo_direccion = this.directionOptions[0].itipo_direccion;
-    },
-    computed: {
-
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
@@ -381,7 +375,7 @@ export default {
             try {
                 this.postalCodes = await services.inspections().getAllPostalCodes();
             } catch (error) {
-                const message = 'Error al cargar opciones para nuevo inspector.';
+                const message = 'Error al cargar opciones de códigos postales.';
                 this.showError({ message, error });
             }
         },
@@ -397,7 +391,6 @@ export default {
         },
         resetDirection(){
             this.personaAddresses=[],
-
             this.direction = {
                     iidcolonia: 0,
                     txtcalle: '',
@@ -440,17 +433,13 @@ export default {
                 console.log(data)
                 if (!this.direction.iiddireccion) {
                     let response = await services.inspections().createDirection(data);
-                    console.log('response del create')
-                    console.log(response)
+                    console.log('direction create')
                     this.showSuccess(response.message);
                     this.showDirections=true
                 } else {
-                    console.log('es edicion')
                     let response = await services.inspections().updateAddress(data);
-                    console.log('response del update')
-                    console.log(response)
+                    console.log('direction update')
                     this.showSuccess(response.message);
-
                 }
                 this.newDirection = false
                 await this.loadDirectionsTable();
@@ -493,14 +482,13 @@ export default {
                     iidpersona: this.iidpersona,
                     selectedAddress: this.selectedAddress
                 }
-                console.log('data para update')
+                console.log('Carga de nuevos datos para dirección actual')
                 let response = await services.inspections().updateCurrentAddress(data);
-                console.log(response)
                 await this.loadDirectionsTable();
                 this.dialogNewCurrentAddress = false
                 this.showSuccess(response.message);
             } catch (error) {
-                const message = 'Error al actualizar.';
+                const message = 'Error al cargar los datos dirección actual.';
                 this.showError({ message, error });
             }
         },
@@ -511,24 +499,17 @@ export default {
                     selectedAddress: this.selectedAddress
                 }
                 const { message } = await services.inspections().deleteAddress(data);
-                // await this.loadInspectorsTable();
                 await this.loadDirectionsTable();
                 this.dialogDelete = false
                 this.showSuccess(message);
-                // this.showSuccess(response.message);
-
-                // this.dialogDelete ? false
             } catch (error) {
                 const message = 'Error al activar/desactivar inspector.';
                 this.showError({ message, error });
             }
-
         },
-
     },
     watch: {
         'codePostal': function () {
-            console.log('hsuhuihiu')
             console.log(this.codePostal)
             if (this.codePostal === 0) {
                this.resetDirection()
@@ -537,9 +518,7 @@ export default {
             }
         },
         'directionValidation': function () {
-            // directionValidation(newValidation) {
             console.log('validación dirección')
-            console.log(this.directionValidation)
             this.$emit('direction-validation', this.directionValidation, this.direction);
         },
         'newRegisterPerson': function(){
@@ -548,9 +527,7 @@ export default {
             }
         },
         'iidpersona': function(){
-            // if(this.newRegisterPerson){
-                this.loadDirectionsTable()
-            // }
+            this.loadDirectionsTable()
         },
        
     },

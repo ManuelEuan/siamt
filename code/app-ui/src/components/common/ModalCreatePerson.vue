@@ -47,28 +47,29 @@
                     <v-tabs-items v-model="tab">
                         <v-card flat>
                             <v-tab-item :key="1" value="generaltab" class="py-1">
+                                <!-- :iidpersona="iidpersona" 
+                                :reset="reset"
+                                :txtcurp="curp" -->
                                 <general-person-data-verification 
-                                    :iidpersona="iidpersona" 
-                                    :reset="reset"
                                     :newRegisterPerson="newRegisterPerson"
-                                    :txtcurp="curp"
-                                    :dataPerson="dataPerson"
+                                    :reset="reset"
+                                    :data=informationForGeneralDataPerson
                                     @general-person-data-validation="handleFromGeneralPersonDataVerification"
                                     v-model="generalPersonDataValidation"></general-person-data-verification>
                             </v-tab-item>
                             <v-tab-item :key="2" value="direccionestab" class="py-1">
                                 <direction-verification 
-                                    :iidpersona="iidpersona"
-                                    :reset="reset" 
                                     :newRegisterPerson="newRegisterPerson"
+                                    :reset="reset" 
+                                    :iidpersona="informationForGeneralDataPerson.iidpersona"
                                     @direction-validation="handleFromDirectionVerification"
                                     v-model="directionValidation"></direction-verification>
                             </v-tab-item>
                             <v-tab-item :key="3" value="telefonostab" class="py-1">
                                 <phone-verification 
-                                    :iidpersona="iidpersona"
-                                    :reset="reset" 
                                     :newRegisterPerson="newRegisterPerson"
+                                    :reset="reset" 
+                                    :iidpersona="informationForGeneralDataPerson.iidpersona"
                                     @phone-validation="handleFromPhoneVerification"
                                     v-model="phoneValidation"></phone-verification>
                             </v-tab-item>
@@ -85,7 +86,7 @@
                     <v-card-actions v-if="!iidpersona">
                         <v-spacer />
                         <v-btn color="error" text @click="dialog = false"> Cerrar </v-btn>
-                        <v-btn color="primary" v-if="iidpersona == 0" text
+                        <v-btn color="primary" v-if="newRegisterPerson" text
                             :disabled="!generalPersonDataValidation || !directionValidation || !phoneValidation" @click="savePersona()">
                             Guardar
                         </v-btn>
@@ -132,10 +133,13 @@ export default {
             type: String,
             default: '' // Valor predeterminado
         },
-        activateModal: {
-            type: Boolean,
-            default: true,
+        dataPersonFromCurpVerification:{
+            type: Object,
+            default: function () {
+                return {}; // Objeto vacío como valor predeterminado
+            }
         }
+
     },
     data() {
         return {
@@ -144,6 +148,7 @@ export default {
             newRegister: true,
             tab: "generaltab",
             dataPerson: {},
+            informationForGeneralDataPerson: {},
             dataDirection: '',
             dataPhone: '',
             files: [],
@@ -160,9 +165,6 @@ export default {
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
-        getMode(){
-            this.newRegisterPerson = localStorage.getItem('newPerson');
-        },
         async savePersona() {
             console.log('Guardando persona');
             console.log(this.persona);
@@ -215,31 +217,36 @@ export default {
                 this.newRegister = false
             }
         },
-        'activateModal': function(){
-            this.dialog = this.activateModal;
-        },
         'dialog': function () {
-            // directionValidation(newValidation) {
-            if (!this.dialog) {
-                console.log('se cerró')
+            if (!this.dialog) { // Si se cierra el modal se resetean los valores
+                console.log('se cerró el modal de persona')
                 localStorage.setItem('newPerson', false);
-            }else if(this.dialog && this.iidpersona==0){
-                console.log('se abrió')
+            }else if(this.dialog && this.dataPerson.iidpersona==0){ // Si se abre el modal y no existe un idpersona se resetean los valores
+                console.log('se abrió el modal de persona y no existe persona')
                 localStorage.setItem('newPerson', true);
-                
                 console.log(this.persona)
                 console.log(this.dataPerson)
             }
-            this.reset = true
-            // console.log(this.dataPerson)
-            // console.log(this.persona)
-            // console.log(this.iidpersona)
             this.newRegisterPerson = localStorage.getItem('newPerson');
             this.newRegisterPerson = this.newRegisterPerson === 'true';
+            if(this.newRegisterPerson){
+                this.reset = true
+            }
+          
            
         },  
         'curp': function(){
             console.log('recibiendo este curpppp: '+this.curp)
+        },  
+        'dataPersonFromCurpVerification': function(){
+            console.log('ha cambiado')
+            console.log(this.dataPersonFromCurpVerification)
+            if(this.dataPersonFromCurpVerification.iidpersona != 0){
+                this.informationForGeneralDataPerson = this.dataPersonFromCurpVerification
+                // this.dialog=true
+            }else{
+                console.log('se tiene que resetear')
+            }
         },  
       
     },

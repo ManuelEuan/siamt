@@ -91,12 +91,10 @@ export default {
             type: String,
             default: '' // Valor predeterminado
         },
-        dataPerson: {
+        data: {
             type: Object,
             default: function () {
-                return {
-                    // Propiedades predeterminadas del objeto infoPerson
-                };
+                return {}; // Objeto vacío como valor predeterminado
             }
         }
     },
@@ -164,21 +162,10 @@ export default {
             try {
                 this.sexes = await services.inspections().getAllSexesPerson();
                 this.civilStatus = await services.inspections().getAllCivilStatusPerson();
-
-                let data = {
-                    typeSearch: 'CURP',
-                    dataSearch: this.txtcurp
-                }
-                console.log('response from curp verification')
-                this.persona.txtcurp = this.txtcurp
-                if (this.iidpersona != 0) {
-                    this.newMode = false
-                    let response = { ...await services.inspections().getPersonByDinamycSearch({ data }) };
-                    this.persona = response[0]
-                } else {
-                    this.newMode = true
-                }
-
+                console.log('response from general person')
+                console.log(this.data)
+                console.log(this.persona)
+                this.persona = this.data
             } catch (error) {
                 const message = 'Error al cargar opciones para nuevo inspector.';
                 this.showError({ message, error });
@@ -228,29 +215,22 @@ export default {
         },
     },
     watch: {
-        'persona.txtrfc': function () {
-            if (!this.persona.bfisica) {
-                this.validarRFC()
-            }
-        },
         'generalPersonDataValidation': function () {
             this.$emit('general-person-data-validation', this.generalPersonDataValidation, this.persona);
         },
-        'persona.iidpersona': function () {
-            if (this.persona.iidpersona != 0) {
-                this.newPerson = false
+        'reset': function () {
+            if (this.reset) {
+                this.resetPerson()
             }
         },
-        'newRegisterPerson': function () {
-            if (this.newRegisterPerson) {
-                this.resetPerson()
-                this.persona.txtcurp = this.txtcurp
-            }
-        }
+        'data': function () {
+            console.log('recibido como data person desde modal')
+            console.log(this.data)
+            this.loadSelectableData();
+        },
     },
     async mounted() {
         await this.loadSelectableData();
-
     },
 
 }

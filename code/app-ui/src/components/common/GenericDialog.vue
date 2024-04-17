@@ -28,10 +28,10 @@
         type: String,
         required: true
       },
-      dialogText: {
-        type: String,
-        required: true
-      },
+      // dialogText: {
+      //   type: String,
+      //   required: true
+      // },
       maxWidth: {
         type: [Number, String],
         default: 600

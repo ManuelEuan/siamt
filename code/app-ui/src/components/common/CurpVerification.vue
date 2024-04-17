@@ -51,9 +51,10 @@
                     <v-text-field v-model="persona.txtcurp" label="CURP*" hide-details="auto" clearable dense disabled
                         outlined />
                 </v-col>
+                <!-- @click="curp = persona.txtcurp, search = 'CURP', verifyCurp(true)" -->
                 <v-col cols="12" md="4">
                     <v-btn class="d-flex align-center ml-3" depressed color="primary"
-                        @click="curp = persona.txtcurp, search = 'CURP', verifyCurp(true)"
+                        @click="curp = persona.txtcurp, search = 'CURP', showDialogPerson(persona.iidpersona)"
                         v-if="personaEncontrada && personaDisponible">
                         Ver información completa 1
                     </v-btn>
@@ -61,13 +62,15 @@
             </v-row>
         </v-card-text>
         <!-- DIALOG REGISTRAR -->
-        <generic-dialog :dialogVisible="dialogRegisterPerson" dialogTitle="La clave ingresada no se encuentra en el sistema"
+        <generic-dialog :dialogVisible="dialogRegisterPerson"
+            dialogTitle="La clave ingresada no se encuentra en el sistema"
             @update:dialogVisible="dialogRegisterPerson = $event" @confirm="showDialogPerson(0)">
             <template v-slot:default>
                 <v-card-text v-if="search === 'NOMBRE'">
                     Para poder registrar al inspector deberá registrar su CURP
-                    <v-text-field v-model="curpRegisterField" label="CURP*" style="max-height: 40px;" :rules="[rules.curp]"
-                        maxlength="18" hide-details="auto" clearable dense @input="toUpperCase" outlined />
+                    <v-text-field v-model="curpRegisterField" label="CURP*" style="max-height: 40px;"
+                        :rules="[rules.curp]" maxlength="18" hide-details="auto" clearable dense @input="toUpperCase"
+                        outlined />
                 </v-card-text>
                 <v-card-text v-else>
                     ¿Desea registrarlo?
@@ -92,7 +95,8 @@
         </generic-dialog>
 
         <!-- DIALOG MULTIPLE PEOPLE  -->
-        <generic-dialog :dialogVisible="dialogPeopleFounds" dialogTitle="Se han encontrado varios registros asociados a la búsqueda"
+        <generic-dialog :dialogVisible="dialogPeopleFounds"
+            dialogTitle="Se han encontrado varios registros asociados a la búsqueda"
             @update:dialogVisible="dialogPeopleFounds = $event" @confirm="redirectInspector">
             <template v-slot:default>
                 Favor de seleccionar uno
@@ -154,8 +158,8 @@
             </template>
         </generic-dialog>
 
-        <modal-create-person ref="ModalCreatePerson" :iidpersona=iidpersona :curp=curp
-            :activateModalPerson=activateModalPerson @person-created="handlefromCreatePerson" />
+        <modal-create-person ref="ModalCreatePerson" :iidpersona=iidpersona :curp=curp :dataPersonFromCurpVerification=persona
+            @person-created="handlefromCreatePerson" />
     </v-row>
 </template>
 <style>
@@ -182,19 +186,18 @@ export default {
             type: Number,
             default: 0 // Valor predeterminado
         },
-        receivedCurp: {
-            type: String,
-            default: '', // Valor predeterminado
-        },
         getInfoPerson: {
             type: Boolean,
             default: true, // Valor predeterminado
         },
+        typeOfRequest: {
+            type: String,
+            default: ''
+        }
     },
     data() {
         return {
             // ENVIAR A MODAL DE PERSONAS
-            // iidpersona: 0,
             curp: '',
             activateModalPerson: true,
 
@@ -249,23 +252,29 @@ export default {
 
         // }
         showDialogPerson(iidpersona) {
-        console.log(iidpersona)
-            if(this.search==='NOMBRE'){
-                this.curp = this.curpRegisterField
+            console.log(iidpersona)
+            if (this.search === 'NOMBRE') {
+                // this.curp = this.curpRegisterField
             }
             this.dialogRegisterPerson = false
             this.dialog = true;
             console.log('se mostrará el dialog persona 1')
-            localStorage.setItem('newPerson', true);
             if (iidpersona == 0) {
+                localStorage.setItem('newPerson', true);
                 this.$refs.ModalCreatePerson.dialog = true
+            }else{
+                console.log('$refs.ModalCreatePerson para leer datos')
+                this.$refs.ModalCreatePerson.dialog = true
+                // Se asignan los datos de la persona al modal
+                this.$refs.ModalCreatePerson.$data.informationForGeneralDataPerson = this.persona
+                console.log(this.$refs.ModalCreatePerson.$data.informationForGeneralDataPerson)
             }
         },
         async verifyCurp(needModal) {
             this.dialogCurpChanged = false;
-            let curp = this.curp;
+            // let curp = this.curp;
             console.log('TIPO DE BÚSQUEDA: ' + this.search)
-            console.log('CURP A VERIFICAR 1 ' + curp)
+            // console.log('CURP A VERIFICAR 1 ' + this.curp)
             console.log('NECESITA MODAL' + needModal)
 
             try {
@@ -296,13 +305,13 @@ export default {
 
                 // SI NO EXISTE SE AGREGA LA PERSONA
                 if (response[0] == false || !response) {
-                    console.log('CURP A VERIFICAR 5' + curp)
+                    // console.log('CURP A VERIFICAR 5' + curp)
                     console.log('PERSONA NO ENCONTRADA')
                     this.personaEncontrada = false
                     this.personaDisponible = true
                     // this.iidpersona = 0
-                    this.curp = curp
-                    this.persona.txtcurp = curp
+                    // this.curp = curp
+                    // this.persona.txtcurp = curp
                     console.log('1')
                     this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.isInspector);
                     this.dialogRegisterPerson = true;
@@ -336,10 +345,8 @@ export default {
                         localStorage.setItem('newPerson', false);
                         console.log(needModal)
                         this.$refs.ModalCreatePerson.dialog = needModal
-                        this.$refs.ModalCreatePerson.curp = this.persona.txtcurp
-                        this.$refs.ModalCreatePerson.iidpersona = this.persona.iidpersona
-                        this.$refs.ModalCreatePerson.dataPerson = this.persona
-                        this.curp = this.persona.txtcurp;
+                        console.log('$refs.ModalCreatePerson de verificación')
+                        console.log(this.$refs.ModalCreatePerson)
                     } else if (response.isInspector === true) {  // Si la persona ya es inspector mostrará un modal de redirección
                         this.personaEncontrada = true
                         this.personaDisponible = false
@@ -347,9 +354,8 @@ export default {
                         this.curpVerificada = this.persona.txtcurp
                         this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.isInspector);
                         this.rutaInspector = `/inspectors/${response.iidinspector}/edit`;
-                        if(needModal){
-                            this.dialogInspector = true;
-                        }
+                        console.log(this.rutaInspector)
+                        this.dialogInspector = true;
                     }
                 }
             } catch (error) {
@@ -388,14 +394,14 @@ export default {
         resetSearch(typeSearch, dataSearch, needModal) {
             this.search = typeSearch
             if (this.search == 'CURP') {
-                this.curp = dataSearch
+                // this.curp = dataSearch
             }
             this.verifyCurp(needModal)
         },
         handlefromCreatePerson(personCreated, curp) {
             if (personCreated) {
                 console.log(personCreated, curp, 'retorno desde el modal create person')
-                this.curp = curp
+                // this.curp = curp
                 this.verifyCurp(false)
                 this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, curp);
             } else {
@@ -441,12 +447,16 @@ export default {
                 this.curpRegisterFieldValido = curpRules(this.curpRegisterField) === true;
             }
         },
-        'receivedCurp': function () {
-            this.curp = this.receivedCurp
+        // 'receivedCurp': function () {
+            // this.curp = this.receivedCurp
+        // },
+        'iidpersona': function () {
+            console.log('cambio del this.iidpersona')
+            console.log(this.iidpersona)
         },
         'getInfoPerson': function () {
-            if(this.getInfoPerson){
-                this.verifyCurp(false)
+            if (this.getInfoPerson) {
+                this.verifyCurp(false, true)
             }
         },
     },
