@@ -23,6 +23,10 @@ $app->mount(
     ->put("/inspectors", "updateInspector")
     ->delete("/inspectors/{id}", "deleteInspector")
     ->post("/inspectors/getInspectorInfo", "getInspectorInfo")
+    // PROCESOS
+    ->post("/inspectors/getInfoProcess", "getInfoProcess")
+    ->post("/inspectors/getAllFlowBySubStage", "getAllFlowBySubStage")
+    
 );
 
 $app->mount(

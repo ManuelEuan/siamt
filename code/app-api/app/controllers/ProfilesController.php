@@ -193,13 +193,12 @@ class ProfilesController extends BaseController
                 throw new ValidatorBoomException(422, 'El perfil ya se encuentra en uso.'); // Lanzar excepción si el nuevo nombre del perfil está en uso
             }
         }
-
         // Actualización de perfil
         $sql = 'UPDATE usuario.perfil SET 
-                nombre=:nombre, 
-                descripcion=:descripcion
-            WHERE id=:id
-    ';
+                    nombre=:nombre, 
+                    descripcion=:descripcion
+                WHERE id=:id
+        ';
         $params = array(
             'nombre'  => $data->nombre,
             'descripcion' => $data->descripcion,
@@ -237,14 +236,17 @@ class ProfilesController extends BaseController
               
             }
         } 
+        // var_dump($data->id);
+        // var_dump($data->permisos);exit;
 
         foreach ($data->permisos as $idpermiso) {
             $sql = "SELECT idpermiso FROM usuario.perfil_permiso WHERE idperfil=:idperfil AND idpermiso=:idpermiso"; // Consulta para obtener estado activo del perfil
             $params = array('idperfil' => $data->id, 'idpermiso' => $idpermiso); // Parámetros para la consulta
             $existe_permiso = Db::fetchOne($sql, $params); 
             if (!$existe_permiso) { // Si no existe el permiso lo inserta
-                $newParams = array('idperfil' => $data->id, 'idpermiso' => $idpermiso, 'activo' => $activo);
-                $this->insert('perfil_permiso', $newParams); // Insertar perfil en la base de datos
+                $sql = "INSERT INTO usuario.perfil_permiso (idperfil, idpermiso, activo) VALUES (:idperfil, :idpermiso, 't')";
+                $newParams = array('idperfil' => $data->id, 'idpermiso' => $idpermiso);
+                Db::execute($sql, $newParams, false);
             } else { // Si no existe el permiso lo actualiza
                 $sql = "UPDATE usuario.perfil_permiso SET activo='t' WHERE idperfil=:idperfil AND idpermiso=:idpermiso"; // Consulta para actualizar estado activo del perfil
                 $params = array('idperfil' => $data->id, 'idpermiso' => $idpermiso); // Si esta activo lo pone en falso, y viceversa
@@ -304,7 +306,7 @@ class ProfilesController extends BaseController
         $cols = implode(', ', array_keys($params)); // Obtener nombres de columnas
         $phs = ':' . str_replace(', ', ', :', $cols); // Obtener marcadores de posición para los valores
         $sql = "INSERT INTO usuario.$table ($cols) VALUES ($phs)"; // Consulta de inserción
-        Db::execute($sql, $params); // Ejecutar inserción en la base de datos
+        // Db::execute($sql, $params); // Ejecutar inserción en la base de datos
     }
 
     // Método para verificar que los permisos de rol coincidan con los permisos seleccionados

@@ -119,6 +119,14 @@ export default class InspectionsService extends ApiService {
     return await this.get("/persons/getAllCivilStatusPerson");
   }
 
+  async getInfoProcess(data) {
+    return await this.post("/inspectors/getInfoProcess", JSON.stringify(data));
+  }
+
+  async getAllFlowBySubStage(subStage) {
+    return await this.post("/inspectors/getAllFlowBySubStage", JSON.stringify(subStage));
+  }
+
   async getAllTypePhones() {
     return await this.get("/persons/getAllTypePhones");
   }

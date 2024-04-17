@@ -9,7 +9,7 @@
             <slot></slot> <!-- Insertamos el contenido del slot -->
         </v-card-text>
         <v-divider></v-divider>
-        <v-card-actions class="justify-end" >
+        <v-card-actions class="justify-end" v-if="showButtons">
           <!-- <v-spacer /> -->
           <v-btn color="error" text @click="cancelAction">Cancelar</v-btn>
           <v-btn color="primary" text @click="confirmAction">Aceptar</v-btn>
@@ -29,10 +29,11 @@
         type: String,
         required: true
       },
-      // dialogText: {
-      //   type: String,
-      //   required: true
-      // },
+      showButtons: {
+        type: Boolean,
+        required: false,
+        default: true
+      },
       maxWidth: {
         type: [Number, String],
         default: 600

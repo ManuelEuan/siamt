@@ -5,7 +5,7 @@
             <v-form v-model="generalPersonDataValidation">
                 <div class="row d-flex justify-space-beetwen align-center mx-auto">
                     <p class="col-md-2 my-0 mx-0 px-0 py-0">Tipo de persona</p>
-                    <v-radio-group cols="12" md="4" v-model="persona.bfisica" mandatory @change="validarRFC" row>
+                    <v-radio-group cols="12" md="4" v-model="persona.bfisica" mandatory row>
                         <v-radio color="success" label="Física" value="true" style="max-width:80px"></v-radio>
                         <v-radio color="success" label="Moral" value="false" style="max-width:80px"></v-radio>
                     </v-radio-group>
@@ -43,7 +43,7 @@
 
 
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="persona.txtcurp" label="CURP*" :rules="[rules.curp]" maxlength="18"
+                        <v-text-field v-model="persona.txtcurp" label="CURP" :rules="[curpValido]" maxlength="18"
                             hide-details="auto" clearable dense outlined disabled />
                     </v-col>
 
@@ -108,6 +108,7 @@ export default {
                 ...rules,
             },
             rfcValido: true,
+            curpValido: true,
             persona: {
                 iidpersona: 0,
                 bfisica: 'true',
@@ -166,23 +167,33 @@ export default {
                 console.log(this.data)
                 console.log(this.persona)
                 this.persona = this.data
+                // this.validarCurpOrRrc()
             } catch (error) {
                 const message = 'Error al cargar opciones para nuevo inspector.';
                 this.showError({ message, error });
             }
         },
-        validarRFC() {
-            this.persona.txtrfc = this.persona.txtrfc.toUpperCase()
-            let rfc = this.persona.txtrfc.trim();
-            if (rfc.length === 0 && this.persona.bfisica === "true") {
-                this.$set(this, 'rfcValido', true); // RFC vacío, se considera válido
-                return;
-            }
+        validarCurpOrRrc() {
             const regexPersonaFisica = /^[A-Z]{4}[0-9]{6}[A-Z0-9]{3}$/;
             const regexPersonaMoral = /^[A-Z]{3}[0-9]{6}[A-Z0-9]{3}$/;
-            let regex = this.persona.bfisica === "true" ? regexPersonaFisica : regexPersonaMoral;
-            let rfcValido = regex.test(rfc);
-            this.$set(this, 'rfcValido', rfcValido ? true : 'RFC inválido');
+            if(this.persona.bfisica === "true"){
+                this.persona.txtcurp = this.persona.txtcurp.toUpperCase()
+                let curp = this.persona.txtcurp.trim();
+                let curpValido = regexPersonaFisica.test(curp);
+                this.$set(this, 'curpValido', curpValido ? true : 'CURP inválido');
+            }else{
+                this.persona.txtrfc = this.persona.txtrfc.toUpperCase()
+                let rfc = this.persona.txtrfc.trim();
+                let rfcValido = regexPersonaMoral.test(rfc);
+                this.$set(this, 'rfcValido', rfcValido ? true : 'RFC inválido');
+            }
+            // if (rfc.length === 0 && this.persona.bfisica === "true") {
+            //     this.$set(this, 'rfcValido', true); // RFC vacío, se considera válido
+            //     return;
+            // }
+            // let regex = this.persona.bfisica === "true" ? regexPersonaFisica : regexPersonaMoral;
+            // let rfcValido = regex.test(rfc);
+            // this.$set(this, 'rfcValido', rfcValido ? true : 'RFC inválido');
         },
         validarCorreo(value) {
             if (value && value.trim().length > 0) {
@@ -227,6 +238,12 @@ export default {
             console.log('recibido como data person desde modal')
             console.log(this.data)
             this.loadSelectableData();
+        },
+        'persona.bfisica':function () {
+            console.log('cambio de tipo de persona')
+            console.log(this.persona.bfisica)
+            // this.loadSelectableData();
+            // this.validarCurpOrRrc()
         },
     },
     async mounted() {

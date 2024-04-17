@@ -24,8 +24,8 @@
                                 <v-form v-model="valid">
                                     <!-- :receivedCurp="persona.txtcurp" -->
                                     <curp-verification :style="{ display: createMode ? 'block' : 'none !important' }"
-                                        :typeOfRequest="'Inspector'"
-                                        @person-info="handlePersonInfo" ref="curpVerification"></curp-verification>
+                                        :typeOfRequest="'Inspector'" @person-info="handlePersonInfo"
+                                        ref="curpVerification"></curp-verification>
 
                                     <v-row v-if="!createMode">
                                         <v-col cols="12" md="4">
@@ -37,7 +37,8 @@
                                                 clearable dense :disabled="!createMode" outlined />
                                         </v-col>
                                         <v-col cols="12" md="4">
-                                            <v-btn color="primary" text @click=showDialogPerson>Información Completa 2</v-btn>
+                                            <v-btn color="primary" text @click=showDialogPerson>Información Completa
+                                                2</v-btn>
                                         </v-col>
                                     </v-row>
                                     <v-row v-if="personaEncontrada && personaDisponible || !createMode">
@@ -76,29 +77,16 @@
                                                 label="Fecha de baja" type="date" :mask="'####/##/##'"></v-text-field>
                                         </v-col>
 
-                                        <!-- PROCESOS -->
-                                        <v-col cols="12" md="6" v-if="!createMode">
-                                            <v-select v-model="inspector.iidproceso" label="Proceso*"
-                                                :rules="[rules.required]" :items="processes" item-text="txtnombre"
-                                                item-value="iidproceso" hide-details="auto" small-chips clearable dense
-                                                outlined />
-                                        </v-col>
-
-                                        <!-- ETAPAS -->
-                                        <v-col cols="12" md="6" v-if="!createMode">
-                                            <v-select v-model="inspector.iidetapa" @change="verifySubStages"
-                                                label="Etapa*" :rules="[rules.required]" :items="stages"
-                                                item-text="txtetapa_nombre" item-value="iidetapa" hide-details="auto"
-                                                small-chips clearable dense outlined />
-                                        </v-col>
-
-                                        <!-- SUBETAPAS -->
+                                        <generic-process-flow class="col-md-12" :iidsubStage=parseInt(inspector.iidsubetapa)
+                                            @process-flow="handleProcessFlow"></generic-process-flow>
                                         <!-- <v-col cols="12" md="6" v-if="!createMode">
-                                            <v-select v-model="inspector.iidsubetapa"
-                                                label="Subetapa*" :rules="[rules.required]"
-                                                :items="subStages" item-text="txtnombre"
-                                                item-value="iidsubetapa" hide-details="auto" small-chips
-                                                clearable dense outlined />
+                                            <v-text-field v-model="inspector.dfecha_baja" clearable dense outlined
+                                                label="Fecha de baja" type="date" :mask="'####/##/##'"></v-text-field>
+                                        </v-col>
+
+                                        <v-col cols="12">
+                                            <v-textarea v-model="inspector.txtcomentarios" label="Comentarios*"
+                                                hide-details="auto" clearable dense outlined />
                                         </v-col> -->
 
                                         <v-col cols="12">
@@ -129,11 +117,13 @@
 import rules from "@/core/rules.forms";
 import services from "@/services";
 import CurpVerification from '@/components/common/CurpVerification.vue';
+import GenericProcessFlow from '@/components/common/GenericProcessFlow.vue';
 import { mapActions } from "vuex";
 
 export default {
     components: {
         CurpVerification,
+        GenericProcessFlow,
     },
     data() {
         return {
@@ -143,12 +133,9 @@ export default {
             },
             valid: false,
             tab: "generaltab",
-            peopleModulePermissions: [],
             personaEncontrada: false,
             personaDisponible: false,
             processes: [],
-            stages: [],
-            subStages: [],
             shifts: [],
             categories: [],
             persona: {
@@ -188,6 +175,12 @@ export default {
             rules: {
                 ...rules,
             },
+
+            // MODELO DE COMPONENTE GENÉRICO PROCESS FLOW
+            SubStage: {
+                info: [],
+                process: []
+            },
         };
     },
     computed: {
@@ -208,7 +201,6 @@ export default {
             try {
                 this.categories = await services.inspections().getAllCategoriesInspector();
                 this.processes = await services.inspections().getAllProcessesInspector();
-                this.stages = await services.inspections().getAllStagesInspector();
                 this.shifts = await services.inspections().getAllShiftsInspector();
             } catch (error) {
                 const message = 'Error al cargar opciones para nuevo inspector.';
@@ -252,9 +244,7 @@ export default {
                 this.inspector.dvigencia = null
             }
         },
-        verifySubStages() {
-            console.log('verifciar sub etapas de nueva etapa')
-        },
+
         async saveInspector() {
             if (!this.maintainCurp()) return this.$refs.curpVerification.$data.dialogCurpChanged = true;
             if (!this.valid) return;
@@ -277,6 +267,7 @@ export default {
                 this.showError({ message, error });
             }
         },
+
         maintainCurp() {
             console.log('Curp verificada: ' + this.curpVerificada)
             console.log('Curp actual: ' + this.persona.txtcurp)
@@ -285,13 +276,18 @@ export default {
             }
             return true
         },
+
         exitWindow() {
             this.$router.push("/inspections/inspectors");
         },
+
         showDialogPerson() {
             this.$refs.curpVerification.persona = this.persona;
             this.$refs.curpVerification.$refs.ModalCreatePerson.dialog = true
+            localStorage.setItem('newPerson', false);
         },
+
+        // RETORNO DE COMPONENTE GENÉRICO CURP VERIFICATION
         handlePersonInfo(personFound, availablePerson, person, personCurp, isInspector) {
             console.log('retorno del componente Curp Verification')
             console.log('Persona encontrada: ' + personFound)
@@ -300,18 +296,26 @@ export default {
             console.log(person)
             console.log('Persona CURP: ' + personCurp)
             console.log('Persona tipo inspector: ' + isInspector)
-        }
+        },
+
+        // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW
+        handleProcessFlow(foundSubStage, infoSubStage, processSubStage) {
+            console.log('Retornando desde GENERIC PROCESS FLOW ')
+            if (foundSubStage) {
+                this.SubStage.info = infoSubStage
+                this.SubStage.process = processSubStage
+            } else {
+                alert('No se encontró registro de la sub etapa')
+            }
+            console.log(this.SubStage)
+            // console.log(foundSubStage)
+            // console.log(infoSubStage)
+            // console.log(processSubStage)
+        },
     },
     async mounted() {
         await this.loadSelectableData();
         if (!this.createMode) await this.setEditMode();
-        const { pel } = await services.security().getPermissions();
-        console.log('permisos para el módulo persona')
-        console.log(pel)
-        if (pel) this.peopleModulePermissions = pel;
-        // console.log('permisos para módulo persona')
-        // console.log(pel)
-        // if (pel) this.permissions = pel;
     }
 };
 </script>

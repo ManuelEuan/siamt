@@ -215,6 +215,84 @@ class InspectorsController extends BaseController
         return $processes;
     }
 
+    public function getInfoProcess()
+    {
+        $data = $this->request->getJsonRawBody(); 
+        // $this->dep($data);exit;
+        $sql = "SELECT 
+            iidproceso,
+            iidmodulo,
+            txtnombre,
+            txtdescripcion,
+            txtsigla,
+            bactivo AS activo,
+            TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
+            TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
+            FROM comun.cat_proceso
+            WHERE bactivo='t' AND iidproceso = :iidproceso
+        ";
+        $params = array('iidproceso' => $data->iidproceso); 
+        
+        $processes = Db::fetchOne($sql, $params);
+        return $processes;
+    }
+
+    public function getAllFlowBySubStage()
+    {
+        $data = $this->request->getJsonRawBody(); 
+       
+        $sql = "WITH cte_flujo AS (
+            SELECT iidsubetapa, iidsubetapa_siguiente
+            FROM comun.cat_flujo
+            WHERE iidsubetapa = :iidsubetapa -- Cambiar a la sintaxis de parámetro según tu entorno
+              AND bactivo = true
+        ),
+        cte_subetapa_actual AS (
+            SELECT 
+                cs.iidsubetapa AS iidsubetapa_actual, cs.txtnombre AS nombre_subetapa_actual, cs.txtsigla AS sigla_subetapa_actual, 
+                cs.txtdescripcion AS descripcion_subetapa_actual, cs.txtcolor AS color_subetapa_actual, 
+                cs.txtpermiso AS permiso_subetapa_actual, cs.binicial AS inicial_subetapa_actual, 
+                cs.bfinal AS final_subetapa_actual, cs.bcancelacion AS cancelacion_subetapa_actual, 
+                cs.brequiere_motivo AS requiere_motivo_subetapa_actual, cs.iidetapa
+            FROM comun.cat_subetapa cs
+        ),
+        cte_etapa AS (
+            SELECT 
+                e.iidetapa, e.iidproceso, e.txtnombre AS nombre_etapa, e.txtsigla AS sigla_etapa, 
+                e.txtdescripcion AS descripcion_etapa, e.txtcolor AS color_etapa, 
+                e.txtpermiso AS permiso_etapa, e.binicial AS inicial_etapa, 
+                e.bfinal AS final_etapa, e.bcancelacion AS cancelacion_etapa, 
+                e.brequiere_motivo AS requiere_motivo_etapa
+            FROM comun.cat_etapa e
+        )
+        SELECT 
+            f.iidsubetapa AS iidsubetapa_actual, f.iidsubetapa_siguiente, 
+            currentSubStage.nombre_subetapa_actual, currentSubStage.sigla_subetapa_actual, currentSubStage.descripcion_subetapa_actual, 
+            currentSubStage.color_subetapa_actual, currentSubStage.permiso_subetapa_actual, currentSubStage.inicial_subetapa_actual, 
+            currentSubStage.final_subetapa_actual, currentSubStage.cancelacion_subetapa_actual, currentSubStage.requiere_motivo_subetapa_actual, 
+            currentSubStage.iidetapa AS iidetapa_subetapa_actual,
+            nextSubStage.iidsubetapa AS iidsubetapa_siguiente,
+            nextSubStage.txtnombre AS nombre_subetapa_siguiente, nextSubStage.txtsigla AS sigla_subetapa_siguiente, nextSubStage.txtdescripcion AS descripcion_subetapa_siguiente, 
+            nextSubStage.txtcolor AS color_subetapa_siguiente, nextSubStage.txtpermiso AS permiso_subetapa_siguiente, nextSubStage.binicial AS inicial_subetapa_siguiente, 
+            nextSubStage.bfinal AS final_subetapa_siguiente, nextSubStage.bcancelacion AS cancelacion_subetapa_siguiente, nextSubStage.brequiere_motivo AS requiere_motivo_subetapa_siguiente, 
+            nextSubStage.iidetapa AS iidetapa_subetapa_siguiente,
+            etapa.nombre_etapa, etapa.sigla_etapa, etapa.descripcion_etapa, 
+            etapa.color_etapa, etapa.permiso_etapa, etapa.inicial_etapa, 
+            etapa.final_etapa, etapa.cancelacion_etapa, etapa.requiere_motivo_etapa,
+            etapa.iidproceso
+        FROM 
+            cte_flujo f
+            JOIN cte_subetapa_actual currentSubStage ON f.iidsubetapa = currentSubStage.iidsubetapa_actual
+            JOIN cte_etapa etapa ON currentSubStage.iidetapa = etapa.iidetapa
+            JOIN comun.cat_subetapa nextSubStage ON f.iidsubetapa_siguiente = nextSubStage.iidsubetapa;
+        
+        ";
+        $params = array('iidsubetapa' => $data->iidsubStage); 
+
+        $allFlow = Db::fetchOne($sql, $params);
+        // $this->dep($allFlow);exit;
+        return $allFlow;
+    }
 
     public function getAllStagesInspector()
     {

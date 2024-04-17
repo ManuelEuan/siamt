@@ -144,18 +144,11 @@
                 const message = 'Error al cargar opciones de filtrado.';
                 this.showError({ message, error });
             }
-            const hola = await services.security().getPermissions();
-            console.log('---------------------------------------------hola')
-            console.log(hola)
-            // console.log(hola)
             const { iin } = await services.security().getPermissions();
             console.log('permisos para módulo inspectores')
             console.log(iin)
             if (iin) this.permissions = iin;
-            // const { pel } = await services.security().getPermissions();
-            // console.log('permisos para módulo persona')
-            // console.log(pel)
-            // if (pel) this.permissions = pel;
+         
         },
     };
     </script>

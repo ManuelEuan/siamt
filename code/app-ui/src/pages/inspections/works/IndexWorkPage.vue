@@ -7,9 +7,9 @@
             <v-row>
                 <generic-file-input v-model="files.actaNacimiento" :modelo="'actaNacimiento'"
                     :label="'Acta de nacimiento'" :placeholder="'Seleccione su Acta de nacimiento'" :color="'primary'"
-                    @file-upload="fileUpload" />
+                    @file-upload="handleFileUpload" />
                 <generic-file-input v-model="files.curp" :modelo="'curp'" :label="'CURP'"
-                    :placeholder="'Seleccione su CURP'" :color="'primary'" @file-upload="fileUpload" />
+                    :placeholder="'Seleccione su CURP'" :color="'primary'" @file-upload="handleFileUpload" />
                 <v-col cols="12" md="6">
                     <h2>Información de los archivos:</h2>
                     <ul>
@@ -22,19 +22,17 @@
                         </li>
                     </ul>
                 </v-col>
-                <generic-dialog 
-                    :dialogVisible="dialogCurpChanged"
-                    :dialogTitle="'Se ha detectado un cambio en el CURP verificado'"
-                    :dialogText="'Favor de verificar de nuevo'"
-                    @update:dialogVisible="dialogCurpChanged = $event"
-                    @confirm="verifyCurp(false)"
-                />
-                <v-btn color="primary" @click="dialogCurpChanged=true">Invocar</v-btn>
+                <generic-process-flow :iidsubStage=1 @process-flow="handleProcessFlow"></generic-process-flow>
+                {{ SubStage }}
+                <v-expand-x-transition>
+                    <v-card v-show="expand2" height="100" width="100" class="mx-auto secondary"></v-card>
+                </v-expand-x-transition>
             </v-row>
 
 
         </div>
         <!-- <direction-verification></direction-verification> -->
+
         {{ files }}
     </v-container>
 </template>
@@ -42,50 +40,47 @@
 <script>
 import CurpVerification from '@/components/common/CurpVerification.vue';
 import GenericFileInput from '@/components/common/GenericFileInput.vue';
-import GenericDialog from '@/components/common/GenericDialog.vue';
+import GenericProcessFlow from '@/components/common/GenericProcessFlow.vue';
 
 export default {
     name: 'InspectorsPage',
     components: {
         CurpVerification,
         GenericFileInput,
-        GenericDialog,
+        GenericProcessFlow,
     },
     data() {
         return {
             data: '',
+            expand2: false,
             files: {
-                // fileActaNacimiento: [],
-                // fileCurp: [],
                 // actaNacimiento: '', // Inicialmente vacío
                 // curp: '', // Inicialmente vacío
             },
-            dialogCurpChanged: false,
+            SubStage: {
+                info: [],
+                process: []
+            }
         }
     },
     methods: {
-        // fileUpload(modelo, file) {
-        //     console.log('desde el emit del generic input uplad')
-        //     console.log(file)
-
-        //     // Actualiza el modelo correspondiente dinámicamente
-        //     this.$set(this.files, modelo, file);
-
-        //     console.log(this.files[modelo]);
-        // }
-        fileUpload(modelo, file) {
-            console.log('Modelo:', modelo);
-            console.log('Archivo:', file[0]);
-
+        handleFileUpload(modelo, file) {
             console.log('desde el emit del generic input uplad')
-            console.log(file)
             // Actualizar el modelo correspondiente dinámicamente
             this.$set(this.files, modelo, file[0]);
         },
-        verifyCurp() {
-        // Lógica para verificar el CURP
-        alert('aprobado')
-        }
+        handleProcessFlow(foundSubStage, infoSubStage, processSubStage) {
+            console.log('Retornando desde GENERIC PROCESS FLOW ')
+            if (foundSubStage) {
+                this.SubStage.info = infoSubStage
+                this.SubStage.process = processSubStage
+            } else {
+                alert('No se encontró registro de la sub etapa')
+            }
+            // console.log(foundSubStage)
+            // console.log(infoSubStage)
+            // console.log(processSubStage)
+        },
     }
 
 }

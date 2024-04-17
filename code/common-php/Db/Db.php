@@ -53,13 +53,13 @@ class Db
   //   return $db->execute($sql, $params);
   // }
 
-  public static function execute(string $sql, ?array $params = null)
+  public static function execute(string $sql, ?array $params = null, $returnId = true)
   {
     $db = static::getDb();
     $result = $db->execute($sql, $params);
     
     // Obtener el ID del último registro insertado si la operación fue una inserción
-    if (strpos($sql, 'INSERT') === 0) {
+    if (strpos($sql, 'INSERT') === 0 && $returnId) {
         $lastInsertId = $db->lastInsertId();
         return $lastInsertId;
     }
