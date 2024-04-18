@@ -241,6 +241,8 @@ export default {
         'dataPersonFromCurpVerification': function(){
             console.log('ha cambiado')
             console.log(this.dataPersonFromCurpVerification)
+            console.log(typeof(this.dataPersonFromCurpVerification.bfisica))
+            console.log(this.dataPersonFromCurpVerification.bfisica)
             if(this.dataPersonFromCurpVerification.iidpersona != 0){
                 this.informationForGeneralDataPerson = this.dataPersonFromCurpVerification
                 // this.dialog=true

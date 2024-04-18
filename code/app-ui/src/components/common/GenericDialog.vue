@@ -2,9 +2,6 @@
     <v-dialog v-model="dialogVisibleProp" :max-width="maxWidth">
       <v-card>
         <v-card-title class="text-uppercase primary--text text-h6 py-2">{{ dialogTitle }}</v-card-title>
-        <!-- <v-card-text>{{ dialogText }}</v-card-text> -->
-        <!-- Aquí usamos v-html para interpretar HTML -->
-        <!-- <v-card-text v-html="dialogText"></v-card-text>  -->
         <v-card-text>
             <slot></slot> <!-- Insertamos el contenido del slot -->
         </v-card-text>

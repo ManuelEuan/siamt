@@ -22,7 +22,13 @@
                         </li>
                     </ul>
                 </v-col>
-                <generic-process-flow :iidsubStage=1 @process-flow="handleProcessFlow"></generic-process-flow>
+                <generic-process-flow class="col-md-12" 
+                    :iidsubStage=exampleProccessFlow
+                    :finalizeProcess=finalizeProcess
+                    @process-flow="handleProcessFlow"
+                    @update:dialogVisible="dialogRegisterPerson = $event" 
+                    @confirm="getNextSubStage()"
+                ></generic-process-flow>
                 {{ SubStage }}
                 <v-expand-x-transition>
                     <v-card v-show="expand2" height="100" width="100" class="mx-auto secondary"></v-card>
@@ -60,7 +66,11 @@ export default {
             SubStage: {
                 info: [],
                 process: []
-            }
+            },
+            // REQUERIDOS PARA PROCESS FLOW
+            exampleProccessFlow: 8,
+            finalizeProcess: false,
+
         }
     },
     methods: {
@@ -69,18 +79,28 @@ export default {
             // Actualizar el modelo correspondiente dinámicamente
             this.$set(this.files, modelo, file[0]);
         },
-        handleProcessFlow(foundSubStage, infoSubStage, processSubStage) {
+         // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW (AUTOMÁTICO)
+        handleProcessFlow(foundSubStage, infoSubStage, processSubStage, hasFlowAfter) {
             console.log('Retornando desde GENERIC PROCESS FLOW ')
             if (foundSubStage) {
                 this.SubStage.info = infoSubStage
                 this.SubStage.process = processSubStage
+                this.SubStage.hasFlowAfter = hasFlowAfter
             } else {
                 alert('No se encontró registro de la sub etapa')
             }
-            // console.log(foundSubStage)
-            // console.log(infoSubStage)
-            // console.log(processSubStage)
         },
+         // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW (CLICK EN BUTTON)
+        getNextSubStage(){
+            console.log('****************this.SubStage*****************')
+            console.log(this.SubStage)
+            this.exampleProccessFlow = this.SubStage.info.iidsubetapa_siguiente
+            // this.inspector.iidsubetapa = this.SubStage.info.iidsubetapa_siguiente
+            if(!this.SubStage.hasFlowAfter){
+                // Si no existe una sub etapa que tenga flujo posterior significa que será el ultimo cambio posible del proceso
+                this.finalizeProcess = true
+            }
+        }
     }
 
 }

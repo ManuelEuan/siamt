@@ -6,8 +6,8 @@
                 <div class="row d-flex justify-space-beetwen align-center mx-auto">
                     <p class="col-md-2 my-0 mx-0 px-0 py-0">Tipo de persona</p>
                     <v-radio-group cols="12" md="4" v-model="persona.bfisica" mandatory row>
-                        <v-radio color="success" label="Física" value="true" style="max-width:80px"></v-radio>
-                        <v-radio color="success" label="Moral" value="false" style="max-width:80px"></v-radio>
+                        <v-radio color="success" label="Física" :value="true" style="max-width:80px"></v-radio>
+                        <v-radio color="success" label="Moral" :value="false" style="max-width:80px"></v-radio>
                     </v-radio-group>
                     <v-col cols="12" md="6" v-if="!newRegisterPerson">
                         <v-btn depressed color="primary" :disabled="!generalPersonDataValidation"
@@ -38,13 +38,12 @@
                     </v-col>
                     <v-col cols="12" md="6">
                         <v-text-field v-model="persona.txtrfc" label="RFC" hide-details="auto" clearable dense outlined
-                            maxlength="13" :rules="[rfcValido]" />
+                            maxlength="13" :rules="[rfcValido]" :disabled="!persona.bfisica" />
                     </v-col>
-
 
                     <v-col cols="12" md="6">
                         <v-text-field v-model="persona.txtcurp" label="CURP" :rules="[curpValido]" maxlength="18"
-                            hide-details="auto" clearable dense outlined disabled />
+                            hide-details="auto" clearable dense outlined :disabled="persona.bfisica"  />
                     </v-col>
 
                     <v-col cols="12" md="6">
@@ -111,7 +110,7 @@ export default {
             curpValido: true,
             persona: {
                 iidpersona: 0,
-                bfisica: 'true',
+                bfisica: null,
                 txtnombre: '',
                 txtapepat: '',
                 txtapemat: '',
@@ -143,7 +142,7 @@ export default {
         resetPerson() {
             this.persona = {
                 iidpersona: 0,
-                bfisica: 'true',
+                bfisica: null,
                 txtnombre: '',
                 txtapepat: '',
                 txtapemat: '',
@@ -163,11 +162,7 @@ export default {
             try {
                 this.sexes = await services.inspections().getAllSexesPerson();
                 this.civilStatus = await services.inspections().getAllCivilStatusPerson();
-                console.log('response from general person')
-                console.log(this.data)
-                console.log(this.persona)
                 this.persona = this.data
-                // this.validarCurpOrRrc()
             } catch (error) {
                 const message = 'Error al cargar opciones para nuevo inspector.';
                 this.showError({ message, error });
@@ -176,7 +171,7 @@ export default {
         validarCurpOrRrc() {
             const regexPersonaFisica = /^[A-Z]{4}[0-9]{6}[A-Z0-9]{3}$/;
             const regexPersonaMoral = /^[A-Z]{3}[0-9]{6}[A-Z0-9]{3}$/;
-            if(this.persona.bfisica === "true"){
+            if(this.persona.bfisica){
                 this.persona.txtcurp = this.persona.txtcurp.toUpperCase()
                 let curp = this.persona.txtcurp.trim();
                 let curpValido = regexPersonaFisica.test(curp);
@@ -187,13 +182,6 @@ export default {
                 let rfcValido = regexPersonaMoral.test(rfc);
                 this.$set(this, 'rfcValido', rfcValido ? true : 'RFC inválido');
             }
-            // if (rfc.length === 0 && this.persona.bfisica === "true") {
-            //     this.$set(this, 'rfcValido', true); // RFC vacío, se considera válido
-            //     return;
-            // }
-            // let regex = this.persona.bfisica === "true" ? regexPersonaFisica : regexPersonaMoral;
-            // let rfcValido = regex.test(rfc);
-            // this.$set(this, 'rfcValido', rfcValido ? true : 'RFC inválido');
         },
         validarCorreo(value) {
             if (value && value.trim().length > 0) {
@@ -238,12 +226,6 @@ export default {
             console.log('recibido como data person desde modal')
             console.log(this.data)
             this.loadSelectableData();
-        },
-        'persona.bfisica':function () {
-            console.log('cambio de tipo de persona')
-            console.log(this.persona.bfisica)
-            // this.loadSelectableData();
-            // this.validarCurpOrRrc()
         },
     },
     async mounted() {

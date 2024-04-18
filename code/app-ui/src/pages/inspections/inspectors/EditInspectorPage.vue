@@ -23,8 +23,11 @@
                             <v-card-text>
                                 <v-form v-model="valid">
                                     <!-- :receivedCurp="persona.txtcurp" -->
-                                    <curp-verification :style="{ display: createMode ? 'block' : 'none !important' }"
-                                        :typeOfRequest="'Inspector'" @person-info="handlePersonInfo"
+                                    <curp-verification 
+                                        :style="{ display: createMode ? 'block' : 'none !important' }"
+                                        :typeOfRequest="'Inspector'" 
+                                        :requestInfoComplete=sendPerson
+                                        @person-info="handlePersonInfo"
                                         ref="curpVerification"></curp-verification>
 
                                     <v-row v-if="!createMode">
@@ -32,8 +35,12 @@
                                             <v-text-field v-model="nombreCompleto" label="Nombre Completo*"
                                                 hide-details="auto" clearable dense :disabled="!createMode" outlined />
                                         </v-col>
-                                        <v-col cols="12" md="4">
+                                        <v-col v-if="persona.bfisica" cols="12" md="4">
                                             <v-text-field v-model="persona.txtcurp" label="CURP*" hide-details="auto"
+                                                clearable dense :disabled="!createMode" outlined />
+                                        </v-col>
+                                        <v-col v-else cols="12" md="4">
+                                            <v-text-field v-model="persona.txtrfc" label="RFC" hide-details="auto" 
                                                 clearable dense :disabled="!createMode" outlined />
                                         </v-col>
                                         <v-col cols="12" md="4">
@@ -77,18 +84,14 @@
                                                 label="Fecha de baja" type="date" :mask="'####/##/##'"></v-text-field>
                                         </v-col>
 
-                                        <generic-process-flow class="col-md-12" :iidsubStage=parseInt(inspector.iidsubetapa)
-                                            @process-flow="handleProcessFlow"></generic-process-flow>
-                                        <!-- <v-col cols="12" md="6" v-if="!createMode">
-                                            <v-text-field v-model="inspector.dfecha_baja" clearable dense outlined
-                                                label="Fecha de baja" type="date" :mask="'####/##/##'"></v-text-field>
-                                        </v-col>
-
-                                        <v-col cols="12">
-                                            <v-textarea v-model="inspector.txtcomentarios" label="Comentarios*"
-                                                hide-details="auto" clearable dense outlined />
-                                        </v-col> -->
-
+                                        <generic-process-flow class="col-md-12" 
+                                            :iidsubStage=inspector.iidsubetapa
+                                            :finalizeProcess=finalizeProcess
+                                            @process-flow="handleProcessFlow"
+                                            @update:dialogVisible="dialogRegisterPerson = $event" 
+                                            @confirm="getNextSubStage()"
+                                            ></generic-process-flow>
+                                          
                                         <v-col cols="12">
                                             <v-textarea v-model="inspector.txtcomentarios" label="Comentarios*"
                                                 hide-details="auto" clearable dense outlined />
@@ -175,11 +178,19 @@ export default {
             rules: {
                 ...rules,
             },
-
-            // MODELO DE COMPONENTE GENÉRICO PROCESS FLOW
+            // ENVIANDO MODELO DE COMPONENTE GENÉRICO CURP VERIFICATION (Solo abrir modal)
+            sendPerson: {
+                bfisica: null,
+                dataSearch: '',
+            },
+            // ENVIANDO MODELO DE COMPONENTE GENÉRICO PROCESS FLOW
+            sendSubStage: null,
+            finalizeProcess: false,
+            // RETORNO MODELO DE COMPONENTE GENÉRICO PROCESS FLOW
             SubStage: {
                 info: [],
-                process: []
+                process: [],
+                hasFlowAfter: false,
             },
         };
     },
@@ -282,9 +293,22 @@ export default {
         },
 
         showDialogPerson() {
-            this.$refs.curpVerification.persona = this.persona;
-            this.$refs.curpVerification.$refs.ModalCreatePerson.dialog = true
-            localStorage.setItem('newPerson', false);
+            console.log('***Invocación de modal persona***')
+            if(this.persona.bfisica){
+                this.sendPerson = {
+                    bfisica: true,
+                    dataSearch: this.persona.txtcurp,
+                }
+            }else{
+                this.sendPerson = {
+                    bfisica: false,
+                    dataSearch: this.persona.txtrfc,
+                }
+            }
+            // this.sendPerson = this.persona
+            // this.$refs.curpVerification.persona = this.persona;
+            // this.$refs.curpVerification.$refs.ModalCreatePerson.dialog = true
+            // localStorage.setItem('newPerson', false);
         },
 
         // RETORNO DE COMPONENTE GENÉRICO CURP VERIFICATION
@@ -294,24 +318,33 @@ export default {
             console.log('Persona disponible: ' + availablePerson)
             console.log('Persona Información Completa: ')
             console.log(person)
+            console.log('es fisica?')
+            console.log(person.bfisica)
             console.log('Persona CURP: ' + personCurp)
             console.log('Persona tipo inspector: ' + isInspector)
         },
 
-        // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW
-        handleProcessFlow(foundSubStage, infoSubStage, processSubStage) {
+        // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW (AUTOMÁTICO)
+        handleProcessFlow(foundSubStage, infoSubStage, processSubStage, hasFlowAfter) {
             console.log('Retornando desde GENERIC PROCESS FLOW ')
             if (foundSubStage) {
                 this.SubStage.info = infoSubStage
                 this.SubStage.process = processSubStage
+                this.SubStage.hasFlowAfter = hasFlowAfter
             } else {
                 alert('No se encontró registro de la sub etapa')
             }
-            console.log(this.SubStage)
-            // console.log(foundSubStage)
-            // console.log(infoSubStage)
-            // console.log(processSubStage)
         },
+         // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW (CLICK EN BUTTON)
+        getNextSubStage(){
+            console.log('****************this.SubStage*****************')
+            console.log(this.SubStage)
+            this.inspector.iidsubetapa = this.SubStage.info.iidsubetapa_siguiente
+            if(!this.SubStage.hasFlowAfter){
+                // Si no existe una sub etapa que tenga flujo posterior significa que será el ultimo cambio posible del proceso
+                this.finalizeProcess = true
+            }
+        }
     },
     async mounted() {
         await this.loadSelectableData();

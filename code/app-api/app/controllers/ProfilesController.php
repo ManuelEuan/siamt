@@ -306,7 +306,7 @@ class ProfilesController extends BaseController
         $cols = implode(', ', array_keys($params)); // Obtener nombres de columnas
         $phs = ':' . str_replace(', ', ', :', $cols); // Obtener marcadores de posición para los valores
         $sql = "INSERT INTO usuario.$table ($cols) VALUES ($phs)"; // Consulta de inserción
-        // Db::execute($sql, $params); // Ejecutar inserción en la base de datos
+        Db::execute($sql, $params); // Ejecutar inserción en la base de datos
     }
 
     // Método para verificar que los permisos de rol coincidan con los permisos seleccionados

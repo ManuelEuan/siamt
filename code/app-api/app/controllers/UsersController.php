@@ -279,8 +279,7 @@ class UsersController extends BaseController
             'admin'   => $data->admin ? 't' : 'f',
             'id'      => $data->id
         );
-
-        Db::execute($sql, $params);
+        Db::execute($sql, $params, false);
 
         foreach ($this->tables as $t) {
             if ($t === 'usuario' || $t === 'usuario_dominio_configuracion') continue;
@@ -303,7 +302,7 @@ class UsersController extends BaseController
 
         $sql = "UPDATE usuario.usuario SET activo=:activo WHERE id=:id";
         $params = array('activo' => $active ? 'f' : 't', 'id' => $id);
-        Db::execute($sql, $params);
+        Db::execute($sql, $params, false);
 
         $msg = $active ? 'desactivado' : 'activado';
         return array('message' => "El usuario ha sido $msg.");
@@ -321,7 +320,7 @@ class UsersController extends BaseController
 
         $sql = 'UPDATE usuario.usuario SET clave=encode(sha256(:clave),\'hex\') WHERE id=:id';
         $params = array('id' => $data->id, 'clave' => $username);
-        Db::execute($sql, $params);
+        Db::execute($sql, $params, false);
 
         return array('message' => 'La contraseña a sido restablecida.');
     }
@@ -335,7 +334,7 @@ class UsersController extends BaseController
 
         $sql = 'UPDATE usuario.usuario SET clave=encode(sha256(:clave),\'hex\') WHERE id=:id';
         $params = array('id' => $data->id, 'clave' => $data->clave);
-        Db::execute($sql, $params);
+        Db::execute($sql, $params, false);
 
         return array('message' => 'La contraseña a sido modificada');
     }
@@ -375,14 +374,14 @@ class UsersController extends BaseController
         $phs = str_replace(':clave', 'encode(sha256(:clave),\'hex\')', $phs);
 
         $sql = "INSERT INTO usuario.$table ($cols) VALUES ($phs)";
-        Db::execute($sql, $params);
+        Db::execute($sql, $params,false);
     }
 
     private function deactivate($table, $id)
     {
         $sql = "UPDATE usuario.$table SET activo=false WHERE idusuario=:idusuario";
         $params = array('idusuario' => $id);
-        Db::execute($sql, $params);
+        Db::execute($sql, $params, false);
     }
 
     private function activate($table, $params)
@@ -397,7 +396,7 @@ class UsersController extends BaseController
             ? "UPDATE usuario.$table SET activo=true WHERE ($cols) IN (($phs))"
             : "INSERT INTO usuario.$table ($cols) VALUES ($phs)";
 
-        Db::execute($sql, $params);
+        Db::execute($sql, $params, false);
     }
 
     private function verifyRolePermissions($role, $permissions)

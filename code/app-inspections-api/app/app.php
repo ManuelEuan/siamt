@@ -26,7 +26,8 @@ $app->mount(
     // PROCESOS
     ->post("/inspectors/getInfoProcess", "getInfoProcess")
     ->post("/inspectors/getAllFlowBySubStage", "getAllFlowBySubStage")
-    
+    ->post("/inspectors/hasFlowAfter", "hasFlowAfter")
+    ->post("/inspectors/getInfoBySubStage", "getInfoBySubStage")
 );
 
 $app->mount(

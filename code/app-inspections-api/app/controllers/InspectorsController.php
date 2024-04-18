@@ -217,7 +217,7 @@ class InspectorsController extends BaseController
 
     public function getInfoProcess()
     {
-        $data = $this->request->getJsonRawBody(); 
+        $data = $this->request->getJsonRawBody();
         // $this->dep($data);exit;
         $sql = "SELECT 
             iidproceso,
@@ -231,16 +231,16 @@ class InspectorsController extends BaseController
             FROM comun.cat_proceso
             WHERE bactivo='t' AND iidproceso = :iidproceso
         ";
-        $params = array('iidproceso' => $data->iidproceso); 
-        
+        $params = array('iidproceso' => $data->iidproceso);
+
         $processes = Db::fetchOne($sql, $params);
         return $processes;
     }
 
     public function getAllFlowBySubStage()
     {
-        $data = $this->request->getJsonRawBody(); 
-       
+        $data = $this->request->getJsonRawBody();
+
         $sql = "WITH cte_flujo AS (
             SELECT iidsubetapa, iidsubetapa_siguiente
             FROM comun.cat_flujo
@@ -287,12 +287,56 @@ class InspectorsController extends BaseController
             JOIN comun.cat_subetapa nextSubStage ON f.iidsubetapa_siguiente = nextSubStage.iidsubetapa;
         
         ";
-        $params = array('iidsubetapa' => $data->iidsubStage); 
+        $params = array('iidsubetapa' => $data->iidsubStage);
 
         $allFlow = Db::fetchOne($sql, $params);
         // $this->dep($allFlow);exit;
         return $allFlow;
     }
+
+    public function hasFlowAfter()
+    {
+        $data = $this->request->getJsonRawBody();
+        $sql = "SELECT 
+            iidsubetapa,
+            bactivo AS activo
+            FROM comun.cat_flujo
+            WHERE bactivo='t' AND iidsubetapa = :iidsubetapa
+        ";
+        $params = array('iidsubetapa' => $data->iidsubetapa);
+        $registro = Db::fetch($sql, $params);
+        return $registro;
+    }
+
+    public function getInfoBySubStage()
+    {
+        $data = $this->request->getJsonRawBody();
+        $sql = "SELECT 
+                    s.iidsubetapa AS iidsubetapa_actual,
+                    s.txtnombre AS nombre_subetapa_actual,
+                    s.txtsigla AS sigla_subetapa_actual,
+                    s.txtdescripcion AS descripcion_subetapa_actual,
+                    s.txtcolor AS color_subetapa_actual,
+                    s.txtpermiso AS permiso_subetapa_actual,
+                    s.binicial AS inicial_subetapa_actual,
+                    s.bfinal AS final_subetapa_actual,
+                    s.bcancelacion AS cancelacion_subetapa_actual,
+                    s.brequiere_motivo AS requiere_motivo_subetapa_actual,
+                    s.iidetapa,
+                    e.iidproceso,
+                    e.txtnombre AS nombre_etapa
+                FROM 
+                    comun.cat_subetapa s
+                JOIN 
+                    comun.cat_etapa e ON s.iidetapa = e.iidetapa
+                WHERE 
+                    s.bactivo = 't' AND s.iidsubetapa = :iidsubetapa
+        ";
+        $params = array('iidsubetapa' => $data->iidsubStage);
+        $registro = Db::fetch($sql, $params);
+        return $registro;
+    }
+
 
     public function getAllStagesInspector()
     {
@@ -399,6 +443,7 @@ class InspectorsController extends BaseController
                 i.iidinspector,
                 i.iidpersona,
                 i.iidetapa,
+                i.iidsubetapa,
                 ca.txtnombre as txtinspector_etapa,
                 i.txtfolio_inspector,
                 i.iidturno,

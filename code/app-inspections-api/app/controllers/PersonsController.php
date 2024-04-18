@@ -94,6 +94,7 @@ class PersonsController extends BaseController
                 $where = ' WHERE p.txtrfc=:dataSearch';
                 break;
         }
+        // $this->dep($personas);exit;
 
         $sqlComplete = $sql . $where;
         $params = array('dataSearch' => $dataSearch);
@@ -102,7 +103,7 @@ class PersonsController extends BaseController
         } else {
             $personas = Db::fetchAll($sqlComplete, $params);
         }
-        // $this->dep($personas);exit;
+       
         // SI NO EXISTE LA PERSONA SE RETORNA VACÍO
         if (!$personas) {
             return;
@@ -130,7 +131,7 @@ class PersonsController extends BaseController
                 }
             }
         }
-        
+        // $this->dep($personas);exit;
         // SI EXISTEN MUCHAS PERSONAS QUE COINCIDEN CON LA BÚSQUEDA SE RETORNAN TODAS
         return $personas;
         // return $persona;
