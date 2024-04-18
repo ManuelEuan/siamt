@@ -17,7 +17,7 @@
             v-if="search === 'NOMBRE'">
             <v-text-field v-model="nombre" label="NOMBRE(S)*" style="max-height: 40px;" :rules="[rules.required]"
                 hide-details="auto" clearable dense @input="toUpperCase" outlined />
-            <v-btn class="d-flex align-center ml-3 search-btn" depressed color="primary" @click="verifyCurp(false)"
+            <v-btn class="d-flex align-center ml-3 search-btn" depressed color="primary" @click="verifyCurp()"
                 :disabled="!nombreValido">
                 Verificar Nombre
             </v-btn>
@@ -27,7 +27,7 @@
             v-if="search === 'CURP'">
             <v-text-field v-model="curp" label="CURP*" style="max-height: 40px;" :rules="[rules.curp]" maxlength="18"
                 hide-details="auto" clearable dense @input="toUpperCase" outlined />
-            <v-btn class="d-flex align-center ml-3 search-btn" depressed color="primary" @click="verifyCurp(false)"
+            <v-btn class="d-flex align-center ml-3 search-btn" depressed color="primary" @click="verifyCurp()"
                 :disabled="!curpValida">
                 Verificar CURP
             </v-btn>
@@ -37,7 +37,7 @@
         <v-col cols="12" md="6" class="d-flex align-center justify-between" style="height:30px" v-if="search === 'RFC'">
             <v-text-field v-model="rfc" label="RFC*" style="max-height: 40px;" :rules="[rules.rfc]" maxlength="13"
                 hide-details="auto" clearable dense @input="toUpperCase" outlined />
-            <v-btn class="d-flex align-center ml-3 search-btn" depressed color="primary" @click="verifyCurp(false)"
+            <v-btn class="d-flex align-center ml-3 search-btn" depressed color="primary" @click="verifyCurp()"
                 :disabled="!rfcValida">
                 Verificar RFC
             </v-btn>
@@ -45,14 +45,17 @@
         <v-card-text v-if="personaEncontrada && personaDisponible">
             <v-row>
                 <v-col cols="12" md="4">
-                    <v-text-field v-model="nombreCompleto" label="Nombre Completo*" hide-details="auto" clearable dense
+                    <v-text-field v-model="nombreCompleto" label="Nombre Completo" hide-details="auto" clearable dense
                         disabled outlined />
                 </v-col>
-                <v-col cols="12" md="4">
-                    <v-text-field v-model="persona.txtcurp" label="CURP*" hide-details="auto" clearable dense disabled
+                <v-col cols="12" md="4" v-if="persona.bfisica">
+                    <v-text-field v-model="persona.txtcurp" label="CURP" hide-details="auto" clearable dense disabled
                         outlined />
                 </v-col>
-                <!-- @click="curp = persona.txtcurp, search = 'CURP', verifyCurp(true)" -->
+                <v-col cols="12" md="4" v-else>
+                    <v-text-field v-model="persona.txtrfc" label="RFC" hide-details="auto" clearable dense disabled
+                        outlined />
+                </v-col>
                 <v-col cols="12" md="4">
                     <v-btn class="d-flex align-center ml-3" depressed color="primary"
                         @click="curp = persona.txtcurp, search = 'CURP', showDialogPerson(persona.iidpersona)"
@@ -113,7 +116,7 @@
 
         <!-- DIALOG CAMBIO DE CURP -->
         <generic-dialog :dialogVisible="dialogCurpChanged" dialogTitle="Se ha detectado un cambio en el CURP verificado"
-            @update:dialogVisible="dialogCurpChanged = $event" @confirm="verifyCurp(false)">
+            @update:dialogVisible="dialogCurpChanged = $event" @confirm="verifyCurp()">
             <template v-slot:default>
                 Favor de verificar de nuevo
             </template>
@@ -191,8 +194,11 @@
             </template>
         </generic-dialog>
 
-        <modal-create-person ref="ModalCreatePerson" :iidpersona=iidpersona :curp=curp
-            :dataPersonFromCurpVerification=persona @person-created="handlefromCreatePerson" />
+        <modal-create-person ref="ModalCreatePerson" 
+            :iidpersona=iidpersona :curp=curp
+            :dataPersonFromCurpVerification=persona 
+            @person-created="handlefromCreatePerson" 
+        />
     </v-row>
 </template>
 <style>
@@ -219,10 +225,6 @@ export default {
             type: Number,
             default: 0 // Valor predeterminado
         },
-        // getInfoPerson: {
-        //     type: Boolean,
-        //     default: true, // Valor predeterminado
-        // },
         typeOfRequest: {
             type: String,
             default: ''
@@ -304,19 +306,13 @@ export default {
             console.log('se mostrará el dialog persona 1')
             if (iidpersona == 0) {
                 localStorage.setItem('newPerson', true);
-
-                this.verifyCurp(false, true)
-
-                // this.$refs.ModalCreatePerson.dialog = true
+                this.verifyCurp(true)
             } else {
-                console.log('$refs.ModalCreatePerson para leer datos')
                 this.$refs.ModalCreatePerson.dialog = true
-                this.$refs.ModalCreatePerson.$data.informationForGeneralDataPerson = this.persona
-                console.log(this.$refs.ModalCreatePerson.$data.informationForGeneralDataPerson)
             }
         },
 
-        async verifyCurp(needModal, fromDialogRegister = false, onlyInformation = false) {
+        async verifyCurp(fromDialogRegister = false, onlyInformation = false) {
             this.dialogCurpChanged = false;
             try {
                 let response = ''
@@ -485,18 +481,11 @@ export default {
                 window.location.reload()
             }, 100);
         },
-        resetSearch(typeSearch, dataSearch, needModal) {
-            this.search = typeSearch
-            if (this.search == 'CURP') {
-                // this.curp = dataSearch
-            }
-            this.verifyCurp(needModal)
-        },
         handlefromCreatePerson(personCreated, curp) {
             if (personCreated) {
                 console.log(personCreated, curp, 'retorno desde el modal create person')
                 // this.curp = curp
-                this.verifyCurp(false)
+                this.verifyCurp()
                 this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, curp);
             } else {
                 alert('no se pudo crear')
@@ -577,7 +566,7 @@ export default {
                 console.log(this.rfcRegisterField)
                 console.log(this.curp)
                 console.log(this.rfc)
-                this.verifyCurp(false, false, true)
+                this.verifyCurp(false, true)
             }
         },
     },

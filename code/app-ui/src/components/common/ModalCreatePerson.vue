@@ -187,8 +187,8 @@ export default {
                     console.log('responsePerson create')
                     console.log(responsePerson)
                     this.showSuccess(responsePerson.message);
+                    this.informationForGeneralDataPerson.iidpersona = responsePerson.iidpersona
                     this.$emit('person-created', true, this.dataPerson.txtcurp);
-
                     this.dialog=false
                 }
             } catch (error) {
@@ -201,6 +201,8 @@ export default {
             this.dataPerson = person
         },
         handleFromDirectionVerification(directionVerify, direction) {
+            console.log(directionVerify)
+            console.log(direction)
             this.directionValidation = directionVerify
             this.dataDirection = direction
 

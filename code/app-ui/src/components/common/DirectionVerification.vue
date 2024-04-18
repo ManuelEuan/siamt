@@ -6,7 +6,7 @@
                 v-if="!newRegisterPerson">
                 <p class="col-md-6 my-0">Direcciones</p>
                 <v-col cols="12" md="3" v-if="!newDirection">
-                    <v-btn depressed color="primary" @click="newDirection = true, showDirections=false, resetAddress()">
+                    <v-btn depressed color="primary" @click="newDirection = true, showDirections=false, resetDirection()">
                         Nueva dirección
                     </v-btn>
                 </v-col>
@@ -22,7 +22,6 @@
                 </v-col>
             </div>
             <!-- TABLA DE DIRECCIONES -->
-            <!-- {{ Object.keys(personaAddresses).length }} -->
             <v-row v-if="personaAddresses && Object.keys(personaAddresses).length > 0 && showDirections">
                 <v-col cols="12" md="12">
                     <v-simple-table>
@@ -108,15 +107,14 @@
                         <v-text-field v-model="municipality" label="Municipio*" hide-details="auto" clearable dense
                             outlined disabled />
                     </v-col>
-
                     <v-col cols="12" md="12" class="text-center" v-if="codePostal">
-                        {{ direction.itipo_direccion }}
-                        <v-radio-group v-model="direction.itipo_direccion" row class="p-radio">
+                        <v-radio-group v-model="direction.itipo_direccion" row class="p-radio" :rules="[rules.required]">
                             <v-radio v-for="(directionOption, index) in directionOptions" :key="index"
                                 :label="directionOption.txtnombre" :value="directionOption.itipo_direccion"></v-radio>
                         </v-radio-group>
                     </v-col>
                 </v-row>
+
                 <v-row v-if="codePostal">
                     <v-col cols="12" md="6">
                         <v-select v-model="direction.iidcolonia" label="Colonia*" :items="colonies"
@@ -124,7 +122,6 @@
                             dense :rules="[rules.required]" outlined :disabled="!codePostal" />
                     </v-col>
                     <v-col cols="12" md="6" v-if="codePostal && direction.itipo_direccion === 1">
-                        {{ direction.itipo_vialidad }}
                         <v-select v-model="direction.itipo_vialidad" label="Tipo vialidad*" :items="vialidadTypes"
                             item-text="txtnombre" item-value="itipo_vialidad" hide-details="auto" small-chips
                             clearable dense :rules="[rules.required]" outlined :disabled="!codePostal" />
@@ -341,12 +338,34 @@ export default {
     },
     created() {
         // Establecer el primer elemento como seleccionado por defecto
+        console.log(this.direction.itipo_direccion)
+        console.log(this.directionOptions)
         this.direction.itipo_direccion = this.directionOptions[0].itipo_direccion;
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
-        resetAddress(){
-            this.direction= {
+        async getCodePostals() {
+            try {
+                this.postalCodes = await services.inspections().getAllPostalCodes();
+            } catch (error) {
+                const message = 'Error al cargar opciones de códigos postales.';
+                this.showError({ message, error });
+            }
+        },
+        async loadDirectionsTable() {
+            try {
+                console.log('LOAD DIRECTIONS')
+                let response = await services.inspections().getPersonAddresses(this.iidpersona);
+                this.personaAddresses = { ...response }
+            } catch (error) {
+                const message = 'Error al cargar las direcciones asociadas.';
+                this.showError({ message, error });
+            }
+        },
+        resetDirection(){
+            // this.personaAddresses=[],
+            this.postalCode = 0,
+            this.direction = {
                 iidcolonia: 0,
                 txtcalle: '',
                 txtcalle_letra: '',
@@ -370,46 +389,6 @@ export default {
                 dtfecha_creacion: null,
                 dtfecha_modificacion: null,
             }
-        },
-        async getCodePostals() {
-            try {
-                this.postalCodes = await services.inspections().getAllPostalCodes();
-            } catch (error) {
-                const message = 'Error al cargar opciones de códigos postales.';
-                this.showError({ message, error });
-            }
-        },
-        async loadDirectionsTable() {
-            try {
-                console.log('LOAD DIRECTIONS')
-                let response = await services.inspections().getPersonAddresses(this.iidpersona);
-                this.personaAddresses = { ...response }
-            } catch (error) {
-                const message = 'Error al cargar las direcciones asociadas.';
-                this.showError({ message, error });
-            }
-        },
-        resetDirection(){
-            this.personaAddresses=[],
-            this.direction = {
-                    iidcolonia: 0,
-                    txtcalle: '',
-                    txtcalle_letra: '',
-                    inumero_exterior: null,
-                    txtnumero_exterior_letra: '',
-                    inumero_interior: null,
-                    txtnumero_interior_letra: '',
-                    txtcruzamiento_uno: '',
-                    txtcruzamiento_uno_letra: '',
-                    txtcruzamiento_dos: '',
-                    txtcruzamiento_dos_letra: '',
-                    txtreferencia: '',
-                    flatitud: null,
-                    flongitud: null,
-                    bactivo: null,
-                    dtfecha_creacion: null,
-                    dtfecha_modificacion: null,
-                }
         },
         async getMunicipalityAndEntityByPostalCode() {
             try {
@@ -515,6 +494,7 @@ export default {
                this.resetDirection()
             } else {
                 this.getMunicipalityAndEntityByPostalCode()
+                this.direction.itipo_direccion = this.directionOptions[0].itipo_direccion;
             }
         },
         'directionValidation': function () {
@@ -524,6 +504,9 @@ export default {
         'newRegisterPerson': function(){
             if(this.newRegisterPerson){
                 this.resetDirection()
+                this.editMode=true
+            }else{
+                this.editMode=false
             }
         },
         'iidpersona': function(){
@@ -534,6 +517,8 @@ export default {
     async mounted() {
         await this.getCodePostals();
         await this.loadDirectionsTable();
+        // false
+        // this.newRegisterPerson = localStorage.getItem('newPerson');
     }
 };
 </script>

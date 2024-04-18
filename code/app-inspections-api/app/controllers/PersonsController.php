@@ -217,8 +217,13 @@ class PersonsController extends BaseController
                             WHEN d.itipo_direccion = 1 THEN
                                 CONCAT(
                                     CASE
-                                        WHEN d.txtcalle_letra <> '' THEN CONCAT('Calle ', d.txtcalle, ' ', d.txtcalle_letra)
-                                        ELSE d.txtcalle
+                                        WHEN d.itipo_vialidad = 1 THEN
+                                            CASE
+                                                WHEN d.txtcalle_letra <> '' THEN CONCAT('Calle ', d.txtcalle, ' ', d.txtcalle_letra)
+                                                ELSE d.txtcalle
+                                            END
+                                        WHEN d.itipo_vialidad = 2 THEN CONCAT('AVENIDA O KM ', d.txtavenida_kilometro)
+                                        ELSE ''
                                     END,
                                     CASE
                                         WHEN d.inumero_exterior IS NOT NULL THEN CONCAT(' #', d.inumero_exterior)
@@ -396,9 +401,10 @@ class PersonsController extends BaseController
         }
         $this->validRequiredData($data, 'person'); // Validar datos requeridos
         Db::begin(); // Iniciar transacción en la base de datos
+        // var_dump(($data->bfisica ? 't' : 'f'));exit;
 
         $params = array(
-            'bfisica' => $data->bfisica,
+            'bfisica' => $data->bfisica ? 't' : 'f',
             'txtnombre' => $data->txtnombre,
             'txtapepat' => $data->txtapepat,
             'txtapemat' => $data->txtapemat,
@@ -409,10 +415,8 @@ class PersonsController extends BaseController
             'iidestado_civil' => $data->iidestado_civil,
             'iidsexo' => $data->iidsexo,
             'txtcorreo' => $data->txtcorreo,
-            // 'bactivo' => $data->bactivo,
-            // 'dtfecha_creacion' => $data->dtfecha_creacion !== '' ? $data->dtfecha_creacion : date("Y/m/d H:i:s"),
-            // 'dtfecha_modificacion' => $data->dtfecha_modificacion !== '' ? $data->dtfecha_modificacion : date("Y/m/d H:i:s"),
         );
+        
 
         $iiddpersona = $this->insert('tbl_persona', $params);
 
@@ -575,16 +579,13 @@ class PersonsController extends BaseController
             $data->phone->inumero = intval($data->phone->inumero);
 
         }
-        // $this->dep($data);exit;
-        // intval($data->phone->inumero);
-        // var_dump($data);exit;
+      
         if (empty($data->iidpersona)) {
             throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona para asignar Teléfono');
         }
         $iidpersona = $data->iidpersona;
         $this->validRequiredData($data->phone, 'phone'); // Validar datos requeridos
-        // var_dump($data->direction->inumero_exterior);exit;
-
+      
         Db::begin(); // Iniciar transacción en la base de datos
 
         $params = array(
@@ -595,10 +596,7 @@ class PersonsController extends BaseController
         );
 
         $iidtelefono = $this->insert('tbl_telefono', $params);
-        // if(!$iiddireccion){
-        //     throw new ValidatorBoomException(422, 'No se ha podido registrar la dirección');
-        // }
-
+     
         $paramsVerifyCurrently = array('iidpersona' => $iidpersona);
         $sql = "SELECT 
                     iidpersona,
@@ -739,11 +737,17 @@ class PersonsController extends BaseController
     // // Método para validar datos requeridos
     private function validRequiredData($data, $typeValidation)
     {
-        // if($$typeValidation == 'person'){
+        // if($typeValidation == 'person'){
         // }
         switch ($typeValidation) {
             case 'person':
-                $requiredKeys = array('bfisica', 'txtnombre', 'txtcurp'); // Claves requeridas
+                $requiredKeys = array('bfisica', 'txtnombre'); // Claves requeridas
+                 // Si el tipo de validación es 'person' y 'bfisica' es true, agregar 'txtcurp' a las claves requeridas, de lo contrario, agregar 'txtrfc'
+                 if ($data->bfisica) {
+                    $requiredKeys[] = 'txtcurp';
+                } else {
+                    $requiredKeys[] = 'txtrfc';
+                }
                 break;
             case 'direction':
                 $requiredKeys = array('iidcolonia'); // Claves requeridas
@@ -759,7 +763,7 @@ class PersonsController extends BaseController
         $actualKeys = array_keys(get_object_vars($data)); // Claves presentes en los datos
         $missingKeys = array_diff($requiredKeys, $actualKeys); // Claves faltantes
         
-        $message = 'Faltan valores requeridosss.';
+        $message = 'Faltan valores requeridos.';
 
         if (!empty($missingKeys)) throw new ValidatorBoomException(422, $message);
 
@@ -777,6 +781,10 @@ class PersonsController extends BaseController
                 case 'iidtelefono_tipo':
                     $message = "Tipo de valor incorrectos en $key.";
                     if (!is_int($value)) throw new ValidatorBoomException(422, $message);
+                    break;
+                case 'bfisica':
+                    $message = "Tipo de valor incorrecto en $key.";
+                    if (!is_bool($value)) throw new ValidatorBoomException(422, $message);
                     break;
                 default:
                     $message = "Tipo de valor incorrecto en $key.";
