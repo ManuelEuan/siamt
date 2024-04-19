@@ -45,8 +45,7 @@
                                                 clearable dense :disabled="!createMode" outlined />
                                         </v-col>
                                         <v-col cols="12" md="4">
-                                            <v-btn color="primary" text @click=showDialogPerson>Información Completa
-                                                2</v-btn>
+                                            <v-btn color="primary" text @click=showDialogPerson()>Información Completa2</v-btn>
                                         </v-col>
                                     </v-row>
                                     <v-row v-if="personaEncontrada && personaDisponible || !createMode">
@@ -292,7 +291,11 @@ export default {
 
         showDialogPerson() {
             console.log('***Invocación de modal persona***')
+            // localStorage.setItem('newPerson', false);
+            console.log('*4*')
+            // this.activateModalPerson = false
             this.activateModalPerson = true
+            // this.personId = iidpersona
         },
 
         // RETORNO DE COMPONENTE GENÉRICO CURP VERIFICATION

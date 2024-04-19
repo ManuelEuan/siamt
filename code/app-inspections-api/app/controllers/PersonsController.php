@@ -121,6 +121,7 @@ class PersonsController extends BaseController
         
 
         // SI EXISTE PERSONA ÚNICA SE RETORNAN LOS DATOS ESPECÍFICOS
+        // $this->dep($typeOfRequest);exit;
         if ($typeOfRequest == 'Inspector') {
             if (count($personas) > 0) {
                 foreach ($personas as $key => $persona) {

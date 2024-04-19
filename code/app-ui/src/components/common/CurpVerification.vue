@@ -115,9 +115,9 @@
         </generic-dialog>
 
         <!-- DIALOG INSPECTOR -->
-        <generic-dialog :dialogVisible="dialogWithPermissionsToCreatePerson"
+        <generic-dialog :dialogVisible="dialogRedirectFoundRequest"
             dialogTitle="La clave ingresada pertenece a un inspector"
-            @update:dialogVisible="dialogWithPermissionsToCreatePerson = $event" @confirm="redirectRouteTypeOfRequest">
+            @update:dialogVisible="dialogRedirectFoundRequest = $event" @confirm="redirectRouteTypeOfRequest">
             <template v-slot:default>
                 ¿Desea verificar la información?
             </template>
@@ -187,7 +187,7 @@
             </template>
         </generic-dialog>
 
-        <modal-create-person ref="ModalCreatePerson" :iidpersona=personId :activateModalPerson=activateModalPerson
+        <modal-create-person :iidpersona=personId :activateModalPerson=activateModalPerson
             :preLoadPerson=preLoadPerson @modal-create-person="handlefromModalCreatePerson" />
     </v-row>
 </template>
@@ -280,6 +280,7 @@ export default {
             dialogWithpoutPermissionsToCreatePerson: false,
             dialogWithPermissionsToCreatePerson: false,
             dialogPeopleFounds: false,
+            dialogRedirectFoundRequest: false,
 
             // PROPS SEND
             personId: 0,
@@ -330,13 +331,20 @@ export default {
                 }
                 console.log('preLoadPerson')
                 console.log(this.preLoadPerson)
+                console.log('*3*')
+
                 this.activateModalPerson = true
 
                 // this.verifyCurp(true)
             } else {
                 localStorage.setItem('newPerson', false);
+                console.log('****iidpersona****')
+                console.log(iidpersona) 
+                console.log('****iidpersona****')
+                console.log(this.personId)
+
                 this.activateModalPerson = true
-                this.personId = iidpersona
+                // this.personId = iidpersona
             }
 
 
@@ -393,6 +401,8 @@ export default {
                 console.log('*************data*************')
                 console.log(data)
 
+                console.log('*************fromDialogRegister*************')
+                console.log(fromDialogRegister)
 
                 response = await services.inspections().getPersonByDinamycSearch({ data });
                 console.log('*************response by dinamyc search*************')
@@ -401,10 +411,11 @@ export default {
                 // SI NO EXISTE SE AGREGA LA PERSONA
                 if (!response || !response[0]) {
                     console.log('PERSONA NO ENCONTRADA')
-                    
+
                     this.personaDisponible = true
                     localStorage.setItem('newPerson', true);
                     if (fromDialogRegister) {
+                        console.log('*1*')
                         this.activateModalPerson = true
                         if (this.typePersonFisica) {
                             this.persona = {
@@ -421,7 +432,6 @@ export default {
                                 txtrfc: this.rfcRegisterField
                             }
                         }
-                        this.$refs.ModalCreatePerson.$data.informationForGeneralDataPerson = this.persona
 
 
                     } else { // SE PODRÁ REGISTRAR SIEMPRE Y CUANDO TENGA PERMISOS
@@ -444,18 +454,28 @@ export default {
                     }
                     this.persona = response[0]
                     localStorage.setItem('newPerson', false);
-                    
+
 
                     console.log(this.persona)
+                    console.log(this.persona)
+                    
                     if (this.typeOfRequest) {
                         if (this.persona.foundRequestSearched === true) {  // Si la persona buscada es econtrada significa que no esta disponible
                             if (this.typeOfRequest == 'Inspector') {
-                                this.routeTypeOfRequest = `/inspectors/${response.iidOfSearchedRequest}/edit`;
+                                console.log('entrandoo')
+                                this.routeTypeOfRequest = `/inspectors/${this.persona.iidOfSearchedRequest}/edit`;
+                                this.personaDisponible = false
+                                this.activateModalPerson = false
+                                this.dialogRedirectFoundRequest = true
                             }
-                        }else{
+                        }
+                        else {
                             this.personaDisponible = true
                         }
                     }
+                    console.log('111')
+                    console.log('Persona encontrada: ' + this.personaEncontrada)
+                    console.log('Persona disponible: ' + this.personaDisponible)
                     this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona);
                 }
             } catch (error) {
@@ -471,26 +491,40 @@ export default {
             //         this.routeTypeOfRequest = `/inspectors/${response.iidOfSearchedRequest}/edit`;
             //     }
             // }
+            console.log('2')
+            console.log('Persona encontrada: ' + this.personaEncontrada)
+            console.log('Persona disponible: ' + this.personaDisponible)
             this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona);
             this.dialogPeopleFounds = false
         },
         redirectRouteTypeOfRequest() {
             this.$router.push(this.routeTypeOfRequest);
-            // setTimeout(() => {
-            //     window.location.reload()
-            // }, 100);
+            setTimeout(() => {
+                window.location.reload()
+            }, 100);
         },
         handlefromModalCreatePerson(personAllData, closeModal) {
             console.log('retorno desde el modal create person')
             if (closeModal) {
                 this.activateModalPerson = false
-                this.preLoadPerson = {
-                    bfisica: true,
-                    txtvariable: ''
-                }
+                // if(personAllData.bfisica){
+                //     this.preLoadPerson = {
+                //         bfisica: personAllData.bfisica,
+                //         txtvariable: personAllData.txtcurp
+                //     }
+                // }else{
+                //     this.preLoadPerson = {
+                //         bfisica: personAllData.bfisica,
+                //         txtvariable: personAllData.txtrfc
+                //     }
+                // }
                 console.log('ANTESSS')
                 console.log(personAllData)
-                console.log(this.personaEncontrada, this.personaDisponible, this.persona)
+                // this.persona = personAllData
+                // console.log(this.personaEncontrada, this.personaDisponible, this.persona)
+                console.log('3')
+                console.log('Persona encontrada: ' + this.personaEncontrada)
+                console.log('Persona disponible: ' + this.personaDisponible)
                 this.$emit('person-info', this.personaEncontrada, this.personaDisponible, personAllData)
             }
         },
@@ -516,7 +550,11 @@ export default {
 
         },
         'activateDialogPerson': function () {
+            console.log('*activnding*')
+
             if (this.activateDialogPerson) {
+                console.log('*2*')
+
                 this.activateModalPerson = true
             }
         },

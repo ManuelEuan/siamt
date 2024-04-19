@@ -234,6 +234,8 @@ export default {
             if (this.newGeneralPersonData || this.editGeneralPersonData) {
                 newOrEdit = true
             }
+            console.log('******************this.generalPersonData***********************')
+            console.log(this.generalPersonData)
             this.$emit('general-person-data-validation', newOrEdit, this.generalPersonData, this.generalPersonDataValidation);
         }
     },
