@@ -194,10 +194,8 @@
             </template>
         </generic-dialog>
 
-        <modal-create-person ref="ModalCreatePerson" 
-            :iidpersona=personId 
-            @person-created="handlefromCreatePerson" 
-        />
+        <modal-create-person ref="ModalCreatePerson" :iidpersona=personId :activateModalPerson=activateModalPerson
+            :preLoadPerson=preLoadPerson @modal-create-person="handlefromModalCreatePerson" />
     </v-row>
 </template>
 <style>
@@ -233,15 +231,23 @@ export default {
             default: function () {
                 return {}; // Objeto vacío como valor predeterminado
             }
+        },
+        activateDialogPerson: {
+            type: Boolean,
+            default: false
         }
     },
     data() {
         return {
             // ENVIAR A MODAL DE PERSONAS
             personId: 0,
-            curp: '',
-            activateModalPerson: true,
+            activateModalPerson: false,
 
+            curp: '',
+            preLoadPerson: {
+                bfisica: true,
+                txtvariable: ''
+            },
             // DATA DEL COMPONENTE
             search: 'CURP',
             nombre: '',
@@ -300,20 +306,37 @@ export default {
         },
 
         showDialogPerson(iidpersona) {
-            console.log(iidpersona)
+            console.log('se mostrará el dialogs persona 1')
+            console.log('iidpersona es: ' + iidpersona)
             this.dialogRegisterPerson = false
-            this.dialog = true;
-            console.log('se mostrará el dialog persona 1')
             if (iidpersona == 0) {
                 localStorage.setItem('newPerson', true);
-                this.verifyCurp(true)
+                this.curp = this.curpRegisterField != '' ? this.curpRegisterField : this.curp;
+                this.rfc = this.rfcRegisterField != '' ? this.rfcRegisterField : this.rfc;
+                this.personId = iidpersona
+                if (this.search == "CURP" || this.typePersonFisica) {
+                    this.preLoadPerson = {
+                        bfisica: true,
+                        txtvariable: this.curp
+                    }
+                } else {
+                    this.preLoadPerson = {
+                        bfisica: false,
+                        txtvariable: this.rfc
+                    }
+                }
+                console.log('preLoadPerson')
+                console.log(this.preLoadPerson)
+                this.activateModalPerson = true
+
+                // this.verifyCurp(true)
             } else {
                 localStorage.setItem('newPerson', false);
-                this.$refs.ModalCreatePerson.dialogModalCreatePersonWithAddressAndPhone = true
-                this.personId=iidpersona
-                console.log('antes this.personId')
-                console.log(this.personId)
+                this.activateModalPerson = true
+                this.personId = iidpersona
             }
+
+
         },
 
         async verifyCurp(fromDialogRegister = false, onlyInformation = false) {
@@ -374,10 +397,9 @@ export default {
                     console.log('PERSONA NO ENCONTRADA')
                     this.personaEncontrada = false
                     this.personaDisponible = true
-                    console.log('1')
                     localStorage.setItem('newPerson', true);
                     if (fromDialogRegister) {
-                        this.$refs.ModalCreatePerson.dialogModalCreatePersonWithAddressAndPhone = true
+                        this.activateModalPerson = true
                         if (this.typePersonFisica) {
                             this.persona = {
                                 iidpersona: 0,
@@ -397,9 +419,8 @@ export default {
 
                     }
                     else if (onlyInformation) {
-                        console.log(this.persona)
                         alert('aqui')
-                    } else {
+                    } else { // SE PODRÁ REGISTRAR SIEMPRE Y CUANDO TENGA PERMISOS
                         this.peopleModulePermissions.includes('crmp') ? this.dialogRegisterPerson = true : this.dialogNoPermissionsToCreate = true
                     }
 
@@ -436,9 +457,9 @@ export default {
                     localStorage.setItem('newPerson', false);
                     this.personaDisponible = true
                     if (onlyInformation) {
-                        this.$refs.ModalCreatePerson.dialogModalCreatePersonWithAddressAndPhone = true
+                        console.log('entrando 1')
+                        this.activateModalPerson = true
                     }
-                    this.persona.bfisica = response.bfisica
 
                     if (this.typeOfRequest) {
                         if (response.foundRequestSearched === true && !onlyInformation) {  // Si la persona ya es inspector mostrará un modal de redirección
@@ -446,12 +467,15 @@ export default {
                             this.curpVerificada = this.persona.txtcurp
                             this.rutaInspector = `/inspectors/${response.iidOfSearchedRequest}/edit`;
                             this.dialogInspector = true;
+                        }else{
+                            console.log('entrando 3')
+                            this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.foundRequestSearched);
                         }
-                        this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.foundRequestSearched);
                     } else {
+                        console.log('entrando 4')
                         this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.foundRequestSearched);
                     }
-                  
+
                 }
             } catch (error) {
                 const message = 'Error al procesar curp.';
@@ -486,14 +510,21 @@ export default {
                 window.location.reload()
             }, 100);
         },
-        handlefromCreatePerson(personCreated, curp) {
-            if (personCreated) {
-                console.log(personCreated, curp, 'retorno desde el modal create person')
-                // this.curp = curp
-                this.verifyCurp()
-                this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, curp);
-            } else {
-                alert('no se pudo crear')
+        handlefromModalCreatePerson(personAllData, closeModal) {
+            console.log('retorno desde el modal create person')
+            if (closeModal) {
+                this.activateModalPerson = false
+                this.preLoadPerson = {
+                    bfisica: true,
+                    txtvariable: ''
+                }
+                console.log('ANTESSS')
+                console.log(personAllData)
+                console.log(this.personaEncontrada, this.personaDisponible, this.persona)
+                this.$emit('person-info', this.personaEncontrada, this.personaDisponible, personAllData, this.persona.foundRequestSearched, closeModal)
+            }
+            if (personAllData) {
+                // this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, curp);
             }
         },
         // Método para manejar el evento keydown
@@ -548,8 +579,15 @@ export default {
         // this.curp = this.receivedCurp
         // },
         'iidpersona': function () {
-            console.log('cambio del this.iidpersona')
+            console.log('cambio del this.iidpersona del CURP VERIFICATION')
             console.log(this.iidpersona)
+            this.personId = this.iidpersona
+            
+        },
+        'activateDialogPerson':function(){
+            if(this.activateDialogPerson){
+                this.activateModalPerson = true
+            }
         },
         'requestInfoComplete': function () {
             if (this.requestInfoComplete) {
@@ -566,11 +604,6 @@ export default {
                     this.rfc = this.requestInfoComplete.dataSearch
                 }
                 console.log('cambio en this.requestInfoComplete')
-                console.log(this.typePersonFisica)
-                console.log(this.curpRegisterField)
-                console.log(this.rfcRegisterField)
-                console.log(this.curp)
-                console.log(this.rfc)
                 this.verifyCurp(false, true)
             }
         },

@@ -23,11 +23,9 @@
                             <v-card-text>
                                 <v-form v-model="valid">
                                     <!-- :receivedCurp="persona.txtcurp" -->
-                                    <curp-verification 
-                                        :style="{ display: createMode ? 'block' : 'none !important' }"
-                                        :typeOfRequest="'Inspector'" 
-                                        :requestInfoComplete=sendPerson
-                                        @person-info="handlePersonInfo"
+                                    <curp-verification :style="{ display: createMode ? 'block' : 'none !important' }"
+                                        :typeOfRequest="'Inspector'" :iidpersona=persona.iidpersona
+                                        :activateDialogPerson=activateModalPerson @person-info="handlePersonInfo"
                                         ref="curpVerification"></curp-verification>
 
                                     <v-row v-if="!createMode">
@@ -40,7 +38,7 @@
                                                 clearable dense :disabled="!createMode" outlined />
                                         </v-col>
                                         <v-col v-else cols="12" md="4">
-                                            <v-text-field v-model="persona.txtrfc" label="RFC" hide-details="auto" 
+                                            <v-text-field v-model="persona.txtrfc" label="RFC" hide-details="auto"
                                                 clearable dense :disabled="!createMode" outlined />
                                         </v-col>
                                         <v-col cols="12" md="4">
@@ -84,14 +82,11 @@
                                                 label="Fecha de baja" type="date" :mask="'####/##/##'"></v-text-field>
                                         </v-col>
 
-                                        <generic-process-flow class="col-md-12" 
-                                            :iidsubStage=inspector.iidsubetapa
-                                            :finalizeProcess=finalizeProcess
-                                            @process-flow="handleProcessFlow"
-                                            @update:dialogVisible="dialogRegisterPerson = $event" 
-                                            @confirm="getNextSubStage()"
-                                            ></generic-process-flow>
-                                          
+                                        <generic-process-flow class="col-md-12" :iidsubStage=inspector.iidsubetapa
+                                            :finalizeProcess=finalizeProcess @process-flow="handleProcessFlow"
+                                            @update:dialogVisible="dialogRegisterPerson = $event"
+                                            @confirm="getNextSubStage()"></generic-process-flow>
+
                                         <v-col cols="12">
                                             <v-textarea v-model="inspector.txtcomentarios" label="Comentarios*"
                                                 hide-details="auto" clearable dense outlined />
@@ -130,6 +125,7 @@ export default {
     },
     data() {
         return {
+            activateModalPerson: false,
             click: {
                 user: false,
                 permission: false,
@@ -259,12 +255,7 @@ export default {
         async saveInspector() {
             if (!this.maintainCurp()) return this.$refs.curpVerification.$data.dialogCurpChanged = true;
             if (!this.valid) return;
-            console.log('this.createMode ' + this.createMode);
-            console.log('fue valida')
-            console.log('inspector')
-            console.log(this.inspector)
-            console.log('persona')
-            console.log(this.persona)
+
             try {
                 const { message } = await (
                     this.createMode ?
@@ -294,33 +285,32 @@ export default {
 
         showDialogPerson() {
             console.log('***Invocación de modal persona***')
-            if(this.persona.bfisica){
-                this.sendPerson = {
-                    bfisica: true,
-                    dataSearch: this.persona.txtcurp,
-                }
-            }else{
-                this.sendPerson = {
-                    bfisica: false,
-                    dataSearch: this.persona.txtrfc,
-                }
-            }
-            // this.sendPerson = this.persona
-            // this.$refs.curpVerification.persona = this.persona;
-            // this.$refs.curpVerification.$refs.ModalCreatePerson.dialog = true
-            // localStorage.setItem('newPerson', false);
+            this.activateModalPerson = true
         },
 
         // RETORNO DE COMPONENTE GENÉRICO CURP VERIFICATION
-        handlePersonInfo(personFound, availablePerson, person, personCurp, isInspector) {
+        handlePersonInfo(personFound, availablePerson, person, isInspector, closeModal) {
             console.log('retorno del componente Curp Verification')
             console.log('Persona encontrada: ' + personFound)
             console.log('Persona disponible: ' + availablePerson)
             console.log('Persona Información Completa: ')
             console.log(person)
-            console.log('Persona CURP: ' + personCurp)
             console.log('Persona tipo inspector: ' + isInspector)
+            if (closeModal) {
+                this.activateModalPerson = false
+            }
+            this.personaEncontrada = personFound
+            this.personaDisponible = availablePerson
+            this.persona = person
         },
+        // handlePersonInfo(personAllData, closeModal) {
+        //     console.log('retorno del componente Curp Verification')
+        //     console.log(personAllData)
+        //     console.log('Close Modal: ' + closeModal)
+        //     if(closeModal){
+        //         this.activateModalPerson = false
+        //     }
+        // },
 
         // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW (AUTOMÁTICO)
         handleProcessFlow(foundSubStage, infoSubStage, processSubStage, hasFlowAfter) {
@@ -333,12 +323,12 @@ export default {
                 alert('No se encontró registro de la sub etapa')
             }
         },
-         // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW (CLICK EN BUTTON)
-        getNextSubStage(){
+        // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW (CLICK EN BUTTON)
+        getNextSubStage() {
             console.log('****************this.SubStage*****************')
             console.log(this.SubStage)
             this.inspector.iidsubetapa = this.SubStage.info.iidsubetapa_siguiente
-            if(!this.SubStage.hasFlowAfter){
+            if (!this.SubStage.hasFlowAfter) {
                 // Si no existe una sub etapa que tenga flujo posterior significa que será el ultimo cambio posible del proceso
                 this.finalizeProcess = true
             }

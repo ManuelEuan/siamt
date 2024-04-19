@@ -9,13 +9,11 @@
                     <v-tabs v-model="tab" centered icons-and-text>
                         <v-tabs-slider color="primary" />
                         <v-tab href="#generaltab">
-                            Datos Generales
-                            <v-badge v-if="newRegisterPerson"
-                                :color="generalPersonDataValidation ? 'success' : 'warning'">
+                            Datos Generales {{ receivedTabGeneralPersonData.newOrEdit }} - {{ receivedTabGeneralPersonData.valid }}
+                            <v-badge
+                            :color="receivedTabGeneralPersonData.valid ? 'success' : 'warning'">
                                 <v-icon> mdi-clipboard-text </v-icon>
                             </v-badge>
-                            <v-icon v-else> mdi-clipboard-text </v-icon>
-
                         </v-tab>
                         <v-tab href="#direccionestab">
                             Dirección {{ receivedTabAddress.newOrEdit }} - {{ receivedTabAddress.valid }}
@@ -44,7 +42,7 @@
                     <v-tabs-items v-model="tab">
                         <v-card flat>
                             <v-tab-item :key="1" value="generaltab" class="py-1">
-                                <general-person-data-verification :iidpersona="iidpersona"
+                                <general-person-data-verification :iidpersona="iidpersona" :preLoadPerson="preLoadPerson"
                                     @general-person-data-validation="handleTabGeneralPersonData"
                                     v-model="generalPersonDataValidation"></general-person-data-verification>
                             </v-tab-item>
@@ -114,11 +112,13 @@ export default {
             type: Number,
             default: 0 // Valor predeterminado
         },
-        dataPersonFromCurpVerification: {
-            type: Object,
-            default: function () {
-                return {}; // Objeto vacío como valor predeterminado
-            }
+        activateModalPerson: {
+            type: Boolean,
+            default: false // Valor predeterminado
+        },
+        preLoadPerson: {
+            bfisica: true,
+            txtvariable: ''
         }
     },
     data() {
@@ -216,11 +216,15 @@ export default {
         'iidpersona': function () {
             console.log('watch iidpersona from modal create person')
             console.log(this.iidpersona)
+            if(!this.iidpersona){
+                this.dialogModalCreatePersonWithAddressAndPhone = true
+            }
         },
         'dialogModalCreatePersonWithAddressAndPhone': function () {
             if (!this.dialogModalCreatePersonWithAddressAndPhone) {
                 console.log('se cerró el modal de persona')
                 localStorage.setItem('newPerson', false);
+                this.$emit('modal-create-person', this.receivedTabGeneralPersonData.data, true)
             } else if (this.dialogModalCreatePersonWithAddressAndPhone && this.dataPerson.iidpersona == 0) {
                 console.log('se abrió el modal de persona y no existe persona')
                 localStorage.setItem('newPerson', true);
@@ -228,6 +232,16 @@ export default {
             this.newRegisterPerson = localStorage.getItem('newPerson');
             this.newRegisterPerson = this.newRegisterPerson === 'true';
         },
+        'activateModalPerson':function (){
+            if(this.activateModalPerson){
+                this.dialogModalCreatePersonWithAddressAndPhone = true
+            }
+        },
+        'preLoadPerson': function() {
+            console.log('llego el preload desde curp verification')
+            console.log(this.preLoadPerson)
+        }
+
     },
     mounted() {
         this.newRegisterPerson = localStorage.getItem('newPerson');

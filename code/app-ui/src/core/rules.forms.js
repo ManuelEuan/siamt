@@ -35,7 +35,7 @@ export default {
 	},
 	rfc: v => {
 		const regex = /^[A-Z&Ñ]{3,4}[0-9]{6}[A-V1-9][0-9A-Z][0-9]$/;
-		return regex.test(v) || 'RFC válido requerida.'; 
+		return regex.test(v) || 'RFC válido requerido.'; 
 	},
 	latitud: v => {
 		if (!v) return true; // Permitir que el campo esté vacío
