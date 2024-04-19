@@ -308,6 +308,7 @@ export default {
                 localStorage.setItem('newPerson', true);
                 this.verifyCurp(true)
             } else {
+                localStorage.setItem('newPerson', false);
                 this.$refs.ModalCreatePerson.dialog = true
             }
         },
@@ -447,6 +448,7 @@ export default {
                     } else {
                         this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona, this.persona.txtcurp, this.persona.foundRequestSearched);
                     }
+                  
                 }
             } catch (error) {
                 const message = 'Error al procesar curp.';

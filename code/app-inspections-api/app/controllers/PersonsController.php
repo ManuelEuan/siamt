@@ -546,6 +546,7 @@ class PersonsController extends BaseController
                 WHERE 
                     bactivo='t' AND bactual='t' AND iidpersona = :iidpersona";
 
+        
         $existsCurrently = Db::fetchAll($sql, $paramsVerifyCurrently);
         if ($existsCurrently) {
             $sql = "UPDATE persona.tbl_persona_direccion SET bactual = false WHERE iidpersona = :iidpersona";
@@ -553,7 +554,7 @@ class PersonsController extends BaseController
             // var_dump('actualizado');
         }
 
-        $paramsPersonDirection = array('iidpersona' => $iidpersona, 'iiddireccion' => $iiddireccion, 'bactual' => $data->bactual);
+        $paramsPersonDirection = array('iidpersona' => $iidpersona, 'iiddireccion' => $iiddireccion, 'bactual' => 't');
         $this->insert('tbl_persona_direccion', $paramsPersonDirection);
         Db::commit(); // Confirmar transacción en la base de datos
         $data->direction->iiddireccion = $iiddireccion;
@@ -819,7 +820,12 @@ class PersonsController extends BaseController
                 txtreferencia=:txtreferencia,
                 flatitud=:flatitud,
                 flongitud=:flongitud,
-                dtfecha_modificacion=:dtfecha_modificacion
+                dtfecha_modificacion=:dtfecha_modificacion,
+                itipo_direccion=:itipo_direccion,
+                itipo_vialidad=:itipo_vialidad,
+                txtavenida_kilometro=:txtavenida_kilometro,
+                txttablaje=:txttablaje,
+                txtdescripcion_direccion=:txtdescripcion_direccion
             WHERE iiddireccion=:iiddireccion
         ';
         $params = array(
@@ -838,8 +844,12 @@ class PersonsController extends BaseController
             'flatitud' => $data->direction->flatitud !== '' ? $data->direction->flatitud : null,
             'flongitud' => $data->direction->flongitud !== '' ? $data->direction->flongitud : null,
             'dtfecha_modificacion' => date('Y-m-d H:i:s'),
+            'itipo_direccion' => $data->direction->itipo_direccion !== '' ? $data->direction->itipo_direccion : null,
+            'itipo_vialidad' => $data->direction->itipo_vialidad !== '' ? $data->direction->itipo_vialidad : null,
+            'txtavenida_kilometro' => $data->direction->txtavenida_kilometro,
+            'txttablaje' => $data->direction->txttablaje,
+            'txtdescripcion_direccion' => $data->direction->txtdescripcion_direccion,
             'iiddireccion' => $data->direction->iiddireccion,
-
         );
 
         Db::execute($sql, $params);

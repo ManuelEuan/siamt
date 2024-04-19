@@ -318,8 +318,6 @@ export default {
             console.log('Persona disponible: ' + availablePerson)
             console.log('Persona Información Completa: ')
             console.log(person)
-            console.log('es fisica?')
-            console.log(person.bfisica)
             console.log('Persona CURP: ' + personCurp)
             console.log('Persona tipo inspector: ' + isInspector)
         },

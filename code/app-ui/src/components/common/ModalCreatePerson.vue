@@ -2,8 +2,9 @@
 <template>
     <div class="">
         <v-dialog v-model="dialog" max-width="800">
-            <v-card prepend-icon="mdi-account" title="Captura de persona">
-
+            <v-card prepend-icon="mdi-account">
+                {{ receivedTabDirection }}---------
+                {{ newRegisterPerson }}
                 <v-col cols="12" class="pa-0 mt-2">
                     <v-tabs v-model="tab" centered icons-and-text>
                         <v-tabs-slider color="primary" />
@@ -16,14 +17,10 @@
 
                         </v-tab>
                         <v-tab href="#direccionestab">
-                            Dirección
-                            <v-badge v-if="newRegisterPerson" :color="directionValidation ? 'success' : 'warning'">
+                            Dirección {{ receivedTabDirection.newOrEdit }} - {{ receivedTabDirection.valid }}
+                            <v-badge :color="!receivedTabDirection.newOrEdit && !newRegisterPerson || receivedTabDirection.newOrEdit && receivedTabDirection.valid ? 'success' : 'warning'">
                                 <v-icon> mdi-card-account-details </v-icon>
-                            </v-badge>
-                            <!-- <v-badge v-else :color="directionValidation ? 'success' : 'warning'"> -->
-                                <v-icon v-else> mdi-card-account-details </v-icon>
-                            <!-- </v-badge> -->
-                            
+                            </v-badge>                            
                         </v-tab>
                         <v-tab href="#telefonostab">
                             Telefono
@@ -47,28 +44,21 @@
                     <v-tabs-items v-model="tab">
                         <v-card flat>
                             <v-tab-item :key="1" value="generaltab" class="py-1">
-                                <!-- :iidpersona="iidpersona" 
-                                :reset="reset"
-                                :txtcurp="curp" -->
                                 <general-person-data-verification 
                                     :newRegisterPerson="newRegisterPerson"
-                                    :reset="reset"
                                     :data=informationForGeneralDataPerson
                                     @general-person-data-validation="handleFromGeneralPersonDataVerification"
                                     v-model="generalPersonDataValidation"></general-person-data-verification>
                             </v-tab-item>
                             <v-tab-item :key="2" value="direccionestab" class="py-1">
                                 <direction-verification 
-                                    :newRegisterPerson="newRegisterPerson"
-                                    :reset="reset" 
                                     :iidpersona="informationForGeneralDataPerson.iidpersona"
-                                    @direction-validation="handleFromDirectionVerification"
+                                    @direction-validation="handleTabAddress"
                                     v-model="directionValidation"></direction-verification>
                             </v-tab-item>
                             <v-tab-item :key="3" value="telefonostab" class="py-1">
                                 <phone-verification 
                                     :newRegisterPerson="newRegisterPerson"
-                                    :reset="reset" 
                                     :iidpersona="informationForGeneralDataPerson.iidpersona"
                                     @phone-validation="handleFromPhoneVerification"
                                     v-model="phoneValidation"></phone-verification>
@@ -82,7 +72,6 @@
                             </v-tab-item>
                         </v-card>
                     </v-tabs-items>
-                    new register? {{newRegisterPerson}}
                     <v-card-actions v-if="!iidpersona">
                         <v-spacer />
                         <v-btn color="error" text @click="dialog = false"> Cerrar </v-btn>
@@ -143,13 +132,16 @@ export default {
     },
     data() {
         return {
-            reset: false,
             newRegisterPerson: false,
             newRegister: true,
             tab: "generaltab",
             dataPerson: {},
             informationForGeneralDataPerson: {},
-            dataDirection: '',
+            receivedTabDirection: {
+                newOrEdit: false,
+                data: {},
+                valid: false,
+            },
             dataPhone: '',
             files: [],
             generalPersonDataValidation: false, // Variable para almacenar la validación de datos generales
@@ -168,7 +160,6 @@ export default {
         async savePersona() {
             console.log('Guardando persona');
             console.log(this.persona);
-            console.log(this.$parent.personaEncontrada = true)
 
             try {
                 if (this.iidpersona != 0) {
@@ -181,7 +172,7 @@ export default {
                     let all = {
                         person: this.dataPerson,
                         phone: this.dataPhone,
-                        direction: this.dataDirection,
+                        direction: this.receivedTabDirection.data,
                     }
                     let responsePerson = await services.inspections().createPerson(all);
                     console.log('responsePerson create')
@@ -200,12 +191,14 @@ export default {
             this.generalPersonDataValidation = generalPersonDataVerify
             this.dataPerson = person
         },
-        handleFromDirectionVerification(directionVerify, direction) {
-            console.log(directionVerify)
-            console.log(direction)
-            this.directionValidation = directionVerify
-            this.dataDirection = direction
-
+        handleTabAddress(newOrEdit, direction, valid) {
+            console.log('🚀 ~ receivedFromDirectionVerification ~ 🚀 received editing mode, address, validation 🚀')
+            this.receivedTabDirection = {
+                newOrEdit:newOrEdit,
+                data:direction,
+                valid:valid
+            }
+            console.log(this.receivedTabDirection)
         },
         handleFromPhoneVerification(phoneVerify, phone) {
             this.phoneValidation = phoneVerify
@@ -220,39 +213,26 @@ export default {
             }
         },
         'dialog': function () {
-            if (!this.dialog) { // Si se cierra el modal se resetean los valores
+            if (!this.dialog) {
                 console.log('se cerró el modal de persona')
                 localStorage.setItem('newPerson', false);
-            }else if(this.dialog && this.dataPerson.iidpersona==0){ // Si se abre el modal y no existe un idpersona se resetean los valores
+            }else if(this.dialog && this.dataPerson.iidpersona==0){
                 console.log('se abrió el modal de persona y no existe persona')
                 localStorage.setItem('newPerson', true);
-                console.log(this.persona)
-                console.log(this.dataPerson)
             }
             this.newRegisterPerson = localStorage.getItem('newPerson');
             this.newRegisterPerson = this.newRegisterPerson === 'true';
-            if(this.newRegisterPerson){
-                this.reset = true
-            }
-          
-           
         },  
         'curp': function(){
             console.log('recibiendo este curpppp: '+this.curp)
         },  
         'dataPersonFromCurpVerification': function(){
-            console.log('ha cambiado')
+            console.log('watch dataPersonFromCurpVerification')
             console.log(this.dataPersonFromCurpVerification)
-            console.log(typeof(this.dataPersonFromCurpVerification.bfisica))
-            console.log(this.dataPersonFromCurpVerification.bfisica)
             if(this.dataPersonFromCurpVerification.iidpersona != 0){
                 this.informationForGeneralDataPerson = this.dataPersonFromCurpVerification
-                // this.dialog=true
-            }else{
-                console.log('se tiene que resetear')
             }
-        },  
-      
+        },
     },
     mounted(){
         this.newRegisterPerson = localStorage.getItem('newPerson');

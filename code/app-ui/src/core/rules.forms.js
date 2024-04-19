@@ -13,6 +13,8 @@ export default {
 	max300chars: v => !v || (v && v.length <= 300) || 'Máximo 300 caracteres.',
 	intNumber: v => !v || /^\d*$/.test(v) || 'Número requerido.',
 	positiveIntNumber: v => !v || /^\d*$/.test(v) || 'Número igual o mayor a cero requerido.',
+	ifNotEmptyInt: v => v === '' || v === null || v === undefined || /^\d+$/.test(v) || 'El campo solo puede contener números',
+	ifNotEmptyFloat: v => v === '' || v === null || v === undefined || /^\d+(\.\d+)?$/.test(v) || 'El campo solo puede contener números',
 	json: v => {
 		let status = true;
 		try { JSON.parse(v); } catch (e) { status = false; }
@@ -50,4 +52,5 @@ export default {
 		const regex = /^\d{10}$/;
 		return regex.test(v) || 'Número de teléfono válido requerido.';
 	},
+	
 };

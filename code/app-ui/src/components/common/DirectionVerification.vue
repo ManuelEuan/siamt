@@ -1,28 +1,29 @@
 <template>
     <div>
         <v-card-text>
-
-            <div class="row d-flex justify-space-around align-center mx-auto"  
-                v-if="!newRegisterPerson">
+            <!-- CAMPOS DE EVENTOS -->
+            <div class="row d-flex justify-space-around align-center mx-auto" v-if="!newRegisterPerson">
                 <p class="col-md-6 my-0">Direcciones</p>
-                <v-col cols="12" md="3" v-if="!newDirection">
-                    <v-btn depressed color="primary" @click="newDirection = true, showDirections=false, resetDirection()">
+                <v-col cols="12" md="3" v-if="!newAddress && !editAddress">
+                    <v-btn depressed color="primary" @click="newAddress = true">
                         Nueva dirección
                     </v-btn>
                 </v-col>
-                <v-col cols="12" md="3" v-if="newDirection">
-                    <v-btn depressed color="info" @click="newDirection = false, showDirections=true">
+                <v-col cols="12" md="3" v-if="newAddress || editAddress">
+                    <v-btn depressed color="info" @click="showAddresses()"
+                        ref="refShowAddress">
                         Ver direcciones
                     </v-btn>
                 </v-col>
-                <v-col cols="12" md="3" v-if="newDirection">
+                <v-col cols="12" md="3" v-if="newAddress || editAddress">
                     <v-btn depressed color="primary" :disabled="!directionValidation" @click="saveDirection()">
-                        Guardar
+                        {{ editAddress ? 'Actualizar' : 'Guardar' }}
                     </v-btn>
                 </v-col>
             </div>
+
             <!-- TABLA DE DIRECCIONES -->
-            <v-row v-if="personaAddresses && Object.keys(personaAddresses).length > 0 && showDirections">
+            <v-row v-if="personaAddresses && Object.keys(personaAddresses).length > 0 && !newAddress && !editAddress">
                 <v-col cols="12" md="12">
                     <v-simple-table>
                         <template v-slot:default>
@@ -55,7 +56,7 @@
                                             <v-tooltip bottom>
                                                 <template v-slot:activator="{ on, attrs }">
                                                     <v-btn v-bind="attrs" v-on="on" icon small
-                                                        @click="actionsHandler(item, 'edit')">
+                                                        @click="actionsHandlerOfTable(item, 'editAddress')">
                                                         <v-icon small> mdi-square-edit-outline </v-icon>
                                                     </v-btn>
                                                 </template>
@@ -64,7 +65,7 @@
                                             <v-tooltip bottom v-if="!item.bactual">
                                                 <template v-slot:activator="{ on, attrs }">
                                                     <v-btn v-bind="attrs" v-on="on" icon small
-                                                        @click="actionsHandler(item, 'newCurrentAddress')">
+                                                        @click="actionsHandlerOfTable(item, 'newCurrentAddress')">
                                                         <v-icon small v-show="item.bactivo"> mdi-close </v-icon>
                                                         <v-icon small v-show="!item.bactivo"> mdi-check </v-icon>
                                                     </v-btn>
@@ -74,7 +75,7 @@
                                             <v-tooltip bottom v-if="!item.bactual">
                                                 <template v-slot:activator="{ on, attrs }">
                                                     <v-btn v-bind="attrs" v-on="on" icon small
-                                                        @click="actionsHandler(item, 'delete')">
+                                                        @click="actionsHandlerOfTable(item, 'deleteAddress')">
                                                         <v-icon small v-show="item.bactivo"> mdi-delete </v-icon>
                                                         <v-icon small v-show="!item.bactivo"> mdi-check </v-icon>
                                                     </v-btn>
@@ -91,8 +92,8 @@
                 </v-col>
             </v-row>
 
-            <!-- CAMPOS DE DIRECCIÓN -->
-            <v-form v-model="directionValidation" v-if="newDirection || newRegisterPerson">
+            <!-- CAMPOS DE AGREGAR - MODIFICAR -->
+            <v-form v-model="directionValidation" v-if="newAddress || newRegisterPerson || editAddress">
                 <v-row>
                     <v-col cols="12" md="4">
                         <v-select v-model="codePostal" label="Código postal*" :items="postalCodes"
@@ -108,8 +109,9 @@
                             outlined disabled />
                     </v-col>
                     <v-col cols="12" md="12" class="text-center" v-if="codePostal">
-                        <v-radio-group v-model="direction.itipo_direccion" row class="p-radio" :rules="[rules.required]">
-                            <v-radio v-for="(directionOption, index) in directionOptions" :key="index"
+                        <v-radio-group v-model="direction.itipo_direccion" row class="p-radio"
+                            :rules="[rules.required]">
+                            <v-radio v-for="(directionOption, index) in typeDirections" :key="index"
                                 :label="directionOption.txtnombre" :value="directionOption.itipo_direccion"></v-radio>
                         </v-radio-group>
                     </v-col>
@@ -123,12 +125,12 @@
                     </v-col>
                     <v-col cols="12" md="6" v-if="codePostal && direction.itipo_direccion === 1">
                         <v-select v-model="direction.itipo_vialidad" label="Tipo vialidad*" :items="vialidadTypes"
-                            item-text="txtnombre" item-value="itipo_vialidad" hide-details="auto" small-chips
-                            clearable dense :rules="[rules.required]" outlined :disabled="!codePostal" />
+                            item-text="txtnombre" item-value="itipo_vialidad" hide-details="auto" small-chips clearable
+                            dense :rules="[rules.required]" outlined :disabled="!codePostal" />
                     </v-col>
                     <v-col cols="12" md="6" v-if="codePostal && direction.itipo_direccion === 2">
-                        <v-text-field v-model="direction.txttablaje" label="Tablaje*" hide-details="auto" clearable dense
-                            outlined :rules="[rules.required]" />
+                        <v-text-field v-model="direction.txttablaje" label="Tablaje*" hide-details="auto" clearable
+                            dense outlined :rules="[rules.required]" />
                     </v-col>
                     <v-col cols="12" md="6" v-if="codePostal && direction.itipo_direccion === 3">
                         <v-text-field v-model="direction.txtdescripcion_direccion" label="Descripción dirección*"
@@ -159,7 +161,7 @@
                     </v-col>
                     <v-col cols="12" md="6">
                         <v-text-field v-model="direction.inumero_interior" label="Número interior" hide-details="auto"
-                            clearable dense outlined :rules="[rules.number]" />
+                            clearable dense outlined :rules="[rules.ifNotEmptyInt]" />
                     </v-col>
                     <v-col cols="12" md="6">
                         <v-text-field v-model="direction.txtnumero_interior_letra" label="Número interior letra"
@@ -202,50 +204,24 @@
 
             </v-form>
         </v-card-text>
-        <!-- DIALOG ACTUALIZAR DIRECCION ACTUAL -->
-        <template>
-            <v-dialog v-model="dialogNewCurrentAddress" transition="dialog-bottom-transition" persistent
-                max-width="600">
-                <v-card>
-                    <v-card-title class="text-uppercase primary--text text-h6 py-2">
-                        Actualizar dirección principal
-                    </v-card-title>
-                    <v-card-text>
-                        Este cambio implica que esta es la nueva dirección actual ¿Desea seguir con el proceso?
-                    </v-card-text>
 
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn color="error" text @click="updateCurrentAddress = 0, dialogNewCurrentAddress = false">
-                            Cancelar </v-btn>
-                        <v-btn color="primary" text @click="updateCurrentAddressMethod"> Aceptar </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-        </template>
+        <!-- DIALOG GENERIC ACTUALIZAR DIRECCION ACTUAL -->
+        <generic-dialog :dialogVisible="dialogNewCurrentAddress"
+            dialogTitle="Actualizar dirección principal"
+            @update:dialogVisible="dialogNewCurrentAddress = $event" @confirm="updateCurrentAddress">
+            <template v-slot:default>
+                Este cambio implica que esta es la nueva dirección actual ¿Desea seguir con el proceso?
+            </template>
+        </generic-dialog>
+
         <!-- DIALOG ACTUALIZAR DESACTIVAR DIRECCIÓN -->
-        <template>
-            <v-dialog transition="dialog-top-transition" max-width="600" v-model="dialogDelete">
-                <v-card>
-                    <v-card-title class="text-uppercase primary--text text-h6 py-2">
-                        Eliminar dirección
-                    </v-card-title>
-                    <v-divider></v-divider>
-                    <v-card-text class="text-lowercase text-body-1 py-2">
-                        ¿est&aacute;s seguro de que deseas Eliminar este
-                        dirección?
-                    </v-card-text>
-                    <v-divider></v-divider>
-                    <v-card-actions class="py-2">
-                        <v-spacer></v-spacer>
-                        <v-btn color="error" text @click="dialogDelete = false"> Cerrar </v-btn>
-                        <v-btn color="primary" text @click="deleteDirection">
-                            Eliminar
-                        </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-        </template>
+        <generic-dialog :dialogVisible="dialogDeleteAddress"
+            dialogTitle="Eliminar dirección"
+            @update:dialogVisible="dialogDeleteAddress = $event" @confirm="deleteDirection">
+            <template v-slot:default>
+                ¿Estás seguro de que deseas Eliminar esta dirección?
+            </template>
+        </generic-dialog>
     </div>
 </template>
 
@@ -253,12 +229,13 @@
 import rules from "@/core/rules.forms";
 import services from "@/services";
 import { mapActions } from "vuex";
+import GenericDialog from '@/components/common/GenericDialog.vue';
+
 export default {
+    components: {
+        GenericDialog,
+    },
     props: {
-        newRegisterPerson: {
-            type: Boolean,
-            default: false // Valor predeterminado
-        },
         iidpersona: {
             type: Number,
             default: 0 // Valor predeterminado
@@ -266,19 +243,28 @@ export default {
     },
     data() {
         return {
-            newDirection: false,
-            showDirections: true,
-            directionValidation: false,
+            // DATOS INFORMATIVOS
             entity: '',
             municipality: '',
-            codePostal: 0,
+            editAddress: false, // SI ES MODO EDICIÓN SE MUESTRAN CAMPOS DE DIRECCIÓN Y BOTÓN DE EVENTO ES ACTUALIZAR
+            
+            // WATCHERS FUNCIONALIDAD
+            newRegisterPerson: false, // SI ES UN NUEVO REGISTRO NO MUESTRA BOTONES DE EVENTOS Y DIRECTO MANDA A CAPTURA DE DIRECCIÓN
+            newAddress: false, // SI ES NUEVA DIRECCIÓN SE RESETEAN LOS VALORES
+            codePostal: 0, // SI CAMBIA EL C.P. TARERÁ EL ESTADO Y MUNICIPIO
+            directionValidation: false, // SE VERIFICA QUE LOS CAMPOS SEAN VÁLIDOS EN CASO DE SER NUEVOS O ESTAR EN MODO EDICIÓN
+
+            // VIENEN DE SERVICIOS
             postalCodes: [],
             colonies: [],
-            dialogDelete: false,
+            personaAddresses: [],
+
+            // MODALES
+            dialogDeleteAddress: false,
             dialogNewCurrentAddress: false,
-            updateCurrentAddress: 0,
-            selectedDirectionType: null,
-            directionOptions: [
+
+            // ARREGLOS
+            typeDirections: [
                 {
                     "itipo_direccion": 1,
                     "txtnombre": "Predio",
@@ -306,11 +292,6 @@ export default {
                 iidcolonia: 0,
                 txtcalle: '',
                 txtcalle_letra: '',
-                itipo_vialidad: 0,
-                itipo_direccion: null,
-                txttablaje: '',
-                txtdescripcion_direccion: '',
-                txtavenida_kilometro: '',
                 inumero_exterior: null,
                 txtnumero_exterior_letra: '',
                 inumero_interior: null,
@@ -325,25 +306,23 @@ export default {
                 bactivo: null,
                 dtfecha_creacion: null,
                 dtfecha_modificacion: null,
+                itipo_direccion: null,
+                itipo_vialidad: 0,
+                txtavenida_kilometro: '',
+                txttablaje: '',
+                txtdescripcion_direccion: '',
             },
-            bactual: true,
+            
+            // REGLAS
             rules: {
                 ...rules,
-                number: v => v === '' || v === null || v === undefined || /^\d+$/.test(v) || 'El campo solo puede contener números',
-                float: v => v === '' || v === null || v === undefined || /^\d+(\.\d+)?$/.test(v) || 'El campo solo puede contener números'
             },
-            personaAddresses: [],
-
         };
-    },
-    created() {
-        // Establecer el primer elemento como seleccionado por defecto
-        console.log(this.direction.itipo_direccion)
-        console.log(this.directionOptions)
-        this.direction.itipo_direccion = this.directionOptions[0].itipo_direccion;
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
+
+        // OBTENER CÓDIGOS POSTALES
         async getCodePostals() {
             try {
                 this.postalCodes = await services.inspections().getAllPostalCodes();
@@ -352,44 +331,8 @@ export default {
                 this.showError({ message, error });
             }
         },
-        async loadDirectionsTable() {
-            try {
-                console.log('LOAD DIRECTIONS')
-                let response = await services.inspections().getPersonAddresses(this.iidpersona);
-                this.personaAddresses = { ...response }
-            } catch (error) {
-                const message = 'Error al cargar las direcciones asociadas.';
-                this.showError({ message, error });
-            }
-        },
-        resetDirection(){
-            // this.personaAddresses=[],
-            this.postalCode = 0,
-            this.direction = {
-                iidcolonia: 0,
-                txtcalle: '',
-                txtcalle_letra: '',
-                itipo_vialidad: 0,
-                itipo_direccion: null,
-                txttablaje: '',
-                txtdescripcion_direccion: '',
-                txtavenida_kilometro: '',
-                inumero_exterior: null,
-                txtnumero_exterior_letra: '',
-                inumero_interior: null,
-                txtnumero_interior_letra: '',
-                txtcruzamiento_uno: '',
-                txtcruzamiento_uno_letra: '',
-                txtcruzamiento_dos: '',
-                txtcruzamiento_dos_letra: '',
-                txtreferencia: '',
-                flatitud: null,
-                flongitud: null,
-                bactivo: null,
-                dtfecha_creacion: null,
-                dtfecha_modificacion: null,
-            }
-        },
+
+        // OBTENER ESTADO Y MUNICIPIO SEGÚN CÓDIGO POSTAL
         async getMunicipalityAndEntityByPostalCode() {
             try {
                 let { entity, municipality } = await services.inspections().getMunicipalityAndEntityByPostalCode(this.codePostal);
@@ -401,61 +344,118 @@ export default {
                 this.showError({ message, error });
             }
         },
+
+        // CARGA DE LAS DIRECCIONES ASOCIADAS A LA PERSONA
+        async loadDirectionsTable() {
+            try {
+                console.log('LOAD DIRECTIONS')
+                this.newRegisterPerson = localStorage.getItem('newPerson');
+                this.newRegisterPerson = this.newRegisterPerson === 'true';
+                if (this.newRegisterPerson) {
+                    this.newAddress = true
+                } else {
+                    this.newAddress = false
+                }
+                await this.getCodePostals();
+                this.personaAddresses = await services.inspections().getPersonAddresses(this.iidpersona);
+                //  = { ...response }
+            } catch (error) {
+                const message = 'Error al cargar las direcciones asociadas.';
+                this.showError({ message, error });
+            }
+        },
+
+        // RESETEO DE DIRECCIÓN EN CASO DE SER NUEVA
+        resetDirection() {
+            this.codePostal = 0,
+            this.direction = {
+                iidcolonia: 0,
+                txtcalle: '',
+                txtcalle_letra: '',
+                inumero_exterior: null,
+                txtnumero_exterior_letra: '',
+                inumero_interior: null,
+                txtnumero_interior_letra: '',
+                txtcruzamiento_uno: '',
+                txtcruzamiento_uno_letra: '',
+                txtcruzamiento_dos: '',
+                txtcruzamiento_dos_letra: '',
+                txtreferencia: '',
+                flatitud: null,
+                flongitud: null,
+                bactivo: null,
+                dtfecha_creacion: null,
+                dtfecha_modificacion: null,
+                itipo_direccion: null,
+                itipo_vialidad: 0,
+                txtavenida_kilometro: '',
+                txttablaje: '',
+                txtdescripcion_direccion: '',
+            }
+        },
+
+        showAddresses(){
+            this.newAddress = false, 
+            this.editAddress = false,
+            this.resetDirection()
+            this.emitToParentComponent()
+        },
+
+        // GUARDADO DE DIRECCIÓN INDEPENDIENTE
         async saveDirection() {
             console.log('Guardando Direction');
             try {
                 let data = {
                     iidpersona: this.iidpersona,
                     direction: this.direction,
-                    bactual: this.bactual
                 }
                 console.log(data)
                 if (!this.direction.iiddireccion) {
                     let response = await services.inspections().createDirection(data);
                     console.log('direction create')
                     this.showSuccess(response.message);
-                    this.showDirections=true
+                    this.newAddress = true
                 } else {
                     let response = await services.inspections().updateAddress(data);
                     console.log('direction update')
                     this.showSuccess(response.message);
+                    this.editAddress = false
                 }
-                this.newDirection = false
                 await this.loadDirectionsTable();
-                // this.$emit('direction-created', 'Esta es la dirección creada: ', this.direction);
-                this.dialog = false
             } catch (error) {
                 const message = 'Error al guardar persona.';
                 this.showError({ message, error });
             }
         },
+
+        // ACA SE PUEDE PONER LA GEOLOCALIZACIÓN
         verifyDirection() {
             const url = `https://www.google.com/maps?q=${this.direction.flatitud},${this.direction.flongitud}`;
             window.open(url);
         },
-        actionsHandler(direction, action) {
-            console.log('actionsHandler')
-            console.log(direction)
-            console.log(action)
+
+        // MANEJADOR DE ACCIONES
+        actionsHandlerOfTable(direction, action) {
             switch (action) {
-                case 'edit':
+                case 'editAddress':
                     this.direction = { ...direction }
                     this.codePostal = direction.icodigo_postal
-                    this.newDirection = true
-                    this.showDirections=false
+                    this.editAddress = true
                     break;
                 case 'newCurrentAddress':
                     this.dialogNewCurrentAddress = true;
                     this.selectedAddress = direction.iiddireccion
                     break;
                 case 'delete':
-                    this.dialogDelete = true;
+                    this.dialogDeleteAddress = true;
                     this.selectedAddress = direction.iiddireccion
                     break;
                 default: this.$refs.dialogs.show[action] = true;
             }
         },
-        async updateCurrentAddressMethod() {
+
+        // ACTUALIZAR A DIRECCIÓN ACTUAL (BD)
+        async updateCurrentAddress() {
             try {
                 let data = {
                     iidpersona: this.iidpersona,
@@ -471,6 +471,8 @@ export default {
                 this.showError({ message, error });
             }
         },
+
+        // BORRAR DIRECCIÓN (BD)
         async deleteDirection() {
             try {
                 let data = {
@@ -479,50 +481,61 @@ export default {
                 }
                 const { message } = await services.inspections().deleteAddress(data);
                 await this.loadDirectionsTable();
-                this.dialogDelete = false
+                this.dialogDeleteAddress = false
                 this.showSuccess(message);
             } catch (error) {
                 const message = 'Error al activar/desactivar inspector.';
                 this.showError({ message, error });
             }
         },
+
+        // EMITIR A COMPONENTE PADRE
+        emitToParentComponent(){
+            console.log('🚀 ~ emitToParentComponent ~ 🚀 sending editing mode, address, validation 🚀')
+            let newOrEdit = false
+            if(this.newAddress || this.editAddress){
+                newOrEdit = true
+            }
+            this.$emit('direction-validation', newOrEdit, this.direction, this.directionValidation);
+        }
     },
     watch: {
-        'codePostal': function () {
-            console.log(this.codePostal)
-            if (this.codePostal === 0) {
-               this.resetDirection()
+        // WATCHERS PROP
+        'iidpersona': function () {
+            console.log('watch iidpersona')
+            this.loadDirectionsTable()
+        },
+
+        // WATCHERS DATA
+        'newRegisterPerson': function () {
+            console.log('watch newRegisterPerson')
+            if (this.newRegisterPerson) {
+                this.resetDirection()
+                this.newAddress = true
             } else {
+                this.$refs.refShowAddress.click()
+            }
+        },
+        'newAddress': function () {
+            console.log('watch newAddress')
+            if (this.newAddress) {
+                this.resetDirection()
+                this.direction.itipo_direccion = this.typeDirections[0].itipo_direccion;
+            }
+        },
+        'codePostal': function () {
+            console.log('watch codePostal')
+            if (this.codePostal !== 0) {
                 this.getMunicipalityAndEntityByPostalCode()
-                this.direction.itipo_direccion = this.directionOptions[0].itipo_direccion;
             }
         },
         'directionValidation': function () {
-            console.log('validación dirección')
-            this.$emit('direction-validation', this.directionValidation, this.direction);
+            console.log('watch directionValidation')
+            this.emitToParentComponent()
         },
-        'newRegisterPerson': function(){
-            if(this.newRegisterPerson){
-                this.resetDirection()
-                this.editMode=true
-            }else{
-                this.editMode=false
-            }
-        },
-        'iidpersona': function(){
-            this.loadDirectionsTable()
-        },
-       
     },
     async mounted() {
-        await this.getCodePostals();
         await this.loadDirectionsTable();
-        // false
-        // this.newRegisterPerson = localStorage.getItem('newPerson');
     }
 };
 </script>
-
-<style scoped>
-/* Estilos específicos para el componente DirectionVerification.vue */
-</style>
