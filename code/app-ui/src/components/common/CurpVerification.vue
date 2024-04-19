@@ -195,8 +195,7 @@
         </generic-dialog>
 
         <modal-create-person ref="ModalCreatePerson" 
-            :iidpersona=iidpersona :curp=curp
-            :dataPersonFromCurpVerification=persona 
+            :iidpersona=personId 
             @person-created="handlefromCreatePerson" 
         />
     </v-row>
@@ -239,6 +238,7 @@ export default {
     data() {
         return {
             // ENVIAR A MODAL DE PERSONAS
+            personId: 0,
             curp: '',
             activateModalPerson: true,
 
@@ -309,7 +309,10 @@ export default {
                 this.verifyCurp(true)
             } else {
                 localStorage.setItem('newPerson', false);
-                this.$refs.ModalCreatePerson.dialog = true
+                this.$refs.ModalCreatePerson.dialogModalCreatePersonWithAddressAndPhone = true
+                this.personId=iidpersona
+                console.log('antes this.personId')
+                console.log(this.personId)
             }
         },
 
@@ -374,7 +377,7 @@ export default {
                     console.log('1')
                     localStorage.setItem('newPerson', true);
                     if (fromDialogRegister) {
-                        this.$refs.ModalCreatePerson.dialog = true
+                        this.$refs.ModalCreatePerson.dialogModalCreatePersonWithAddressAndPhone = true
                         if (this.typePersonFisica) {
                             this.persona = {
                                 iidpersona: 0,
@@ -433,7 +436,7 @@ export default {
                     localStorage.setItem('newPerson', false);
                     this.personaDisponible = true
                     if (onlyInformation) {
-                        this.$refs.ModalCreatePerson.dialog = true
+                        this.$refs.ModalCreatePerson.dialogModalCreatePersonWithAddressAndPhone = true
                     }
                     this.persona.bfisica = response.bfisica
 

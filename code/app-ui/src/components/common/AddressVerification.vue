@@ -10,20 +10,19 @@
                     </v-btn>
                 </v-col>
                 <v-col cols="12" md="3" v-if="newAddress || editAddress">
-                    <v-btn depressed color="info" @click="showAddresses()"
-                        ref="refShowAddress">
+                    <v-btn depressed color="info" @click="showAddresses()">
                         Ver direcciones
                     </v-btn>
                 </v-col>
                 <v-col cols="12" md="3" v-if="newAddress || editAddress">
-                    <v-btn depressed color="primary" :disabled="!directionValidation" @click="saveDirection()">
+                    <v-btn depressed color="primary" :disabled="!addressValidation" @click="saveAddress()">
                         {{ editAddress ? 'Actualizar' : 'Guardar' }}
                     </v-btn>
                 </v-col>
             </div>
 
             <!-- TABLA DE DIRECCIONES -->
-            <v-row v-if="personaAddresses && Object.keys(personaAddresses).length > 0 && !newAddress && !editAddress">
+            <v-row v-if="personAddresses && Object.keys(personAddresses).length > 0 && !newAddress && !editAddress">
                 <v-col cols="12" md="12">
                     <v-simple-table>
                         <template v-slot:default>
@@ -41,7 +40,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in personaAddresses" :key="item.iiddireccion">
+                                <tr v-for="item in personAddresses" :key="item.iiddireccion">
                                     <!-- {{ item }} -->
                                     <td>{{ item.direccion_completa }}</td>
                                     <td>
@@ -93,7 +92,7 @@
             </v-row>
 
             <!-- CAMPOS DE AGREGAR - MODIFICAR -->
-            <v-form v-model="directionValidation" v-if="newAddress || newRegisterPerson || editAddress">
+            <v-form v-model="addressValidation" v-if="newAddress || newRegisterPerson || editAddress">
                 <v-row>
                     <v-col cols="12" md="4">
                         <v-select v-model="codePostal" label="Código postal*" :items="postalCodes"
@@ -109,94 +108,93 @@
                             outlined disabled />
                     </v-col>
                     <v-col cols="12" md="12" class="text-center" v-if="codePostal">
-                        <v-radio-group v-model="direction.itipo_direccion" row class="p-radio"
-                            :rules="[rules.required]">
-                            <v-radio v-for="(directionOption, index) in typeDirections" :key="index"
-                                :label="directionOption.txtnombre" :value="directionOption.itipo_direccion"></v-radio>
+                        <v-radio-group v-model="address.itipo_direccion" row class="p-radio" :rules="[rules.required]">
+                            <v-radio v-for="(addressOption, index) in typesAddress" :key="index"
+                                :label="addressOption.txtnombre" :value="addressOption.itipo_direccion"></v-radio>
                         </v-radio-group>
                     </v-col>
                 </v-row>
 
                 <v-row v-if="codePostal">
                     <v-col cols="12" md="6">
-                        <v-select v-model="direction.iidcolonia" label="Colonia*" :items="colonies"
-                            item-text="txtnombre" item-value="iidcolonia" hide-details="auto" small-chips clearable
-                            dense :rules="[rules.required]" outlined :disabled="!codePostal" />
+                        <v-select v-model="address.iidcolonia" label="Colonia*" :items="colonies" item-text="txtnombre"
+                            item-value="iidcolonia" hide-details="auto" small-chips clearable dense
+                            :rules="[rules.required]" outlined :disabled="!codePostal" />
                     </v-col>
-                    <v-col cols="12" md="6" v-if="codePostal && direction.itipo_direccion === 1">
-                        <v-select v-model="direction.itipo_vialidad" label="Tipo vialidad*" :items="vialidadTypes"
+                    <v-col cols="12" md="6" v-if="codePostal && address.itipo_direccion === 1">
+                        <v-select v-model="address.itipo_vialidad" label="Tipo vialidad*" :items="vialidadTypes"
                             item-text="txtnombre" item-value="itipo_vialidad" hide-details="auto" small-chips clearable
                             dense :rules="[rules.required]" outlined :disabled="!codePostal" />
                     </v-col>
-                    <v-col cols="12" md="6" v-if="codePostal && direction.itipo_direccion === 2">
-                        <v-text-field v-model="direction.txttablaje" label="Tablaje*" hide-details="auto" clearable
-                            dense outlined :rules="[rules.required]" />
+                    <v-col cols="12" md="6" v-if="codePostal && address.itipo_direccion === 2">
+                        <v-text-field v-model="address.txttablaje" label="Tablaje*" hide-details="auto" clearable dense
+                            outlined :rules="[rules.required]" />
                     </v-col>
-                    <v-col cols="12" md="6" v-if="codePostal && direction.itipo_direccion === 3">
-                        <v-text-field v-model="direction.txtdescripcion_direccion" label="Descripción dirección*"
+                    <v-col cols="12" md="6" v-if="codePostal && address.itipo_direccion === 3">
+                        <v-text-field v-model="address.txtdescripcion_direccion" label="Descripción dirección*"
                             hide-details="auto" clearable dense outlined :rules="[rules.required]" />
                     </v-col>
                 </v-row>
-                <v-row v-if="codePostal && direction.itipo_direccion === 1">
-                    <v-col cols="12" md="6" v-if="direction.itipo_vialidad === 1">
-                        <v-text-field v-model="direction.txtcalle" label="Calle principal/s*" hide-details="auto"
+                <v-row v-if="codePostal && address.itipo_direccion === 1">
+                    <v-col cols="12" md="6" v-if="address.itipo_vialidad === 1">
+                        <v-text-field v-model="address.txtcalle" label="Calle principal/s*" hide-details="auto"
                             clearable dense outlined :rules="[rules.required]" />
                     </v-col>
-                    <v-col cols="12" md="6" v-if="direction.itipo_vialidad === 1">
-                        <v-text-field v-model="direction.txtcalle_letra" label="Calle letra" hide-details="auto"
-                            clearable dense outlined />
+                    <v-col cols="12" md="6" v-if="address.itipo_vialidad === 1">
+                        <v-text-field v-model="address.txtcalle_letra" label="Calle letra" hide-details="auto" clearable
+                            dense outlined />
                     </v-col>
-                    <v-col cols="12" md="6" v-if="direction.itipo_vialidad === 2">
-                        <v-text-field v-model="direction.txtavenida_kilometro" label="Avenida o Km*" hide-details="auto"
+                    <v-col cols="12" md="6" v-if="address.itipo_vialidad === 2">
+                        <v-text-field v-model="address.txtavenida_kilometro" label="Avenida o Km*" hide-details="auto"
                             clearable dense outlined />
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.inumero_exterior" label="Número exterior*" hide-details="auto"
+                        <v-text-field v-model="address.inumero_exterior" label="Número exterior*" hide-details="auto"
                             clearable dense outlined :rules="[rules.required]" />
 
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.txtnumero_exterior_letra" label="Numero exterior letra"
+                        <v-text-field v-model="address.txtnumero_exterior_letra" label="Numero exterior letra"
                             hide-details="auto" clearable dense outlined />
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.inumero_interior" label="Número interior" hide-details="auto"
+                        <v-text-field v-model="address.inumero_interior" label="Número interior" hide-details="auto"
                             clearable dense outlined :rules="[rules.ifNotEmptyInt]" />
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.txtnumero_interior_letra" label="Número interior letra"
+                        <v-text-field v-model="address.txtnumero_interior_letra" label="Número interior letra"
                             hide-details="auto" clearable dense outlined />
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.txtcruzamiento_uno" label="Cruzamiento uno" hide-details="auto"
+                        <v-text-field v-model="address.txtcruzamiento_uno" label="Cruzamiento uno" hide-details="auto"
                             clearable dense outlined />
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.txtcruzamiento_uno_letra" label="Cruzamiento uno letra"
+                        <v-text-field v-model="address.txtcruzamiento_uno_letra" label="Cruzamiento uno letra"
                             hide-details="auto" clearable dense outlined />
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.txtcruzamiento_dos" label="Cruzamiento dos" hide-details="auto"
+                        <v-text-field v-model="address.txtcruzamiento_dos" label="Cruzamiento dos" hide-details="auto"
                             clearable dense outlined />
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.txtcruzamiento_dos_letra" label="Cruzamiento dos letra"
+                        <v-text-field v-model="address.txtcruzamiento_dos_letra" label="Cruzamiento dos letra"
                             hide-details="auto" clearable dense outlined />
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.txtreferencia" label="Referencia" hide-details="auto" clearable
+                        <v-text-field v-model="address.txtreferencia" label="Referencia" hide-details="auto" clearable
                             dense outlined />
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.flatitud" label="Latitud" hide-details="auto" clearable dense
+                        <v-text-field v-model="address.flatitud" label="Latitud" hide-details="auto" clearable dense
                             maxlength="15" outlined :rules="[rules.latitud]" />
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="direction.flongitud" label="Longitud" hide-details="auto" clearable dense
+                        <v-text-field v-model="address.flongitud" label="Longitud" hide-details="auto" clearable dense
                             maxlength="15" outlined :rules="[rules.longitud]" />
                     </v-col>
-                    <v-col cols="12" md="6" v-if="direction.flatitud && direction.flongitud">
-                        <v-btn color="primary" text @click="verifyDirection()"> Verificar </v-btn>
+                    <v-col cols="12" md="6" v-if="address.flatitud && address.flongitud">
+                        <v-btn color="primary" text @click="verifyAddress()"> Verificar </v-btn>
 
                     </v-col>
                 </v-row>
@@ -206,8 +204,7 @@
         </v-card-text>
 
         <!-- DIALOG GENERIC ACTUALIZAR DIRECCION ACTUAL -->
-        <generic-dialog :dialogVisible="dialogNewCurrentAddress"
-            dialogTitle="Actualizar dirección principal"
+        <generic-dialog :dialogVisible="dialogNewCurrentAddress" dialogTitle="Actualizar dirección principal"
             @update:dialogVisible="dialogNewCurrentAddress = $event" @confirm="updateCurrentAddress">
             <template v-slot:default>
                 Este cambio implica que esta es la nueva dirección actual ¿Desea seguir con el proceso?
@@ -215,9 +212,8 @@
         </generic-dialog>
 
         <!-- DIALOG ACTUALIZAR DESACTIVAR DIRECCIÓN -->
-        <generic-dialog :dialogVisible="dialogDeleteAddress"
-            dialogTitle="Eliminar dirección"
-            @update:dialogVisible="dialogDeleteAddress = $event" @confirm="deleteDirection">
+        <generic-dialog :dialogVisible="dialogDeleteAddress" dialogTitle="Eliminar dirección"
+            @update:dialogVisible="dialogDeleteAddress = $event" @confirm="deleteAddress()">
             <template v-slot:default>
                 ¿Estás seguro de que deseas Eliminar esta dirección?
             </template>
@@ -247,24 +243,24 @@ export default {
             entity: '',
             municipality: '',
             editAddress: false, // SI ES MODO EDICIÓN SE MUESTRAN CAMPOS DE DIRECCIÓN Y BOTÓN DE EVENTO ES ACTUALIZAR
-            
+
             // WATCHERS FUNCIONALIDAD
             newRegisterPerson: false, // SI ES UN NUEVO REGISTRO NO MUESTRA BOTONES DE EVENTOS Y DIRECTO MANDA A CAPTURA DE DIRECCIÓN
             newAddress: false, // SI ES NUEVA DIRECCIÓN SE RESETEAN LOS VALORES
             codePostal: 0, // SI CAMBIA EL C.P. TARERÁ EL ESTADO Y MUNICIPIO
-            directionValidation: false, // SE VERIFICA QUE LOS CAMPOS SEAN VÁLIDOS EN CASO DE SER NUEVOS O ESTAR EN MODO EDICIÓN
+            addressValidation: false, // SE VERIFICA QUE LOS CAMPOS SEAN VÁLIDOS EN CASO DE SER NUEVOS O ESTAR EN MODO EDICIÓN
 
             // VIENEN DE SERVICIOS
             postalCodes: [],
             colonies: [],
-            personaAddresses: [],
+            personAddresses: [],
 
             // MODALES
             dialogDeleteAddress: false,
             dialogNewCurrentAddress: false,
 
             // ARREGLOS
-            typeDirections: [
+            typesAddress: [
                 {
                     "itipo_direccion": 1,
                     "txtnombre": "Predio",
@@ -288,7 +284,7 @@ export default {
                     "txtnombre": "Avenida o Km"
                 }
             ],
-            direction: {
+            address: {
                 iidcolonia: 0,
                 txtcalle: '',
                 txtcalle_letra: '',
@@ -312,7 +308,7 @@ export default {
                 txttablaje: '',
                 txtdescripcion_direccion: '',
             },
-            
+
             // REGLAS
             rules: {
                 ...rules,
@@ -322,7 +318,8 @@ export default {
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
 
-        // OBTENER CÓDIGOS POSTALES
+
+        // GET (BD)
         async getCodePostals() {
             try {
                 this.postalCodes = await services.inspections().getAllPostalCodes();
@@ -332,7 +329,25 @@ export default {
             }
         },
 
-        // OBTENER ESTADO Y MUNICIPIO SEGÚN CÓDIGO POSTAL
+        // CARGA DE LAS DIRECCIONES ASOCIADAS A LA PERSONA (BD)
+        async loadAddressesTable() {
+            try {
+                console.log('LOAD DIRECTIONS')
+                this.newRegisterPerson = localStorage.getItem('newPerson');
+                this.newRegisterPerson = this.newRegisterPerson === 'true';
+                if (this.newRegisterPerson) {
+                    this.newAddress = true
+                } else {
+                    this.newAddress = false
+                }
+                this.personAddresses = await services.inspections().getPersonAddresses(this.iidpersona);
+            } catch (error) {
+                const message = 'Error al cargar las direcciones asociadas.';
+                this.showError({ message, error });
+            }
+        },
+
+        // OBTENER ESTADO Y MUNICIPIO SEGÚN CÓDIGO POSTAL (BD)
         async getMunicipalityAndEntityByPostalCode() {
             try {
                 let { entity, municipality } = await services.inspections().getMunicipalityAndEntityByPostalCode(this.codePostal);
@@ -345,30 +360,71 @@ export default {
             }
         },
 
-        // CARGA DE LAS DIRECCIONES ASOCIADAS A LA PERSONA
-        async loadDirectionsTable() {
+        // INSERTAR O ACTUALIZAR INDEPENDIENTE (BD)
+        async saveAddress() {
+            console.log('Guardando dirección');
             try {
-                console.log('LOAD DIRECTIONS')
-                this.newRegisterPerson = localStorage.getItem('newPerson');
-                this.newRegisterPerson = this.newRegisterPerson === 'true';
-                if (this.newRegisterPerson) {
+                let data = {
+                    iidpersona: this.iidpersona,
+                    address: this.address,
+                }
+                console.log(data)
+                if (!this.address.iiddireccion) {
+                    let response = await services.inspections().createAddress(data);
+                    console.log('address create')
+                    this.showSuccess(response.message);
                     this.newAddress = true
                 } else {
-                    this.newAddress = false
+                    let response = await services.inspections().updateAddress(data);
+                    console.log('address update')
+                    this.showSuccess(response.message);
+                    this.editAddress = false
                 }
-                await this.getCodePostals();
-                this.personaAddresses = await services.inspections().getPersonAddresses(this.iidpersona);
-                //  = { ...response }
+                await this.loadAddressesTable();
             } catch (error) {
-                const message = 'Error al cargar las direcciones asociadas.';
+                const message = 'Error al guardar la dirección.';
                 this.showError({ message, error });
             }
         },
 
-        // RESETEO DE DIRECCIÓN EN CASO DE SER NUEVA
-        resetDirection() {
-            this.codePostal = 0,
-            this.direction = {
+        // ACTUALIZAR DIRECCIÓN ACTUAL (BD)
+        async updateCurrentAddress() {
+            try {
+                let data = {
+                    iidpersona: this.iidpersona,
+                    selectedAddress: this.selectedAddress
+                }
+                let response = await services.inspections().updateCurrentAddress(data);
+                await this.loadAddressesTable();
+                this.dialogNewCurrentAddress = false
+                this.showSuccess(response.message);
+            } catch (error) {
+                const message = 'Error al actualizar la dirección solicitada.';
+                this.showError({ message, error });
+            }
+        },
+
+        // BORRAR DIRECCIÓN (BD)
+        async deleteAddress() {
+            try {
+                let data = {
+                    iidpersona: this.iidpersona,
+                    selectedAddress: this.selectedAddress
+                }
+                const { message } = await services.inspections().deleteAddress(data);
+                await this.loadAddressesTable();
+                this.dialogDeleteAddress = false
+                this.showSuccess(message);
+            } catch (error) {
+                const message = 'Error al borrar la dirección.';
+                this.showError({ message, error });
+            }
+        },
+
+        // RESETEO EN CASO DE NUEVO REGISTRO
+        resetAddress() {
+            this.codePostal = 0
+            this.address = {
                 iidcolonia: 0,
                 txtcalle: '',
                 txtcalle_letra: '',
@@ -394,133 +450,74 @@ export default {
             }
         },
 
-        showAddresses(){
-            this.newAddress = false, 
-            this.editAddress = false,
-            this.resetDirection()
+        // MOSTRAR REGISTROS, CAMBIO DE VALORES PARA MODO CAPTURA Y MODO EDICIÓN
+        showAddresses() {
+            this.newAddress = false
+            this.editAddress = false
+            this.resetAddress()
             this.emitToParentComponent()
         },
 
-        // GUARDADO DE DIRECCIÓN INDEPENDIENTE
-        async saveDirection() {
-            console.log('Guardando Direction');
-            try {
-                let data = {
-                    iidpersona: this.iidpersona,
-                    direction: this.direction,
-                }
-                console.log(data)
-                if (!this.direction.iiddireccion) {
-                    let response = await services.inspections().createDirection(data);
-                    console.log('direction create')
-                    this.showSuccess(response.message);
-                    this.newAddress = true
-                } else {
-                    let response = await services.inspections().updateAddress(data);
-                    console.log('direction update')
-                    this.showSuccess(response.message);
-                    this.editAddress = false
-                }
-                await this.loadDirectionsTable();
-            } catch (error) {
-                const message = 'Error al guardar persona.';
-                this.showError({ message, error });
-            }
-        },
-
-        // ACA SE PUEDE PONER LA GEOLOCALIZACIÓN
-        verifyDirection() {
-            const url = `https://www.google.com/maps?q=${this.direction.flatitud},${this.direction.flongitud}`;
-            window.open(url);
-        },
-
-        // MANEJADOR DE ACCIONES
-        actionsHandlerOfTable(direction, action) {
+        // MANEJADOR DE ACCIONES EN LA TABLA
+        actionsHandlerOfTable(address, action) {
             switch (action) {
                 case 'editAddress':
-                    this.direction = { ...direction }
-                    this.codePostal = direction.icodigo_postal
+                    this.address = { ...address }
+                    this.codePostal = address.icodigo_postal
                     this.editAddress = true
                     break;
                 case 'newCurrentAddress':
                     this.dialogNewCurrentAddress = true;
-                    this.selectedAddress = direction.iiddireccion
+                    this.selectedAddress = address.iiddireccion
                     break;
                 case 'delete':
                     this.dialogDeleteAddress = true;
-                    this.selectedAddress = direction.iiddireccion
+                    this.selectedAddress = address.iiddireccion
                     break;
                 default: this.$refs.dialogs.show[action] = true;
             }
         },
 
-        // ACTUALIZAR A DIRECCIÓN ACTUAL (BD)
-        async updateCurrentAddress() {
-            try {
-                let data = {
-                    iidpersona: this.iidpersona,
-                    selectedAddress: this.selectedAddress
-                }
-                console.log('Carga de nuevos datos para dirección actual')
-                let response = await services.inspections().updateCurrentAddress(data);
-                await this.loadDirectionsTable();
-                this.dialogNewCurrentAddress = false
-                this.showSuccess(response.message);
-            } catch (error) {
-                const message = 'Error al cargar los datos dirección actual.';
-                this.showError({ message, error });
-            }
-        },
-
-        // BORRAR DIRECCIÓN (BD)
-        async deleteDirection() {
-            try {
-                let data = {
-                    iidpersona: this.iidpersona,
-                    selectedAddress: this.selectedAddress
-                }
-                const { message } = await services.inspections().deleteAddress(data);
-                await this.loadDirectionsTable();
-                this.dialogDeleteAddress = false
-                this.showSuccess(message);
-            } catch (error) {
-                const message = 'Error al activar/desactivar inspector.';
-                this.showError({ message, error });
-            }
+        // ACA SE PUEDE PONER LA GEOLOCALIZACIÓN
+        verifyAddress() {
+            const url = `https://www.google.com/maps?q=${this.address.flatitud},${this.address.flongitud}`;
+            window.open(url);
         },
 
         // EMITIR A COMPONENTE PADRE
-        emitToParentComponent(){
+        emitToParentComponent() {
             console.log('🚀 ~ emitToParentComponent ~ 🚀 sending editing mode, address, validation 🚀')
             let newOrEdit = false
-            if(this.newAddress || this.editAddress){
+            console.log('newAddress' + this.newAddress)
+            console.log('editAddress' + this.editAddress)
+            if (this.newAddress || this.editAddress) {
                 newOrEdit = true
             }
-            this.$emit('direction-validation', newOrEdit, this.direction, this.directionValidation);
+            this.$emit('address-validation', newOrEdit, this.address, this.addressValidation);
         }
     },
     watch: {
         // WATCHERS PROP
         'iidpersona': function () {
             console.log('watch iidpersona')
-            this.loadDirectionsTable()
+            this.loadAddressesTable()
         },
 
         // WATCHERS DATA
         'newRegisterPerson': function () {
             console.log('watch newRegisterPerson')
             if (this.newRegisterPerson) {
-                this.resetDirection()
+                this.resetAddress()
                 this.newAddress = true
             } else {
-                this.$refs.refShowAddress.click()
+                this.showAddresses()
             }
         },
         'newAddress': function () {
             console.log('watch newAddress')
             if (this.newAddress) {
-                this.resetDirection()
-                this.direction.itipo_direccion = this.typeDirections[0].itipo_direccion;
+                this.resetAddress()
+                this.address.itipo_direccion = this.typesAddress[0].itipo_direccion;
             }
         },
         'codePostal': function () {
@@ -529,13 +526,14 @@ export default {
                 this.getMunicipalityAndEntityByPostalCode()
             }
         },
-        'directionValidation': function () {
-            console.log('watch directionValidation')
+        'addressValidation': function () {
+            console.log('watch addressValidation')
             this.emitToParentComponent()
         },
     },
     async mounted() {
-        await this.loadDirectionsTable();
+        await this.getCodePostals();
+        await this.loadAddressesTable();
     }
 };
 </script>

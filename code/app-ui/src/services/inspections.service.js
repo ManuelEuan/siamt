@@ -46,8 +46,8 @@ export default class InspectionsService extends ApiService {
     return await this.get("/workloads/getAllZonesInspector");
   }
 
-  async getAllSexesPerson() {
-    return await this.get("/persons/getAllSexesPerson");
+  async getAllSexes() {
+    return await this.get("/persons/getAllSexes");
   }
 
   async createPerson(info) {
@@ -66,8 +66,8 @@ export default class InspectionsService extends ApiService {
     return await this.get("/territory/getAllPostalCodes");
   }
 
-  async getAllLadas() {
-    return await this.get("/persons/getAllLadas");
+  async getAllLadaIdentifiers() {
+    return await this.get("/persons/getAllLadaIdentifiers");
   }
 
   
@@ -80,7 +80,7 @@ export default class InspectionsService extends ApiService {
     return await this.post("/territory/getColoniesByPostalCode", JSON.stringify(data));
   }
 
-  async createDirection(data) {
+  async createAddress(data) {
     return await this.post("/persons/direction/new", JSON.stringify(data));
   }
 
@@ -95,6 +95,11 @@ export default class InspectionsService extends ApiService {
   async getPersonAddresses(data) {
     return await this.post("/persons/getPersonAddresses", JSON.stringify(data));
   }
+
+  async getGeneralPersonData(data) {
+    return await this.post("/persons/getGeneralPersonData", JSON.stringify(data));
+  }
+
   async getPersonPhones(data) {
     return await this.post("/persons/getPersonPhones", JSON.stringify(data));
   }
@@ -115,8 +120,8 @@ export default class InspectionsService extends ApiService {
     return await this.post(`/persons/deletePhone`, JSON.stringify(data));
   }
 
-  async getAllCivilStatusPerson() {
-    return await this.get("/persons/getAllCivilStatusPerson");
+  async getAllCivilStatus() {
+    return await this.get("/persons/getAllCivilStatus");
   }
 
   async getInfoProcess(data) {
@@ -137,8 +142,8 @@ export default class InspectionsService extends ApiService {
     return await this.post("/inspectors/getAllFlowBySubStage", JSON.stringify(subStage));
   }
 
-  async getAllTypePhones() {
-    return await this.get("/persons/getAllTypePhones");
+  async getAllTypesPhone() {
+    return await this.get("/persons/getAllTypesPhone");
   }
 
   async createInspector(data) {

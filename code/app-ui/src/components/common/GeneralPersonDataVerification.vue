@@ -1,69 +1,72 @@
 <template>
     <div>
         <v-card-text>
+            <!-- CAMPOS DE EVENTOS -->
+            <div class="row d-flex justify-space-around align-center mx-auto" v-if="!newRegisterPerson">
+                <p class="col-md-6 my-0">Información de persona</p>
+                <v-col cols="12" md="6">
+                    <v-btn depressed color="primary" :disabled="!generalPersonDataValidation" @click="updatePerson()">
+                        Actualizar datos generales
+                    </v-btn>
+                </v-col>
+            </div>
 
+            <!-- CAMPOS DE AGREGAR - MODIFICAR -->
             <v-form v-model="generalPersonDataValidation">
                 <div class="row d-flex justify-space-beetwen align-center mx-auto">
                     <p class="col-md-2 my-0 mx-0 px-0 py-0">Tipo de persona</p>
-                    <v-radio-group cols="12" md="4" v-model="persona.bfisica" mandatory row>
+                    <v-radio-group cols="12" v-model="generalPersonData.bfisica" mandatory row>
                         <v-radio color="success" label="Física" :value="true" style="max-width:80px"></v-radio>
                         <v-radio color="success" label="Moral" :value="false" style="max-width:80px"></v-radio>
                     </v-radio-group>
-                    <v-col cols="12" md="6" v-if="!newRegisterPerson">
-                        <v-btn depressed color="primary" :disabled="!generalPersonDataValidation"
-                            @click="updatePerson()">
-                            Actualizar datos generales
-                        </v-btn>
-                    </v-col>
                 </div>
-                <!-- FORMULARIO DATOS GENERALES -->
                 <v-row>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="persona.txtnombre" label="Nombre/s*" hide-details="auto" clearable dense
+                        <v-text-field v-model="generalPersonData.txtnombre" label="Nombre/s*" hide-details="auto" clearable dense
                             outlined :rules="[rules.required]" />
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="persona.txtapepat" label="Apellido paterno*" :rules="[rules.required]"
+                        <v-text-field v-model="generalPersonData.txtapepat" label="Apellido paterno*" :rules="[rules.required]"
                             hide-details="auto" clearable dense outlined />
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="persona.txtapemat" label="Apellido materno" hide-details="auto" clearable
+                        <v-text-field v-model="generalPersonData.txtapemat" label="Apellido materno" hide-details="auto" clearable
                             dense outlined />
                     </v-col>
 
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="persona.dfecha_nacimiento" clearable dense outlined
+                        <v-text-field v-model="generalPersonData.dfecha_nacimiento" clearable dense outlined
                             label="Fecha de nacimiento*" type="date" :max="getDate" :mask="'####/##/##'"
                             :rules="[rules.required]"></v-text-field>
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="persona.txtrfc" label="RFC" hide-details="auto" clearable dense outlined
-                            maxlength="13" :rules="[rfcValido]" :disabled="!persona.bfisica" />
+                        <v-text-field v-model="generalPersonData.txtrfc" label="RFC" hide-details="auto" clearable dense outlined
+                            maxlength="13" :rules="[rfcValido]" :disabled="!generalPersonData.bfisica" />
                     </v-col>
 
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="persona.txtcurp" label="CURP" :rules="[curpValido]" maxlength="18"
-                            hide-details="auto" clearable dense outlined :disabled="persona.bfisica"  />
+                        <v-text-field v-model="generalPersonData.txtcurp" label="CURP" :rules="[curpValido]" maxlength="18"
+                            hide-details="auto" clearable dense outlined :disabled="generalPersonData.bfisica" />
                     </v-col>
 
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="persona.txtine" label="INE" hide-details="auto" clearable dense outlined
+                        <v-text-field v-model="generalPersonData.txtine" label="INE" hide-details="auto" clearable dense outlined
                             maxlength="19" />
                     </v-col>
 
                     <v-col cols="12" md="6">
-                        <v-select v-model="persona.iidestado_civil" label="Estado civil" :items="civilStatus"
+                        <v-select v-model="generalPersonData.iidestado_civil" label="Estado civil" :items="civilStatus"
                             item-text="txtnombre" item-value="iidestado_civil" hide-details="auto" small-chips clearable
                             dense outlined />
                     </v-col>
 
                     <v-col cols="12" md="6">
-                        <v-select v-model="persona.iidsexo" label="Género" :items="sexes" item-text="txtnombre"
+                        <v-select v-model="generalPersonData.iidsexo" label="Género" :items="sexes" item-text="txtnombre"
                             item-value="iidsexo" hide-details="auto" small-chips clearable dense outlined />
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="persona.txtcorreo" label="Correo electrónico" hide-details="auto"
-                            clearable dense outlined :rules="[validarCorreo]" />
+                        <v-text-field v-model="generalPersonData.txtcorreo" label="Correo electrónico" hide-details="auto"
+                            clearable dense outlined :rules="[rules.ifNotEmptyEmail]" />
                     </v-col>
                 </v-row>
             </v-form>
@@ -78,37 +81,29 @@ import { mapActions } from "vuex";
 export default {
     name: 'ModalCreatePerson',
     props: {
-        newRegisterPerson: {
-            type: Boolean,
-            default: false // Valor predeterminado
-        },
         iidpersona: {
             type: Number,
             default: 0 // Valor predeterminado
-        },
-        txtcurp: {
-            type: String,
-            default: '' // Valor predeterminado
-        },
-        data: {
-            type: Object,
-            default: function () {
-                return {}; // Objeto vacío como valor predeterminado
-            }
         }
     },
     data() {
         return {
-            newPerson: true,
-            generalPersonDataValidation: false,
-            civilStatus: [],
-            sexes: [],
-            rules: {
-                ...rules,
-            },
+            // DATOS INFORMATIVOS
+            editGeneralPersonData: false,
             rfcValido: true,
             curpValido: true,
-            persona: {
+
+            // WATCHERS FUNCIONALIDAD
+            newRegisterPerson: false,
+            newGeneralPersonData: false,
+            generalPersonDataValidation: false,
+
+            // VIENEN DE SERVICIOS
+            civilStatus: [],
+            sexes: [],
+
+            // ARREGLOS
+            generalPersonData: {
                 iidpersona: 0,
                 bfisica: null,
                 txtnombre: '',
@@ -125,7 +120,11 @@ export default {
                 fecha_creacion: '',
                 fecha_modificacion: ''
             },
-            newMode: true,
+
+            // REGLAS
+            rules: {
+                ...rules,
+            },
         }
     },
     computed: {
@@ -139,8 +138,30 @@ export default {
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
+
+        // GET (BD)
+        async getAllSexes() {
+            try {
+                this.sexes = await services.inspections().getAllSexes();
+            } catch (error) {
+                const message = 'Error al cargar el catálogo de sexo.';
+                this.showError({ message, error });
+            }
+        },
+
+        // GET (BD)
+        async getAllCivilStatus() {
+            try {
+                this.civilStatus = await services.inspections().getAllCivilStatus();
+            } catch (error) {
+                const message = 'Error al cargar el catálogo de estado civil.';
+                this.showError({ message, error });
+            }
+        },
+
+        // RESETEO EN CASO DE NUEVO REGISTRO
         resetPerson() {
-            this.persona = {
+            this.generalPersonData = {
                 iidpersona: 0,
                 bfisica: null,
                 txtnombre: '',
@@ -148,7 +169,7 @@ export default {
                 txtapemat: '',
                 dfecha_nacimiento: '',
                 txtrfc: '',
-                // txtcurp: '',
+                txtcurp: '',
                 txtine: '',
                 iidestado_civil: null,
                 iidsexo: null,
@@ -158,78 +179,84 @@ export default {
                 fecha_modificacion: ''
             }
         },
-        async loadSelectableData() {
+
+        async loadDataPerson() {
             try {
-                this.sexes = await services.inspections().getAllSexesPerson();
-                this.civilStatus = await services.inspections().getAllCivilStatusPerson();
-                this.persona = this.data
+                console.log('LOAD GENERAL DATA PERSON')
+                this.newRegisterPerson = localStorage.getItem('newPerson');
+                this.newRegisterPerson = this.newRegisterPerson === 'true';
+                if (this.newRegisterPerson) {
+                    this.newGeneralPersonData = true
+                } else {
+                    this.newGeneralPersonData = false
+                }
+                console.log('this.iidpersona')
+                console.log(this.iidpersona)
+                this.generalPersonData = await services.inspections().getGeneralPersonData(this.iidpersona);
+                console.log(this.generalPersonData)
             } catch (error) {
-                const message = 'Error al cargar opciones para nuevo inspector.';
+                const message = 'Error al cargar los datos generales de la persona.';
                 this.showError({ message, error });
             }
         },
-        validarCurpOrRrc() {
-            const regexPersonaFisica = /^[A-Z]{4}[0-9]{6}[A-Z0-9]{3}$/;
-            const regexPersonaMoral = /^[A-Z]{3}[0-9]{6}[A-Z0-9]{3}$/;
-            if(this.persona.bfisica){
-                this.persona.txtcurp = this.persona.txtcurp.toUpperCase()
-                let curp = this.persona.txtcurp.trim();
-                let curpValido = regexPersonaFisica.test(curp);
-                this.$set(this, 'curpValido', curpValido ? true : 'CURP inválido');
-            }else{
-                this.persona.txtrfc = this.persona.txtrfc.toUpperCase()
-                let rfc = this.persona.txtrfc.trim();
-                let rfcValido = regexPersonaMoral.test(rfc);
-                this.$set(this, 'rfcValido', rfcValido ? true : 'RFC inválido');
-            }
-        },
-        validarCorreo(value) {
-            if (value && value.trim().length > 0) {
-                const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Expresión regular para validar correo electrónico
-                return regex.test(value) || 'Correo electrónico inválido';
-            }
-            return true;
-        },
-        async verifyCurp(curp, needModal) {
-            this.persona = { ...await services.inspections().getPersonByCurp({ curp }) };
-            console.log('el curp que viene desde edit inspector es de esta persona: ')
-            console.log(this.persona)
-            console.log('NECESITA ABRIR ' + needModal)
-        },
+
         async updatePerson() {
             console.log('Actualizando persona');
             try {
-
-                if (this.persona.iidpersona != 0) {
-                    console.log('se va a editar ')
-                    let response = { ...await services.inspections().updatePerson(this.persona) };
-                    console.log('response del update persona')
-                    console.log(response)
-                    this.showSuccess(response.message);
-                }
+                let response = { ...await services.inspections().updatePerson(this.generalPersonData) };
+                console.log('response del update person')
+                console.log(response)
+                this.showSuccess(response.message);
             } catch (error) {
-                const message = 'Error al guardar persona.';
+                const message = 'Error al actualizar la persona.';
                 this.showError({ message, error });
             }
         },
+
+        // EMITIR A COMPONENTE PADRE
+        emitToParentComponent() {
+            console.log('🚀 ~ emitToParentComponent ~ 🚀 sending editing mode, phone, validation 🚀')
+            let newOrEdit = false
+            if (this.newGeneralPersonData || this.editGeneralPersonData) {
+                newOrEdit = true
+            }
+            this.$emit('general-person-data-validation', newOrEdit, this.generalPersonData, this.generalPersonDataValidation);
+        }
     },
+
     watch: {
-        'generalPersonDataValidation': function () {
-            this.$emit('general-person-data-validation', this.generalPersonDataValidation, this.persona);
+        // WATCHERS PROP
+        'iidpersona': function () {
+            console.log('watch iidpersona')
+            this.loadDataPerson()
         },
-        'reset': function () {
-            if (this.reset) {
-                this.resetPerson()
+
+          // WATCHERS DATA
+        'newRegisterPerson': function () {
+            console.log('watch newRegisterPerson')
+            if (this.newRegisterPerson) {
+                this.resetPhone()
+                this.newPhone = true
+            } else {
+                this.showPhones()
             }
         },
-        'data': function () {
-            console.log('recibido como data person desde modal')
-            console.log(this.data)
-            this.loadSelectableData();
+        'newGeneralPersonData': function () {
+            console.log('watch newGeneralPersonData')
+            if (this.newGeneralPersonData) {
+                this.resetgeneralPersonData()
+            }
         },
+        'generalPersonDataValidation': function () {
+            console.log('watch generalPersonDataValidation')
+            this.emitToParentComponent()
+        },
+    
     },
     async mounted() {
-        await this.loadSelectableData();
+        await this.getAllSexes();
+        await this.getAllCivilStatus();
+        await this.loadDataPerson();
     },
 
 }

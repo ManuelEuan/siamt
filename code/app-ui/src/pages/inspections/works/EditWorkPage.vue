@@ -201,9 +201,6 @@ export default {
                 console.log('this.zones')
                 console.log(this.zones)
                 this.shifts = await services.inspections().getAllShiftsInspector();
-                // getAllSexesPerson
-                // getAllCivilStatusPerson
-
             } catch (error) {
                 const message = 'Error al cargar opciones para nuevo inspector.';
                 this.showError({ message, error });

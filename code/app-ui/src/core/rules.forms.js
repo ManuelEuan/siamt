@@ -15,6 +15,7 @@ export default {
 	positiveIntNumber: v => !v || /^\d*$/.test(v) || 'Número igual o mayor a cero requerido.',
 	ifNotEmptyInt: v => v === '' || v === null || v === undefined || /^\d+$/.test(v) || 'El campo solo puede contener números',
 	ifNotEmptyFloat: v => v === '' || v === null || v === undefined || /^\d+(\.\d+)?$/.test(v) || 'El campo solo puede contener números',
+	ifNotEmptyEmail: v => v === '' || v === null || v === undefined || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Correo electrónico inválido',
 	json: v => {
 		let status = true;
 		try { JSON.parse(v); } catch (e) { status = false; }

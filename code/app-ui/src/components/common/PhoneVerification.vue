@@ -1,49 +1,29 @@
 <template>
     <div>
         <v-card-text>
-            {{ showPersonPhones }}--  {{ showFields }}
-            {{ !!newRegisterPerson }}--  {{ newRegisterPerson }}
-            <div class="row d-flex justify-space-around align-center mx-auto"  v-if="!newRegisterPerson">
+            <!-- CAMPOS DE EVENTOS -->
+            <div class="row d-flex justify-space-around align-center mx-auto" v-if="!newRegisterPerson">
                 <p class="col-md-6 my-0">Teléfonos</p>
 
-                <v-col cols="12" md="6" v-if="showPersonPhones">
-                    <v-btn depressed color="primary" @click="resetPhone()">
+                <v-col cols="12" md="6" v-if="!newPhone && !editPhone">
+                    <v-btn depressed color="primary" @click="newPhone = true">
                         Nuevo teléfono
                     </v-btn>
                 </v-col>
-                <v-col cols="12" md="3" v-if="showFields">
-                    <v-btn depressed color="info" @click="showPersonPhones = true, showFields= false">
+                <v-col cols="12" md="3" v-if="newPhone || editPhone">
+                    <v-btn depressed color="info" @click="showPhones()">
                         Ver teléfonos
                     </v-btn>
                 </v-col>
-                <v-col cols="12" md="3" v-if="showFields">
+                <v-col cols="12" md="3" v-if="newPhone || editPhone">
                     <v-btn depressed color="primary" :disabled="!phoneValidation" @click="savePhone()">
-                        {{ showFields && newPhone ? "Guardar" : "Actualizar" }}
+                        {{ editPhone ? 'Actualizar' : 'Guardar' }}
                     </v-btn>
                 </v-col>
             </div>
-            <!-- Telefono en : {{ newPhone ? 'Modo nuevo' : 'modo editar' }}
-            Cant: {{ Object.keys(personaPhones).length }} -->
-            <v-form v-model="phoneValidation" v-if="showFields || newRegisterPerson">
-                <v-row>
-                    <v-col cols="12" md="6">
-                        <v-select v-model="phone.iidtelefono_tipo" label="Tipo*" :items="typePhones"
-                            item-text="txtnombre" item-value="iidtelefono_tipo" hide-details="auto" small-chips
-                            clearable dense outlined :rules="[rules.required]" />
-                    </v-col>
 
-                    <!-- <v-col cols="12" md="6">
-                        <v-select v-model="phone.ilada" label="Lada*" :items="ladas" item-text="txtnombre"
-                            item-value="iidlada" hide-details="auto" small-chips clearable dense outlined
-                            :rules="[rules.required]" />
-                    </v-col> -->
-                    <v-col cols="12" md="6">
-                        <v-text-field v-model="phone.inumero" label="Número*" hide-details="auto" clearable dense
-                            :rules="[rules.telefono]" outlined maxlength="10" />
-                    </v-col>
-                </v-row>
-            </v-form>
-            <v-row v-if="personaPhones && Object.keys(personaPhones).length > 0 && showPersonPhones">
+            <!-- TABLA DE TELÉFONOS -->
+            <v-row v-if="personPhones && Object.keys(personPhones).length > 0 && !newPhone && !editPhone">
                 <v-col cols="12" md="12">
                     <v-simple-table>
                         <template v-slot:default>
@@ -52,9 +32,9 @@
                                     <th class="text-left">
                                         Tipo
                                     </th>
-                                    <!-- <th class="text-left">
+                                    <th class="text-left" v-if="requiredLadaIdentifiers">
                                         Lada
-                                    </th> -->
+                                    </th>
                                     <th class="text-left">
                                         Teléfono
                                     </th>
@@ -67,9 +47,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in personaPhones" :key="item.name">
+                                <tr v-for="item in personPhones" :key="item.name">
                                     <td>{{ item.txttelefono_tipo }}</td>
-                                    <!-- <td>+{{ item.ilada }}</td> -->
+                                    <td v-if="requiredLadaIdentifiers">{{ item.txtlada }}</td>
                                     <td>{{ item.inumero }}</td>
                                     <td>
                                         <template item.bactual>
@@ -83,7 +63,7 @@
                                             <v-tooltip bottom>
                                                 <template v-slot:activator="{ on, attrs }">
                                                     <v-btn v-bind="attrs" v-on="on" icon small
-                                                        @click="actionsHandler(item, 'edit')">
+                                                        @click="actionsHandlerOfTable(item, 'editPhone')">
                                                         <v-icon small> mdi-square-edit-outline </v-icon>
                                                     </v-btn>
                                                 </template>
@@ -92,7 +72,7 @@
                                             <v-tooltip bottom v-if="!item.bactual">
                                                 <template v-slot:activator="{ on, attrs }">
                                                     <v-btn v-bind="attrs" v-on="on" icon small
-                                                        @click="actionsHandler(item, 'newCurrentPhone')">
+                                                        @click="actionsHandlerOfTable(item, 'newCurrentPhone')">
                                                         <v-icon small v-show="item.bactivo"> mdi-close </v-icon>
                                                         <v-icon small v-show="!item.bactivo"> mdi-check
                                                         </v-icon>
@@ -103,7 +83,7 @@
                                             <v-tooltip bottom v-if="!item.bactual">
                                                 <template v-slot:activator="{ on, attrs }">
                                                     <v-btn v-bind="attrs" v-on="on" icon small
-                                                        @click="actionsHandler(item, 'delete')">
+                                                        @click="actionsHandlerOfTable(item, 'deletePhone')">
                                                         <v-icon small v-show="item.bactivo"> mdi-delete
                                                         </v-icon>
                                                         <v-icon small v-show="!item.bactivo"> mdi-check
@@ -121,52 +101,45 @@
                     <!-- </template> -->
                 </v-col>
             </v-row>
+
+            <!-- CAMPOS DE AGREGAR - MODIFICAR -->
+            <v-form v-model="phoneValidation" v-if="newPhone || newRegisterPerson || editPhone">
+                <v-row>
+                    <v-col cols="12" md="6">
+                        <v-select v-model="phone.iidtelefono_tipo" label="Tipo*" :items="typesPhone"
+                            item-text="txtnombre" item-value="iidtelefono_tipo" hide-details="auto" small-chips
+                            clearable dense outlined :rules="[rules.required]" />
+                    </v-col>
+
+                    <v-col cols="12" md="6" v-if="requiredLadaIdentifiers">
+                        <v-select v-model="phone.txtlada" label="Lada*" :items="ladaIdentifiers" item-text="txtnombre"
+                            item-value="iidlada" hide-details="auto" small-chips clearable dense outlined
+                            :rules="[rules.required]" />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-text-field v-model="phone.inumero" label="Número*" hide-details="auto" clearable dense
+                            :rules="[rules.telefono]" outlined maxlength="10" />
+                    </v-col>
+                </v-row>
+            </v-form>
         </v-card-text>
 
         <!-- DIALOG ACTUALIZAR TELÉFONO ACTUAL -->
-        <template>
-            <v-dialog v-model="dialogNewCurrentPhone" transition="dialog-bottom-transition" persistent
-                max-width="600">
-                <v-card>
-                    <v-card-title class="text-uppercase primary--text text-h6 py-2">
-                        Actualizar teléfono principal
-                    </v-card-title>
-                    <v-card-text>
-                        Este cambio implica que este es el nuevo teléfono actual ¿Desea seguir con el proceso?
-                    </v-card-text>
+        <generic-dialog :dialogVisible="dialogNewCurrentPhone" dialogTitle="Actualizar teléfono principal"
+            @update:dialogVisible="dialogNewCurrentPhone = $event" @confirm="updateCurrentPhoneMethod">
+            <template v-slot:default>
+                Este cambio implica que este es el nuevo teléfono actual ¿Desea seguir con el proceso?
+            </template>
+        </generic-dialog>
 
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn color="error" text @click="updateCurrentPhone = 0, dialogNewCurrentPhone = false">
-                            Cancelar </v-btn>
-                        <v-btn color="primary" text @click="updateCurrentPhoneMethod"> Aceptar </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-        </template>
         <!-- DIALOG ACTUALIZAR DESACTIVAR TELÉFONO -->
-        <template>
-            <v-dialog transition="dialog-top-transition" max-width="600" v-model="dialogDelete">
-                <v-card>
-                    <v-card-title class="text-uppercase primary--text text-h6 py-2">
-                        Eliminar teléfono
-                    </v-card-title>
-                    <v-divider></v-divider>
-                    <v-card-text class="text-lowercase text-body-1 py-2">
-                        ¿est&aacute;s seguro de que deseas Eliminar este
-                        teléfono?
-                    </v-card-text>
-                    <v-divider></v-divider>
-                    <v-card-actions class="py-2">
-                        <v-spacer></v-spacer>
-                        <v-btn color="error" text @click="dialogDelete = false"> Cerrar </v-btn>
-                        <v-btn color="primary" text @click="deletePhone">
-                            Eliminar
-                        </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-        </template>
+        <generic-dialog :dialogVisible="dialogDeletePhone" dialogTitle="Eliminar teléfono"
+            @update:dialogVisible="dialogDeletePhone = $event" @confirm="deletePhone">
+            <template v-slot:default>
+                ¿Estás seguro de que deseas Eliminar este
+                teléfono?
+            </template>
+        </generic-dialog>
     </div>
 </template>
 
@@ -174,12 +147,13 @@
 import rules from "@/core/rules.forms";
 import services from "@/services";
 import { mapActions } from "vuex";
+import GenericDialog from '@/components/common/GenericDialog.vue';
+
 export default {
+    components: {
+        GenericDialog,
+    },
     props: {
-        newRegisterPerson: {
-            type: Boolean,
-            default: false // Valor predeterminado
-        },
         iidpersona: {
             type: Number,
             default: 0 // Valor predeterminado
@@ -187,32 +161,36 @@ export default {
     },
     data() {
         return {
-            newPhone: true,
-            showPersonPhones:true,
-            showFields:false,
+            // DATOS INFORMATIVOS
+            requiredLadaIdentifiers: false,
+            editPhone: false,
+
+            // WATCHERS FUNCIONALIDAD
+            newRegisterPerson: false,
+            newPhone: false,
             phoneValidation: false,
-            dialogDelete: false,
+
+            // VIENEN DE SERVICIOS
+            typesPhone: [],
+            ladaIdentifiers: [],
+            personPhones: [],
+
+            // MODALES
+            dialogDeletePhone: false,
             dialogNewCurrentPhone: false,
-            updateCurrentPhone: 0,
-            // iidpersona: null,
-            // iidpersona: 84,
+
+            // ARREGLOS
             phone: {
                 iidtelefono: 0,
-                // ilada: '',
-                inumero: '',
+                txtlada: '',
+                inumero: null,
                 iidtelefono_tipo: null,
-                bactivo: null,
-                dtfecha_creacion: null,
-                dtfecha_modificacion: null,
             },
-            bactual: true,
+
+            // REGLAS
             rules: {
                 ...rules,
             },
-            typePhones: [],
-            // ladas: [],
-            ladaIdentifiers: [],
-            personaPhones: [],
         };
     },
     computed: {
@@ -220,106 +198,94 @@ export default {
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
-        async loadPhonesTable() {
+
+        // GET (BD)
+        async getTypesPhone() {
             try {
-                console.log('LOAD PHONES')
-                this.showFields = false
-                this.showPersonPhones = true
-                this.newPhone = false
-                let response = await services.inspections().getPersonPhones(this.iidpersona);
-                this.typePhones = await services.inspections().getAllTypePhones()
-                // 
-                console.log(response)
-                console.log(this.typePhones)
-                this.personaPhones = { ...response }
+                this.typesPhone = await services.inspections().getAllTypesPhone()
             } catch (error) {
-                const message = 'Error al cargar los teléfonos asociadas.';
+                const message = 'Error al cargar opciones de tipos de teléfono.';
                 this.showError({ message, error });
             }
         },
-        resetPhone(){
-            this.showPersonPhones=false
-            this.showFields=true
-            this.newPhone = true
-            this.phone= {
-                iidtelefono: 0,
-                // ilada: '',
-                inumero: '',
-                iidtelefono_tipo: null,
-                bactivo: null,
-                dtfecha_creacion: null,
-                dtfecha_modificacion: null,
+
+        // GET (BD)
+        async getLadaIdentifiers() {
+            try {
+                this.ladaIdentifiers = await services.inspections().getAllLadaIdentifiers()
+            } catch (error) {
+                const message = 'Error al cargar opciones de los identificadores lada.';
+                this.showError({ message, error });
             }
         },
+
+        // CARGA DE LOS TELÉFONOS ASOCIADOS A LA PERSONA (BD)
+        async loadPhonesTable() {
+            try {
+                console.log('LOAD PHONES')
+                this.newRegisterPerson = localStorage.getItem('newPerson');
+                this.newRegisterPerson = this.newRegisterPerson === 'true';
+                if (this.newRegisterPerson) {
+                    this.newPhone = true
+                } else {
+                    this.newPhone = false
+                }
+                this.personPhones = await services.inspections().getPersonPhones(this.iidpersona);
+            } catch (error) {
+                const message = 'Error al cargar los teléfonos asociados.';
+                this.showError({ message, error });
+            }
+        },
+
+        // INSERTAR O ACTUALIZAR INDEPENDIENTE (BD)
         async savePhone() {
             console.log('Guardando teléfono');
             try {
                 let data = {
                     iidpersona: this.iidpersona,
                     phone: this.phone,
-                    bactual: this.bactual
                 }
                 console.log(data)
                 if (!this.phone.iidtelefono) {
                     let response = await services.inspections().createPhone(data);
-                    console.log('response del create')
+                    console.log('phone create')
                     console.log(response)
                     this.showSuccess(response.message);
+                    this.newPhone = true
                 } else {
                     console.log('es edicion')
                     let response = await services.inspections().updatePhone(data);
-                    console.log('response del update')
+                    console.log('phone update')
                     console.log(response)
                     this.showSuccess(response.message);
-
+                    this.editPhone = false
                 }
-               
+
                 await this.loadPhonesTable();
-                this.dialog = false
             } catch (error) {
-                const message = 'Error al guardar phone.';
+                const message = 'Error al guardar el teléfono.';
                 this.showError({ message, error });
             }
         },
-        actionsHandler(phone, action) {
-            console.log('actionsHandler')
-            console.log(phone)
-            console.log(action)
-            switch (action) {
-                case 'edit':
-                    this.phone = { ...phone }
-                    this.showFields = true
-                    this.showPersonPhones = false
-                    this.newPhone = false
-                    break;
-                case 'newCurrentPhone':
-                    this.dialogNewCurrentPhone = true;
-                    this.selectedPhone = phone.iidtelefono
-                    break;
-                case 'delete':
-                    this.dialogDelete = true;
-                    this.selectedPhone = phone.iidtelefono
-                    break;
-                default: this.$refs.dialogs.show[action] = true;
-            }
-        },
+
+        // ACTUALIZAR TELÉFONO ACTUAL (BD)
         async updateCurrentPhoneMethod() {
             try {
                 let data = {
                     iidpersona: this.iidpersona,
                     selectedPhone: this.selectedPhone
                 }
-                console.log('data para update')
                 let response = await services.inspections().updateCurrentPhone(data);
-                console.log(response)
                 await this.loadPhonesTable();
                 this.dialogNewCurrentPhone = false
                 this.showSuccess(response.message);
             } catch (error) {
-                const message = 'Error al actualizar.';
+                const message = 'Error al actualizar el teléfono solicitado.';
                 this.showError({ message, error });
             }
         },
+
+        // BORRAR TELÉFONO (BD)
         async deletePhone() {
             try {
                 let data = {
@@ -327,48 +293,100 @@ export default {
                     selectedPhone: this.selectedPhone
                 }
                 const { message } = await services.inspections().deletePhone(data);
-                // await this.loadInspectorsTable();
                 await this.loadPhonesTable();
-                this.dialogDelete = false
+                this.dialogDeletePhone = false
                 this.showSuccess(message);
-                // this.showSuccess(response.message);
-
-                // this.dialogDelete ? false
             } catch (error) {
-                const message = 'Error al activar/desactivar inspector.';
+                const message = 'Error al borrar el teléfono.';
                 this.showError({ message, error });
             }
 
         },
 
+        // RESETEO EN CASO DE NUEVO REGISTRO
+        resetPhone() {
+            this.phone = {
+                iidtelefono: 0,
+                txtlada: '',
+                inumero: '',
+                iidtelefono_tipo: null,
+            }
+        },
+
+        // MOSTRAR REGISTROS, CAMBIO DE VALORES PARA MODO CAPTURA Y MODO EDICIÓN
+        showPhones() {
+            this.newPhone = false
+            this.editPhone = false
+            this.resetPhone()
+            this.emitToParentComponent()
+        },
+
+        // MANEJADOR DE ACCIONES EN LA TABLA
+        actionsHandlerOfTable(phone, action) {
+            switch (action) {
+                case 'editPhone':
+                    this.phone = { ...phone }
+                    this.editPhone = true
+                    break;
+                case 'newCurrentPhone':
+                    this.dialogNewCurrentPhone = true;
+                    this.selectedPhone = phone.iidtelefono
+                    break;
+                case 'deletePhone':
+                    this.dialogDeletePhone = true;
+                    this.selectedPhone = phone.iidtelefono
+                    break;
+                default: this.$refs.dialogs.show[action] = true;
+            }
+        },
+
+        // EMITIR A COMPONENTE PADRE
+        emitToParentComponent() {
+            console.log('🚀 ~ emitToParentComponent ~ 🚀 sending editing mode, phone, validation 🚀')
+            let newOrEdit = false
+            console.log('newPhone' + this.newPhone)
+            console.log('editPhone' + this.editPhone)
+            if (this.newPhone || this.editPhone) {
+                newOrEdit = true
+            }
+            this.$emit('phone-validation', newOrEdit, this.phone, this.phoneValidation);
+        }
+
     },
     watch: {
-        'phoneValidation': function () {
-            // phoneValidation(newValidation) {
-            console.log('validación teléfono')
-            console.log(this.phoneValidation)
-            console.log(this.phone)
-            this.$emit('phone-validation', this.phoneValidation, this.phone);
+        // WATCHERS PROP
+        'iidpersona': function () {
+            console.log('watch iidpersona')
+            this.loadPhonesTable()
         },
-        'persona.inumero': function(){
-            this.persona.inumero = parseInt(this.persona.inumero);
+
+        // WATCHERS DATA
+        'newRegisterPerson': function () {
+            console.log('watch newRegisterPerson')
+            if (this.newRegisterPerson) {
+                this.resetPhone()
+                this.newPhone = true
+            } else {
+                this.showPhones()
+            }
         },
-        'newRegisterPerson': function(){
-            if(this.newRegisterPerson){
-                this.showFields = true
-                this.showPersonPhones = false
+        'newPhone': function () {
+            console.log('watch newPhone')
+            if (this.newPhone) {
                 this.resetPhone()
             }
         },
-        'iidpersona': function(){
-            this.loadPhonesTable()
+        'phoneValidation': function () {
+            console.log('watch phoneValidation')
+            this.emitToParentComponent()
         },
     },
     async mounted() {
+        await this.getTypesPhone();
         await this.loadPhonesTable();
+        if (this.requiredLadaIdentifiers) {
+            await this.getLadaIdentifiers();
+        }
     }
 };
 </script>
-
-<style scoped>
-</style>

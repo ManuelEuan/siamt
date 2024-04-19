@@ -103,14 +103,14 @@ class PersonsController extends BaseController
         } else {
             $personas = Db::fetchAll($sqlComplete, $params);
         }
-       
+
         // SI NO EXISTE LA PERSONA SE RETORNA VACÍO
         if (!$personas) {
             return;
         }
 
         // SI EXISTE PERSONA ÚNICA SE RETORNAN LOS DATOS ESPECÍFICOS
-        if($typeOfRequest == 'Inspector'){
+        if ($typeOfRequest == 'Inspector') {
             if (count($personas) > 0) {
                 foreach ($personas as $key => $persona) {
                     // Consulta adicional para obtener información de inspección
@@ -118,10 +118,10 @@ class PersonsController extends BaseController
                         FROM inspeccion.tbl_inspector
                         WHERE iidpersona=:iidpersona
                     ";
-    
+
                     $params2 = array('iidpersona' => $persona->iidpersona);
                     $inspector = Db::fetchOne($sql2, $params2);
-    
+
                     if (!$inspector) {
                         $persona->foundRequestSearched = false;
                     } else {
@@ -137,7 +137,7 @@ class PersonsController extends BaseController
         // return $persona;
     }
 
-    public function getAllSexesPerson()
+    public function getAllSexes()
     {
         $sql = "SELECT 
             iidsexo,
@@ -153,7 +153,7 @@ class PersonsController extends BaseController
         return $zones;
     }
 
-    public function getAllLadas()
+    public function getAllLadaIdentifiers()
     {
         $sql = "SELECT 
             iidlada,
@@ -165,11 +165,11 @@ class PersonsController extends BaseController
             FROM persona.cat_lada
             WHERE bactivo='t'
         ";
-        $ladas = Db::fetchAll($sql);
-        return $ladas;
+        $ladaIdentifiers = Db::fetchAll($sql);
+        return $ladaIdentifiers;
     }
 
-    public function getAllCivilStatusPerson()
+    public function getAllCivilStatus()
     {
         $sql = "SELECT 
             iidestado_civil,
@@ -185,7 +185,7 @@ class PersonsController extends BaseController
         return $civilStatus;
     }
 
-    public function getAllTypePhones()
+    public function getAllTypesPhone()
     {
         $sql = "SELECT 
             iidtelefono_tipo,
@@ -197,8 +197,38 @@ class PersonsController extends BaseController
             FROM persona.cat_telefono_tipo
             WHERE bactivo='t'
         ";
-        $zones = Db::fetchAll($sql);
-        return $zones;
+        $typesPhone = Db::fetchAll($sql);
+        return $typesPhone;
+    }
+
+    public function getGeneralPersonData()
+    {
+        $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
+        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        $params = array('iidpersona' => $data);
+        $sql = "SELECT
+                    iidpersona, 
+                    bfisica, 
+                    txtnombre, 
+                    txtapepat, 
+                    txtapemat, 
+                    dfecha_nacimiento, 
+                    iidestado_nacimiento, 
+                    txtrfc, 
+                    txtcurp, 
+                    txtine, 
+                    iidestado_civil, 
+                    iidsexo, 
+                    txtcorreo, 
+                    bactivo
+                FROM
+                    persona.tbl_persona
+                WHERE
+                    bactivo = true AND iidpersona = :iidpersona
+        ";
+        // $this->dep($sql);exit;
+        $generalPersonData = Db::fetch($sql, $params);
+        return $generalPersonData;
     }
 
     public function getPersonAddresses()
@@ -333,10 +363,6 @@ class PersonsController extends BaseController
                 WHERE pd.bactivo='t' AND pd.iidpersona=:iidpersona
         ";
         $addresses = Db::fetchAll($sql, $params);
-        // WHERE pd.iidpersona=:iidpersona";
-        // WHERE pd.bactivo='t' AND pd.iidpersona=:iidpersona";
-        // $this->dep($addresses);
-        // exit;
         return $addresses;
     }
 
@@ -351,7 +377,7 @@ class PersonsController extends BaseController
                     tbl_persona_telefono.iidpersona,
                     cat_telefono_tipo.txtnombre AS txttelefono_tipo, 
                     cat_telefono_tipo.txtdescripcion,
-                    tbl_telefono.ilada, 
+                    tbl_telefono.txtlada, 
                     tbl_telefono.inumero, 
                     tbl_telefono.iidtelefono, 
                     tbl_telefono.iidtelefono_tipo, 	
@@ -376,13 +402,7 @@ class PersonsController extends BaseController
                     tbl_telefono.iidtelefono_tipo = cat_telefono_tipo.iidtelefono_tipo
                 WHERE tbl_persona_telefono.iidpersona = :iidpersona AND tbl_persona_telefono.bactivo = true
         ";
-        // $this->dep($sql);
-        // exit;
         $phones = Db::fetchAll($sql, $params);
-        // WHERE pd.iidpersona=:iidpersona";
-        // WHERE pd.bactivo='t' AND pd.iidpersona=:iidpersona";
-        // $this->dep($phones);
-        // exit;
         return $phones;
     }
 
@@ -392,11 +412,11 @@ class PersonsController extends BaseController
 
         $info = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         // var_dump(isset($info->phone));exit;
-        if(isset($info->person)){
+        if (isset($info->person)) {
             $data = $info->person;
             $phone = $info->phone;
             $direction = $info->direction;
-        }else{
+        } else {
             $data = $info;
         }
         $this->validRequiredData($data, 'person'); // Validar datos requeridos
@@ -416,18 +436,18 @@ class PersonsController extends BaseController
             'iidsexo' => $data->iidsexo,
             'txtcorreo' => $data->txtcorreo,
         );
-        
+
 
         $iiddpersona = $this->insert('tbl_persona', $params);
 
         // $this->dep($phone);exit;
-        if(isset($phone)){
+        if (isset($phone)) {
             $phone->iidpersona = $iiddpersona;
             $this->createPhone($phone);
         }
-        if(isset($direction)){
+        if (isset($direction)) {
             $direction->iidpersona = $iiddpersona;
-            $this->createDirection($direction);
+            $this->createAddress($direction);
         }
 
 
@@ -482,20 +502,20 @@ class PersonsController extends BaseController
         return array('message' => 'La persona ha sido actualizada.'); // Devolver mensaje de éxito
     }
 
-    public function createDirection($direction = '')
+    public function createAddress($direction = '')
     {
         $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
 
-        if($direction != ''){
+        if ($direction != '') {
             $data = new \stdClass();
             $data->direction = $direction;
             if (is_object($direction) && property_exists($direction, 'iidpersona')) {
                 $data->iidpersona = $direction->iidpersona;
             }
-        }else{
+        } else {
             $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         }
-        
+
         if (empty($data->iidpersona)) {
             throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona para asignar dirección');
         }
@@ -546,7 +566,7 @@ class PersonsController extends BaseController
                 WHERE 
                     bactivo='t' AND bactual='t' AND iidpersona = :iidpersona";
 
-        
+
         $existsCurrently = Db::fetchAll($sql, $paramsVerifyCurrently);
         if ($existsCurrently) {
             $sql = "UPDATE persona.tbl_persona_direccion SET bactual = false WHERE iidpersona = :iidpersona";
@@ -554,8 +574,8 @@ class PersonsController extends BaseController
             // var_dump('actualizado');
         }
 
-        $paramsPersonDirection = array('iidpersona' => $iidpersona, 'iiddireccion' => $iiddireccion, 'bactual' => 't');
-        $this->insert('tbl_persona_direccion', $paramsPersonDirection);
+        $paramsPersonAddress = array('iidpersona' => $iidpersona, 'iiddireccion' => $iiddireccion, 'bactual' => 't');
+        $this->insert('tbl_persona_direccion', $paramsPersonAddress);
         Db::commit(); // Confirmar transacción en la base de datos
         $data->direction->iiddireccion = $iiddireccion;
 
@@ -566,7 +586,7 @@ class PersonsController extends BaseController
     {
         $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
 
-        if($phone != ''){
+        if ($phone != '') {
             $data = new \stdClass();
             $data->phone = $phone;
             if (is_object($phone) && property_exists($phone, 'iidpersona')) {
@@ -575,29 +595,28 @@ class PersonsController extends BaseController
             if (is_object($data->phone) && property_exists($data->phone, 'inumero')) {
                 $data->phone->inumero = intval($data->phone->inumero);
             }
-        }else{
+        } else {
             $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
             $data->phone->inumero = intval($data->phone->inumero);
-
         }
-      
+
         if (empty($data->iidpersona)) {
             throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona para asignar Teléfono');
         }
         $iidpersona = $data->iidpersona;
         $this->validRequiredData($data->phone, 'phone'); // Validar datos requeridos
-      
+
         Db::begin(); // Iniciar transacción en la base de datos
 
         $params = array(
-            'ilada' => $data->phone->ilada,
+            'txtlada' => $data->phone->txtlada,
             'inumero' => $data->phone->inumero,
             'iidtelefono_tipo' => $data->phone->iidtelefono_tipo,
             'inumero' => $data->phone->inumero,
         );
 
         $iidtelefono = $this->insert('tbl_telefono', $params);
-     
+
         $paramsVerifyCurrently = array('iidpersona' => $iidpersona);
         $sql = "SELECT 
                     iidpersona,
@@ -618,8 +637,8 @@ class PersonsController extends BaseController
             // var_dump('actualizado');
         }
 
-        $paramsPersonDirection = array('iidpersona' => $iidpersona, 'iidtelefono' => $iidtelefono, 'bactual' => $data->bactual);
-        $this->insert('tbl_persona_telefono', $paramsPersonDirection);
+        $paramsPersonAddress = array('iidpersona' => $iidpersona, 'iidtelefono' => $iidtelefono, 'bactual' => $data->bactual);
+        $this->insert('tbl_persona_telefono', $paramsPersonAddress);
         Db::commit(); // Confirmar transacción en la base de datos
         $data->phone->iidtelefono = $iidtelefono;
 
@@ -636,7 +655,7 @@ class PersonsController extends BaseController
 
         // Actualización de telefono
         $sql = 'UPDATE persona.tbl_telefono SET 
-                    ilada=:ilada,
+                    txtlada=:txtlada,
                     inumero=:inumero,
                     iidtelefono_tipo=:iidtelefono_tipo,
                     bactivo=:bactivo,
@@ -644,13 +663,13 @@ class PersonsController extends BaseController
                 WHERE iidtelefono=:iidtelefono
             ';
         $params = array(
-            'ilada'  => $data->phone->ilada,
+            'txtlada'  => $data->phone->txtlada,
             'inumero' => intval($data->phone->inumero),
             'iidtelefono_tipo' => $data->phone->iidtelefono_tipo,
             'bactivo' => $data->phone->activo ? 't' : 'f',
             'dtfecha_modificacion' => date('Y-m-d H:i:s'), // Formato de fecha correcto
             'iidtelefono'      => $data->phone->iidtelefono,
-        ); 
+        );
         // Parámetros para la actualización del teléfono
         // $this->dep($data);exit;
         Db::execute($sql, $params); // Ejecutar actualización del teléfono en la base de datos
@@ -711,21 +730,21 @@ class PersonsController extends BaseController
         return array('message' => 'La dirección ha sido eliminada.', 'data' => $data);
     }
 
-        // // Método para eliminar un inspector
-        public function deletePhone()
-        {
-            $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-            // var_dump($data);exit;
-            if (empty($data->iidpersona) || empty($data->selectedPhone)) {
-                throw new ValidatorBoomException(422, 'Falta de información requerida');
-            }
-            Db::begin(); // Iniciar transacción en la base de datos
-            $paramsNew = array('iidpersona' => $data->iidpersona, 'iidtelefono' => $data->selectedPhone);
-            $sql = "UPDATE persona.tbl_persona_telefono SET bactivo = false WHERE iidpersona = :iidpersona AND iidtelefono = :iidtelefono";
-            Db::execute($sql, $paramsNew);
-            Db::commit(); // Confirmar transacción en la base de datos
-            return array('message' => 'El teléfono ha sido eliminado.', 'data' => $data);
+    // // Método para eliminar un inspector
+    public function deletePhone()
+    {
+        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        // var_dump($data);exit;
+        if (empty($data->iidpersona) || empty($data->selectedPhone)) {
+            throw new ValidatorBoomException(422, 'Falta de información requerida');
         }
+        Db::begin(); // Iniciar transacción en la base de datos
+        $paramsNew = array('iidpersona' => $data->iidpersona, 'iidtelefono' => $data->selectedPhone);
+        $sql = "UPDATE persona.tbl_persona_telefono SET bactivo = false WHERE iidpersona = :iidpersona AND iidtelefono = :iidtelefono";
+        Db::execute($sql, $paramsNew);
+        Db::commit(); // Confirmar transacción en la base de datos
+        return array('message' => 'El teléfono ha sido eliminado.', 'data' => $data);
+    }
 
     private function insert($table, $params)
     {
@@ -743,8 +762,8 @@ class PersonsController extends BaseController
         switch ($typeValidation) {
             case 'person':
                 $requiredKeys = array('bfisica', 'txtnombre'); // Claves requeridas
-                 // Si el tipo de validación es 'person' y 'bfisica' es true, agregar 'txtcurp' a las claves requeridas, de lo contrario, agregar 'txtrfc'
-                 if ($data->bfisica) {
+                // Si el tipo de validación es 'person' y 'bfisica' es true, agregar 'txtcurp' a las claves requeridas, de lo contrario, agregar 'txtrfc'
+                if ($data->bfisica) {
                     $requiredKeys[] = 'txtcurp';
                 } else {
                     $requiredKeys[] = 'txtrfc';
@@ -763,7 +782,7 @@ class PersonsController extends BaseController
         }
         $actualKeys = array_keys(get_object_vars($data)); // Claves presentes en los datos
         $missingKeys = array_diff($requiredKeys, $actualKeys); // Claves faltantes
-        
+
         $message = 'Faltan valores requeridos.';
 
         if (!empty($missingKeys)) throw new ValidatorBoomException(422, $message);
