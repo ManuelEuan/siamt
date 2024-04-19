@@ -53,11 +53,20 @@ class PersonsController extends BaseController
                     ec.txtnombre AS txtestado_civil,
                     s.txtnombre AS txtsexo,
                     p.bactivo AS activo,
+                    CASE 
+                        WHEN p.txtapemat != '' THEN 
+                            CONCAT(p.txtnombre, ' ', p.txtapepat, ' ', p.txtapemat)
+                        ELSE 
+                            CONCAT(p.txtnombre, ' ', p.txtapepat) 
+                    END AS txtnombre_completo,
                     TO_CHAR(p.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
                     TO_CHAR(p.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-                FROM persona.tbl_persona p 
-                LEFT JOIN persona.cat_estado_civil ec ON p.iidestado_civil = ec.iidestado_civil
-                LEFT JOIN persona.cat_sexo s ON p.iidsexo = s.iidsexo
+                FROM 
+                    persona.tbl_persona p 
+                LEFT JOIN 
+                    persona.cat_estado_civil ec ON p.iidestado_civil = ec.iidestado_civil
+                LEFT JOIN 
+                    persona.cat_sexo s ON p.iidsexo = s.iidsexo
         ";
 
         switch ($typeSearch) {
@@ -94,12 +103,13 @@ class PersonsController extends BaseController
                 $where = ' WHERE p.txtrfc=:dataSearch';
                 break;
         }
-        // $this->dep($personas);exit;
 
         $sqlComplete = $sql . $where;
+
         $params = array('dataSearch' => $dataSearch);
         if ($typeSearch == 'CURP' || $typeSearch == 'RFC') {
             $personas[] = Db::fetchOne($sqlComplete, $params);
+
         } else {
             $personas = Db::fetchAll($sqlComplete, $params);
         }
@@ -108,6 +118,7 @@ class PersonsController extends BaseController
         if (!$personas) {
             return;
         }
+        
 
         // SI EXISTE PERSONA ÚNICA SE RETORNAN LOS DATOS ESPECÍFICOS
         if ($typeOfRequest == 'Inspector') {
@@ -220,11 +231,17 @@ class PersonsController extends BaseController
                     iidestado_civil, 
                     iidsexo, 
                     txtcorreo, 
-                    bactivo
+                    bactivo,
+                    CASE 
+                        WHEN txtapemat != '' THEN 
+                            CONCAT(txtnombre, ' ', txtapepat, ' ', txtapemat)
+                        ELSE 
+                            CONCAT(txtnombre, ' ', txtapepat) 
+                    END AS txtnombre_completo
                 FROM
                     persona.tbl_persona
                 WHERE
-                    bactivo = true AND iidpersona = :iidpersona
+                    bactivo = true AND iidpersona = :iidpersona;
         ";
         // $this->dep($sql);exit;
         $generalPersonData = Db::fetch($sql, $params);
@@ -714,7 +731,6 @@ class PersonsController extends BaseController
         return array('message' => 'La dirección ha sido actualizada.', 'data' => $data);
     }
 
-    // // Método para eliminar un inspector
     public function deleteAddress()
     {
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
@@ -730,7 +746,6 @@ class PersonsController extends BaseController
         return array('message' => 'La dirección ha sido eliminada.', 'data' => $data);
     }
 
-    // // Método para eliminar un inspector
     public function deletePhone()
     {
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP

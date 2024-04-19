@@ -21,16 +21,19 @@
                     <v-card flat>
                         <v-tab-item :key="1" value="generaltab" class="py-1">
                             <v-card-text>
-                                <v-form v-model="valid">
+                                <v-form v-model="validationFieldsInspector">
                                     <!-- :receivedCurp="persona.txtcurp" -->
                                     <curp-verification :style="{ display: createMode ? 'block' : 'none !important' }"
-                                        :typeOfRequest="'Inspector'" :iidpersona=persona.iidpersona
+                                        :typeOfRequest="'Inspector'" :iidpersona=inspector.iidpersona
                                         :activateDialogPerson=activateModalPerson @person-info="handlePersonInfo"
                                         ref="curpVerification"></curp-verification>
 
+                                    <v-text-field v-model="inspector.iidpersona" label="Registrar Inspector con ID*"
+                                            hide-details="auto" clearable dense outlined />
+
                                     <v-row v-if="!createMode">
                                         <v-col cols="12" md="4">
-                                            <v-text-field v-model="nombreCompleto" label="Nombre Completo*"
+                                            <v-text-field v-model="persona.txtnombre_completo" label="Nombre Completo*"
                                                 hide-details="auto" clearable dense :disabled="!createMode" outlined />
                                         </v-col>
                                         <v-col v-if="persona.bfisica" cols="12" md="4">
@@ -99,8 +102,8 @@
                         Persona Disponible: {{ personaDisponible }}
                         <v-card-actions>
                             <v-spacer />
-                            <v-btn color="error" text @click="exitWindow()"> Cerrar </v-btn>
-                            <v-btn color="primary" text :disabled="!personaEncontrada || !personaDisponible"
+                            <v-btn color="error" text @click="showAllInspectors()"> Cerrar </v-btn>
+                            <v-btn color="primary" text :disabled="!validationFieldsInspector"
                                 @click="saveInspector()"> Guardarss </v-btn>
                         </v-card-actions>
 
@@ -108,6 +111,14 @@
                 </v-tabs-items>
             </v-col>
         </v-row>
+
+        <!-- DIALOG CAMBIO DE CURP -->
+        <generic-dialog :dialogVisible="dialogCurpChanged" dialogTitle="Se ha detectado un cambio en el CURP verificado"
+            @update:dialogVisible="dialogCurpChanged = $event" @confirm="verifyCurp()">
+            <template v-slot:default>
+                Favor de verificar de nuevo
+            </template>
+        </generic-dialog>
     </v-container>
 </template>
 
@@ -116,40 +127,44 @@ import rules from "@/core/rules.forms";
 import services from "@/services";
 import CurpVerification from '@/components/common/CurpVerification.vue';
 import GenericProcessFlow from '@/components/common/GenericProcessFlow.vue';
+import GenericDialog from '@/components/common/GenericDialog.vue';
+
 import { mapActions } from "vuex";
 
 export default {
     components: {
         CurpVerification,
         GenericProcessFlow,
+        GenericDialog,
     },
     data() {
         return {
+            // DATOS INFORMATIVOS
+            
+            // WATCHERS
+            // VIENEN DE SERVICIOS
+            // ARREGLOS
+            // MODALES
+            dialogCurpChanged: false,
+            // PROPS SEND
             activateModalPerson: false,
-            click: {
-                user: false,
-                permission: false,
+
+            // REGLAS
+            rules: {
+                ...rules,
             },
-            valid: false,
+
+            validationFieldsInspector: false,
             tab: "generaltab",
             personaEncontrada: false,
             personaDisponible: false,
-            processes: [],
             shifts: [],
             categories: [],
             persona: {
                 iidpersona: 0,
-                bfisica: null,
-                txtnombre: '',
-                txtapepat: '',
-                txtapemat: '',
+                txtnombre_completo: 'Sin nombre',
                 txtrfc: '',
                 txtcurp: '',
-                txtestado_civil: '',
-                txtsexo: '',
-                activo: true,
-                fecha_creacion: null,
-                fecha_modificacion: null
             },
             inspector: {
                 iidinspector: 0,
@@ -167,13 +182,9 @@ export default {
                 fecha_creacion: '',
                 fecha_modificacion: '',
             },
-            nombreCompleto: '',
             curpValida: false,
-            curpVerificada: '',
             genera_boleta: false,
-            rules: {
-                ...rules,
-            },
+
             // ENVIANDO MODELO DE COMPONENTE GENÉRICO CURP VERIFICATION (Solo abrir modal)
             sendPerson: {
                 bfisica: null,
@@ -204,38 +215,43 @@ export default {
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
-        async loadSelectableData() {
+
+        // GET (BD)
+        async getAllCategoriesInspector() {
             try {
                 this.categories = await services.inspections().getAllCategoriesInspector();
-                this.processes = await services.inspections().getAllProcessesInspector();
-                this.shifts = await services.inspections().getAllShiftsInspector();
             } catch (error) {
-                const message = 'Error al cargar opciones para nuevo inspector.';
+                const message = 'Error al cargar el catálogo de categorías.';
                 this.showError({ message, error });
             }
         },
+
+          // GET (BD)
+          async getAllShiftsInspector() {
+            try {
+                this.shifts = await services.inspections().getAllShiftsInspector();
+            } catch (error) {
+                const message = 'Error al cargar el catálogo de turnos.';
+                this.showError({ message, error });
+            }
+        },
+
+        // OBTENER DATOS DE LA PERSONA (BD)
+        async getGeneralPersonData() {
+            try {
+                this.persona = await services.inspections().getGeneralPersonData(this.inspector.iidpersona);
+                console.log('this.persona getGeneralPersonData')
+                console.log(this.persona)
+            } catch (error) {
+                const message = 'Error al cargar los datos de la persona.';
+                this.showError({ message, error });
+            }
+        },
+
         async setEditMode() {
             try {
                 const { id } = this.$route.params;
                 this.inspector = { ...await services.inspections().getInspectorInfo({ id }) };
-                let curp = this.inspector.txtcurp;
-                let data = {
-                    typeSearch: 'CURP',
-                    dataSearch: curp
-                }
-                let response = { ...await services.inspections().getPersonByDinamycSearch({ data }) };
-                this.persona = response[0]
-                let nombreCompleto = '';
-                if (this.persona.txtnombre) {
-                    nombreCompleto += this.persona.txtnombre + ' ';
-                }
-                if (this.persona.txtapepat) {
-                    nombreCompleto += this.persona.txtapepat + ' ';
-                }
-                if (this.persona.txtapemat) {
-                    nombreCompleto += this.persona.txtapemat + ' ';
-                }
-                this.nombreCompleto = nombreCompleto.trim();
             } catch (error) {
                 const message = 'Error al cargar información de inspector.';
                 this.showError({ message, error });
@@ -253,33 +269,24 @@ export default {
         },
 
         async saveInspector() {
-            if (!this.maintainCurp()) return this.$refs.curpVerification.$data.dialogCurpChanged = true;
-            if (!this.valid) return;
+            console.log(this.inspector)
+            if (!this.validationFieldsInspector) return;
 
             try {
-                const { message } = await (
-                    this.createMode ?
-                        services.inspections().createInspector(this.inspector) :
-                        services.inspections().updateInspector(this.inspector)
-                );
-                this.showSuccess(message);
-                this.exitWindow();
+                // const { message } = await (
+                //     this.createMode ?
+                //         services.inspections().createInspector(this.inspector) :
+                //         services.inspections().updateInspector(this.inspector)
+                // );
+                // this.showSuccess(message);
+                // this.showAllInspectors();
             } catch (error) {
                 const message = 'Error al guardar inspector.';
                 this.showError({ message, error });
             }
         },
 
-        maintainCurp() {
-            console.log('Curp verificada: ' + this.curpVerificada)
-            console.log('Curp actual: ' + this.persona.txtcurp)
-            if (this.curpVerificada !== '' && this.curpVerificada !== this.$refs.curpVerification.curp) {
-                return false
-            }
-            return true
-        },
-
-        exitWindow() {
+        showAllInspectors() {
             this.$router.push("/inspections/inspectors");
         },
 
@@ -289,28 +296,27 @@ export default {
         },
 
         // RETORNO DE COMPONENTE GENÉRICO CURP VERIFICATION
-        handlePersonInfo(personFound, availablePerson, person, isInspector, closeModal) {
+        handlePersonInfo(personFound, availablePerson, person) {
             console.log('retorno del componente Curp Verification')
             console.log('Persona encontrada: ' + personFound)
             console.log('Persona disponible: ' + availablePerson)
             console.log('Persona Información Completa: ')
             console.log(person)
-            console.log('Persona tipo inspector: ' + isInspector)
-            if (closeModal) {
-                this.activateModalPerson = false
-            }
-            this.personaEncontrada = personFound
-            this.personaDisponible = availablePerson
-            this.persona = person
+            this.activateModalPerson = false
+
+            // if (closeModal) {
+            //     this.activateModalPerson = false
+            // } else {
+                this.personaEncontrada = personFound
+                this.personaDisponible = availablePerson
+                this.persona = person
+                if(this.personaDisponible){
+                    this.inspector.iidpersona = this.persona.iidpersona
+                }else{
+                    this.inspector.iidpersona = 0
+                }
+            // }
         },
-        // handlePersonInfo(personAllData, closeModal) {
-        //     console.log('retorno del componente Curp Verification')
-        //     console.log(personAllData)
-        //     console.log('Close Modal: ' + closeModal)
-        //     if(closeModal){
-        //         this.activateModalPerson = false
-        //     }
-        // },
 
         // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW (AUTOMÁTICO)
         handleProcessFlow(foundSubStage, infoSubStage, processSubStage, hasFlowAfter) {
@@ -335,8 +341,13 @@ export default {
         }
     },
     async mounted() {
-        await this.loadSelectableData();
-        if (!this.createMode) await this.setEditMode();
+        await this.getAllCategoriesInspector()
+        await this.getAllShiftsInspector()
+        if (!this.createMode){
+            await this.setEditMode();
+            await this.getGeneralPersonData()
+            
+        } 
     }
 };
 </script>

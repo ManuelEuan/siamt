@@ -202,6 +202,8 @@ export default {
                     console.log('this.iidpersona')
                     console.log(this.iidpersona)
                     this.generalPersonData = await services.inspections().getGeneralPersonData(this.iidpersona);
+                    console.log('this.persona getGeneralPersonData GENRAL')
+                console.log(this.generalPersonData)
                     console.log(this.generalPersonData)
                 } else {
                     this.resetGeneralPersonData()
@@ -239,7 +241,7 @@ export default {
     watch: {
         // WATCHERS PROP
         'iidpersona': function () {
-            console.log('watch iidpersona')
+            console.log('watch iidpersona desde GeneralPersonDataVerification')
             this.loadDataPerson()
         },
 
