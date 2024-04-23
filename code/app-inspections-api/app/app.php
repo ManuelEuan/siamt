@@ -28,8 +28,11 @@ $app->mount(
     ->post("/inspectors/getAllFlowBySubStage", "getAllFlowBySubStage")
     ->post("/inspectors/hasFlowAfter", "hasFlowAfter")
     ->post("/inspectors/getInfoBySubStage", "getInfoBySubStage")
+    ->put("/inspectors/updateInspectorSubStage", "updateInspectorSubStage")
+    ->post("/inspectors/insertInspectorTrace", "insertInspectorTrace")
     // VINDEN
     ->get("/inspectors/getServiceVindenUrlDebitaciones", "getServiceVindenUrlDebitaciones")
+
 );
 
 $app->mount(

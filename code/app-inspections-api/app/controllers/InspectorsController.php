@@ -34,7 +34,7 @@ class InspectorsController extends BaseController
     public function getServiceVindenUrlDebitaciones()
     {
         var_dump("en el servidor 2");
-        if(!$_SESSION['vinden']['token']){
+        if (!$_SESSION['vinden']['token']) {
             Utils::getTokenVinden();
         }
         $baseUrl = $_SESSION['vinden']['baseUrl'];
@@ -519,7 +519,7 @@ class InspectorsController extends BaseController
         $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
 
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        $this->validRequiredData($data); // Validar datos requeridos
+        $this->validRequiredData($data, 'createInspector'); // Validar datos requeridos
         Db::begin(); // Iniciar transacción en la base de datos
 
         $params = array(
@@ -552,12 +552,36 @@ class InspectorsController extends BaseController
         return array('message' => 'El inspector ha sido creado.'); // Devolver mensaje de éxito
     }
 
+        // // Método para crear el seguimiento del proceso de captura de inspector
+        public function insertInspectorTrace()
+        {
+            $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
+            $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+            $data = $data->dataTrace;
+            // self::dep($data);exit;
+            $this->validRequiredData($data, 'insertInspectorTrace'); // Validar datos requeridos
+            Db::begin(); // Iniciar transacción en la base de datos
+
+            $params = array(
+                'iidinspector' => $data->iidinspector,
+                'iidetapa_anterior' => $data->iidetapa_anterior,
+                'iidsubetapa_anterior' => $data->iidsubetapa_anterior,
+                'iidetapa_actual' => $data->iidetapa_actual,
+                'iidsubetapa_actual' => $data->iidsubetapa_actual,
+            );
+    
+            $this->insert('tbl_inspector_seguimiento', $params);
+    
+            Db::commit(); // Confirmar transacción en la base de datos
+            return array('success'=>true,'message' => 'El seguimiento del inspector se ha guardado con éxito.'); // Devolver mensaje de éxito
+        }
+
     // // Método para actualizar un inspector
     public function updateInspector()
     {
         $this->hasClientAuthorized('edii'); // Verificar si el cliente tiene autorización
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        $this->validRequiredData($data); // Validar datos requeridos
+        $this->validRequiredData($data, 'updateInspector'); // Validar datos requeridos
         // var_dump($data->activo);exit;
         Db::begin(); // Iniciar transacción en la base de datos
 
@@ -610,16 +634,34 @@ class InspectorsController extends BaseController
         return array('message' => "El inspector ha sido $msg."); // Devolver mensaje de éxito
     }
 
-    // // Método para verificar si el nombre del inspector está en uso
-    private function curpInUse($curp)
+    public function updateInspectorSubStage()
     {
-        $person = '';
-        $sql = 'SELECT txtcurp FROM persona.tbl_persona WHERE txtcurp=:curp'; // Consulta para verificar curp de inspector
-        $params = array('curp' => $curp); // Parámetros para la consulta
-        $person = Db::fetchColumn($sql, $params);
-        return $person;  // Devolver resultado de la consulta
-    }
+        $this->hasClientAuthorized('edii'); // Verificar si el cliente tiene autorización
+        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        // self::dep($data);
+        // exit;
+        $this->validRequiredData($data, 'updateInspectorSubStage'); // Validar datos requeridos
+        Db::begin(); // Iniciar transacción en la base de datos
 
+        // Actualización de inspector
+        $sql = 'UPDATE inspeccion.tbl_inspector SET 
+                iidetapa=:iidetapa,
+                iidsubetapa=:iidsubetapa,
+                dtfecha_modificacion=:dtfecha_modificacion
+            WHERE iidinspector=:iidinspector
+        ';
+        $params = array(
+            'iidetapa' => $data->iidetapa,
+            'iidsubetapa' => $data->iidsubetapa,
+            'dtfecha_modificacion' => date('Y-m-d H:i:s'), // Formato de fecha correcto
+            'iidinspector'      => $data->iidinspector,
+        ); // Parámetros para la actualización de una sub etapa
+
+        Db::execute($sql, $params); // Ejecutar actualización del inspector en la base de datos
+        Db::commit(); // Confirmar transacción en la base de datos
+
+        return array('success' => true, 'message' => 'La sub etapa ha sido actualizada.'); // Devolver mensaje de éxito
+    }
     // // Método para insertar datos en la base de datos
     private function insert($table, $params)
     {
@@ -630,10 +672,29 @@ class InspectorsController extends BaseController
     }
 
     // // Método para validar datos requeridos
-    private function validRequiredData($data)
+    private function validRequiredData($data, $from)
     {
-        $requiredKeys = array('iidpersona', 'iidturno', 'iidetapa', 'iidinspector_categoria'); // Claves requeridas
+        switch ($from) {
+            case 'createInspector':
+            case 'updateInspector':
+                $requiredKeys = array('iidpersona', 'iidturno', 'iidetapa', 'iidinspector_categoria'); // Claves requeridas
+                break;
+            case 'updateInspectorSubStage':
+                $requiredKeys = array('iidinspector', 'iidetapa', 'iidsubetapa'); // Claves requeridas
+                break;
+            case 'insertInspectorTrace':
+                $requiredKeys = array('iidinspector', 'iidetapa_anterior', 'iidsubetapa_anterior', 'iidetapa_actual', 'iidsubetapa_actual'); // Claves requeridas
+                break;
+            default:
+                $message = "Falta de información.";
+                throw new ValidatorBoomException(422, $message);
+                break;
+        }
+
+        // $requiredKeys = array('iidpersona', 'iidturno', 'iidetapa', 'iidinspector_categoria'); // Claves requeridas
         $actualKeys = array_keys(get_object_vars($data)); // Claves presentes en los datos
+        // self::dep($from);
+        // self::dep($actualKeys);exit;
         $missingKeys = array_diff($requiredKeys, $actualKeys); // Claves faltantes
         $message = 'Faltan valores requeridos.';
 
@@ -643,9 +704,15 @@ class InspectorsController extends BaseController
             if (!in_array($key, $requiredKeys)) continue;
             // Validar tipos de valores según la clave
             switch ($key) {
+                case 'iidinspector':
                 case 'iidpersona':
                 case 'iidturno':
                 case 'iidetapa':
+                case 'iidsubetapa':
+                case 'iidetapa_anterior':
+                case 'iidsubetapa_anterior':
+                case 'iidetapa_actual':
+                case 'iidsubetapa_actual':
                 case 'iidinspector_categoria':
                     $message = "Tipo de valor incorrectos en $key.";
                     if (!is_int($value)) throw new ValidatorBoomException(422, $message);

@@ -167,9 +167,15 @@ export default class InspectionsService extends ApiService {
   }
   
   async getServiceVindenUrlDebitaciones() {
-    console.log('***********************llegando***********************')
     return await this.get("/inspectors/getServiceVindenUrlDebitaciones");
   }
-  
+
+  async updateInspectorSubStage(data) {
+    return await this.put("/inspectors/updateInspectorSubStage", JSON.stringify(data));
+  }
+
+  async insertInspectorTrace(data) {
+    return await this.post("/inspectors/insertInspectorTrace", JSON.stringify(data));
+  }
   
 }

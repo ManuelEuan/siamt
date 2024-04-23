@@ -2,7 +2,7 @@
     <v-container fluid>
         <v-row justify="center">
             <v-col cols="12" class="pa-0">
-                {{createMode}}
+                {{ createMode }}
                 <v-card flat>
                     <v-toolbar>
                         <v-toolbar-title>{{ createMode ? "Nuevo" : "Editar" }} Inspector</v-toolbar-title>
@@ -29,8 +29,8 @@
                                 <v-form v-model="validationFieldsInspector">
                                     <!-- :receivedCurp="persona.txtcurp" -->
 
-                                    <v-text-field v-model="inspector.iidpersona" label="Registrar Inspector con ID*"
-                                        hide-details="auto" clearable dense outlined />
+                                    <!-- <v-text-field v-model="inspector.iidpersona" label="Registrar Inspector con ID*"
+                                        hide-details="auto" clearable dense outlined /> -->
 
                                     <v-row v-if="!createMode">
                                         <v-col cols="12" md="4">
@@ -47,7 +47,7 @@
                                         </v-col>
                                         <v-col cols="12" md="4">
                                             <v-btn color="primary" text @click=showDialogPerson()>Información
-                                                Completa2</v-btn>
+                                                Completa</v-btn>
                                         </v-col>
                                     </v-row>
                                     <v-row v-if="personaEncontrada && personaDisponible || !createMode">
@@ -86,8 +86,9 @@
                                                 label="Fecha de baja" type="date" :mask="'####/##/##'"></v-text-field>
                                         </v-col>
 
-                                        <generic-process-flow v-if="!createMode" class="col-md-12" :iidsubStage=inspector.iidsubetapa
-                                            :finalizeProcess=finalizeProcess @process-flow="handleProcessFlow"
+                                        <generic-process-flow v-if="!createMode" class="col-md-12"
+                                            :iidsubStage=inspector.iidsubetapa :finalizeProcess=finalizeProcess :request=request
+                                            @process-flow="handleProcessFlow"
                                             @update:dialogVisible="dialogRegisterPerson = $event"
                                             @confirm="dialogConfirmationNextSubStage = true"></generic-process-flow>
 
@@ -119,13 +120,14 @@
             </template>
         </generic-dialog>
 
-          <!-- DIALOG CONFIRMATION NEXT SUB STAGE -->
-          <generic-dialog :dialogVisible="dialogConfirmationNextSubStage" dialogTitle="Confirmar cambio a sub etapa siguiente"
-          @update:dialogVisible="dialogConfirmationNextSubStage = $event" @confirm="getNextSubStage()">
-          <template v-slot:default>
+        <!-- DIALOG CONFIRMATION NEXT SUB STAGE -->
+        <generic-dialog :dialogVisible="dialogConfirmationNextSubStage"
+            dialogTitle="Confirmar cambio a sub etapa siguiente"
+            @update:dialogVisible="dialogConfirmationNextSubStage = $event" @confirm="getNextSubStage()">
+            <template v-slot:default>
                 ¿Desea realizar el cambio de sub etapa?. Este cambio no es reversible.
-          </template>
-      </generic-dialog>
+            </template>
+        </generic-dialog>
     </v-container>
 </template>
 
@@ -154,7 +156,7 @@ export default {
             genera_boleta: false,
 
             // WATCHERS FUNCIONALIDAD
-            
+
             // VIENEN DE SERVICIOS
             shifts: [],
             categories: [],
@@ -195,7 +197,7 @@ export default {
             rules: {
                 ...rules,
             },
-            
+
             // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW
             SubStage: {
                 info: [],
@@ -256,6 +258,10 @@ export default {
             try {
                 const { id } = this.$route.params;
                 this.inspector = { ...await services.inspections().getInspectorInfo({ id }) };
+                this.request = {
+                    type: 'Inspector',
+                    idOfSearch: this.inspector.iidinspector,
+                }
             } catch (error) {
                 const message = 'Error al cargar información de inspector.';
                 this.showError({ message, error });
@@ -310,7 +316,7 @@ export default {
             this.personaEncontrada = personFound
             this.personaDisponible = availablePerson
             this.persona = person
-            if (this.personaDisponible ||  this.personaEncontrada && person.iidpersona!=0) {
+            if (this.personaDisponible || this.personaEncontrada && person.iidpersona != 0) {
                 this.inspector.iidpersona = this.persona.iidpersona
             } else {
                 this.inspector.iidpersona = 0
@@ -322,26 +328,62 @@ export default {
         handleProcessFlow(foundSubStage, infoSubStage, processSubStage, hasFlowAfter) {
             console.log('Retornando desde GENERIC PROCESS FLOW ')
             if (foundSubStage) {
-                this.SubStage.info = infoSubStage
-                this.SubStage.process = processSubStage
-                this.SubStage.hasFlowAfter = hasFlowAfter
+                this.SubStage = {
+                    info: infoSubStage,
+                    process: processSubStage,
+                    hasFlowAfter: hasFlowAfter,
+                }
+                console.log(this.SubStage)
             } else {
                 alert('No se encontró registro de la sub etapa')
             }
         },
         // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW (CLICK EN BUTTON)
-        getNextSubStage() {
-            console.log('****************this.SubStage*****************')
-            console.log(this.SubStage)
-            this.inspector.iidsubetapa = this.SubStage.info.iidsubetapa_siguiente
-            if (!this.SubStage.hasFlowAfter) {
-                // Si no existe una sub etapa que tenga flujo posterior significa que será el ultimo cambio posible del proceso
-                this.finalizeProcess = true
+        async getNextSubStage() {
+            try {
+                console.log('****************this.SubStage*****************')
+                console.log(this.SubStage)
+                let dataNextSubStage = {
+                    "iidinspector": this.inspector.iidinspector,
+                    "iidetapa": this.SubStage.info.iidetapa_subetapa_siguiente,
+                    "iidsubetapa": this.SubStage.info.iidsubetapa_siguiente,
+                }
+                let dataTrace = {
+                    "iidinspector": this.inspector.iidinspector,
+                    "iidetapa_anterior": this.SubStage.info.iidetapa_subetapa_actual,
+                    "iidsubetapa_anterior": this.SubStage.info.iidsubetapa_actual,
+                    "iidetapa_actual": this.SubStage.info.iidetapa_subetapa_siguiente,
+                    "iidsubetapa_actual": this.SubStage.info.iidsubetapa_siguiente,
+                }
+
+                let updateInspectorSubStage = await services.inspections().updateInspectorSubStage( dataNextSubStage );
+                console.log('updateInspectorSubStage')
+                console.log(updateInspectorSubStage)
+                console.log(dataNextSubStage)
+                let insertInspectorTrace = await services.inspections().insertInspectorTrace({ dataTrace });
+                console.log('insertInspectorTrace')
+                console.log(insertInspectorTrace)
+                console.log(dataTrace)
+
+                if (updateInspectorSubStage.success && insertInspectorTrace.success) {
+                    this.inspector.iidsubetapa = this.SubStage.info.iidsubetapa_siguiente
+                    let message = 'Etapa actualizada'
+                    this.showSuccess(message);
+                }
+                if (!this.SubStage.hasFlowAfter) {
+                    // Si no existe una sub etapa que tenga flujo posterior significa que será el ultimo cambio posible del proceso
+                    this.finalizeProcess = true
+                }
+                
+            } catch (error) {
+                const message = 'Error al guardar inspector.';
+                this.showError({ message, error });
             }
+
         }
     },
-    watch:{
-        
+    watch: {
+
     },
     async mounted() {
         await this.getAllCategoriesInspector()
