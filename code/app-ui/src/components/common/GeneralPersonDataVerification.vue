@@ -3,7 +3,8 @@
         <v-card-text>
             <!-- CAMPOS DE EVENTOS -->
             <div class="row d-flex justify-space-around align-center mx-auto" v-if="!preLoadPerson.txtvariable">
-                <p class="col-md-6 my-0">Información de persona {{ newRegisterPerson }} -- {{ newGeneralPersonData }} -- {{editGeneralPersonData}}</p>
+                <p class="col-md-6 my-0">Información de persona {{ newRegisterPerson }} -- {{ newGeneralPersonData }} --
+                    {{ editGeneralPersonData }}</p>
                 <v-col cols="12" md="6">
                     <v-btn depressed color="primary" :disabled="!generalPersonDataValidation" @click="updatePerson()">
                         Actualizar datos generales
@@ -34,7 +35,6 @@
                         <v-text-field v-model="generalPersonData.txtapemat" label="Apellido materno" hide-details="auto"
                             clearable dense outlined />
                     </v-col>
-
                     <v-col cols="12" md="6">
                         <v-text-field v-model="generalPersonData.dfecha_nacimiento" clearable dense outlined
                             label="Fecha de nacimiento*" type="date" :max="getDate" :mask="'####/##/##'"
@@ -45,24 +45,20 @@
                             outlined maxlength="13" :rules="[rfcValido]"
                             :disabled="newRegisterPerson || !generalPersonData.bfisica" />
                     </v-col>
-
                     <v-col cols="12" md="6">
                         <v-text-field v-model="generalPersonData.txtcurp" label="CURP" :rules="[curpValido]"
                             maxlength="18" hide-details="auto" clearable dense outlined
                             :disabled="newRegisterPerson || generalPersonData.bfisica" />
                     </v-col>
-
                     <v-col cols="12" md="6">
                         <v-text-field v-model="generalPersonData.txtine" label="INE" hide-details="auto" clearable dense
                             outlined maxlength="19" />
                     </v-col>
-
                     <v-col cols="12" md="6">
                         <v-select v-model="generalPersonData.iidestado_civil" label="Estado civil" :items="civilStatus"
                             item-text="txtnombre" item-value="iidestado_civil" hide-details="auto" small-chips clearable
                             dense outlined />
                     </v-col>
-
                     <v-col cols="12" md="6">
                         <v-select v-model="generalPersonData.iidsexo" label="Género" :items="sexes"
                             item-text="txtnombre" item-value="iidsexo" hide-details="auto" small-chips clearable dense
@@ -203,10 +199,16 @@ export default {
                     console.log(this.iidpersona)
                     this.generalPersonData = await services.inspections().getGeneralPersonData(this.iidpersona);
                     console.log('this.persona getGeneralPersonData GENRAL')
-                console.log(this.generalPersonData)
+                    console.log(this.generalPersonData)
                     console.log(this.generalPersonData)
                 } else {
                     this.resetGeneralPersonData()
+                    this.generalPersonData.bfisica = this.preLoadPerson.bfisica
+                    if (this.preLoadPerson.bfisica) {
+                        this.generalPersonData.txtcurp = this.preLoadPerson.txtvariable
+                    } else {
+                        this.generalPersonData.txtrfc = this.preLoadPerson.txtvariable
+                    }
                 }
             } catch (error) {
                 const message = 'Error al cargar los datos generales de la persona.';
@@ -248,19 +250,19 @@ export default {
         },
 
         // WATCHERS DATA
-        'newRegisterPerson': function () {
-            console.log('watch newRegisterPerson')
-            if (this.newRegisterPerson) {
-                this.resetGeneralPersonData()
-                this.newPhone = true
-            }
-        },
-        'newGeneralPersonData': function () {
-            console.log('watch newGeneralPersonData')
-            if (this.newGeneralPersonData) {
-                this.resetGeneralPersonData()
-            }
-        },
+        // 'newRegisterPerson': function () {
+        //     console.log('watch newRegisterPerson')
+        //     if (this.newRegisterPerson) {
+        //         this.resetGeneralPersonData()
+        //         this.newPhone = true
+        //     }
+        // },
+        // 'newGeneralPersonData': function () {
+        //     console.log('watch newGeneralPersonData')
+        //     if (this.newGeneralPersonData) {
+        //         this.resetGeneralPersonData()
+        //     }
+        // },
         'generalPersonDataValidation': function () {
             console.log('watch generalPersonDataValidation')
             this.emitToParentComponent()
@@ -276,31 +278,31 @@ export default {
             }
             console.log(this.generalPersonData)
         },
-        'generalPersonData.bfisica': function () {
-            if (this.generalPersonData.bfisica) {
-                const curpRules = this.rules.curp;
-                if (curpRules) {
-                    this.curpValido = curpRules(this.generalPersonData.txtcurp) === true;
-                }
-            }
-        },
-        'generalPersonData.txtcurp': function () {
-            if (this.generalPersonData.bfisica){
-                const curpRules = this.rules.curp;
-                this.personaEncontrada = false
-                if (curpRules) {
-                    this.curpValida = curpRules(this.curp) === true;
-                }
-            }
-        },
-        'generalPersonData.txtrfc': function () {
-            if (!this.generalPersonData.bfisica){
-                const rfcRules = this.rules.rfc;
-                if (rfcRules) {
-                    this.rfcValida = rfcRules(this.rfc) === true;
-                }
-            }
-        },
+        // 'generalPersonData.bfisica': function () {
+        //     if (this.generalPersonData.bfisica) {
+        //         const curpRules = this.rules.curp;
+        //         if (curpRules) {
+        //             this.curpValido = curpRules(this.generalPersonData.txtcurp) === true;
+        //         }
+        //     }
+        // },
+        // 'generalPersonData.txtcurp': function () {
+        //     if (this.generalPersonData.bfisica){
+        //         const curpRules = this.rules.curp;
+        //         this.personaEncontrada = false
+        //         if (curpRules) {
+        //             this.curpValida = curpRules(this.curp) === true;
+        //         }
+        //     }
+        // },
+        // 'generalPersonData.txtrfc': function () {
+        //     if (!this.generalPersonData.bfisica){
+        //         const rfcRules = this.rules.rfc;
+        //         if (rfcRules) {
+        //             this.rfcValida = rfcRules(this.rfc) === true;
+        //         }
+        //     }
+        // },
 
     },
     async mounted() {

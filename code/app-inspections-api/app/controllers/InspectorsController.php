@@ -74,6 +74,12 @@ class InspectorsController extends BaseController
                             i.dfecha_alta,
                             i.dfecha_baja,
                             i.bactivo as activo,
+                            CASE 
+                                WHEN p.txtapemat != '' THEN 
+                                    CONCAT(p.txtnombre, ' ', p.txtapepat, ' ', p.txtapemat)
+                                ELSE 
+                                    CONCAT(p.txtnombre, ' ', p.txtapepat) 
+                            END AS txtnombre_completo,
                             TO_CHAR(i.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
                             TO_CHAR(i.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
                         FROM inspeccion.tbl_inspector i
@@ -456,21 +462,12 @@ class InspectorsController extends BaseController
             SELECT
                 i.iidinspector,
                 i.iidpersona,
+                i.iidturno,
                 i.iidetapa,
                 i.iidsubetapa,
-                ca.txtnombre as txtinspector_etapa,
                 i.txtfolio_inspector,
-                i.iidturno,
                 i.txtcomentarios,
-                it.txtnombre as txtinspector_turno,
-                p.txtnombre,
-                p.txtapepat,
-                p.txtapemat,
-                p.txtrfc,
-                p.txtcurp,
-                p.txtine,
                 i.iidinspector_categoria,
-                ic.txtnombre as txtinspector_categoria,
                 i.dvigencia,
                 i.dfecha_alta,
                 i.dfecha_baja,
@@ -478,12 +475,40 @@ class InspectorsController extends BaseController
                 TO_CHAR(i.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
                 TO_CHAR(i.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
             FROM inspeccion.tbl_inspector i
-            JOIN persona.tbl_persona p ON i.iidpersona = p.iidpersona
-            JOIN inspeccion.cat_turno it ON it.iidturno = i.iidturno
-            JOIN comun.cat_etapa ca ON ca.iidetapa = i.iidetapa
-            JOIN inspeccion.cat_inspector_categoria ic ON ic.iidinspector_categoria = i.iidinspector_categoria
             WHERE iidinspector=:id
         ";
+        // $sql = "
+        //     SELECT
+        //         i.iidinspector,
+        //         i.iidpersona,
+        //         i.iidetapa,
+        //         i.iidsubetapa,
+        //         ca.txtnombre as txtinspector_etapa,
+        //         i.txtfolio_inspector,
+        //         i.iidturno,
+        //         i.txtcomentarios,
+        //         it.txtnombre as txtinspector_turno,
+        //         p.txtnombre,
+        //         p.txtapepat,
+        //         p.txtapemat,
+        //         p.txtrfc,
+        //         p.txtcurp,
+        //         p.txtine,
+        //         i.iidinspector_categoria,
+        //         ic.txtnombre as txtinspector_categoria,
+        //         i.dvigencia,
+        //         i.dfecha_alta,
+        //         i.dfecha_baja,
+        //         i.bactivo as activo,
+        //         TO_CHAR(i.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
+        //         TO_CHAR(i.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
+        //     FROM inspeccion.tbl_inspector i
+        //     JOIN persona.tbl_persona p ON i.iidpersona = p.iidpersona
+        //     JOIN inspeccion.cat_turno it ON it.iidturno = i.iidturno
+        //     JOIN comun.cat_etapa ca ON ca.iidetapa = i.iidetapa
+        //     JOIN inspeccion.cat_inspector_categoria ic ON ic.iidinspector_categoria = i.iidinspector_categoria
+        //     WHERE iidinspector=:id
+        // ";
         $inspector = Db::fetchOne($sql, $params);
         return $inspector; // Devolver información del inspector
     }
@@ -510,7 +535,18 @@ class InspectorsController extends BaseController
             'txtcomentarios' => $data->txtcomentarios,
         );
 
-        $this->insert('tbl_inspector', $params);
+        $iidinspector = $this->insert('tbl_inspector', $params, true);
+        // $this->dep('LLEGUE A INSERT');
+        // $this->dep($iidinspector);exit;
+        $params = array(
+            'iidinspector' => $iidinspector,
+            'iidetapa_anterior' => 1,
+            'iidsubetapa_anterior' => 1,
+            'iidetapa_actual' => 1,
+            'iidsubetapa_actual' => 1,
+        );
+
+        $this->insert('tbl_inspector_seguimiento', $params);
 
         Db::commit(); // Confirmar transacción en la base de datos
         return array('message' => 'El inspector ha sido creado.'); // Devolver mensaje de éxito
@@ -590,7 +626,7 @@ class InspectorsController extends BaseController
         $cols = implode(', ', array_keys($params)); // Obtener nombres de columnas
         $phs = ':' . str_replace(', ', ', :', $cols); // Obtener marcadores de posición para los valores
         $sql = "INSERT INTO inspeccion.$table ($cols) VALUES ($phs)"; // Consulta de inserción
-        Db::execute($sql, $params); // Ejecutar inserción en la base de datos
+        return Db::execute($sql, $params); // Ejecutar inserción en la base de datos
     }
 
     // // Método para validar datos requeridos

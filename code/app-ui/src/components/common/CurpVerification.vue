@@ -68,17 +68,17 @@
         <generic-dialog :dialogVisible="dialogRegisterPerson" dialogTitle="No se han encontrado registros en el sistema"
             :showButtons=false @update:dialogVisible="dialogRegisterPerson = $event" @confirm="showDialogPerson(0)">
             <template v-slot:default>
+                <!-- <div> -->
                 <div v-if="search === 'NOMBRE'">
-                    Para poder registrar a la persona es necesario proporcionar el tipo de persona y sus datos
+                    En caso de requerir el registro de la persona es necesario proporcionar el tipo de persona y sus datos
                     requeridos
                     <p class="col-md-2 my-0 mx-0 px-0 py-0">Tipo de persona</p>
-                    {{ typePersonFisica }}
-                    {{ curpRegisterFieldValido }}
-                    {{ rfcRegisterFieldValido }}
                     <v-radio-group cols="12" md="4" v-model="typePersonFisica" mandatory row>
                         <v-radio color="success" label="Física" :value="true" style="max-width:80px"></v-radio>
                         <v-radio color="success" label="Moral" :value="false" style="max-width:80px"></v-radio>
                     </v-radio-group>
+                    curp: {{ curp }}
+                    rfc: {{ rfc }}
                     <v-text-field v-if="typePersonFisica" v-model="curpRegisterField" label="CURP*"
                         style="max-height: 40px;" :rules="[rules.curp]" maxlength="18" hide-details="auto" clearable
                         dense @input="toUpperCase" outlined />
@@ -94,6 +94,10 @@
                 </div>
                 <div v-else class="mb-3">
                     ¿Desea registrarlo?
+                    curpRegisterField: {{ curpRegisterField }}
+                    rfcRegisterField: {{ rfcRegisterField }}
+                    curp: {{ curp }}
+                    rfc: {{ rfc }}
                     <v-card-actions class="justify-end" style="margin-bottom: -2.5rem;">
                         <v-btn color="error" text @click="dialogRegisterPerson = false">Cancelar</v-btn>
                         <v-btn color="primary" text @click="showDialogPerson(0)">Aceptar</v-btn>
@@ -128,7 +132,7 @@
             dialogTitle="Se han encontrado varios registros asociados a la búsqueda"
             @update:dialogVisible="dialogPeopleFounds = $event">
             <template v-slot:default>
-                Favor de seleccionar uno
+                Favor de seleccionar un registro
                 <v-row>
                     <v-col cols="12" md="12">
                         <v-simple-table>
@@ -310,41 +314,34 @@ export default {
         },
 
         showDialogPerson(iidpersona) {
-            console.log('se mostrará el dialogs persona 1')
-            console.log('iidpersona es: ' + iidpersona)
             this.dialogRegisterPerson = false
             if (iidpersona == 0) {
                 localStorage.setItem('newPerson', true);
                 this.curp = this.curpRegisterField != '' ? this.curpRegisterField : this.curp;
                 this.rfc = this.rfcRegisterField != '' ? this.rfcRegisterField : this.rfc;
                 this.personId = iidpersona
+                // console.log('*************typePersonFisica*************')
+                // console.log(this.typePersonFisica)
+                // console.log('*************persona*************')
+                // console.log(this.persona)
                 if (this.search == "CURP" || this.typePersonFisica) {
                     this.preLoadPerson = {
                         bfisica: true,
                         txtvariable: this.curp
                     }
-                } else {
+                } else if(this.search == "RFC" ){
                     this.preLoadPerson = {
                         bfisica: false,
                         txtvariable: this.rfc
                     }
                 }
-                console.log('preLoadPerson')
-                console.log(this.preLoadPerson)
-                console.log('*3*')
-
                 this.activateModalPerson = true
-
-                // this.verifyCurp(true)
             } else {
                 localStorage.setItem('newPerson', false);
-                console.log('****iidpersona****')
-                console.log(iidpersona) 
-                console.log('****iidpersona****')
-                console.log(this.personId)
-
+                // console.log('****iidpersona****')
+                console.log('idipersona: ' + iidpersona) 
+                this.personId = iidpersona
                 this.activateModalPerson = true
-                // this.personId = iidpersona
             }
 
 
@@ -368,8 +365,8 @@ export default {
                     }
                 }
 
-                console.log('*************typeOfSearch*************')
-                console.log(this.search)
+                // console.log('*************typeOfSearch*************')
+                // console.log(this.search)
                 if (this.search === 'NOMBRE') {
                     console.log('seleccionó nombre')
                     data = {
@@ -380,6 +377,7 @@ export default {
                 }
                 if (this.search === 'CURP') {
                     console.log('seleccionó curp')
+                    this.typePersonFisica = true
                     data = {
                         typeSearch: this.search,
                         dataSearch: this.curp,
@@ -388,25 +386,22 @@ export default {
                 }
                 if (this.search === 'RFC') {
                     console.log('seleccionó rfc')
+                    this.typePersonFisica = false
                     data = {
                         typeSearch: this.search,
                         dataSearch: this.rfc,
                         typeOfRequest: this.typeOfRequest
                     }
                 }
-
-                console.log('*************typeOfRequest*************')
-                console.log(this.typeOfRequest)
-
-                console.log('*************data*************')
-                console.log(data)
-
-                console.log('*************fromDialogRegister*************')
-                console.log(fromDialogRegister)
-
+                // console.log('*************typeOfRequest*************')
+                // console.log(this.typeOfRequest)
+                // console.log('*************data*************')
+                // console.log(data)
+                // console.log('*************fromDialogRegister*************')
+                // console.log(fromDialogRegister)
                 response = await services.inspections().getPersonByDinamycSearch({ data });
-                console.log('*************response by dinamyc search*************')
-                console.log(response)
+                // console.log('*************response by dinamyc search*************')
+                // console.log(response)
 
                 // SI NO EXISTE SE AGREGA LA PERSONA
                 if (!response || !response[0]) {
@@ -457,7 +452,6 @@ export default {
 
 
                     console.log(this.persona)
-                    console.log(this.persona)
                     
                     if (this.typeOfRequest) {
                         if (this.persona.foundRequestSearched === true) {  // Si la persona buscada es econtrada significa que no esta disponible
@@ -485,15 +479,8 @@ export default {
         },
         peopleSelected(persona) {
             this.persona = persona
-            // if (this.persona.foundRequestSearched === true) {  // Si la persona buscada es econtrada significa que no esta disponible
-            //     this.personaDisponible = false
-            //     if (this.typeOfRequest == 'Inspector') {
-            //         this.routeTypeOfRequest = `/inspectors/${response.iidOfSearchedRequest}/edit`;
-            //     }
-            // }
-            console.log('2')
-            console.log('Persona encontrada: ' + this.personaEncontrada)
-            console.log('Persona disponible: ' + this.personaDisponible)
+            this.personaEncontrada = true
+            this.personaDisponible = true
             this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona);
             this.dialogPeopleFounds = false
         },
@@ -507,24 +494,9 @@ export default {
             console.log('retorno desde el modal create person')
             if (closeModal) {
                 this.activateModalPerson = false
-                // if(personAllData.bfisica){
-                //     this.preLoadPerson = {
-                //         bfisica: personAllData.bfisica,
-                //         txtvariable: personAllData.txtcurp
-                //     }
-                // }else{
-                //     this.preLoadPerson = {
-                //         bfisica: personAllData.bfisica,
-                //         txtvariable: personAllData.txtrfc
-                //     }
-                // }
-                console.log('ANTESSS')
-                console.log(personAllData)
-                // this.persona = personAllData
-                // console.log(this.personaEncontrada, this.personaDisponible, this.persona)
-                console.log('3')
-                console.log('Persona encontrada: ' + this.personaEncontrada)
-                console.log('Persona disponible: ' + this.personaDisponible)
+                if(personAllData.iidpersona!=0){
+                    this.personaEncontrada = true
+                }
                 this.$emit('person-info', this.personaEncontrada, this.personaDisponible, personAllData)
             }
         },
@@ -543,18 +515,11 @@ export default {
     watch: {
         // WATCHERS PROPS
         'iidpersona': function () {
-            console.log('cambio del this.iidpersona del CURP VERIFICATION')
-            console.log(this.iidpersona)
+            console.log('change iidpersona componente CurpVerification')
             this.personId = this.iidpersona
-            console.log(this.persona)
-
         },
         'activateDialogPerson': function () {
-            console.log('*activnding*')
-
             if (this.activateDialogPerson) {
-                console.log('*2*')
-
                 this.activateModalPerson = true
             }
         },
@@ -570,7 +535,6 @@ export default {
                     this.search = 'RFC'
                     this.rfc = this.requestInfoComplete.dataSearch
                 }
-                console.log('cambio en this.requestInfoComplete')
                 this.verifyCurp(false, true)
             }
         },

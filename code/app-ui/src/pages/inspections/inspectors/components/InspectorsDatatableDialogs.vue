@@ -16,7 +16,7 @@
                           {{ headers[key] ?? key }}
                           <!-- {{ value !== null }} -->
                         </v-list-item-title>
-                        <v-list-item-subtitle class="text-lowercase text-body-1">
+                        <v-list-item-subtitle class="text-body-1">
                           {{ typeof value === 'boolean' ? '' : value }}
                           <v-icon v-show="value === true" size="medium" color="green"> mdi-check </v-icon>
                           <v-icon v-show="value === false" size="medium" color="red">mdi-close</v-icon>

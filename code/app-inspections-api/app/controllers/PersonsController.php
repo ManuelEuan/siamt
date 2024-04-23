@@ -103,7 +103,7 @@ class PersonsController extends BaseController
                 $where = ' WHERE p.txtrfc=:dataSearch';
                 break;
         }
-
+        $where = $where . " AND p.bactivo='t'";
         $sqlComplete = $sql . $where;
 
         $params = array('dataSearch' => $dataSearch);
@@ -480,39 +480,44 @@ class PersonsController extends BaseController
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         $this->validRequiredData($data, 'person'); // Validar datos requeridos
         Db::begin(); // Iniciar transacción en la base de datos
-
+        // $this->dep(gettype($data->txtapepat));exit;
         // Actualización de persona
         $sql = 'UPDATE persona.tbl_persona SET 
                     bfisica=:bfisica,
                     txtnombre=:txtnombre,
+                    txtapepat=:txtapepat,
                     txtapemat=:txtapemat,
                     dfecha_nacimiento=:dfecha_nacimiento,
                     iidestado_nacimiento=:iidestado_nacimiento,
-                    -- txtrfc=:txtrfc,
-                    -- txtcurp=:txtcurp,
+                    txtrfc=:txtrfc,
+                    txtcurp=:txtcurp,
                     txtine=:txtine,
                     iidestado_civil=:iidestado_civil,
                     iidsexo=:iidsexo,
                     txtcorreo=:txtcorreo,
-                    bactivo=:bactivo,
+                    -- bactivo=:bactivo,
                     dtfecha_modificacion=:dtfecha_modificacion
                 WHERE iidpersona=:iidpersona
             ';
         $params = array(
             'bfisica'  => $data->bfisica,
             'txtnombre' => $data->txtnombre,
+            'txtapepat' => $data->txtapepat,
             'txtapemat' => $data->txtapemat,
             'dfecha_nacimiento' => $data->dfecha_nacimiento,
             'iidestado_nacimiento' => $data->iidestado_nacimiento,
+            'txtrfc' => $data->txtrfc,
+            'txtcurp' => $data->txtcurp,
             'txtine' => $data->txtine,
             'iidestado_civil' => $data->iidestado_civil,
             'iidsexo' => $data->iidsexo,
             'txtcorreo' => $data->txtcorreo,
-            'bactivo' => $data->activo ? 't' : 'f',
+            // 'bactivo' => $data->activo ? 't' : 'f',
             'dtfecha_modificacion' => date('Y-m-d H:i:s'), // Formato de fecha correcto
             'iidpersona'      => $data->iidpersona,
         ); // Parámetros para la actualización de la persona
-        // $this->dep($data);exit;
+        // $this->dep($params);
+        // $this->dep($sql);exit;
 
         Db::execute($sql, $params); // Ejecutar actualización de la persona en la base de datos
         Db::commit(); // Confirmar transacción en la base de datos

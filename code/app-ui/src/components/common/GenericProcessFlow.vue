@@ -12,8 +12,7 @@
                     {{ currentSubStage.nombre_subetapa_actual }}
                     <span
                         v-if="currentSubStage.iidetapa_subetapa_actual != currentSubStage.iidetapa_subetapa_siguiente">
-                        <i aria-hidden="true" class="v-icon notranslate mdi mdi-alert theme--light"></i> Pasára a la
-                        siguiente etapa
+                        <i style="color: orange;" aria-hidden="true" class="v-icon notranslate mdi mdi-alert theme--light"></i> Pasára a la siguiente etapa
                     </span>
                 </v-stepper-step>
 

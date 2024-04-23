@@ -88,7 +88,7 @@ export default {
         inspectors: [],
         page: 1,
         itemsPerPage: 10,
-        sortBy: ['txtnombre'],//nombre
+        sortBy: ['txtnombre_completo'],//nombre
         sortDesc: [false],
         multiSort: true,
         mustSort: false,
@@ -97,7 +97,7 @@ export default {
       headers: [
         {
           text: "Nombre",
-          value: "txtnombre",
+          value: "txtnombre_completo",
           align: "center",
           class: "font-weight-bold",
         },

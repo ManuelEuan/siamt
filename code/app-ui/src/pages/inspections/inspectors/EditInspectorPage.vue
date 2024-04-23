@@ -2,6 +2,7 @@
     <v-container fluid>
         <v-row justify="center">
             <v-col cols="12" class="pa-0">
+                {{createMode}}
                 <v-card flat>
                     <v-toolbar>
                         <v-toolbar-title>{{ createMode ? "Nuevo" : "Editar" }} Inspector</v-toolbar-title>
@@ -21,15 +22,15 @@
                     <v-card flat>
                         <v-tab-item :key="1" value="generaltab" class="py-1">
                             <v-card-text>
+                                <curp-verification :style="{ display: createMode ? 'block' : 'none !important' }"
+                                    :typeOfRequest="'Inspector'" :iidpersona=inspector.iidpersona
+                                    :activateDialogPerson=activateModalPerson @person-info="handlePersonInfo"
+                                    ref="curpVerification"></curp-verification>
                                 <v-form v-model="validationFieldsInspector">
                                     <!-- :receivedCurp="persona.txtcurp" -->
-                                    <curp-verification :style="{ display: createMode ? 'block' : 'none !important' }"
-                                        :typeOfRequest="'Inspector'" :iidpersona=inspector.iidpersona
-                                        :activateDialogPerson=activateModalPerson @person-info="handlePersonInfo"
-                                        ref="curpVerification"></curp-verification>
 
                                     <v-text-field v-model="inspector.iidpersona" label="Registrar Inspector con ID*"
-                                            hide-details="auto" clearable dense outlined />
+                                        hide-details="auto" clearable dense outlined />
 
                                     <v-row v-if="!createMode">
                                         <v-col cols="12" md="4">
@@ -45,7 +46,8 @@
                                                 clearable dense :disabled="!createMode" outlined />
                                         </v-col>
                                         <v-col cols="12" md="4">
-                                            <v-btn color="primary" text @click=showDialogPerson()>Información Completa2</v-btn>
+                                            <v-btn color="primary" text @click=showDialogPerson()>Información
+                                                Completa2</v-btn>
                                         </v-col>
                                     </v-row>
                                     <v-row v-if="personaEncontrada && personaDisponible || !createMode">
@@ -56,7 +58,7 @@
                                                 outlined />
                                         </v-col>
                                         <v-col cols="12" md="6">
-                                            <v-text-field v-model="inspector.txtfolio_inspector" label="Folio*"
+                                            <v-text-field v-model="inspector.txtfolio_inspector" label="Folio"
                                                 hide-details="auto" clearable dense outlined />
                                         </v-col>
 
@@ -70,7 +72,7 @@
 
                                         <v-col cols="12" md="6" v-if="genera_boleta">
                                             <v-text-field v-model="inspector.dvigencia" clearable dense outlined
-                                                label="Vigencia" type="date" :min="getDate" :rules="[rules.required]"
+                                                label="Vigencia*" type="date" :min="getDate" :rules="[rules.required]"
                                                 :mask="'####/##/##'"></v-text-field>
                                         </v-col>
 
@@ -84,26 +86,24 @@
                                                 label="Fecha de baja" type="date" :mask="'####/##/##'"></v-text-field>
                                         </v-col>
 
-                                        <generic-process-flow class="col-md-12" :iidsubStage=inspector.iidsubetapa
+                                        <generic-process-flow v-if="!createMode" class="col-md-12" :iidsubStage=inspector.iidsubetapa
                                             :finalizeProcess=finalizeProcess @process-flow="handleProcessFlow"
                                             @update:dialogVisible="dialogRegisterPerson = $event"
-                                            @confirm="getNextSubStage()"></generic-process-flow>
+                                            @confirm="dialogConfirmationNextSubStage = true"></generic-process-flow>
 
                                         <v-col cols="12">
-                                            <v-textarea v-model="inspector.txtcomentarios" label="Comentarios*"
+                                            <v-textarea v-model="inspector.txtcomentarios" label="Comentarios"
                                                 hide-details="auto" clearable dense outlined />
                                         </v-col>
                                     </v-row>
                                 </v-form>
                             </v-card-text>
                         </v-tab-item>
-                        Persona Encontrada: {{ personaEncontrada }}
-                        Persona Disponible: {{ personaDisponible }}
                         <v-card-actions>
                             <v-spacer />
                             <v-btn color="error" text @click="showAllInspectors()"> Cerrar </v-btn>
-                            <v-btn color="primary" text :disabled="!validationFieldsInspector"
-                                @click="saveInspector()"> Guardarss </v-btn>
+                            <v-btn color="primary" text :disabled="!validationFieldsInspector" @click="saveInspector()">
+                                Guardarss </v-btn>
                         </v-card-actions>
 
                     </v-card>
@@ -118,6 +118,14 @@
                 Favor de verificar de nuevo
             </template>
         </generic-dialog>
+
+          <!-- DIALOG CONFIRMATION NEXT SUB STAGE -->
+          <generic-dialog :dialogVisible="dialogConfirmationNextSubStage" dialogTitle="Confirmar cambio a sub etapa siguiente"
+          @update:dialogVisible="dialogConfirmationNextSubStage = $event" @confirm="getNextSubStage()">
+          <template v-slot:default>
+                ¿Desea realizar el cambio de sub etapa?. Este cambio no es reversible.
+          </template>
+      </generic-dialog>
     </v-container>
 </template>
 
@@ -139,26 +147,19 @@ export default {
     data() {
         return {
             // DATOS INFORMATIVOS
-            
-            // WATCHERS
-            // VIENEN DE SERVICIOS
-            // ARREGLOS
-            // MODALES
-            dialogCurpChanged: false,
-            // PROPS SEND
-            activateModalPerson: false,
-
-            // REGLAS
-            rules: {
-                ...rules,
-            },
-
             validationFieldsInspector: false,
             tab: "generaltab",
             personaEncontrada: false,
             personaDisponible: false,
+            genera_boleta: false,
+
+            // WATCHERS FUNCIONALIDAD
+            
+            // VIENEN DE SERVICIOS
             shifts: [],
             categories: [],
+
+            // ARREGLOS
             persona: {
                 iidpersona: 0,
                 txtnombre_completo: 'Sin nombre',
@@ -181,18 +182,21 @@ export default {
                 fecha_creacion: '',
                 fecha_modificacion: '',
             },
-            curpValida: false,
-            genera_boleta: false,
 
-            // ENVIANDO MODELO DE COMPONENTE GENÉRICO CURP VERIFICATION (Solo abrir modal)
-            sendPerson: {
-                bfisica: null,
-                dataSearch: '',
-            },
-            // ENVIANDO MODELO DE COMPONENTE GENÉRICO PROCESS FLOW
-            sendSubStage: null,
+            // MODALES
+            dialogCurpChanged: false,
+            dialogConfirmationNextSubStage: false,
+
+            // PROPS SEND
+            activateModalPerson: false,
             finalizeProcess: false,
-            // RETORNO MODELO DE COMPONENTE GENÉRICO PROCESS FLOW
+
+            // REGLAS
+            rules: {
+                ...rules,
+            },
+            
+            // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW
             SubStage: {
                 info: [],
                 process: [],
@@ -225,8 +229,8 @@ export default {
             }
         },
 
-          // GET (BD)
-          async getAllShiftsInspector() {
+        // GET (BD)
+        async getAllShiftsInspector() {
             try {
                 this.shifts = await services.inspections().getAllShiftsInspector();
             } catch (error) {
@@ -247,6 +251,7 @@ export default {
             }
         },
 
+        // OBTENER DATOS DEL INSPECTOR (BD)
         async setEditMode() {
             try {
                 const { id } = this.$route.params;
@@ -256,6 +261,7 @@ export default {
                 this.showError({ message, error });
             }
         },
+
         verifyCategorie() {
             let selectedCategorie = this.categories.find(item => item.iidinspector_categoria === this.inspector.iidinspector_categoria);
             const bgenera_boleta = selectedCategorie.bgenera_boleta;
@@ -272,13 +278,13 @@ export default {
             if (!this.validationFieldsInspector) return;
 
             try {
-                // const { message } = await (
-                //     this.createMode ?
-                //         services.inspections().createInspector(this.inspector) :
-                //         services.inspections().updateInspector(this.inspector)
-                // );
-                // this.showSuccess(message);
-                // this.showAllInspectors();
+                const { message } = await (
+                    this.createMode ?
+                        services.inspections().createInspector(this.inspector) :
+                        services.inspections().updateInspector(this.inspector)
+                );
+                this.showSuccess(message);
+                this.showAllInspectors();
             } catch (error) {
                 const message = 'Error al guardar inspector.';
                 this.showError({ message, error });
@@ -290,12 +296,7 @@ export default {
         },
 
         showDialogPerson() {
-            console.log('***Invocación de modal persona***')
-            // localStorage.setItem('newPerson', false);
-            console.log('*4*')
-            // this.activateModalPerson = false
             this.activateModalPerson = true
-            // this.personId = iidpersona
         },
 
         // RETORNO DE COMPONENTE GENÉRICO CURP VERIFICATION
@@ -306,18 +307,14 @@ export default {
             console.log('Persona Información Completa: ')
             console.log(person)
             this.activateModalPerson = false
-
-            // if (closeModal) {
-            //     this.activateModalPerson = false
-            // } else {
-                this.personaEncontrada = personFound
-                this.personaDisponible = availablePerson
-                this.persona = person
-                if(this.personaDisponible){
-                    this.inspector.iidpersona = this.persona.iidpersona
-                }else{
-                    this.inspector.iidpersona = 0
-                }
+            this.personaEncontrada = personFound
+            this.personaDisponible = availablePerson
+            this.persona = person
+            if (this.personaDisponible ||  this.personaEncontrada && person.iidpersona!=0) {
+                this.inspector.iidpersona = this.persona.iidpersona
+            } else {
+                this.inspector.iidpersona = 0
+            }
             // }
         },
 
@@ -343,14 +340,17 @@ export default {
             }
         }
     },
+    watch:{
+        
+    },
     async mounted() {
         await this.getAllCategoriesInspector()
         await this.getAllShiftsInspector()
-        if (!this.createMode){
+        if (!this.createMode) {
             await this.setEditMode();
             await this.getGeneralPersonData()
-            
-        } 
+
+        }
     }
 };
 </script>

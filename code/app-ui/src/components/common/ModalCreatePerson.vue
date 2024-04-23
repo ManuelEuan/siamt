@@ -3,6 +3,7 @@
     <div class="">
         <v-dialog v-model="dialogModalCreatePersonWithAddressAndPhone" max-width="800">
             <v-card prepend-icon="mdi-account">
+                Nuevo registro de persona: {{ newRegisterPerson }}
                 {{ receivedTabAddress }}---------
                 {{ newRegisterPerson }}
                 <v-col cols="12" class="pa-0 mt-2">
@@ -215,31 +216,37 @@ export default {
         },
     },
     watch: {
-        'iidpersona': function () {
-            console.log('watch iidpersona from modal create person')
-            console.log(this.iidpersona)
-            if(!this.iidpersona){
-                // this.dialogModalCreatePersonWithAddressAndPhone = true
-            }
-        },
+        // 'iidpersona': function () {
+        //     console.log('watch iidpersona from modal create person')
+        //     console.log(this.iidpersona)
+        //     if(!this.iidpersona){
+        //         // this.dialogModalCreatePersonWithAddressAndPhone = true
+        //     }
+        // },
         'dialogModalCreatePersonWithAddressAndPhone': function () {
             if (!this.dialogModalCreatePersonWithAddressAndPhone) {
                 console.log('se cerró el modal de persona')
                 localStorage.setItem('newPerson', false);
                 console.log(this.receivedTabGeneralPersonData.data)
+                let info = ''
+                if(this.receivedTabGeneralPersonData.data){
+                    info = this.receivedTabGeneralPersonData.data
+                }else{
+                    info = this.persona
+                }
                 console.log(this.persona)
-                this.$emit('modal-create-person', this.receivedTabGeneralPersonData.data, true)
+                this.$emit('modal-create-person', info, true)
             } else if (this.dialogModalCreatePersonWithAddressAndPhone && this.dataPerson.iidpersona == 0) {
                 console.log('se abrió el modal de persona y no existe persona')
                 localStorage.setItem('newPerson', true);
-            }else{
-                localStorage.setItem('newPerson', false);
             }
+            // else{
+            //     localStorage.setItem('newPerson', false);
+            // }
             this.newRegisterPerson = localStorage.getItem('newPerson');
             this.newRegisterPerson = this.newRegisterPerson === 'true';
         },
         'activateModalPerson':function (){
-            console.log(this.persona)
             if(this.activateModalPerson){
                 this.dialogModalCreatePersonWithAddressAndPhone = true
             }else{
@@ -254,6 +261,7 @@ export default {
     },
     mounted() {
         this.newRegisterPerson = localStorage.getItem('newPerson');
+        this.newRegisterPerson = this.newRegisterPerson === 'true';
         if (this.newRegisterPerson) {
             this.dataPerson = {}
         }
