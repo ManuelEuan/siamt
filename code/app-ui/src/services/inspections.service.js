@@ -165,8 +165,11 @@ export default class InspectionsService extends ApiService {
   async createWorkload(data) {
     return await this.post("/workloads/new", JSON.stringify(data));
   }
-
   
+  async getServiceVindenUrlDebitaciones() {
+    console.log('***********************llegando***********************')
+    return await this.get("/inspectors/getServiceVindenUrlDebitaciones");
+  }
   
   
 }

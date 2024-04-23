@@ -4,6 +4,13 @@
             <div class="col-md-12">
                 <curp-verification ref="curpVerification"></curp-verification>
             </div>
+            <div class="col-md-12">
+
+                <a ref="urlFrame" target="_blank">Abrir URL del Servicio Vinden</a>
+            </div>
+            <div class="col-md-12">
+                <iframe ref="serviceFrame" class="embed-responsive-item" style="height: 100%; width: 100%" allowfullscreen></iframe>
+            </div>
             <v-row>
                 <generic-file-input v-model="files.actaNacimiento" :modelo="'actaNacimiento'"
                     :label="'Acta de nacimiento'" :placeholder="'Seleccione su Acta de nacimiento'" :color="'primary'"
@@ -44,10 +51,10 @@
 </template>
 
 <script>
+import services from "@/services";
 import CurpVerification from '@/components/common/CurpVerification.vue';
 import GenericFileInput from '@/components/common/GenericFileInput.vue';
 import GenericProcessFlow from '@/components/common/GenericProcessFlow.vue';
-
 export default {
     name: 'InspectorsPage',
     components: {
@@ -100,7 +107,23 @@ export default {
                 // Si no existe una sub etapa que tenga flujo posterior significa que será el ultimo cambio posible del proceso
                 this.finalizeProcess = true
             }
-        }
+        },
+
+        // GET (BD)
+        async getServiceVindenUrlDebitaciones() {
+            try {
+                let url = await services.inspections().getServiceVindenUrlDebitaciones();
+                this.$refs.urlFrame.href = url;
+                this.$refs.serviceFrame.src = url;
+            } catch (error) {
+                const message = 'Error al cargar servicio de Vinden.';
+                // this.showError({ message, error });
+                alert(message);
+            }
+        },
+    },
+    async mounted(){
+        await this.getServiceVindenUrlDebitaciones()
     }
 
 }

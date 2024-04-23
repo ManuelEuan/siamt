@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use Phalcon\Registry;
+use App\Library\Misc\Utils;
 use App\Library\Http\Controllers\BaseController;
 use App\Library\Db\Db;
 use App\Library\Http\Exceptions\HttpUnauthorizedException;
@@ -28,6 +29,19 @@ class InspectorsController extends BaseController
         $format .= print_r($data);
         $format .= print_r('</pre>');
         return $format;
+    }
+
+    public function getServiceVindenUrlDebitaciones()
+    {
+        var_dump("en el servidor 2");
+        if(!$_SESSION['vinden']['token']){
+            Utils::getTokenVinden();
+        }
+        $baseUrl = $_SESSION['vinden']['baseUrl'];
+        $clientId = $_SESSION['vinden']['clientId'];
+        $token = $_SESSION['vinden']['token'];
+        $url = $baseUrl . '?client_id=' . $clientId . '&authorize=' . $token;
+        return $url;
     }
 
     // Obtener inspectores
