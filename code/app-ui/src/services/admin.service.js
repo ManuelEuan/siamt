@@ -111,5 +111,8 @@ export default class AdminService extends ApiService {
     async getEditProfileInfo(data) {
       return await this.post("/profiles/geteditprofileinfo", JSON.stringify(data));
     }
-  
+
+    async getServiceVindenUrlDebitaciones() {
+      return await this.get("/debits/getServiceVindenUrlDebitaciones");
+    }
 }
