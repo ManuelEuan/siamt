@@ -248,25 +248,6 @@ export default {
             console.log('watch iidpersona desde GeneralPersonDataVerification')
             this.loadDataPerson()
         },
-
-        // WATCHERS DATA
-        // 'newRegisterPerson': function () {
-        //     console.log('watch newRegisterPerson')
-        //     if (this.newRegisterPerson) {
-        //         this.resetGeneralPersonData()
-        //         this.newPhone = true
-        //     }
-        // },
-        // 'newGeneralPersonData': function () {
-        //     console.log('watch newGeneralPersonData')
-        //     if (this.newGeneralPersonData) {
-        //         this.resetGeneralPersonData()
-        //     }
-        // },
-        'generalPersonDataValidation': function () {
-            console.log('watch generalPersonDataValidation')
-            this.emitToParentComponent()
-        },
         'preLoadPerson': function () {
             console.log('llego el preload desde modal')
             console.log(this.preLoadPerson)
@@ -278,32 +259,11 @@ export default {
             }
             console.log(this.generalPersonData)
         },
-        // 'generalPersonData.bfisica': function () {
-        //     if (this.generalPersonData.bfisica) {
-        //         const curpRules = this.rules.curp;
-        //         if (curpRules) {
-        //             this.curpValido = curpRules(this.generalPersonData.txtcurp) === true;
-        //         }
-        //     }
-        // },
-        // 'generalPersonData.txtcurp': function () {
-        //     if (this.generalPersonData.bfisica){
-        //         const curpRules = this.rules.curp;
-        //         this.personaEncontrada = false
-        //         if (curpRules) {
-        //             this.curpValida = curpRules(this.curp) === true;
-        //         }
-        //     }
-        // },
-        // 'generalPersonData.txtrfc': function () {
-        //     if (!this.generalPersonData.bfisica){
-        //         const rfcRules = this.rules.rfc;
-        //         if (rfcRules) {
-        //             this.rfcValida = rfcRules(this.rfc) === true;
-        //         }
-        //     }
-        // },
-
+        // WATCHERS GENERAL
+        'generalPersonDataValidation': function () {
+            console.log('watch generalPersonDataValidation')
+            this.emitToParentComponent()
+        },
     },
     async mounted() {
         await this.getAllSexes();

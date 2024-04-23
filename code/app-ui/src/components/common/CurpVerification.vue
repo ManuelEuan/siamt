@@ -72,13 +72,11 @@
                 <div v-if="search === 'NOMBRE'">
                     En caso de requerir el registro de la persona es necesario proporcionar el tipo de persona y sus datos
                     requeridos
-                    <p class="col-md-2 my-0 mx-0 px-0 py-0">Tipo de persona</p>
+                    <p class="mt-3 primary--text mb-0 font-weight-bold">Tipo de persona</p>
                     <v-radio-group cols="12" md="4" v-model="typePersonFisica" mandatory row>
                         <v-radio color="success" label="Física" :value="true" style="max-width:80px"></v-radio>
                         <v-radio color="success" label="Moral" :value="false" style="max-width:80px"></v-radio>
                     </v-radio-group>
-                    curp: {{ curp }}
-                    rfc: {{ rfc }}
                     <v-text-field v-if="typePersonFisica" v-model="curpRegisterField" label="CURP*"
                         style="max-height: 40px;" :rules="[rules.curp]" maxlength="18" hide-details="auto" clearable
                         dense @input="toUpperCase" outlined />
@@ -94,12 +92,8 @@
                 </div>
                 <div v-else class="mb-3">
                     ¿Desea registrarlo?
-                    curpRegisterField: {{ curpRegisterField }}
-                    rfcRegisterField: {{ rfcRegisterField }}
-                    curp: {{ curp }}
-                    rfc: {{ rfc }}
                     <v-card-actions class="justify-end" style="margin-bottom: -2.5rem;">
-                        <v-btn color="error" text @click="dialogRegisterPerson = false">Cancelar</v-btn>
+                        <v-btn color="error" text @click="dialogRegisterPerson = false, personaEncontrada = false, personaDisponible = false">Cancelar</v-btn>
                         <v-btn color="primary" text @click="showDialogPerson(0)">Aceptar</v-btn>
                     </v-card-actions>
                 </div>
@@ -155,14 +149,14 @@
                                 </thead>
                                 <tbody>
                                     <tr v-for="item in peopleFounds" :key="item.iidpersona">
-                                        <td>{{ item.txtnombre }}{{ item.txtapepat }}</td>
+                                        <td>{{ item.txtnombre_completo }}</td>
                                         <td>{{ item.dfecha_nacimiento }}</td>
                                         <td v-if="typeOfRequest">
-                                            <template item.isInspector>
-                                                <v-icon v-show="item.isInspector" size="medium" color="green">
+                                            <template item.foundRequestSearched>
+                                                <v-icon v-show="item.foundRequestSearched" size="medium" color="green">
                                                     mdi-check
                                                 </v-icon>
-                                                <v-icon v-show="!item.isInspector" size="medium"
+                                                <v-icon v-show="!item.foundRequestSearched" size="medium"
                                                     color="red">mdi-close</v-icon>
                                             </template>
                                         </td>
@@ -262,7 +256,7 @@ export default {
             // ARREGLOS
             persona: {
                 iidpersona: 0,
-                txtnombre_completo: 'Sin nombre',
+                txtnombre_completo: 'Sin nombre 1',
                 bfisica: true,
                 txtnombre: '',
                 txtapepat: '',
@@ -492,10 +486,13 @@ export default {
         },
         handlefromModalCreatePerson(personAllData, closeModal) {
             console.log('retorno desde el modal create person')
+            console.log(personAllData)
             if (closeModal) {
                 this.activateModalPerson = false
                 if(personAllData.iidpersona!=0){
                     this.personaEncontrada = true
+                    this.personaDisponible = true
+                    this.persona = personAllData
                 }
                 this.$emit('person-info', this.personaEncontrada, this.personaDisponible, personAllData)
             }
@@ -574,6 +571,13 @@ export default {
                 this.rfcRegisterFieldValido = rfcRules(this.rfcRegisterField) === true;
             }
         },
+        'dialogRegisterPerson': function (){
+            if(this.dialogRegisterPerson){
+                this.personaEncontrada = false
+                this.personaDisponible = false
+                this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona);
+            }
+        }
 
     },
     async mounted() {

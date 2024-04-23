@@ -46,10 +46,9 @@
                                                 clearable dense :disabled="!createMode" outlined />
                                         </v-col>
                                         <v-col cols="12" md="4">
-                                            <v-btn color="primary" text @click=showDialogPerson()>Información
-                                                Completa</v-btn>
+                                            <v-btn color="primary" text @click=showDialogPerson()>Información Completa</v-btn>
                                         </v-col>
-                                    </v-row>
+                                    </v-row>{{ personaEncontrada  }} -- {{ personaDisponible }}
                                     <v-row v-if="personaEncontrada && personaDisponible || !createMode">
                                         <v-col cols="12" md="6">
                                             <v-select v-model="inspector.iidturno" label="Turno*"
@@ -102,8 +101,9 @@
                         </v-tab-item>
                         <v-card-actions>
                             <v-spacer />
+                            {{validationFieldsInspector}} -- {{personaEncontrada}} -- {{personaDisponible}}
                             <v-btn color="error" text @click="showAllInspectors()"> Cerrar </v-btn>
-                            <v-btn color="primary" text :disabled="!validationFieldsInspector" @click="saveInspector()">
+                            <v-btn color="primary" text :disabled="!validationFieldsInspector || !personaEncontrada || !personaDisponible" @click="saveInspector()">
                                 Guardarss </v-btn>
                         </v-card-actions>
 
@@ -164,7 +164,7 @@ export default {
             // ARREGLOS
             persona: {
                 iidpersona: 0,
-                txtnombre_completo: 'Sin nombre',
+                txtnombre_completo: 'Sin nombre 2',
                 txtrfc: '',
                 txtcurp: '',
             },
@@ -192,6 +192,10 @@ export default {
             // PROPS SEND
             activateModalPerson: false,
             finalizeProcess: false,
+            request: {
+                type: '',
+                idOfSearch: 0,
+            },
 
             // REGLAS
             rules: {
@@ -302,6 +306,9 @@ export default {
         },
 
         showDialogPerson() {
+            console.log('showDialogPerson')
+            console.log(this.persona)
+            console.log(this.inspector)
             this.activateModalPerson = true
         },
 
@@ -315,12 +322,18 @@ export default {
             this.activateModalPerson = false
             this.personaEncontrada = personFound
             this.personaDisponible = availablePerson
-            this.persona = person
+            
             if (this.personaDisponible || this.personaEncontrada && person.iidpersona != 0) {
                 this.inspector.iidpersona = this.persona.iidpersona
             } else {
                 this.inspector.iidpersona = 0
             }
+            console.log('createmode')
+            console.log(this.createMode)
+            this.persona = person
+            console.log('-------------------------------------this.persona')
+            console.log(this.persona)
+            console.log(person)
             // }
         },
 

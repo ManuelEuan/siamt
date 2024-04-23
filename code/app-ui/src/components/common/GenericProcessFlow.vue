@@ -11,9 +11,10 @@
         </div>
 
 
+
         <template>
             <v-stepper v-model="steepSubStage" vertical>
-                <v-stepper-step step="1" complete>
+                <v-stepper-step complete editable step="1">
                     {{ currentSubStage.nombre_subetapa_actual }}
                     <span
                         v-if="currentSubStage.iidetapa_subetapa_actual != currentSubStage.iidetapa_subetapa_siguiente">
@@ -39,6 +40,17 @@
                         <v-btn color="primary" @click="showAlertFinalize()">Finalizar</v-btn>
                     </div>
                 </v-stepper-content>
+                <template>
+                    <v-container class="px-0" fluid>
+                        <div class="row mx-auto">
+                            <div class="col-md-3">
+                                <v-switch v-model="switch1" :label="`Switch 1: ${switch1.toString()}`"></v-switch>
+                            </div>
+                        </div>
+
+                    </v-container>
+                </template>
+
 
                 <v-stepper-step step="2" v-if="!lastSubStage">
                     {{ currentSubStage.nombre_subetapa_siguiente }}
@@ -57,65 +69,31 @@
         <generic-dialog :dialogVisible="dialogRequestTrace" dialogTitle="Visualizar seguimiento"
             @update:dialogVisible="dialogRequestTrace = $event" @confirm="dialogRequestTrace = false">
             <template v-slot:default>
-                Aca va el seguimiento
                 <template>
-                    <v-stepper v-model="traceOfRequest" vertical>
-                        <v-stepper-step step="1" complete>
-                            Name of step 1
-                        </v-stepper-step>
-    
-                        <v-stepper-content step="1">
-                            <v-card color="grey lighten-1" class="mb-12" height="200px"></v-card>
-                            <v-btn color="primary" @click="traceOfRequest = 2">
-                                Continue
-                            </v-btn>
-                            <v-btn text>
-                                Cancel
-                            </v-btn>
-                        </v-stepper-content>
-    
-                        <v-stepper-step step="2" complete>
-                            Name of step 2
-                        </v-stepper-step>
-    
-                        <v-stepper-content step="2">
-                            <v-card color="grey lighten-1" class="mb-12" height="200px"></v-card>
-                            <v-btn color="primary" @click="traceOfRequest = 3">
-                                Continue
-                            </v-btn>
-                            <v-btn text>
-                                Cancel
-                            </v-btn>
-                        </v-stepper-content>
-    
-                        <v-stepper-step :rules="[() => false]" step="3">
-                            Ad templates
-                            <small>Alert message</small>
-                        </v-stepper-step>
-    
-                        <v-stepper-content step="3">
-                            <v-card color="grey lighten-1" class="mb-12" height="200px"></v-card>
-                            <v-btn color="primary" @click="traceOfRequest = 4">
-                                Continue
-                            </v-btn>
-                            <v-btn text>
-                                Cancel
-                            </v-btn>
-                        </v-stepper-content>
-    
-                        <v-stepper-step step="4">
-                            View setup instructions
-                        </v-stepper-step>
-    
-                        <v-stepper-content step="4">
-                            <v-card color="grey lighten-1" class="mb-12" height="200px"></v-card>
-                            <v-btn color="primary" @click="traceOfRequest = 1">
-                                Continue
-                            </v-btn>
-                            <v-btn text>
-                                Cancel
-                            </v-btn>
-                        </v-stepper-content>
+                    <v-stepper v-model="traceOfRequest" vertical style="padding-bottom: .5rem !important">
+                        <template v-for="(item, index) in dinamycTrace">
+                            <v-stepper-step :key="item.iidinspector_seguimiento" :step="index"
+                                v-if="item.iidsubetapa_anterior != item.iidsubetapa_actual"
+                                :complete="isStepComplete(index)">
+                                <!-- {{ 'Step ' + (index + 1) }} -->
+                                {{ 'Etapa capturada: ' + (index) }} - {{ item.nombre_subetapa_anterior }}
+                            </v-stepper-step>
+                            <v-stepper-content :key="'content_' + item.iidinspector_seguimiento" :step="index + 1"
+                                style="height: auto !important;">
+                                <!-- <v-card color="grey lighten-1" style="padding-bottom: .5rem !important" class="mb-12" height="auto !important;"> -->
+                                <!-- Aquí puedes colocar cualquier contenido específico para cada paso -->
+                                <!-- <div>
+                                        <p>Nombre de etapa anterior: {{ item.nombre_etapa_anterior }}</p>
+                                        <p>Nombre de subetapa anterior: {{ item.nombre_subetapa_anterior }}</p>
+                                        <p>Nombre de etapa actual: {{ item.nombre_etapa_actual }}</p>
+                                        <p>Nombre de subetapa actual: {{ item.nombre_subetapa_actual }}</p>
+                                    </div> -->
+                                <!-- {{ item }} -->
+                                <!-- </v-card> -->
+                                <!-- <v-btn color="primary" @click="nextStep(index + 1)">Continue</v-btn>
+                                <v-btn text @click="cancel()">Cancel</v-btn> -->
+                            </v-stepper-content>
+                        </template>
                     </v-stepper>
                 </template>
             </template>
@@ -147,10 +125,12 @@ export default {
             hasFlowAfter: false,
             lastSubStage: false,
             traceOfRequest: 2,
+            dinamycTrace: [],
+            switch1: false,
 
             // DIALOGS
             dialogRequestTrace: false,
-            
+
         }
     },
     props: {
@@ -180,25 +160,34 @@ export default {
     },
     methods: {
         async loadData() {
-            console.log(this.iidsubStage)
-            let last = await services.inspections().getInfoBySubStage({ iidsubStage: this.iidsubStage });
-            let currentSubStage = await services.inspections().getAllFlowBySubStage({ iidsubStage: this.iidsubStage });
-            if (last && !currentSubStage) { // VERIFICAMOS QUE EXISTE UN FLUJO DESPUÉS, EN CASO DE QUE NO EXISTA SIGNIFICA EL FIN DEL FLUJO CAPTURADO
-                this.lastSubStage = true
-            }
-            if (this.lastSubStage) {
-                this.currentSubStage = last
-            } else {
-                this.currentSubStage = currentSubStage
-            }
-            // SI EXISTE LA SUBETAPA BUSCADA SE ASIGNAN VALORES Y SE EMITEN AL COMPONENTE PADRE
-            if (this.currentSubStage) {
-                this.iidproceso = this.currentSubStage.iidproceso
-                this.foundSubStage = true
-                this.process = await services.inspections().getInfoProcess({ iidproceso: this.iidproceso })
-                this.steepSubStage = 1
-                this.hasFlowAfter = await services.inspections().hasFlowAfter({ iidsubetapa: this.currentSubStage.iidsubetapa_siguiente })
-                this.$emit('process-flow', this.foundSubStage, this.currentSubStage, this.process, this.hasFlowAfter);
+            try {
+                let last = await services.inspections().getInfoBySubStage({ iidsubStage: this.iidsubStage });
+                let currentSubStage = await services.inspections().getAllFlowBySubStage({ iidsubStage: this.iidsubStage });
+                if (last && !currentSubStage) { // VERIFICAMOS QUE EXISTE UN FLUJO DESPUÉS, EN CASO DE QUE NO EXISTA SIGNIFICA EL FIN DEL FLUJO CAPTURADO
+                    this.lastSubStage = true
+                }
+                if (this.lastSubStage) {
+                    this.currentSubStage = last
+                } else {
+                    this.currentSubStage = currentSubStage
+                }
+                // SI EXISTE LA SUBETAPA BUSCADA SE ASIGNAN VALORES Y SE EMITEN AL COMPONENTE PADRE
+                if (this.currentSubStage) {
+                    this.iidproceso = this.currentSubStage.iidproceso
+                    this.foundSubStage = true
+                    this.process = await services.inspections().getInfoProcess({ iidproceso: this.iidproceso })
+                    this.steepSubStage = 1
+                    this.hasFlowAfter = await services.inspections().hasFlowAfter({ iidsubetapa: this.currentSubStage.iidsubetapa_siguiente })
+                    this.$emit('process-flow', this.foundSubStage, this.currentSubStage, this.process, this.hasFlowAfter);
+                    if (this.request.idOfSearch && this.request.type) {
+                        console.log('cambio en la solicitud de seguimiento actualizada: ')
+                        console.log(this.request)
+                        this.getDinamycTrace()
+                    }
+                }
+            } catch (error) {
+                const message = 'Error al procesar datos en componente de procesos ';
+                this.showError({ message, error });
             }
         },
         cancelAction() {
@@ -209,6 +198,29 @@ export default {
         },
         showAlertFinalize() {
             alert('Se acabó el proceso completo, procede a guardar último')
+        },
+        isStepComplete(index) {
+            console.log('click a la sub etapa: ' + index)
+            // Aquí puedes agregar lógica para determinar si un paso está completo o no, según tus necesidades
+            // Por ejemplo, podrías revisar si los datos de un paso específico están presentes o si se ha completado alguna acción relacionada con ese paso
+            return true; // Devuelve true si el paso está completo
+        },
+        // nextStep(step) {
+        //     // Lógica para avanzar al siguiente paso
+        //     this.traceOfRequest = step + 1; // Avanza al siguiente paso
+        // },
+        cancel() {
+            // Lógica para cancelar la operación actual
+        },
+        async getDinamycTrace() {
+            try {
+                this.dinamycTrace = await services.inspections().getDinamycTrace({ request: this.request })
+                console.log(this.dinamycTrace)
+            } catch (error) {
+                const message = 'Error al procesar datos en componente de procesos ';
+                this.showError({ message, error });
+            }
+
         }
     },
     watch: {
@@ -229,14 +241,13 @@ export default {
                 this.lastSubStage = true
             }
         },
-        'request': function () {
-            console.log('cambio en la solicitud de seguimiento: ')
-            console.log(this.request)
-            if (this.request.idOfSearch) {
-                if (this.request.type == 'Inspector') {
-                    this.loadData();
-                }
+        'request': async function () {
+            if (this.request.idOfSearch && this.request.type) {
+                console.log('cambio en la solicitud de seguimiento: ')
+                console.log(this.request)
+                this.getDinamycTrace()
             }
+
         }
     },
     async mounted() {

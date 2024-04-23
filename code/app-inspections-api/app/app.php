@@ -30,6 +30,8 @@ $app->mount(
     ->post("/inspectors/getInfoBySubStage", "getInfoBySubStage")
     ->put("/inspectors/updateInspectorSubStage", "updateInspectorSubStage")
     ->post("/inspectors/insertInspectorTrace", "insertInspectorTrace")
+    ->post("/inspectors/getDinamycTrace", "getDinamycTrace")
+    
     // VINDEN
     ->get("/inspectors/getServiceVindenUrlDebitaciones", "getServiceVindenUrlDebitaciones")
 

@@ -3,28 +3,24 @@
     <div class="">
         <v-dialog v-model="dialogModalCreatePersonWithAddressAndPhone" max-width="800">
             <v-card prepend-icon="mdi-account">
-                Nuevo registro de persona: {{ newRegisterPerson }}
-                {{ receivedTabAddress }}---------
-                {{ newRegisterPerson }}
                 <v-col cols="12" class="pa-0 mt-2">
                     <v-tabs v-model="tab" centered icons-and-text>
                         <v-tabs-slider color="primary" />
                         <v-tab href="#generaltab">
-                            Datos Generales {{ receivedTabGeneralPersonData.newOrEdit }} - {{ receivedTabGeneralPersonData.valid }}
-                            <v-badge
-                            :color="receivedTabGeneralPersonData.valid ? 'success' : 'warning'">
+                            Datos Generales
+                            <v-badge :color="receivedTabGeneralPersonData.valid ? 'success' : 'warning'">
                                 <v-icon> mdi-clipboard-text </v-icon>
                             </v-badge>
                         </v-tab>
                         <v-tab href="#direccionestab">
-                            Dirección {{ receivedTabAddress.newOrEdit }} - {{ receivedTabAddress.valid }}
+                            Dirección
                             <v-badge
                                 :color="!receivedTabAddress.newOrEdit && !newRegisterPerson || receivedTabAddress.newOrEdit && receivedTabAddress.valid ? 'success' : 'warning'">
                                 <v-icon> mdi-card-account-details </v-icon>
                             </v-badge>
                         </v-tab>
                         <v-tab href="#telefonostab">
-                            Teléfono {{ receivedTabPhone.newOrEdit }} - {{ receivedTabPhone.valid }}
+                            Teléfono
                             <v-badge
                                 :color="!receivedTabPhone.newOrEdit && !newRegisterPerson || receivedTabPhone.newOrEdit && receivedTabPhone.valid ? 'success' : 'warning'">
                                 <v-icon> mdi-card-account-details </v-icon>
@@ -32,52 +28,51 @@
                         </v-tab>
                         <v-tab href="#filestab">
                             Archivos
-                            <v-badge v-if="newRegisterPerson" :color="addressValidation ? 'success' : 'warning'">
+                            <!-- <v-badge v-if="newRegisterPerson" :color="filesValidation ? 'success' : 'warning'">
                                 <v-icon> mdi-card-account-details </v-icon>
-                            </v-badge>
-                            <!-- <v-badge v-else :color="addressValidation ? 'success' : 'warning'"> -->
-                            <v-icon v-else> mdi-card-account-details </v-icon>
+                            </v-badge> -->
+                            <!-- <v-badge v-else :color="filesValidation ? 'success' : 'warning'"> -->
+                            <!-- <v-icon v-else> mdi-card-account-details </v-icon> -->
+                            <v-icon> mdi-card-account-details </v-icon>
                             <!-- </v-badge> -->
                         </v-tab>
                     </v-tabs>
                     <v-tabs-items v-model="tab">
                         <v-card flat>
                             <v-tab-item :key="1" value="generaltab" class="py-1">
-                                <general-person-data-verification :iidpersona="iidpersona" :preLoadPerson="preLoadPerson"
-                                    @general-person-data-validation="handleTabGeneralPersonData"
-                                    v-model="generalPersonDataValidation"></general-person-data-verification>
+                                <general-person-data-verification :iidpersona="iidpersona"
+                                    :preLoadPerson="preLoadPerson"
+                                    @general-person-data-validation="handleTabGeneralPersonData"></general-person-data-verification>
                             </v-tab-item>
                             <v-tab-item :key="2" value="direccionestab" class="py-1">
                                 <address-verification :iidpersona="iidpersona"
-                                    @address-validation="handleTabAddress"
-                                    v-model="addressValidation"></address-verification>
+                                    @address-validation="handleTabAddress"></address-verification>
                             </v-tab-item>
                             <v-tab-item :key="3" value="telefonostab" class="py-1">
                                 <phone-verification :iidpersona="iidpersona"
-                                    @phone-validation="handleTabPhone"
-                                    v-model="phoneValidation"></phone-verification>
+                                    @phone-validation="handleTabPhone"></phone-verification>
                             </v-tab-item>
                             <v-tab-item :key="4" value="filestab" class="py-1">
-
-                                <!-- <phone-verification :iidpersona="iidpersona"
-                                    @phone-validation="handleFromPhoneVerification"
-                                    v-model="phoneValidation"></phone-verification> -->
-
+                                <!-- <files-verification :iidpersona="iidpersona"
+                                    @files-validation="handleFromFilesVerification"
+                                    v-model="filesValidation"></files-verification> -->
                             </v-tab-item>
                         </v-card>
                     </v-tabs-items>
                     <v-card-actions v-if="!iidpersona">
                         <v-spacer />
-                        <v-btn color="error" text @click="dialogModalCreatePersonWithAddressAndPhone = false"> Cerrar </v-btn>
+                        <v-btn color="error" text @click="dialogModalCreatePersonWithAddressAndPhone = false"> Cerrar
+                        </v-btn>
                         <v-btn color="primary" v-if="newRegisterPerson" text
-                            :disabled="!generalPersonDataValidation || !addressValidation || !phoneValidation"
+                            :disabled="!receivedTabGeneralPersonData.valid || !receivedTabAddress.valid || !receivedTabPhone.valid"
                             @click="savePersonWithAddressAndPhone()">
                             Guardar
                         </v-btn>
                     </v-card-actions>
                     <v-card-actions v-else>
                         <v-spacer />
-                        <v-btn color="error" text @click="dialogModalCreatePersonWithAddressAndPhone = false"> Cerrar </v-btn>
+                        <v-btn color="error" text @click="dialogModalCreatePersonWithAddressAndPhone = false"> Cerrar
+                        </v-btn>
                     </v-card-actions>
                 </v-col>
             </v-card>
@@ -124,10 +119,18 @@ export default {
     },
     data() {
         return {
+            // DATOS INFORMATIVOS
             newRegisterPerson: false,
             newRegister: true,
             tab: "generaltab",
             dataPerson: {},
+            files: [],
+            responseCreatePerson: {},
+
+            // DIALOGS
+            dialogModalCreatePersonWithAddressAndPhone: false,
+
+            // HANDLERS
             receivedTabGeneralPersonData: {
                 newOrEdit: false,
                 data: {},
@@ -143,20 +146,12 @@ export default {
                 data: {},
                 valid: false,
             },
-            dataPhone: '',
-            files: [],
-            generalPersonDataValidation: false, // Variable para almacenar la validación de datos generales
-            addressValidation: false, // Variable para almacenar la validación de la dirección
-            phoneValidation: false, // Variable para almacenar la validación del teléfono
-            dialogModalCreatePersonWithAddressAndPhone: false,
         }
     },
     computed: {
-        selectedFiles() {
-            return this.files.slice(); // Devuelve una copia de los archivos seleccionados
-        }
     },
     methods: {
+        // (GUARDADO COMPLETO DE PERSONA EN BD)
         ...mapActions('app', ['showError', 'showSuccess']),
         async savePersonWithAddressAndPhone() {
             console.log('Guardando persona con dirección y teléfono');
@@ -169,24 +164,21 @@ export default {
                     phone: this.receivedTabPhone.data,
                     address: this.receivedTabAddress.data,
                 }
-                let responsePerson = await services.inspections().createPerson(allInfo);
-                console.log('responsePerson create')
-                console.log(responsePerson)
-                this.showSuccess(responsePerson.message);
+                this.responseCreatePerson = await services.inspections().createPerson(allInfo);
+                console.log('responseCreatePerson create')
+                console.log(this.responseCreatePerson)
+                this.showSuccess(this.responseCreatePerson.message);
+                this.$emit('modal-create-person', this.responseCreatePerson.persona, true)
                 this.dialogModalCreatePersonWithAddressAndPhone = false
             } catch (error) {
                 const message = 'Error al guardar ';
                 this.showError({ message, error });
             }
         },
-        handleFromGeneralPersonDataVerification(generalPersonDataVerify, person) {
-            this.generalPersonDataValidation = generalPersonDataVerify
-            this.dataPerson = person
-        },
+
+        // HANDLERS
         handleTabGeneralPersonData(newOrEdit, generalPersonData, valid) {
             console.log('🚀 ~ receivedFromGeneralPersonDataVerification ~ 🚀 received editing mode, generalPersonData, validation 🚀')
-            console.log(generalPersonData),
-
             this.receivedTabGeneralPersonData = {
                 newOrEdit: newOrEdit,
                 data: generalPersonData,
@@ -216,44 +208,38 @@ export default {
         },
     },
     watch: {
-        // 'iidpersona': function () {
-        //     console.log('watch iidpersona from modal create person')
-        //     console.log(this.iidpersona)
-        //     if(!this.iidpersona){
-        //         // this.dialogModalCreatePersonWithAddressAndPhone = true
-        //     }
-        // },
+        // WATCHERS GENERAL
         'dialogModalCreatePersonWithAddressAndPhone': function () {
             if (!this.dialogModalCreatePersonWithAddressAndPhone) {
                 console.log('se cerró el modal de persona')
                 localStorage.setItem('newPerson', false);
-                console.log(this.receivedTabGeneralPersonData.data)
                 let info = ''
-                if(this.receivedTabGeneralPersonData.data){
+                if (this.receivedTabGeneralPersonData.data.iidpersona) {
                     info = this.receivedTabGeneralPersonData.data
-                }else{
-                    info = this.persona
+                } else {
+                    info = this.responseCreatePerson.persona
                 }
                 console.log(this.persona)
+                console.log(this.receivedTabGeneralPersonData.data)
+                console.log(this.responseCreatePerson.persona)
+                console.log(info)
                 this.$emit('modal-create-person', info, true)
             } else if (this.dialogModalCreatePersonWithAddressAndPhone && this.dataPerson.iidpersona == 0) {
                 console.log('se abrió el modal de persona y no existe persona')
                 localStorage.setItem('newPerson', true);
             }
-            // else{
-            //     localStorage.setItem('newPerson', false);
-            // }
             this.newRegisterPerson = localStorage.getItem('newPerson');
             this.newRegisterPerson = this.newRegisterPerson === 'true';
         },
-        'activateModalPerson':function (){
-            if(this.activateModalPerson){
+        // WATCHERS PROPS
+        'activateModalPerson': function () {
+            if (this.activateModalPerson) {
                 this.dialogModalCreatePersonWithAddressAndPhone = true
-            }else{
+            } else {
                 this.dialogModalCreatePersonWithAddressAndPhone = false
             }
         },
-        'preLoadPerson': function() {
+        'preLoadPerson': function () {
             console.log('llego el preload desde curp verification')
             console.log(this.preLoadPerson)
         }

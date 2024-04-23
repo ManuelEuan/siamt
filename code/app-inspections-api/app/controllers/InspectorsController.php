@@ -56,14 +56,17 @@ class InspectorsController extends BaseController
                             i.iidinspector,
                             i.iidpersona,
                             i.iidetapa,
+                            CASE 
+                                WHEN p.txtapemat != '' THEN 
+                                    CONCAT(p.txtnombre, ' ', p.txtapepat, ' ', p.txtapemat)
+                                ELSE 
+                                    CONCAT(p.txtnombre, ' ', p.txtapepat) 
+                            END AS txtnombre_completo,
                             ca.txtnombre as txtinspector_etapa,
                             cas.txtnombre as txtinspector_subetapa,
                             i.txtfolio_inspector,
                             i.iidturno,
                             it.txtnombre as txtinspector_turno,
-                            p.txtnombre,
-                            p.txtapepat,
-                            p.txtapemat,
                             p.txtrfc,
                             p.txtcurp,
                             p.txtine,
@@ -74,12 +77,7 @@ class InspectorsController extends BaseController
                             i.dfecha_alta,
                             i.dfecha_baja,
                             i.bactivo as activo,
-                            CASE 
-                                WHEN p.txtapemat != '' THEN 
-                                    CONCAT(p.txtnombre, ' ', p.txtapepat, ' ', p.txtapemat)
-                                ELSE 
-                                    CONCAT(p.txtnombre, ' ', p.txtapepat) 
-                            END AS txtnombre_completo,
+                           
                             TO_CHAR(i.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
                             TO_CHAR(i.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
                         FROM inspeccion.tbl_inspector i
@@ -451,7 +449,7 @@ class InspectorsController extends BaseController
         $shifts = Db::fetchAll($sql);
         return $shifts;
     }
-    // Obtener información para editar un inspector
+    // Obtener información de un inspector
     public function getInspectorInfo()
     {
         $this->hasClientAuthorized('veii'); // Verificar si el cliente tiene autorización
@@ -477,40 +475,50 @@ class InspectorsController extends BaseController
             FROM inspeccion.tbl_inspector i
             WHERE iidinspector=:id
         ";
-        // $sql = "
-        //     SELECT
-        //         i.iidinspector,
-        //         i.iidpersona,
-        //         i.iidetapa,
-        //         i.iidsubetapa,
-        //         ca.txtnombre as txtinspector_etapa,
-        //         i.txtfolio_inspector,
-        //         i.iidturno,
-        //         i.txtcomentarios,
-        //         it.txtnombre as txtinspector_turno,
-        //         p.txtnombre,
-        //         p.txtapepat,
-        //         p.txtapemat,
-        //         p.txtrfc,
-        //         p.txtcurp,
-        //         p.txtine,
-        //         i.iidinspector_categoria,
-        //         ic.txtnombre as txtinspector_categoria,
-        //         i.dvigencia,
-        //         i.dfecha_alta,
-        //         i.dfecha_baja,
-        //         i.bactivo as activo,
-        //         TO_CHAR(i.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-        //         TO_CHAR(i.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-        //     FROM inspeccion.tbl_inspector i
-        //     JOIN persona.tbl_persona p ON i.iidpersona = p.iidpersona
-        //     JOIN inspeccion.cat_turno it ON it.iidturno = i.iidturno
-        //     JOIN comun.cat_etapa ca ON ca.iidetapa = i.iidetapa
-        //     JOIN inspeccion.cat_inspector_categoria ic ON ic.iidinspector_categoria = i.iidinspector_categoria
-        //     WHERE iidinspector=:id
-        // ";
         $inspector = Db::fetchOne($sql, $params);
         return $inspector; // Devolver información del inspector
+    }
+
+    // Obtener información para editar un inspector
+    public function getDinamycTrace()
+    {
+        $this->hasClientAuthorized('veii'); // Verificar si el cliente tiene autorización
+        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        if (empty($data->request->type || $data->request->idOfSearch)) throw new ValidatorBoomException(422, 'No se han enviado los parametros correctamente.'); // Lanzar excepción si el ID está vacío
+        $type = $data->request->type;
+        $idOfSearch =$data->request->idOfSearch;
+
+        if($type == 'Inspector'){
+            $sql = "SELECT 
+                        insp.iidinspector_seguimiento,
+                        insp.iidinspector,
+                        insp.iidetapa_anterior,
+                        insp.iidsubetapa_anterior,
+                        insp.iidetapa_actual,
+                        insp.iidsubetapa_actual,
+                        etapa_anterior.txtnombre AS nombre_etapa_anterior,
+                        subetapa_anterior.txtnombre AS nombre_subetapa_anterior,
+                        etapa_actual.txtnombre AS nombre_etapa_actual,
+                        subetapa_actual.txtnombre AS nombre_subetapa_actual
+                    FROM 
+                        inspeccion.tbl_inspector_seguimiento AS insp
+                    JOIN 
+                        comun.cat_etapa AS etapa_anterior ON insp.iidetapa_anterior = etapa_anterior.iidetapa
+                    JOIN 
+                        comun.cat_etapa AS etapa_actual ON insp.iidetapa_actual = etapa_actual.iidetapa
+                    JOIN 
+                        comun.cat_subetapa AS subetapa_anterior ON insp.iidsubetapa_anterior = subetapa_anterior.iidsubetapa
+                    JOIN 
+                        comun.cat_subetapa AS subetapa_actual ON insp.iidsubetapa_actual = subetapa_actual.iidsubetapa
+                    WHERE 
+                        insp.iidinspector = :idOfSearch
+                        AND insp.bactivo = 't';
+            ";
+        }
+        
+        $params = array('idOfSearch' => $idOfSearch); // Parámetros para la consulta
+        $foundRequest = Db::fetchAll($sql, $params);
+        return $foundRequest; // Devolver información del inspector
     }
 
     // // Método para crear un inspector

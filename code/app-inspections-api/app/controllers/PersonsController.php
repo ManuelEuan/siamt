@@ -109,7 +109,6 @@ class PersonsController extends BaseController
         $params = array('dataSearch' => $dataSearch);
         if ($typeSearch == 'CURP' || $typeSearch == 'RFC') {
             $personas[] = Db::fetchOne($sqlComplete, $params);
-
         } else {
             $personas = Db::fetchAll($sqlComplete, $params);
         }
@@ -118,7 +117,7 @@ class PersonsController extends BaseController
         if (!$personas) {
             return;
         }
-        
+
 
         // SI EXISTE PERSONA ÚNICA SE RETORNAN LOS DATOS ESPECÍFICOS
         // $this->dep($typeOfRequest);exit;
@@ -433,7 +432,7 @@ class PersonsController extends BaseController
         if (isset($info->person)) {
             $data = $info->person;
             $phone = $info->phone;
-            $direction = $info->direction;
+            $address = $info->address;
         } else {
             $data = $info;
         }
@@ -456,21 +455,27 @@ class PersonsController extends BaseController
         );
 
 
-        $iiddpersona = $this->insert('tbl_persona', $params);
-
+        $iidpersona = $this->insert('tbl_persona', $params);
+        $iidpersona = intval($iidpersona);
+        $nombreCompleto = $data->txtnombre . ' ' . $data->txtapepat;
+        if (!empty($data->txtapemat)) {
+            $nombreCompleto .= ' ' . $data->txtapemat;
+        }
+        $data->iidpersona = $iidpersona;
+        $data->txtnombre_completo = $nombreCompleto;
         // $this->dep($phone);exit;
         if (isset($phone)) {
-            $phone->iidpersona = $iiddpersona;
+            $phone->iidpersona = $iidpersona;
             $this->createPhone($phone);
         }
-        if (isset($direction)) {
-            $direction->iidpersona = $iiddpersona;
-            $this->createAddress($direction);
+        if (isset($address)) {
+            $address->iidpersona = $iidpersona;
+            $this->createAddress($address);
         }
 
 
         Db::commit(); // Confirmar transacción en la base de datos
-        return array('message' => 'La persona ha sido creada.', 'iidpersona' => $iiddpersona); // Devolver mensaje de éxito
+        return array('message' => 'La persona ha sido creada.', 'persona' => $data); // Devolver mensaje de éxito
     }
 
     // // Método para actualizar un persona

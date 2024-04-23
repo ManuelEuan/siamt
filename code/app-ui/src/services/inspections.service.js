@@ -177,5 +177,11 @@ export default class InspectionsService extends ApiService {
   async insertInspectorTrace(data) {
     return await this.post("/inspectors/insertInspectorTrace", JSON.stringify(data));
   }
+
+  async getDinamycTrace(data) {
+    return await this.post("/inspectors/getDinamycTrace", JSON.stringify(data));
+  }
+  
+
   
 }
