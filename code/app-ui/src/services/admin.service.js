@@ -140,4 +140,9 @@ export default class AdminService extends ApiService {
     async updateProfile(data) {
       return await this.put("/profiles", JSON.stringify(data));
     }
+
+    async getServiceVindenUrlDebitaciones() {
+      return await this.get("/debits/getServiceVindenUrlDebitaciones");
+    }
+    
 }

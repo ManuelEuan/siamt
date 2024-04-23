@@ -9,7 +9,7 @@ use App\Controllers\LayersController;
 use App\Controllers\SurveyController;
 use App\Controllers\UsersController;
 use App\Controllers\ProfilesController;
-// use App\Controllers\InspectorsController;
+use App\Controllers\DebitsController;
 
 
 
@@ -140,4 +140,11 @@ $app->mount(
     ->delete('/profiles/{id}', 'deleteProfile')
     ->post('/profiles/{id}/users', 'getUsersFromProfile')
     ->post('/profiles/{id}/permissions', 'getPermissionsFromProfile')
+);
+
+$app->mount(
+    (new Collection())
+    ->setHandler(DebitsController::class, true)
+    ->setPrefix('/admin')
+    ->get("/debits/getServiceVindenUrlDebitaciones", "getServiceVindenUrlDebitaciones")
 );
