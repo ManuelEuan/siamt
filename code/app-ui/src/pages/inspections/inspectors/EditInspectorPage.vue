@@ -27,11 +27,6 @@
                                     :activateDialogPerson=activateModalPerson @person-info="handlePersonInfo"
                                     ref="curpVerification"></curp-verification>
                                 <v-form v-model="validationFieldsInspector">
-                                    <!-- :receivedCurp="persona.txtcurp" -->
-
-                                    <!-- <v-text-field v-model="inspector.iidpersona" label="Registrar Inspector con ID*"
-                                        hide-details="auto" clearable dense outlined /> -->
-
                                     <v-row v-if="!createMode">
                                         <v-col cols="12" md="4">
                                             <v-text-field v-model="persona.txtnombre_completo" label="Nombre Completo*"
@@ -48,7 +43,7 @@
                                         <v-col cols="12" md="4">
                                             <v-btn color="primary" text @click=showDialogPerson()>Información Completa</v-btn>
                                         </v-col>
-                                    </v-row>{{ personaEncontrada  }} -- {{ personaDisponible }}
+                                    </v-row>
                                     <v-row v-if="personaEncontrada && personaDisponible || !createMode">
                                         <v-col cols="12" md="6">
                                             <v-select v-model="inspector.iidturno" label="Turno*"
@@ -101,10 +96,9 @@
                         </v-tab-item>
                         <v-card-actions>
                             <v-spacer />
-                            {{validationFieldsInspector}} -- {{personaEncontrada}} -- {{personaDisponible}}
                             <v-btn color="error" text @click="showAllInspectors()"> Cerrar </v-btn>
                             <v-btn color="primary" text :disabled="!validationFieldsInspector || !personaEncontrada || !personaDisponible" @click="saveInspector()">
-                                Guardarss </v-btn>
+                                Guardar </v-btn>
                         </v-card-actions>
 
                     </v-card>
@@ -328,13 +322,7 @@ export default {
             } else {
                 this.inspector.iidpersona = 0
             }
-            console.log('createmode')
-            console.log(this.createMode)
             this.persona = person
-            console.log('-------------------------------------this.persona')
-            console.log(this.persona)
-            console.log(person)
-            // }
         },
 
         // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW (AUTOMÁTICO)

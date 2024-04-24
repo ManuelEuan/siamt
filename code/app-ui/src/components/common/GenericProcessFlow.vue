@@ -3,7 +3,7 @@
         <div class="row">
             <p class="col-md-12 primary--text text-h6 text-center">PROCESO: <span class="text-h10"
                     style="color: #000;">{{ process.txtnombre }}</span></p>
-            <p class="col-md-8 primary--text text-h6">ETAPA: <span class="text-h10" style="color: #000;">{{
+            <p class="col-md-8 primary--text text-h6">ETAPA ACTUAL: <span class="text-h10" style="color: #000;">{{
                         currentSubStage.nombre_etapa }}</span></p>
             <div class="col-md-4" v-if="request.idOfSearch">
                 <v-btn color="primary" @click="dialogRequestTrace = true">Seguimiento del proceso</v-btn>
@@ -15,7 +15,7 @@
         <template>
             <v-stepper v-model="steepSubStage" vertical>
                 <v-stepper-step complete editable step="1">
-                    {{ currentSubStage.nombre_subetapa_actual }}
+                    {{ currentSubStage.nombre_subetapa_actual }} ({{ currentSubStage.sigla_subetapa_actual }})
                     <span
                         v-if="currentSubStage.iidetapa_subetapa_actual != currentSubStage.iidetapa_subetapa_siguiente">
                         <i style="color: orange;" aria-hidden="true"
@@ -28,11 +28,10 @@
                         <div :style="'background-color: ' + (currentSubStage.color_subetapa_actual !== '' ? currentSubStage.color_subetapa_actual : 'gray')"
                             class="mb-6 d-flex align-center justify-center py-2"
                             style="color: white; font-weight: bold; font-size: 16px;margin-bottom: 1rem !important;">
-                            {{ currentSubStage.descripcion_subetapa_actual }}
+                            Descripción: {{ currentSubStage.descripcion_subetapa_actual }}
                         </div>
                     </div>
                     <div v-if="!lastSubStage">
-                        {{ hasFlowAfter }}
                         <v-btn color="primary" @click="confirmAction">Siguiente</v-btn>
                         <v-btn text @click="cancelAction">Cancelar</v-btn>
                     </div>
@@ -40,17 +39,6 @@
                         <v-btn color="primary" @click="showAlertFinalize()">Finalizar</v-btn>
                     </div>
                 </v-stepper-content>
-                <template>
-                    <v-container class="px-0" fluid>
-                        <div class="row mx-auto">
-                            <div class="col-md-3">
-                                <v-switch v-model="switch1" :label="`Switch 1: ${switch1.toString()}`"></v-switch>
-                            </div>
-                        </div>
-
-                    </v-container>
-                </template>
-
 
                 <v-stepper-step step="2" v-if="!lastSubStage">
                     {{ currentSubStage.nombre_subetapa_siguiente }}
@@ -70,29 +58,27 @@
             @update:dialogVisible="dialogRequestTrace = $event" @confirm="dialogRequestTrace = false">
             <template v-slot:default>
                 <template>
-                    <v-stepper v-model="traceOfRequest" vertical style="padding-bottom: .5rem !important">
+                    <v-stepper v-if="dinamycTrace.length > 1" vertical style="padding-bottom: .5rem !important">
                         <template v-for="(item, index) in dinamycTrace">
                             <v-stepper-step :key="item.iidinspector_seguimiento" :step="index"
                                 v-if="item.iidsubetapa_anterior != item.iidsubetapa_actual"
                                 :complete="isStepComplete(index)">
                                 <!-- {{ 'Step ' + (index + 1) }} -->
-                                {{ 'Etapa capturada: ' + (index) }} - {{ item.nombre_subetapa_anterior }}
+                                {{ 'Subetapa capturada ' + (index) }}: {{ item.nombre_subetapa_anterior }}
                             </v-stepper-step>
-                            <v-stepper-content :key="'content_' + item.iidinspector_seguimiento" :step="index + 1"
+                            <!-- <v-stepper-content :key="'content_' + item.iidinspector_seguimiento" :step="index + 1"
                                 style="height: auto !important;">
-                                <!-- <v-card color="grey lighten-1" style="padding-bottom: .5rem !important" class="mb-12" height="auto !important;"> -->
-                                <!-- Aquí puedes colocar cualquier contenido específico para cada paso -->
-                                <!-- <div>
-                                        <p>Nombre de etapa anterior: {{ item.nombre_etapa_anterior }}</p>
-                                        <p>Nombre de subetapa anterior: {{ item.nombre_subetapa_anterior }}</p>
-                                        <p>Nombre de etapa actual: {{ item.nombre_etapa_actual }}</p>
-                                        <p>Nombre de subetapa actual: {{ item.nombre_subetapa_actual }}</p>
-                                    </div> -->
-                                <!-- {{ item }} -->
-                                <!-- </v-card> -->
-                                <!-- <v-btn color="primary" @click="nextStep(index + 1)">Continue</v-btn>
-                                <v-btn text @click="cancel()">Cancel</v-btn> -->
-                            </v-stepper-content>
+                            </v-stepper-content> -->
+                        </template>
+                    </v-stepper>
+                    <v-stepper v-else vertical style="padding: .5rem !important">
+                        <template v-for="(item) in dinamycTrace">
+                            <v-stepper-step :key="item.iidinspector_seguimiento" complete editable step="1">
+                                {{ 'Subetapa actual ' + (1) }}: {{ item.nombre_subetapa_anterior }}
+                            </v-stepper-step>
+                            <!-- <v-stepper-content :key="'content_' + item.iidinspector_seguimiento" :step="index + 1"
+                                style="height: auto !important;">
+                            </v-stepper-content> -->
                         </template>
                     </v-stepper>
                 </template>
@@ -163,12 +149,16 @@ export default {
             try {
                 let last = await services.inspections().getInfoBySubStage({ iidsubStage: this.iidsubStage });
                 let currentSubStage = await services.inspections().getAllFlowBySubStage({ iidsubStage: this.iidsubStage });
-                if (last && !currentSubStage) { // VERIFICAMOS QUE EXISTE UN FLUJO DESPUÉS, EN CASO DE QUE NO EXISTA SIGNIFICA EL FIN DEL FLUJO CAPTURADO
+                console.log('load DATA PROCESS')
+                console.log(last)
+                console.log(currentSubStage)
+                if (last && !currentSubStage) { // VERIFICAMOS QUE EXISTE UN FLUJO DESPUÉS, EN CASO DE QUE NO EXISTA SIGNIFICA QUE ES LA ETAPA FINAL LA QUE SE CAPTURARA
                     this.lastSubStage = true
+
                 }
                 if (this.lastSubStage) {
                     this.currentSubStage = last
-                } else {
+                } else { // SI EXISTE FLUJO SE ASIGNAN NORMAL LAS SUBETAPAS
                     this.currentSubStage = currentSubStage
                 }
                 // SI EXISTE LA SUBETAPA BUSCADA SE ASIGNAN VALORES Y SE EMITEN AL COMPONENTE PADRE
@@ -198,6 +188,7 @@ export default {
         },
         showAlertFinalize() {
             alert('Se acabó el proceso completo, procede a guardar último')
+            this.$emit('confirm');
         },
         isStepComplete(index) {
             console.log('click a la sub etapa: ' + index)

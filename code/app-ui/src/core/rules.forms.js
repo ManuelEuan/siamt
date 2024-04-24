@@ -50,8 +50,10 @@ export default {
 		return regex.test(v) || 'Formato de longitud inválido.';
 	},
 	telefono: v => {
+		// const regex = /^\d{10}$/;
+		// return regex.test(v) || 'Número de teléfono válido requerido.';
 		const regex = /^\d{10}$/;
-		return regex.test(v) || 'Número de teléfono válido requerido.';
+		return regex.test(v.replace(/\D/g, '')) || 'Número de teléfono válido requerido.';
 	},
 	
 };

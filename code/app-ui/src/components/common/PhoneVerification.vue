@@ -116,9 +116,13 @@
                             item-value="iidlada" hide-details="auto" small-chips clearable dense outlined
                             :rules="[rules.required]" />
                     </v-col>
-                    <v-col cols="12" md="6">
+                    <!-- <v-col cols="12" md="6">
                         <v-text-field v-model="phone.inumero" label="Número*" hide-details="auto" clearable dense
                             :rules="[rules.telefono]" outlined maxlength="10" />
+                    </v-col> -->
+                    <v-col cols="12" md="6">
+                        <v-text-field v-model="phone.inumero" label="Número*" hide-details="auto" clearable dense
+                            outlined maxlength="14" @input="formatPhoneNumber" :rules="[rules.telefono]"></v-text-field>
                     </v-col>
                 </v-row>
             </v-form>
@@ -194,7 +198,6 @@ export default {
         };
     },
     computed: {
-
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
@@ -320,7 +323,13 @@ export default {
             this.resetPhone()
             this.emitToParentComponent()
         },
-
+        formatPhoneNumber() {
+            // Aplicar la máscara al número de teléfono
+            this.phone.inumero = this.phone.inumero
+                .replace(/\D/g, '') // Eliminar todos los caracteres no numéricos
+                .replace(/(\d{3})(\d{1,3})?(\d{1,4})?/, '($1) $2-$3') // Aplicar la máscara '(###) ###-####'
+                .substring(0, 14); // Limitar la longitud a 14 caracteres (incluyendo paréntesis y guiones)
+        },
         // MANEJADOR DE ACCIONES EN LA TABLA
         actionsHandlerOfTable(phone, action) {
             switch (action) {
@@ -380,6 +389,9 @@ export default {
             console.log('watch phoneValidation')
             this.emitToParentComponent()
         },
+        'phone.inumero'() {
+            this.formatPhoneNumber();
+        }
     },
     async mounted() {
         await this.getTypesPhone();

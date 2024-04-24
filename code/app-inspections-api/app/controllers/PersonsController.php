@@ -395,7 +395,10 @@ class PersonsController extends BaseController
                     cat_telefono_tipo.txtnombre AS txttelefono_tipo, 
                     cat_telefono_tipo.txtdescripcion,
                     tbl_telefono.txtlada, 
-                    tbl_telefono.inumero, 
+                    -- tbl_telefono.inumero, 
+                    CONCAT('(', SUBSTRING(CAST(tbl_telefono.inumero AS VARCHAR), 1, 3), ') ',
+                    SUBSTRING(CAST(tbl_telefono.inumero AS VARCHAR), 4, 3), '-',
+                    SUBSTRING(CAST(tbl_telefono.inumero AS VARCHAR), 7, 4)) AS inumero, -- Formatear el número de teléfono
                     tbl_telefono.iidtelefono, 
                     tbl_telefono.iidtelefono_tipo, 	
                     tbl_persona_telefono.bactual,
@@ -621,10 +624,12 @@ class PersonsController extends BaseController
                 $data->iidpersona = $phone->iidpersona;
             }
             if (is_object($data->phone) && property_exists($data->phone, 'inumero')) {
+                $data->phone->inumero = preg_replace('/[^0-9]/', '', $data->phone->inumero);
                 $data->phone->inumero = intval($data->phone->inumero);
             }
         } else {
             $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+            $data->phone->inumero = preg_replace('/[^0-9]/', '', $data->phone->inumero);
             $data->phone->inumero = intval($data->phone->inumero);
         }
 
@@ -677,6 +682,7 @@ class PersonsController extends BaseController
     {
         $this->hasClientAuthorized('edii'); // Verificar si el cliente tiene autorización
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        $data->phone->inumero = preg_replace('/[^0-9]/', '', $data->phone->inumero);
         $data->phone->inumero = intval($data->phone->inumero);
         $this->validRequiredData($data->phone, 'phone'); // Validar datos requeridos
         Db::begin(); // Iniciar transacción en la base de datos
@@ -686,15 +692,13 @@ class PersonsController extends BaseController
                     txtlada=:txtlada,
                     inumero=:inumero,
                     iidtelefono_tipo=:iidtelefono_tipo,
-                    bactivo=:bactivo,
                     dtfecha_modificacion=:dtfecha_modificacion
                 WHERE iidtelefono=:iidtelefono
             ';
         $params = array(
             'txtlada'  => $data->phone->txtlada,
-            'inumero' => intval($data->phone->inumero),
+            'inumero' => $data->phone->inumero,
             'iidtelefono_tipo' => $data->phone->iidtelefono_tipo,
-            'bactivo' => $data->phone->activo ? 't' : 'f',
             'dtfecha_modificacion' => date('Y-m-d H:i:s'), // Formato de fecha correcto
             'iidtelefono'      => $data->phone->iidtelefono,
         );

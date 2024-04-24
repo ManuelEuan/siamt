@@ -33,7 +33,6 @@ class InspectorsController extends BaseController
 
     public function getServiceVindenUrlDebitaciones()
     {
-        var_dump("en el servidor 2");
         if (!$_SESSION['vinden']['token']) {
             Utils::getTokenVinden();
         }

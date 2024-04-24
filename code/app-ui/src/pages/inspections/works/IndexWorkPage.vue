@@ -2,10 +2,10 @@
     <v-container fluid>
         <div class="row">
             <div class="col-md-12">
-                <curp-verification ref="curpVerification"></curp-verification>
+                <curp-verification @person-info="handlePersonInfo"></curp-verification>
+                <!-- <curp-verification @person-info="handlePersonInfo" :typeOfRequest="'Inspector'"></curp-verification> -->
             </div>
             <div class="col-md-12">
-
                 <a ref="urlFrame" target="_blank">Abrir URL del Servicio Vinden</a>
             </div>
             <div class="col-md-12">
@@ -87,27 +87,27 @@ export default {
             this.$set(this.files, modelo, file[0]);
         },
          // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW (AUTOMÁTICO)
-        handleProcessFlow(foundSubStage, infoSubStage, processSubStage, hasFlowAfter) {
-            console.log('Retornando desde GENERIC PROCESS FLOW ')
-            if (foundSubStage) {
-                this.SubStage.info = infoSubStage
-                this.SubStage.process = processSubStage
-                this.SubStage.hasFlowAfter = hasFlowAfter
-            } else {
-                alert('No se encontró registro de la sub etapa')
-            }
-        },
+        // handleProcessFlow(foundSubStage, infoSubStage, processSubStage, hasFlowAfter) {
+        //     console.log('Retornando desde GENERIC PROCESS FLOW ')
+        //     if (foundSubStage) {
+        //         this.SubStage.info = infoSubStage
+        //         this.SubStage.process = processSubStage
+        //         this.SubStage.hasFlowAfter = hasFlowAfter
+        //     } else {
+        //         alert('No se encontró registro de la sub etapa')
+        //     }
+        // },
          // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW (CLICK EN BUTTON)
-        getNextSubStage(){
-            console.log('****************this.SubStage*****************')
-            console.log(this.SubStage)
-            this.exampleProccessFlow = this.SubStage.info.iidsubetapa_siguiente
-            // this.inspector.iidsubetapa = this.SubStage.info.iidsubetapa_siguiente
-            if(!this.SubStage.hasFlowAfter){
-                // Si no existe una sub etapa que tenga flujo posterior significa que será el ultimo cambio posible del proceso
-                this.finalizeProcess = true
-            }
-        },
+        // getNextSubStage(){
+        //     console.log('****************this.SubStage*****************')
+        //     console.log(this.SubStage)
+        //     this.exampleProccessFlow = this.SubStage.info.iidsubetapa_siguiente
+        //     // this.inspector.iidsubetapa = this.SubStage.info.iidsubetapa_siguiente
+        //     if(!this.SubStage.hasFlowAfter){
+        //         // Si no existe una sub etapa que tenga flujo posterior significa que será el ultimo cambio posible del proceso
+        //         this.finalizeProcess = true
+        //     }
+        // },
 
         // GET (BD)
         async getServiceVindenUrlDebitaciones() {
@@ -121,6 +121,16 @@ export default {
                 alert(message);
             }
         },
+        // HANDLERS DEMO
+        // RETORNO DE COMPONENTE GENÉRICO CURP VERIFICATION
+        handlePersonInfo(personFound, availablePerson, person) {
+            console.log('retorno del componente Curp Verification')
+            console.log('Persona encontrada: ' + personFound)
+            console.log('Persona disponible: ' + availablePerson)
+            console.log('Persona Información Completa: ')
+            console.log(person)
+        },
+        
     },
     async mounted(){
         await this.getServiceVindenUrlDebitaciones()

@@ -59,7 +59,7 @@
                 <v-col cols="12" md="4">
                     <v-btn class="d-flex align-center ml-3" depressed color="primary"
                         @click="curp = persona.txtcurp, search = 'CURP', showDialogPerson(persona.iidpersona)">
-                        Ver información completa 1
+                        Ver información completa
                     </v-btn>
                 </v-col>
             </v-row>
@@ -70,7 +70,8 @@
             <template v-slot:default>
                 <!-- <div> -->
                 <div v-if="search === 'NOMBRE'">
-                    En caso de requerir el registro de la persona es necesario proporcionar el tipo de persona y sus datos
+                    En caso de requerir el registro de la persona es necesario proporcionar el tipo de persona y sus
+                    datos
                     requeridos
                     <p class="mt-3 primary--text mb-0 font-weight-bold">Tipo de persona</p>
                     <v-radio-group cols="12" md="4" v-model="typePersonFisica" mandatory row>
@@ -93,7 +94,8 @@
                 <div v-else class="mb-3">
                     ¿Desea registrarlo?
                     <v-card-actions class="justify-end" style="margin-bottom: -2.5rem;">
-                        <v-btn color="error" text @click="dialogRegisterPerson = false, personaEncontrada = false, personaDisponible = false">Cancelar</v-btn>
+                        <v-btn color="error" text
+                            @click="dialogRegisterPerson = false, personaEncontrada = false, personaDisponible = false">Cancelar</v-btn>
                         <v-btn color="primary" text @click="showDialogPerson(0)">Aceptar</v-btn>
                     </v-card-actions>
                 </div>
@@ -114,7 +116,7 @@
 
         <!-- DIALOG INSPECTOR -->
         <generic-dialog :dialogVisible="dialogRedirectFoundRequest"
-            dialogTitle="La clave ingresada pertenece a un inspector"
+            :dialogTitle=messageDialogOfRequest
             @update:dialogVisible="dialogRedirectFoundRequest = $event" @confirm="redirectRouteTypeOfRequest">
             <template v-slot:default>
                 ¿Desea verificar la información?
@@ -185,8 +187,8 @@
             </template>
         </generic-dialog>
 
-        <modal-create-person :iidpersona=personId :activateModalPerson=activateModalPerson
-            :preLoadPerson=preLoadPerson @modal-create-person="handlefromModalCreatePerson" />
+        <modal-create-person :iidpersona=personId :activateModalPerson=activateModalPerson :preLoadPerson=preLoadPerson
+            @modal-create-person="handlefromModalCreatePerson" />
     </v-row>
 </template>
 <style>
@@ -241,6 +243,7 @@ export default {
             personaEncontrada: false,
             personaDisponible: false,
             routeTypeOfRequest: '', // Si typeOfRequest es mandada y se encuentra un registro en la base datos se convertirá en una route de redirección donde se necesite
+            messageDialogOfRequest: '',
 
             // WATCHERS 
             curp: '',
@@ -323,7 +326,7 @@ export default {
                         bfisica: true,
                         txtvariable: this.curp
                     }
-                } else if(this.search == "RFC" ){
+                } else if (this.search == "RFC") {
                     this.preLoadPerson = {
                         bfisica: false,
                         txtvariable: this.rfc
@@ -333,7 +336,7 @@ export default {
             } else {
                 localStorage.setItem('newPerson', false);
                 // console.log('****iidpersona****')
-                console.log('idipersona: ' + iidpersona) 
+                console.log('idipersona: ' + iidpersona)
                 this.personId = iidpersona
                 this.activateModalPerson = true
             }
@@ -344,7 +347,6 @@ export default {
         async verifyCurp(fromDialogRegister = false) {
             this.dialogCurpChanged = false
             this.personaDisponible = false
-            // emititr
             try {
                 let response = ''
                 let data = {};
@@ -446,7 +448,7 @@ export default {
 
 
                     console.log(this.persona)
-                    
+
                     if (this.typeOfRequest) {
                         if (this.persona.foundRequestSearched === true) {  // Si la persona buscada es econtrada significa que no esta disponible
                             if (this.typeOfRequest == 'Inspector') {
@@ -454,16 +456,15 @@ export default {
                                 this.routeTypeOfRequest = `/inspectors/${this.persona.iidOfSearchedRequest}/edit`;
                                 this.personaDisponible = false
                                 this.activateModalPerson = false
+                                this.messageDialogOfRequest = "La clave ingresada pertenece a un " + this.typeOfRequest
                                 this.dialogRedirectFoundRequest = true
                             }
-                        }
-                        else {
+                        } else {
                             this.personaDisponible = true
                         }
+                    } else {
+                        this.personaDisponible = true
                     }
-                    console.log('111')
-                    console.log('Persona encontrada: ' + this.personaEncontrada)
-                    console.log('Persona disponible: ' + this.personaDisponible)
                     this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona);
                 }
             } catch (error) {
@@ -489,7 +490,7 @@ export default {
             console.log(personAllData)
             if (closeModal) {
                 this.activateModalPerson = false
-                if(personAllData.iidpersona!=0){
+                if (personAllData.iidpersona != 0) {
                     this.personaEncontrada = true
                     this.personaDisponible = true
                     this.persona = personAllData
@@ -571,8 +572,8 @@ export default {
                 this.rfcRegisterFieldValido = rfcRules(this.rfcRegisterField) === true;
             }
         },
-        'dialogRegisterPerson': function (){
-            if(this.dialogRegisterPerson){
+        'dialogRegisterPerson': function () {
+            if (this.dialogRegisterPerson) {
                 this.personaEncontrada = false
                 this.personaDisponible = false
                 this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona);
