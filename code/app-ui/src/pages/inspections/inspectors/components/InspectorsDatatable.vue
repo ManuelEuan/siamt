@@ -147,7 +147,6 @@ export default {
   methods: {
     ...mapActions('app', ['getInspectors']),
     async loadInspectorsTable() {
-      console.log('yaaa');
       console.log(this.inspectors);
       const { page, itemsPerPage, sortBy, sortDesc } = this.options;
       const data = { page, itemsPerPage, sortBy, sortDesc }; 

@@ -42,13 +42,12 @@
                     </v-col>
                     <v-col cols="12" md="6">
                         <v-text-field v-model="generalPersonData.txtrfc" label="RFC" hide-details="auto" clearable dense
-                            outlined maxlength="13" :rules="[rfcValido]"
-                            :disabled="newRegisterPerson || !generalPersonData.bfisica" />
+                            outlined maxlength="13" :rules="[rfcValido]" :disabled="!generalPersonData.bfisica" />
                     </v-col>
                     <v-col cols="12" md="6">
                         <v-text-field v-model="generalPersonData.txtcurp" label="CURP" :rules="[curpValido]"
                             maxlength="18" hide-details="auto" clearable dense outlined
-                            :disabled="newRegisterPerson || generalPersonData.bfisica" />
+                            :disabled="generalPersonData.bfisica" />
                     </v-col>
                     <v-col cols="12" md="6">
                         <v-text-field v-model="generalPersonData.txtine" label="INE" hide-details="auto" clearable dense
@@ -188,20 +187,23 @@ export default {
             try {
                 if (this.iidpersona) {
                     console.log('LOAD GENERAL DATA PERSON')
+                    // localStorage.setItem('newPerson', false);
                     this.newRegisterPerson = localStorage.getItem('newPerson');
                     this.newRegisterPerson = this.newRegisterPerson === 'true';
-                    if (this.newRegisterPerson) {
-                        this.newGeneralPersonData = true
-                    } else {
-                        this.newGeneralPersonData = false
-                    }
+                    // if (this.newRegisterPerson) {
+                    // this.newGeneralPersonData = true
+                    // } else {
+                    // this.newGeneralPersonData = false
+                    // }
                     console.log('this.iidpersona')
                     console.log(this.iidpersona)
                     this.generalPersonData = await services.inspections().getGeneralPersonData(this.iidpersona);
-                    console.log('this.persona getGeneralPersonData GENRAL')
+                    console.log('this.persona getGenera GENRAL')
                     console.log(this.generalPersonData)
                     console.log(this.generalPersonData)
+                    // this.emitToParentComponent()
                 } else {
+                    localStorage.setItem('newPerson', true);
                     this.resetGeneralPersonData()
                     this.generalPersonData.bfisica = this.preLoadPerson.bfisica
                     if (this.preLoadPerson.bfisica) {
@@ -210,6 +212,7 @@ export default {
                         this.generalPersonData.txtrfc = this.preLoadPerson.txtvariable
                     }
                 }
+                this.newRegisterPerson = localStorage.getItem('newPerson');
             } catch (error) {
                 const message = 'Error al cargar los datos generales de la persona.';
                 this.showError({ message, error });
@@ -249,7 +252,7 @@ export default {
             this.loadDataPerson()
         },
         'preLoadPerson': function () {
-            console.log('llego el preload desde modal')
+            console.log('llego el preload desde curp verification')
             console.log(this.preLoadPerson)
             this.generalPersonData.bfisica = this.preLoadPerson.bfisica
             if (this.preLoadPerson.bfisica) {
@@ -264,6 +267,14 @@ export default {
             console.log('watch generalPersonDataValidation')
             this.emitToParentComponent()
         },
+        // WATCHERS DATA
+        // 'newRegisterPerson': function () {
+        //     console.log('watch newRegisterPerson')
+        //     if (this.newRegisterPerson) {
+        //         this.resetGeneralPersonData()
+        //         this.newGeneralPersonData = true
+        //     }
+        // },
     },
     async mounted() {
         await this.getAllSexes();

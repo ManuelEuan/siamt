@@ -2,6 +2,7 @@
     <div>
         <v-card-text>
             <!-- CAMPOS DE EVENTOS -->
+            {{ newRegisterPerson }}
             <div class="row d-flex justify-space-around align-center mx-auto" v-if="!newRegisterPerson">
                 <p class="col-md-6 my-0">Direcciones</p>
                 <v-col cols="12" md="3" v-if="!newAddress && !editAddress">

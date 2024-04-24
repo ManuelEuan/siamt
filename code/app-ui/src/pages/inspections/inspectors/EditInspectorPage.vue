@@ -22,12 +22,17 @@
                     <v-card flat>
                         <v-tab-item :key="1" value="generaltab" class="py-1">
                             <v-card-text>
-                                <curp-verification :style="{ display: createMode ? 'block' : 'none !important' }"
+                                <!-- <curp-verification :style="{ display: createMode ? 'block' : 'none !important' }"
                                     :typeOfRequest="'Inspector'" :iidpersona=inspector.iidpersona
                                     :activateDialogPerson=activateModalPerson @person-info="handlePersonInfo"
-                                    ref="curpVerification"></curp-verification>
+                                    ref="curpVerification"></curp-verification> -->
+                                    <!-- :typeOfRequest="'Inspector'" -->
+                                <curp-verification
+                                    :request=request
+                                    :activateDialogPerson=activateModalPerson @person-info="handlePersonInfo">
+                                </curp-verification>
                                 <v-form v-model="validationFieldsInspector">
-                                    <v-row v-if="!createMode">
+                                    <!-- <v-row v-if="!createMode">
                                         <v-col cols="12" md="4">
                                             <v-text-field v-model="persona.txtnombre_completo" label="Nombre Completo*"
                                                 hide-details="auto" clearable dense :disabled="!createMode" outlined />
@@ -43,7 +48,7 @@
                                         <v-col cols="12" md="4">
                                             <v-btn color="primary" text @click=showDialogPerson()>Información Completa</v-btn>
                                         </v-col>
-                                    </v-row>
+                                    </v-row> -->
                                     <v-row v-if="personaEncontrada && personaDisponible || !createMode">
                                         <v-col cols="12" md="6">
                                             <v-select v-model="inspector.iidturno" label="Turno*"
@@ -80,11 +85,11 @@
                                                 label="Fecha de baja" type="date" :mask="'####/##/##'"></v-text-field>
                                         </v-col>
 
-                                        <generic-process-flow v-if="!createMode" class="col-md-12"
-                                            :iidsubStage=inspector.iidsubetapa :finalizeProcess=finalizeProcess :request=request
-                                            @process-flow="handleProcessFlow"
+                                        <!-- <generic-process-flow v-if="!createMode" class="col-md-12"
+                                            :iidsubStage=inspector.iidsubetapa :finalizeProcess=finalizeProcess
+                                            :request=request @process-flow="handleProcessFlow"
                                             @update:dialogVisible="dialogRegisterPerson = $event"
-                                            @confirm="dialogConfirmationNextSubStage = true"></generic-process-flow>
+                                            @confirm="dialogConfirmationNextSubStage = true"></generic-process-flow> -->
 
                                         <v-col cols="12">
                                             <v-textarea v-model="inspector.txtcomentarios" label="Comentarios"
@@ -97,7 +102,9 @@
                         <v-card-actions>
                             <v-spacer />
                             <v-btn color="error" text @click="showAllInspectors()"> Cerrar </v-btn>
-                            <v-btn color="primary" text :disabled="!validationFieldsInspector || !personaEncontrada || !personaDisponible" @click="saveInspector()">
+                            <v-btn color="primary" text
+                                :disabled="!validationFieldsInspector || !personaEncontrada || !personaDisponible"
+                                @click="saveInspector()">
                                 Guardar </v-btn>
                         </v-card-actions>
 
@@ -129,7 +136,7 @@
 import rules from "@/core/rules.forms";
 import services from "@/services";
 import CurpVerification from '@/components/common/CurpVerification.vue';
-import GenericProcessFlow from '@/components/common/GenericProcessFlow.vue';
+// import GenericProcessFlow from '@/components/common/GenericProcessFlow.vue';
 import GenericDialog from '@/components/common/GenericDialog.vue';
 
 import { mapActions } from "vuex";
@@ -137,7 +144,7 @@ import { mapActions } from "vuex";
 export default {
     components: {
         CurpVerification,
-        GenericProcessFlow,
+        // GenericProcessFlow,
         GenericDialog,
     },
     data() {
@@ -187,7 +194,7 @@ export default {
             activateModalPerson: false,
             finalizeProcess: false,
             request: {
-                type: '',
+                type: 'Inspector',
                 idOfSearch: 0,
             },
 
@@ -239,26 +246,16 @@ export default {
             }
         },
 
-        // OBTENER DATOS DE LA PERSONA (BD)
-        async getGeneralPersonData() {
-            try {
-                this.persona = await services.inspections().getGeneralPersonData(this.inspector.iidpersona);
-                console.log('this.persona getGeneralPersonData')
-                console.log(this.persona)
-            } catch (error) {
-                const message = 'Error al cargar los datos de la persona.';
-                this.showError({ message, error });
-            }
-        },
-
         // OBTENER DATOS DEL INSPECTOR (BD)
         async setEditMode() {
             try {
                 const { id } = this.$route.params;
                 this.inspector = { ...await services.inspections().getInspectorInfo({ id }) };
+                console.log('**********this.request*********');
+                console.log(this.request);
                 this.request = {
                     type: 'Inspector',
-                    idOfSearch: this.inspector.iidinspector,
+                    idOfSearch: this.inspector.iidpersona,
                 }
             } catch (error) {
                 const message = 'Error al cargar información de inspector.';
@@ -301,8 +298,6 @@ export default {
 
         showDialogPerson() {
             console.log('showDialogPerson')
-            console.log(this.persona)
-            console.log(this.inspector)
             this.activateModalPerson = true
         },
 
@@ -316,7 +311,7 @@ export default {
             this.activateModalPerson = false
             this.personaEncontrada = personFound
             this.personaDisponible = availablePerson
-            
+
             if (this.personaDisponible || this.personaEncontrada && person.iidpersona != 0) {
                 this.inspector.iidpersona = this.persona.iidpersona
             } else {
@@ -357,7 +352,7 @@ export default {
                     "iidsubetapa_actual": this.SubStage.info.iidsubetapa_siguiente,
                 }
 
-                let updateInspectorSubStage = await services.inspections().updateInspectorSubStage( dataNextSubStage );
+                let updateInspectorSubStage = await services.inspections().updateInspectorSubStage(dataNextSubStage);
                 console.log('updateInspectorSubStage')
                 console.log(updateInspectorSubStage)
                 console.log(dataNextSubStage)
@@ -375,7 +370,7 @@ export default {
                     // Si no existe una sub etapa que tenga flujo posterior significa que será el ultimo cambio posible del proceso
                     this.finalizeProcess = true
                 }
-                
+
             } catch (error) {
                 const message = 'Error al guardar inspector.';
                 this.showError({ message, error });
@@ -391,8 +386,6 @@ export default {
         await this.getAllShiftsInspector()
         if (!this.createMode) {
             await this.setEditMode();
-            await this.getGeneralPersonData()
-
         }
     }
 };
