@@ -84,6 +84,8 @@ export default class SecurityService extends ApiService {
 		const token = this.getToken();
 		if(token !== null) {
 			const data = this.parseTokenData(token);
+			console.log('**********security ****************')
+			console.log(data)
 			return data[key];
 		}
 		return null;

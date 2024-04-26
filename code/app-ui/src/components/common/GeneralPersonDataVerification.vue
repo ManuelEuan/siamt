@@ -1,21 +1,18 @@
 <template>
-    <div>
+    <div>CAUM990224HYNRCC05 
         <v-card-text>
             <!-- CAMPOS DE EVENTOS -->
-            <div class="row d-flex justify-space-around align-center mx-auto" v-if="!preLoadPerson.txtvariable">
-                <p class="col-md-6 my-0">Información de persona {{ newRegisterPerson }} -- {{ newGeneralPersonData }} --
-                    {{ editGeneralPersonData }}</p>
-                <v-col cols="12" md="6">
-                    <v-btn depressed color="primary" :disabled="!generalPersonDataValidation" @click="updatePerson()">
-                        Actualizar datos generales
+            <v-row class="mx-auto" v-if="peopleModulePermissions.includes('vegp')">
+                <v-col cols="12" class="text-right">
+                    <v-btn v-if="peopleModulePermissions.includes('edgp')" depressed color="primary" :disabled="!generalPersonDataValidation" @click="updatePerson()">
+                        Actualizar datos
                     </v-btn>
                 </v-col>
-            </div>
-
+            </v-row>
             <!-- CAMPOS DE AGREGAR - MODIFICAR -->
             <v-form v-model="generalPersonDataValidation">
                 <div class="row d-flex justify-space-beetwen align-center mx-auto">
-                    <p class="col-md-2 my-0 mx-0 px-0 py-0">Tipo de persona</p>
+                    <p class=" my-0 mx-0 pr-3 py-0">Tipo de persona</p>
                     <v-radio-group cols="12" v-model="generalPersonData.bfisica" mandatory row
                         :disabled="preLoadPerson.txtvariable !== '' || editGeneralPersonData">
                         <v-radio color="success" label="Física" :value="true" style="max-width:80px"></v-radio>
@@ -123,6 +120,7 @@ export default {
                 fecha_creacion: '',
                 fecha_modificacion: ''
             },
+            peopleModulePermissions: [],
 
             // REGLAS
             rules: {
@@ -280,6 +278,9 @@ export default {
         await this.getAllSexes();
         await this.getAllCivilStatus();
         await this.loadDataPerson();
+        const { pel } = await services.security().getPermissions();
+        if (pel) this.peopleModulePermissions = pel;
+        this.newRegisterPerson = localStorage.getItem('newPerson') === 'true';
     },
 
 }

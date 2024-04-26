@@ -121,6 +121,7 @@ $app->mount(
         ->post("/users", "getUsers")
         ->post('/users/new', 'createUser')
         ->post('/users/getedituserinfo', 'getEditUserInfo')
+        ->post('/users/getActivePermissionsFromUser', 'getActivePermissionsFromUser')
         ->put('/users', 'updateUser')
         ->put('/users/reset', 'resetUserPass')
         ->put('/users/change', 'changeUserPass')

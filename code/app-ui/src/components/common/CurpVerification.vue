@@ -1,45 +1,51 @@
 <template>
     <div>
-        <v-row v-if="!request.idOfSearch" style="display:flex; justify-content: center;">
-            <v-col cols="12" md="12" class="d-flex align-center justify-between" style="height:30px">
-                CAUM990224HYNRCC05 ---- CAUM990224S31
-                Permisos módulo personas {{ peopleModulePermissions }}
-            </v-col>
-            <label for="">Seleccione una forma de búsqueda:</label>
-            <v-col cols="12" md="12" class="text-center">
-                <v-radio-group v-model="search" row class="p-radio">
+        <v-data-table :headers="headers" :items="getAllInfoPermissionsFromUser"></v-data-table>
+        <v-row class="d-flex align-center mx-auto mt-5" v-if="!request.idOfSearch">
+            <v-col cols="12" class="text-center" style="padding: 0;">Seleccione una forma de búsqueda:</v-col>
+            <v-col cols="12" class="text-center" style="padding: 0;">
+                <v-radio-group v-model="search" :row="$vuetify.breakpoint.smAndUp"  class="p-radio">
                     <v-radio label="Nombre" value="NOMBRE" class="mr-4"></v-radio>
                     <v-radio label="CURP" value="CURP" class="mr-4"></v-radio>
                     <v-radio label="RFC" value="RFC"></v-radio>
                 </v-radio-group>
             </v-col>
-            <v-col cols="12" md="6" class="d-flex align-center justify-between" style="height:30px"
-                v-if="search === 'NOMBRE'">
-                <v-text-field v-model="nombre" label="NOMBRE(S)*" style="max-height: 40px;" :rules="[rules.required]"
-                    hide-details="auto" clearable dense @input="toUpperCase" outlined />
-                <v-btn class="d-flex align-center ml-3 search-btn" depressed color="primary" @click="verifyCurp()">
-                    Verificar Nombre
+        </v-row>
+        <v-row class="d-flex align-center mx-auto" v-if="!request.idOfSearch">
+            <v-col cols="12" md="4" sm="6" style="margin: 0 0 0 auto; padding: 0; height: 40px;" v-if="search === 'NOMBRE'">
+                <v-text-field v-model="nombre" label="NOMBRE(S)*" :rules="[rules.required]" hide-details="auto"
+                    clearable dense @input="toUpperCase" outlined />
+            </v-col>
+            <v-col cols="12" md="4" sm="6" class="pl-0" v-if="search === 'NOMBRE'">
+                <v-btn class="ml-sm-3" :disabled="nombre.length < 3" depressed color="primary" @click="verifyCurp()">
+                    Realizar búsqueda
                 </v-btn>
             </v-col>
-            <v-col cols="12" md="6" class="d-flex align-center justify-between" style="height:30px"
-                v-if="search === 'CURP'">
-                <v-text-field v-model="curp" label="CURP*" style="max-height: 40px;" :rules="[rules.curp]"
-                    maxlength="18" hide-details="auto" clearable dense @input="toUpperCase" outlined />
-                <v-btn class="d-flex align-center ml-3 search-btn" depressed color="primary" @click="verifyCurp()">
-                    Verificar CURP
+        </v-row>
+        <v-row class="d-flex align-center mx-auto" v-if="!request.idOfSearch">
+            <v-col cols="12" md="4"  sm="6" style="margin: 0 0 0 auto; padding: 0; height: 40px;" v-if="search === 'CURP'">
+                <v-text-field v-model="curp" label="CURP*" :rules="[rules.curp]" maxlength="18" hide-details="auto" clearable dense @input="toUpperCase" outlined />
+            </v-col>
+            <v-col cols="12" md="4"  sm="6" class="pl-0" v-if="search === 'CURP'">
+                <v-btn class="ml-sm-3" :disabled="!curpValida" depressed color="primary" @click="verifyCurp()">
+                    Realizar búsqueda
                 </v-btn>
             </v-col>
-            <v-col cols="12" md="6" class="d-flex align-center justify-between" style="height:30px"
-                v-if="search === 'RFC'">
-                <v-text-field v-model="rfc" label="RFC*" style="max-height: 40px;" :rules="[rules.rfc]" maxlength="13"
-                    hide-details="auto" clearable dense @input="toUpperCase" outlined />
-                <v-btn class="d-flex align-center ml-3 search-btn" depressed color="primary" @click="verifyCurp()">
-                    Verificar RFC
+        </v-row>
+        <v-row class=" d-flex align-center mx-auto" v-if="!request.idOfSearch">
+            <v-col cols="12" md="4" sm="6" style="margin: 0 0 0 auto; padding: 0; height: 40px;" v-if="search === 'RFC'">
+                <v-text-field v-model="rfc" label="RFC*" :rules="[rules.rfc]" maxlength="13" hide-details="auto"
+                    clearable dense @input="toUpperCase" outlined />
+            </v-col>
+            <v-col cols="12" md="4" sm="6" class="pl-0" v-if="search === 'RFC'">
+                <v-btn class="ml-sm-3" :disabled="!rfcValida" depressed color="primary" @click="verifyCurp()">
+                    Realizar búsqueda
                 </v-btn>
             </v-col>
         </v-row>
 
-        <v-row v-if=personaDisponible>
+
+        <v-row v-if="personaDisponible">
             <v-col cols="12" md="4">
                 <v-text-field v-model="persona.txtnombre_completo" label="Nombre Completo" hide-details="auto" clearable
                     dense disabled outlined />
@@ -52,18 +58,18 @@
                 <v-text-field v-model="persona.txtrfc" label="RFC" hide-details="auto" clearable dense disabled
                     outlined />
             </v-col>
-            <v-col cols="12" md="2">
-                <v-btn class="d-flex align-center ml-3" depressed color="primary"
-                    @click="showDialogPerson(persona.iidpersona)">
-                    Ver información completa
+            <v-col cols="6" md="2" sm="6" v-if="peopleModulePermissions.includes('vegp')">
+                <v-btn depressed color="primary" @click="showDialogPerson(persona.iidpersona)">
+                    Información
                 </v-btn>
             </v-col>
-            <v-col cols="12" md="2" v-if="!request.idOfSearch">
-                <v-btn class="d-flex align-center ml-3" depressed color="primary">
+            <v-col cols="6" md="2" sm="6" v-if="!request.idOfSearch">
+                <v-btn depressed color="primary" @click="emitToParentComponent()">
                     Seleccionar
                 </v-btn>
             </v-col>
         </v-row>
+
 
         <generic-dialog :dialogVisible="dialogRegisterPerson" dialogTitle="No se han encontrado registros en el sistema"
             :showButtons=false @update:dialogVisible="dialogRegisterPerson = $event" @confirm="showDialogPerson(0)">
@@ -87,7 +93,7 @@
                     <v-card-actions class="justify-end" style="margin-bottom: -1rem; margin-top: 1rem;">
                         <v-btn color="error" text @click="dialogRegisterPerson = false">Cancelar</v-btn>
                         <v-btn color="primary"
-                            :disabled="typePersonFisica && !curpValida || !typePersonFisica && !rfcValida" text
+                            :disabled="typePersonFisica && !curpValida && curpRegisterField || !typePersonFisica && !rfcValida && rfcRegisterField" text
                             @click="showDialogPerson(0)">Aceptar</v-btn>
                     </v-card-actions>
                 </div>
@@ -195,25 +201,26 @@
                     <v-tabs-slider color="primary" />
                     <v-tab href="#generaltab">
                         Datos Generales
-                        <v-badge :color="receivedTabGeneralPersonData.valid ? 'success' : 'warning'">
+                        <v-badge class="badge_change"
+                            :color="receivedTabGeneralPersonData.valid ? 'success' : 'warning'">
                             <v-icon> mdi-clipboard-text </v-icon>
                         </v-badge>
                     </v-tab>
-                    <v-tab href="#direccionestab">
+                    <v-tab href="#direccionestab" v-if="peopleModulePermissions.includes('vedp')">
                         Dirección
-                        <v-badge
+                        <v-badge class="badge_change"
                             :color="!receivedTabAddress.newOrEdit && !newRegisterPerson || receivedTabAddress.newOrEdit && receivedTabAddress.valid ? 'success' : 'warning'">
                             <v-icon> mdi-card-account-details </v-icon>
                         </v-badge>
                     </v-tab>
-                    <v-tab href="#telefonostab">
+                    <v-tab href="#telefonostab" v-if="peopleModulePermissions.includes('vetp')">
                         Teléfono
-                        <v-badge
+                        <v-badge class="badge_change"
                             :color="!receivedTabPhone.newOrEdit && !newRegisterPerson || receivedTabPhone.newOrEdit && receivedTabPhone.valid ? 'success' : 'warning'">
                             <v-icon> mdi-card-account-details </v-icon>
                         </v-badge>
                     </v-tab>
-                    <v-tab href="#filestab">
+                    <v-tab href="#filestab" v-if="peopleModulePermissions.includes('veap')">
                         Archivos
                         <v-icon> mdi-card-account-details </v-icon>
                     </v-tab>
@@ -261,6 +268,11 @@
     display: flex;
     justify-content: center;
 }
+
+.badge_change .v-badge__badge {
+    height: 14px !important;
+    min-width: 14px !important;
+}
 </style>
 
 <script>
@@ -290,7 +302,7 @@ export default {
             type: Object,
             default: function () {
                 return {
-                    type: 'dd',
+                    type: '',
                     idOfSearch: 0,
                 }; // Objeto vacío como valor predeterminado
             }
@@ -321,7 +333,14 @@ export default {
 
             // VIENEN DE SERVICIOS
             peopleFounds: [],
+            getAllInfoPermissionsFromUser: [],
             peopleModulePermissions: [],
+            headers: [
+                { text: 'ID', value: 'id' },
+                { text: 'Nombre', value: 'nombre' },
+                { text: 'Descripción', value: 'descripcion' },
+                { text: 'Siglas', value: 'siglas' }
+            ],
 
             // ARREGLOS
             persona: {
@@ -380,7 +399,9 @@ export default {
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
-
+        checkPermission(code) {
+            return this.peopleModulePermissions.includes(code);
+        },
         async savePersonWithAddressAndPhone() {
             console.log('Guardando persona con dirección y teléfono');
             try {
@@ -646,20 +667,18 @@ export default {
                 this.setPerson = this.request.idOfSearch
             }
         }
-
     },
     async mounted() {
         // Agrega un event listener para el evento keydown en el documento
         // document.addEventListener('keydown', this.handleEnterKey);
-        const { pel } = await services.security().getPermissions();
-        console.log('permisos para el módulo persona')
-        console.log(pel)
-        if (pel) this.peopleModulePermissions = pel;
-        this.newRegisterPerson = localStorage.getItem('newPerson');
-        this.newRegisterPerson = this.newRegisterPerson === 'true';
-        if (this.newRegisterPerson) {
-            this.dataPerson = {}
-        }
+        // const { pel } = await services.security().getPermissions();
+        // console.log('permisos para el módulo persona')
+        // console.log(pel)
+        // if (pel) this.peopleModulePermissions = pel;
+        let user = await services.app().getUserConfig();
+        this.newRegisterPerson = localStorage.getItem('newPerson') === 'true';
+        this.getAllInfoPermissionsFromUser = await services.admin().getActivePermissionsFromUser( user[0].id );
+        this.peopleModulePermissions = this.getAllInfoPermissionsFromUser.map(permission => permission.siglas);
     },
     // beforeDestroy() {
     //     // Limpia el event listener cuando el componente se destruye

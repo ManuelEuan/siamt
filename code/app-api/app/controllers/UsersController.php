@@ -112,50 +112,47 @@ class UsersController extends BaseController
         $domains = Db::fetchAll($sql, $params);
         $user['usuario']->dominios = array_column($domains, 'iddominio');
 
-        // $sql = 'SELECT idmodulo FROM usuario.usuario_dominio_modulo WHERE idusuario=:id AND activo=true';
-        // $modules = Db::fetchAll($sql, $params);
-        // $user['usuario']->modulos = array_column($modules, 'idmodulo');
-
         $sql = 'SELECT idperfil FROM usuario.perfil_usuario WHERE idusuario=:id AND activo=true';
         $roles = Db::fetchAll($sql, $params);
         $user['usuario']->perfiles = array_column($roles, 'idperfil');
 
-        // $sql = '
-        //     WITH role_permissions AS (
-        //         SELECT r.idpermiso FROM usuario.perfil_permiso r
-        //         INNER JOIN usuario.perfil_usuario u ON r.idperfil = u.idperfil
-        //         WHERE u.idusuario = :id
-        //     ), user_permissions AS (
-        //         SELECT idpermiso FROM usuario.usuario_permiso 
-        //         WHERE idusuario = :id
-        //     )
-
-        //     SELECT idpermiso FROM role_permissions 
-        //     UNION 
-        //     SELECT idpermiso FROM user_permissions
-        // ';
-        $sql = '
-        WITH perfiles_activos AS (
-            -- Obtener los IDs de los perfiles activos del usuario con idusuario = 6
-            SELECT idperfil
-            FROM usuario.perfil_usuario
-            WHERE idusuario = :id AND activo = true
-        ),
-        permisos_activos AS (
-            -- Obtener los IDs de los permisos activos para los perfiles obtenidos
-            SELECT idpermiso
-            FROM usuario.perfil_permiso
-            WHERE idperfil IN (SELECT idperfil FROM perfiles_activos) AND activo = true
-        )
-        -- Seleccionar los permisos activos
-        SELECT *
-        FROM permisos_activos;
-        
-        ';
-        $permissions = Db::fetchAll($sql, $params);
-        $user['usuario']->permisos = array_column($permissions, 'idpermiso');
-
+        // $user['usuario']->permisos = array_column($permissions, 'idpermiso');
+        $ActivePermissions = self::getActivePermissions($data->id);
+        $user['usuario']->permisos = array_column($ActivePermissions, 'id');
         return $user;
+    }
+
+    // Método para depurar y mostrar datos
+    public function dep($data)
+    {
+        $format  = print_r('<pre>');
+        $format .= print_r($data);
+        $format .= print_r('</pre>');
+        return $format;
+    }
+
+    public function getActivePermissionsFromUser($id = 0)
+    {
+        if ($id) {
+            $iidusuario = $id;
+        } else {
+            $iidusuario =  $this->request->getJsonRawBody();
+        }
+        $sql = "WITH perfiles_activos AS (
+                    SELECT idperfil
+                    FROM usuario.perfil_usuario
+                    WHERE idusuario = :iddusuario AND activo = true
+                ),
+                permisos_activos AS (
+                    SELECT idpermiso
+                    FROM usuario.perfil_permiso
+                    WHERE idperfil IN (SELECT idperfil FROM perfiles_activos) AND activo = true
+                )
+                SELECT p.id, p.nombre, p.descripcion, p.siglas
+                FROM permisos_activos pa
+                JOIN usuario.permiso p ON pa.idpermiso = p.id
+                WHERE p.activo = 't'";
+        return Db::fetchAll($sql, ['iddusuario' => $iidusuario]);
     }
 
     public function getPermissionsFromUser()
@@ -374,7 +371,7 @@ class UsersController extends BaseController
         $phs = str_replace(':clave', 'encode(sha256(:clave),\'hex\')', $phs);
 
         $sql = "INSERT INTO usuario.$table ($cols) VALUES ($phs)";
-        Db::execute($sql, $params,false);
+        Db::execute($sql, $params, false);
     }
 
     private function deactivate($table, $id)

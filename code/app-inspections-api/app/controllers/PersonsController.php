@@ -14,9 +14,8 @@ class PersonsController extends BaseController
     private function hasClientAuthorized($permission)
     {
 
-        $permissions = $this->token->getPermissions()['iin']; // Obtener permisos del token de usuario
+        $permissions = $this->token->getPermissions()['pel']; // Obtener permisos del token de usuario
         if (!in_array($permission, $permissions)) { // Comprobar si el permiso está presente en los permisos del usuario
-            if ($permission === 'veii' && in_array('edii', $permissions)) return; // Permitir acceso si es edpe pero no vepe
             throw new HttpUnauthorizedException(401, 'Permisos insuficientes.'); // Excepción de no autorizado si no se tienen los permisos necesarios
         }
     }
@@ -118,21 +117,17 @@ class PersonsController extends BaseController
             return;
         }
 
-
         // SI EXISTE PERSONA ÚNICA SE RETORNAN LOS DATOS ESPECÍFICOS
         // $this->dep($typeOfRequest);exit;
-        if ($typeOfRequest == 'Inspector') {
-            if (count($personas) > 0) {
-                foreach ($personas as $key => $persona) {
-                    // Consulta adicional para obtener información de inspección
-                    $sql2 = "SELECT iidinspector, iidinspector, txtfolio_inspector
-                        FROM inspeccion.tbl_inspector
-                        WHERE iidpersona=:iidpersona
-                    ";
+        $permissions = $this->token->getPermissions()['pel'];
 
+        if (count($personas) > 0) {
+            foreach ($personas as $key => $persona) {
+                if ($typeOfRequest == 'Inspector') {
+                    // Consulta adicional para obtener información de inspección
+                    $sql2 = "SELECT iidinspector, iidinspector, txtfolio_inspector FROM inspeccion.tbl_inspector WHERE iidpersona=:iidpersona";
                     $params2 = array('iidpersona' => $persona->iidpersona);
                     $inspector = Db::fetchOne($sql2, $params2);
-
                     if (!$inspector) {
                         $persona->foundRequestSearched = false;
                     } else {
@@ -140,8 +135,21 @@ class PersonsController extends BaseController
                         $persona->foundRequestSearched = true;
                     }
                 }
+                if (in_array('vetp', $permissions)) {
+                    $persona->telefonos = self::getPersonPhones($persona->iidpersona);
+                }
+                if (in_array('vedp', $permissions)) {
+                    $persona->direcciones = self::getPersonAddresses($persona->iidpersona);
+                }
             }
         }
+
+        // $permissions = $this->token->getPermissions()['pel'];
+        if (in_array('vegp', $permissions)) {
+        }
+        // self::dep($this->hasClientAuthorized('vetp'));
+        // exit;
+        // if($this->hasClientAuthorized('vetp');)
         // $this->dep($personas);exit;
         // SI EXISTEN MUCHAS PERSONAS QUE COINCIDEN CON LA BÚSQUEDA SE RETORNAN TODAS
         return $personas;
@@ -214,7 +222,7 @@ class PersonsController extends BaseController
 
     public function getGeneralPersonData()
     {
-        $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
+        $this->hasClientAuthorized('vegp'); // Verificar si el cliente tiene autorización
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         $params = array('iidpersona' => $data);
         $sql = "SELECT
@@ -248,10 +256,15 @@ class PersonsController extends BaseController
         return $generalPersonData;
     }
 
-    public function getPersonAddresses()
+    public function getPersonAddresses($iidpersona = 0)
     {
-        $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
-        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        $this->hasClientAuthorized('vedp'); // Verificar si el cliente tiene autorización
+        if($iidpersona){
+            $data = $iidpersona;
+        }else{
+            $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        }
+        // $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         // var_dump($data);exit;
         // $data = 84;
         $params = array('iidpersona' => $data);
@@ -383,11 +396,14 @@ class PersonsController extends BaseController
         return $addresses;
     }
 
-    public function getPersonPhones()
+    public function getPersonPhones($iidpersona = 0)
     {
-        $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
-        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        // var_dump($data);exit;
+        $this->hasClientAuthorized('vetp'); // Verificar si el cliente tiene autorización
+        if($iidpersona){
+            $data = $iidpersona;
+        }else{
+            $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        }
         $params = array('iidpersona' => $data);
         $sql = "SELECT
                     tbl_persona_telefono.iidpersona_telefono,
@@ -428,7 +444,7 @@ class PersonsController extends BaseController
 
     public function createPerson()
     {
-        $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
+        $this->hasClientAuthorized('crmp'); // Verificar si el cliente tiene autorización
 
         $info = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         // var_dump(isset($info->phone));exit;
@@ -484,7 +500,7 @@ class PersonsController extends BaseController
     // // Método para actualizar un persona
     public function updatePerson()
     {
-        $this->hasClientAuthorized('edii'); // Verificar si el cliente tiene autorización
+        $this->hasClientAuthorized('edgp'); // Verificar si el cliente tiene autorización
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         $this->validRequiredData($data, 'person'); // Validar datos requeridos
         Db::begin(); // Iniciar transacción en la base de datos
@@ -535,11 +551,11 @@ class PersonsController extends BaseController
 
     public function createAddress($direction = '')
     {
-        $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
+        $this->hasClientAuthorized('crdp'); // Verificar si el cliente tiene autorización
 
         if ($direction != '') {
             $data = new \stdClass();
-            $data->direction = $direction;
+            $data->address = $direction;
             if (is_object($direction) && property_exists($direction, 'iidpersona')) {
                 $data->iidpersona = $direction->iidpersona;
             }
@@ -550,33 +566,34 @@ class PersonsController extends BaseController
         if (empty($data->iidpersona)) {
             throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona para asignar dirección');
         }
+        // self::dep($data);exit;
         $iidpersona = $data->iidpersona;
         // if (empty($data->iidpersona)) throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona');
-        $this->validRequiredData($data->direction, 'direction'); // Validar datos requeridos
-        // var_dump($data->direction->inumero_exterior);exit;
+        $this->validRequiredData($data->address, 'direction'); // Validar datos requeridos
+        // var_dump($data->address->inumero_exterior);exit;
 
         Db::begin(); // Iniciar transacción en la base de datos
 
         $params = array(
-            'iidcolonia' => $data->direction->iidcolonia,
-            'txtcalle' => $data->direction->txtcalle,
-            'txtcalle_letra' => $data->direction->txtcalle_letra,
-            'itipo_vialidad' => $data->direction->itipo_vialidad,
-            'itipo_direccion' => $data->direction->itipo_direccion,
-            'txtavenida_kilometro' => $data->direction->txtavenida_kilometro,
-            'txttablaje' => $data->direction->txttablaje,
-            'txtdescripcion_direccion' => $data->direction->txtdescripcion_direccion,
-            'inumero_exterior' => $data->direction->inumero_exterior,
-            'txtnumero_exterior_letra' => $data->direction->txtnumero_exterior_letra,
-            'inumero_interior' => $data->direction->inumero_interior,
-            'txtnumero_interior_letra' => $data->direction->txtnumero_interior_letra,
-            'txtcruzamiento_uno' => $data->direction->txtcruzamiento_uno,
-            'txtcruzamiento_uno_letra' => $data->direction->txtcruzamiento_uno_letra,
-            'txtcruzamiento_dos' => $data->direction->txtcruzamiento_dos,
-            'txtcruzamiento_dos_letra' => $data->direction->txtcruzamiento_dos_letra,
-            'txtreferencia' => $data->direction->txtreferencia,
-            'flatitud' => $data->direction->flatitud,
-            'flongitud' => $data->direction->flongitud,
+            'iidcolonia' => $data->address->iidcolonia,
+            'txtcalle' => $data->address->txtcalle,
+            'txtcalle_letra' => $data->address->txtcalle_letra,
+            'itipo_vialidad' => $data->address->itipo_vialidad,
+            'itipo_direccion' => $data->address->itipo_direccion,
+            'txtavenida_kilometro' => $data->address->txtavenida_kilometro,
+            'txttablaje' => $data->address->txttablaje,
+            'txtdescripcion_direccion' => $data->address->txtdescripcion_direccion,
+            'inumero_exterior' => $data->address->inumero_exterior,
+            'txtnumero_exterior_letra' => $data->address->txtnumero_exterior_letra,
+            'inumero_interior' => $data->address->inumero_interior,
+            'txtnumero_interior_letra' => $data->address->txtnumero_interior_letra,
+            'txtcruzamiento_uno' => $data->address->txtcruzamiento_uno,
+            'txtcruzamiento_uno_letra' => $data->address->txtcruzamiento_uno_letra,
+            'txtcruzamiento_dos' => $data->address->txtcruzamiento_dos,
+            'txtcruzamiento_dos_letra' => $data->address->txtcruzamiento_dos_letra,
+            'txtreferencia' => $data->address->txtreferencia,
+            'flatitud' => $data->address->flatitud,
+            'flongitud' => $data->address->flongitud,
         );
 
         $iiddireccion = $this->insert('tbl_direccion', $params);
@@ -608,14 +625,14 @@ class PersonsController extends BaseController
         $paramsPersonAddress = array('iidpersona' => $iidpersona, 'iiddireccion' => $iiddireccion, 'bactual' => 't');
         $this->insert('tbl_persona_direccion', $paramsPersonAddress);
         Db::commit(); // Confirmar transacción en la base de datos
-        $data->direction->iiddireccion = $iiddireccion;
+        $data->address->iiddireccion = $iiddireccion;
 
         return array('message' => 'La dirección ha sido creada.', 'data' => $data); // Devolver mensaje de éxito
     }
 
     public function createPhone($phone = '')
     {
-        $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
+        $this->hasClientAuthorized('crmp'); // Verificar si el cliente tiene autorización
 
         if ($phone != '') {
             $data = new \stdClass();
@@ -680,7 +697,7 @@ class PersonsController extends BaseController
 
     public function updatePhone()
     {
-        $this->hasClientAuthorized('edii'); // Verificar si el cliente tiene autorización
+        $this->hasClientAuthorized('edtp'); // Verificar si el cliente tiene autorización
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         $data->phone->inumero = preg_replace('/[^0-9]/', '', $data->phone->inumero);
         $data->phone->inumero = intval($data->phone->inumero);
@@ -712,6 +729,7 @@ class PersonsController extends BaseController
 
     public function updateCurrentPhone()
     {
+        $this->hasClientAuthorized('edtp');
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         // var_dump($data);exit;
         if (empty($data->iidpersona) || empty($data->selectedPhone)) {
@@ -730,6 +748,7 @@ class PersonsController extends BaseController
 
     public function updateCurrentAddress()
     {
+        $this->hasClientAuthorized('eddp');
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         // var_dump($data);exit;
         if (empty($data->iidpersona) || empty($data->selectedAddress)) {
@@ -748,6 +767,7 @@ class PersonsController extends BaseController
 
     public function deleteAddress()
     {
+        $this->hasClientAuthorized('eddp');
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         // var_dump($data);exit;
         if (empty($data->iidpersona) || empty($data->selectedAddress)) {
@@ -763,6 +783,7 @@ class PersonsController extends BaseController
 
     public function deletePhone()
     {
+        $this->hasClientAuthorized('edtp');
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         // var_dump($data);exit;
         if (empty($data->iidpersona) || empty($data->selectedPhone)) {
@@ -848,6 +869,7 @@ class PersonsController extends BaseController
 
     public function updateAddress()
     {
+        $this->hasClientAuthorized('eddp');
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         $this->validRequiredData($data->direction, 'direction'); // Validar datos requeridos
         // $this->dep($data);exit;

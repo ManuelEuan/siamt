@@ -150,7 +150,7 @@ export default {
           services.admin().getPermissionsFromProfile({ id }),
           services.admin().getEditProfileInfo({ id }),
         ]);
-        console.log('kkkkkkkkkkk');
+        console.log('PERMISOS');
         console.log(permissions);
         this.permissions = modules.map(({ nombre, id }) => (
           {
@@ -158,7 +158,8 @@ export default {
             permisos: permissions.filter(p => p.idmodulo === id),
           }
         ));
-
+        console.log('PERMISOS FORMATEADOS');
+        console.log(this.permissions);
         const { modulos, permisos, ...profile } = perfil;
 
         const convToName = (objs, ids) => objs.filter(o => ids.includes(o.id)).map(o => o.nombre);

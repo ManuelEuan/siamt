@@ -53,7 +53,7 @@ $app->mount(
     ->get("/persons/getAllCivilStatus", "getAllCivilStatus")
     ->post("/persons/new", "createPerson")
     ->put("/persons/update", "updatePerson")
-    ->post("/persons/direction/new", "createDirection")
+    ->post("/persons/direction/new", "createAddress")
     ->post("/persons/getPersonAddresses", "getPersonAddresses")
     ->post("/persons/getPersonPhones", "getPersonPhones")
     ->post("/persons/getGeneralPersonData", "getGeneralPersonData")
