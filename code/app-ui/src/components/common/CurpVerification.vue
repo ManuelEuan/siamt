@@ -1,6 +1,7 @@
 <template>
     <div>
         <v-data-table :headers="headers" :items="getAllInfoPermissionsFromUser"></v-data-table>
+        CAUM990224HYNRCC04 - CAUM990224S31 - JAI
         <v-row class="d-flex align-center mx-auto mt-5" v-if="!request.idOfSearch">
             <v-col cols="12" class="text-center" style="padding: 0;">Seleccione una forma de búsqueda:</v-col>
             <v-col cols="12" class="text-center" style="padding: 0;">
@@ -460,9 +461,9 @@ export default {
 
         emitToParentComponent() {
             console.log('🚀 ~ emitToParentComponent ~ 🚀 sending editing mode, generalPersonData, validation 🚀')
-            console.log('person-info', this.personaEncontrada, this.personaDisponible);
+            console.log('person-info', this.personaEncontrada, this.personaDisponible); // true - true
             console.log(this.persona);
-            // this.$emit('general-person-data-validation', newOrEdit, this.generalPersonData, this.generalPersonDataValidation);
+            this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona);
         },
 
         async verifyCurp() {
@@ -679,6 +680,8 @@ export default {
         this.newRegisterPerson = localStorage.getItem('newPerson') === 'true';
         this.getAllInfoPermissionsFromUser = await services.admin().getActivePermissionsFromUser( user[0].id );
         this.peopleModulePermissions = this.getAllInfoPermissionsFromUser.map(permission => permission.siglas);
+        console.log('this.peopleModulePermissions**********');
+        console.log(this.peopleModulePermissions);
     },
     // beforeDestroy() {
     //     // Limpia el event listener cuando el componente se destruye

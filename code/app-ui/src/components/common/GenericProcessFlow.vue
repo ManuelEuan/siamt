@@ -2,7 +2,7 @@
     <div>
         <div class="row">
             <p class="col-md-12 primary--text text-h6 text-center">PROCESO: <span class="text-h10"
-                    style="color: #000;">{{ process.txtnombre }}</span></p>
+                    style="color: #000;">{{ allFlow.txtnombre }}</span></p>
             <p class="col-md-8 primary--text text-h6">ETAPA ACTUAL: <span class="text-h10" style="color: #000;">{{
                         currentSubStage.nombre_etapa }}</span></p>
             <div class="col-md-4" v-if="request.idOfSearch">
@@ -84,6 +84,13 @@
                 </template>
             </template>
         </generic-dialog>
+
+        <generic-dialog :dialogVisible="dialogDemoProcess" dialogTitle="Parámetros faltantes"
+            @update:dialogVisible="dialogDemoProcess = $event" @confirm="dialogDemoProcess = false">
+            <template v-slot:default>
+                Existen parámetros que no se han enviado o que no han sido configurados, favor de contactar al administrador.
+            </template>
+        </generic-dialog>
     </div>
     <!-- </div> -->
 </template>
@@ -96,7 +103,7 @@
 <script>
 import services from "@/services";
 import GenericDialog from '@/components/common/GenericDialog.vue';
-// import { mapActions } from "vuex";
+import { mapActions } from "vuex";
 export default {
     components: {
         GenericDialog,
@@ -116,14 +123,20 @@ export default {
 
             // DIALOGS
             dialogRequestTrace: false,
+            dialogDemoProcess: false,
+
+            // this.foundSubStage, this.currentSubStage, this.process, this.hasFlowAfter
+            // EMITIR
+            emitResponse: { //DEMO
+                foundSubStage: '', // Encontrado
+                currentSubStage: 0, // iidsubStage all data
+                process: {}, // process all data
+                hasFlowAfter: false, // continua proceso
+            },
 
         }
     },
     props: {
-        iidsubStage: {
-            type: Number,
-            required: true
-        },
         nextStage: {
             type: Boolean,
             required: false
@@ -133,50 +146,47 @@ export default {
             required: false,
             default: false,
         },
+        // this.foundSubStage, this.currentSubStage, this.process, this.hasFlowAfter
         request: {
             type: Object,
             default: function () {
                 return {
                     type: '',
-                    idOfSearch: 0,
+                    idOfType: 0,
+                    idOfSubStage: 0, //iidsubStage
+                    idOfNextSubStage: 0, //iidsubStage
+                    finalizeProcess: false,
                 }; // Objeto vacío como valor predeterminado
             }
         },
 
     },
     methods: {
-        async loadData() {
+        ...mapActions('app', ['showError', 'showSuccess']),
+        async loadFlowData() {
             try {
-                let last = await services.inspections().getInfoBySubStage({ iidsubStage: this.iidsubStage });
-                let currentSubStage = await services.inspections().getAllFlowBySubStage({ iidsubStage: this.iidsubStage });
-                console.log('load DATA PROCESS')
-                console.log(last)
-                console.log(currentSubStage)
-                if (last && !currentSubStage) { // VERIFICAMOS QUE EXISTE UN FLUJO DESPUÉS, EN CASO DE QUE NO EXISTA SIGNIFICA QUE ES LA ETAPA FINAL LA QUE SE CAPTURARA
-                    this.lastSubStage = true
+                let allInfo = await services.inspections().getInfoBySubStage(this.request);
+                // let currentSubStage = await services.inspections().getAllFlowBySubStage(this.request);
+                console.log(allInfo)
 
+                if(!this.request.idOfType){ // Si no hay un id en especifico para buscar se mostrará un modal que diciendo que solo es fase de pruebas
+                    // this.lastSubStage = true
+                    this.dialogDemoProcess = true
                 }
-                if (this.lastSubStage) {
-                    this.currentSubStage = last
-                } else { // SI EXISTE FLUJO SE ASIGNAN NORMAL LAS SUBETAPAS
-                    this.currentSubStage = currentSubStage
-                }
-                // SI EXISTE LA SUBETAPA BUSCADA SE ASIGNAN VALORES Y SE EMITEN AL COMPONENTE PADRE
-                if (this.currentSubStage) {
-                    this.iidproceso = this.currentSubStage.iidproceso
-                    this.foundSubStage = true
-                    this.process = await services.inspections().getInfoProcess({ iidproceso: this.iidproceso })
-                    this.steepSubStage = 1
-                    this.hasFlowAfter = await services.inspections().hasFlowAfter({ iidsubetapa: this.currentSubStage.iidsubetapa_siguiente })
-                    this.$emit('process-flow', this.foundSubStage, this.currentSubStage, this.process, this.hasFlowAfter);
-                    if (this.request.idOfSearch && this.request.type) {
-                        console.log('cambio en la solicitud de seguimiento actualizada: ')
-                        console.log(this.request)
-                        this.getDinamycTrace()
-                    }
-                }
+
+                // this.currentSubStage = allInfo.current
+                // this.process = await services.inspections().getInfoProcess({ iidproceso: allInfo.current.iidproceso })
+                // console.log('load DATA PROCESS')
+                // this.emitResponse= { //DEMO
+                //     foundSubStage: true, // Encontrado
+                //     currentSubStage: this.currentSubStage, // iidsubStage all data
+                //     process: this.process, // process all data
+                //     hasFlowAfter: this.hasFlowAfter, // continua proceso
+                // },
+                // this.emitToParentComponent()
+             
             } catch (error) {
-                const message = 'Error al procesar datos en componente de procesos ';
+                const message = 'Error al procesar datos en componente de procesos1 ';
                 this.showError({ message, error });
             }
         },
@@ -207,31 +217,30 @@ export default {
             try {
                 this.dinamycTrace = await services.inspections().getDinamycTrace({ request: this.request })
                 console.log(this.dinamycTrace)
+                console.log('*****************this.dinamycTrace')
             } catch (error) {
-                const message = 'Error al procesar datos en componente de procesos ';
+                const message = 'Error al procesar datos en componente de procesos2 ';
                 this.showError({ message, error });
             }
 
+        },
+        // EMITIR A COMPONENTE PADRE
+        emitToParentComponent() {
+            console.log('🚀 ~ emitToParentComponent ~ 🚀 sending editing mode, generalPersonData, validation 🚀')
+            console.log('******************generic process flow to emit parent***********************')
+            console.log(this.emitResponse)
+            this.$emit('process-flow', this.emitResponse);
         }
     },
     watch: {
-        'iidsubStage': function () {
-            console.log('recibido: ' + this.iidsubStage)
-            this.loadData()
-        },
-        'steepSubStage': function () {
-            console.log('cambio desde generic proccess flow')
-            console.log(this.steepSubStage)
-            console.log(this.iidsubStage)
-            // this.$emit('process-flow-next-substage', this.currentSubStage.iidsubetapa_siguiente);
-            // if (this.steepSubStage != this.iidsubStage) {
-            // }
-        },
-        'finalizeProcess': function () {
-            if (this.finalizeProcess) {
-                this.lastSubStage = true
-            }
-        },
+        // 'steepSubStage': function () {
+        //     console.log('cambio desde generic proccess flow')
+        //     console.log(this.steepSubStage)
+        //     console.log(this.iidsubStage)
+        //     // this.$emit('process-flow-next-substage', this.currentSubStage.iidsubetapa_siguiente);
+        //     // if (this.steepSubStage != this.iidsubStage) {
+        //     // }
+        // },
         'request': async function () {
             if (this.request.idOfSearch && this.request.type) {
                 console.log('cambio en la solicitud de seguimiento: ')
@@ -242,7 +251,7 @@ export default {
         }
     },
     async mounted() {
-        await this.loadData();
+        await this.loadFlowData();
 
     }
 

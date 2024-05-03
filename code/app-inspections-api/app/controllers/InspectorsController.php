@@ -232,31 +232,29 @@ class InspectorsController extends BaseController
         return $processes;
     }
 
-    public function getInfoProcess()
+    public function getStagesByProcess($iidproceso)
     {
-        $data = $this->request->getJsonRawBody();
+        // $data = $this->request->getJsonRawBody();
         // $this->dep($data);exit;
-        $sql = "SELECT 
-            iidproceso,
-            iidmodulo,
-            txtnombre,
-            txtdescripcion,
-            txtsigla,
-            bactivo AS activo,
-            TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-            TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-            FROM comun.cat_proceso
-            WHERE bactivo='t' AND iidproceso = :iidproceso
+        $sql = "SELECT
+                    etapa.iidetapa, 
+                    etapa.txtnombre AS nombre_etapa, 
+                    etapa.txtsigla AS sigla_etapa, 
+                    etapa.txtdescripcion AS descripcion_etapa, 
+                    etapa.txtcolor AS color_etapa, 
+                    etapa.txtpermiso AS permiso_etapa
+                FROM
+                    comun.cat_etapa AS etapa
+                WHERE bactivo='t' AND iidproceso = :iidproceso
         ";
-        $params = array('iidproceso' => $data->iidproceso);
-
-        $processes = Db::fetchOne($sql, $params);
-        return $processes;
+        $params = array('iidproceso' => $iidproceso);
+        $stages = Db::fetchAll($sql, $params);
+        return $stages;
     }
 
-    public function getAllFlowBySubStage()
+    public function getAllFlowBySubStage($iidSubStage)
     {
-        $data = $this->request->getJsonRawBody();
+        // $data = $this->request->getJsonRawBody();
 
         $sql = "WITH cte_flujo AS (
             SELECT iidsubetapa, iidsubetapa_siguiente
@@ -304,7 +302,7 @@ class InspectorsController extends BaseController
             JOIN comun.cat_subetapa nextSubStage ON f.iidsubetapa_siguiente = nextSubStage.iidsubetapa;
         
         ";
-        $params = array('iidsubetapa' => $data->iidsubStage);
+        $params = array('iidsubetapa' => $iidSubStage);
 
         $allFlow = Db::fetchOne($sql, $params);
         // $this->dep($allFlow);exit;
@@ -324,24 +322,131 @@ class InspectorsController extends BaseController
         $registro = Db::fetch($sql, $params);
         return $registro;
     }
+    public function getNextSubStageFromFlow($iidSubStage, $allFlow = false){
+        $sql = "SELECT iidsubetapa, iidsubetapa_siguiente
+        FROM comun.cat_flujo
+        WHERE iidsubetapa = :iidsubetapa -- Cambiar a la sintaxis de parámetro según tu entorno
+        AND bactivo = true";
+        $params = array('iidsubetapa' => $iidSubStage);
+        $currentFlow = Db::fetch($sql, $params);
+        $next = $this->subStage($currentFlow->iidsubetapa_siguiente);
+        // self::dep($next);exit;
+        return $next;
+    }
+
+    public function getProcessBySubStage($iidSubStage){
+        $sql = "SELECT
+                    cat_proceso.iidproceso, 
+                    cat_proceso.iidmodulo, 
+                    cat_proceso.txtnombre, 
+                    cat_proceso.txtsigla, 
+                    cat_proceso.txtdescripcion, 
+                    cat_proceso.bactivo
+                    -- cat_etapa.txtnombre, 
+                    -- cat_etapa.iidetapa
+                FROM
+                    comun.cat_proceso
+                    INNER JOIN
+                    comun.cat_etapa ON cat_proceso.iidproceso = cat_etapa.iidproceso
+                    INNER JOIN
+                    comun.cat_subetapa ON cat_etapa.iidetapa = cat_subetapa.iidetapa
+                WHERE cat_proceso.bactivo = 't' AND cat_subetapa.iidsubetapa = :iidsubetapa;
+        ";
+        $params = array('iidsubetapa' => $iidSubStage);
+        $process = Db::fetch($sql, $params);
+        return $process;
+    }
+
+    public function getSubStagesByStage($iidStage){
+        $sql = "SELECT 
+                s.iidsubetapa,
+                s.txtnombre,
+                s.txtsigla,
+                s.txtdescripcion,
+                s.txtcolor,
+                s.txtpermiso,
+                s.binicial,
+                s.bfinal,
+                s.bcancelacion,
+                s.brequiere_motivo,
+                s.iidetapa
+            FROM 
+                comun.cat_subetapa s
+            JOIN 
+                comun.cat_etapa e ON s.iidetapa = e.iidetapa
+            WHERE 
+                s.bactivo = 't' AND e.iidetapa = :iidStage
+        ";
+        $params = array('iidStage' => $iidStage);
+        $subStage = Db::fetchAll($sql, $params);
+        // var_dump($subStage);exit;
+        return $subStage;
+    }
 
     public function getInfoBySubStage()
     {
         $data = $this->request->getJsonRawBody();
+
+        // VERIFICAR SI ES LA ÚLTIMA DEL FLUJO
+        $currentSubStage = $this->subStage($data->idOfSubStage);
+        $nextSubStage = $this->getNextSubStageFromFlow($data->idOfSubStage);
+        $currentFlow=['currentSubStage' => $currentSubStage, 'nextSubStage'=>$nextSubStage];
+        // self::dep($currentFlow);exit;
+
+        $trace = []; // ACA SE VA A RECUPERAR EL HISTORIAL POR EL QUE PASÓ O SE ESCOGIÓ, NO ES OBLIGATORIO
+        if ($data->idOfType) {
+            // $follow = $this->getDinamycFollow($data->type, $data->idOfType);
+            $trace = $this->getDinamycTrace($data->type, $data->idOfType);
+        }
+
+        $getProcessBySubStage = $this->getProcessBySubStage($data->idOfSubStage);
+        $getStagesByProcess = $this->getStagesByProcess($getProcessBySubStage->iidproceso);
+        if(count($getStagesByProcess)>0){
+            foreach($getStagesByProcess as $key => $stage){
+                // $stage['subStages'] = $this->getSubStagesByStage($stage->iidetapa);
+                $subStages = $this->getSubStagesByStage($stage->iidetapa);
+                // Aquí puedes hacer algo con $subStages, como imprimirlo o procesarlo de alguna manera
+                // Por ejemplo:
+                $getStagesByProcess[$key]->subStages = $subStages;
+                // self::dep($subStages);
+                // echo "Subetapas de la etapa {$stage->nombre_etapa} (iidetapa: {$stage->iidetapa}):<br>";
+                // foreach ($subStages as $subStage) {
+                //     echo "- {$subStage->txtnombre}<br>";
+                // }
+            }
+        }
+        $getProcessBySubStage->etapas = $getStagesByProcess;
+        // self::dep($getProcessBySubStage);exit;
+        $allFlow = $getProcessBySubStage;
+        
+        // $allData = [];
+        // $allData['process'] = $getProcessBySubStage;
+        // $allData['process']['stages'] = $getStagesByProcess;
+        // $allFlow = $this->getAllFlowBySubStage($data->idOfSubStage);
+        
+
+        $allData = ['currentFlow' => $currentFlow, 'trace' => $trace, 'allFlow' => $allFlow];
+        // self::dep($allData);
+        // exit;
+        return $allData;
+    }
+
+    public function subStage($iidSubStage)
+    {
         $sql = "SELECT 
-                    s.iidsubetapa AS iidsubetapa_actual,
-                    s.txtnombre AS nombre_subetapa_actual,
-                    s.txtsigla AS sigla_subetapa_actual,
-                    s.txtdescripcion AS descripcion_subetapa_actual,
-                    s.txtcolor AS color_subetapa_actual,
-                    s.txtpermiso AS permiso_subetapa_actual,
-                    s.binicial AS inicial_subetapa_actual,
-                    s.bfinal AS final_subetapa_actual,
-                    s.bcancelacion AS cancelacion_subetapa_actual,
-                    s.brequiere_motivo AS requiere_motivo_subetapa_actual,
+                    s.iidsubetapa,
+                    s.txtnombre AS subetapa_nombre,
+                    s.txtsigla,
+                    s.txtdescripcion,
+                    s.txtcolor,
+                    s.txtpermiso,
+                    s.binicial,
+                    s.bfinal,
+                    s.bcancelacion,
+                    s.brequiere_motivo,
                     s.iidetapa,
                     e.iidproceso,
-                    e.txtnombre AS nombre_etapa
+                    e.txtnombre AS etapa_nombre
                 FROM 
                     comun.cat_subetapa s
                 JOIN 
@@ -349,11 +454,55 @@ class InspectorsController extends BaseController
                 WHERE 
                     s.bactivo = 't' AND s.iidsubetapa = :iidsubetapa
         ";
-        $params = array('iidsubetapa' => $data->iidsubStage);
-        $registro = Db::fetch($sql, $params);
-        return $registro;
+        $params = array('iidsubetapa' => $iidSubStage);
+        return Db::fetch($sql, $params);
     }
 
+    public function getDinamycFollow($type, $idOfType){
+        if ($type == 'Inspector') {
+            // Buscar en el seguimiento de inspectores (iidinspector)
+            $sql = "SELECT 
+                iseg.iidinspector_seguimiento,
+                iseg.iidinspector,
+                iseg.iidetapa_anterior,
+                iseg.iidetapa_actual,
+                iseg.bactivo,
+
+                sub_ant.iidetapa AS iidetapa_anterior,
+                etapa_ant.txtnombre AS nombre_etapa_anterior,
+                sub_ant.iidsubetapa AS iidsubetapa_anterior,
+                sub_ant.txtnombre AS nombre_subetapa_anterior,
+                sub_ant.txtsigla AS sigla_subetapa_anterior,
+                sub_ant.txtdescripcion AS descripcion_subetapa_anterior,
+                sub_ant.txtcolor AS color_subetapa_anterior,
+
+                sub_act.iidetapa AS iidetapa_actual,
+                etapa_act.txtnombre AS nombre_etapa_actual,
+                sub_act.iidsubetapa AS iidsubetapa_actual,
+                sub_act.txtnombre AS nombre_subetapa_actual,
+                sub_act.txtsigla AS sigla_subetapa_actual,
+                sub_act.txtdescripcion AS descripcion_subetapa_actual,
+                sub_act.txtcolor AS color_subetapa_actual
+            FROM 
+                inspeccion.tbl_inspector_seguimiento AS iseg
+            JOIN 
+                comun.cat_subetapa AS sub_ant ON iseg.iidsubetapa_anterior = sub_ant.iidsubetapa
+            JOIN 
+                comun.cat_subetapa AS sub_act ON iseg.iidsubetapa_actual = sub_act.iidsubetapa
+            JOIN 
+                comun.cat_etapa AS etapa_ant ON iseg.iidetapa_anterior = etapa_ant.iidetapa
+            JOIN 
+                comun.cat_etapa AS etapa_act ON iseg.iidetapa_actual = etapa_act.iidetapa
+            WHERE  
+                -- iseg.iidinspector = 3
+                iseg.bactivo = 't' AND iseg.iidinspector = :iidinspector
+            ";
+            $params = array('iidinspector' => $idOfType);
+            return Db::fetch($sql, $params);
+            // self::dep($follow);
+            // exit;
+        }
+    }
 
     public function getAllStagesInspector()
     {
@@ -393,8 +542,8 @@ class InspectorsController extends BaseController
     {
         $this->hasClientAuthorized('veii'); // Verificar si el cliente tiene autorización
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        $this->dep($data);
-        exit;
+        // $this->dep($data);
+        // exit;
         if (empty($data->stage)) throw new ValidatorBoomException(422, 'Etapa requerida.'); // Lanzar excepción si el ID está vacío
         $params = array('iidetapa' => $data->stage); // Parámetros para la consulta
         $sql = "
@@ -479,15 +628,27 @@ class InspectorsController extends BaseController
     }
 
     // Obtener información para editar un inspector
-    public function getDinamycTrace()
+    public function getDinamycTrace($type, $idOfSearch)
     {
         $this->hasClientAuthorized('veii'); // Verificar si el cliente tiene autorización
-        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        if (empty($data->request->type || $data->request->idOfSearch)) throw new ValidatorBoomException(422, 'No se han enviado los parametros correctamente.'); // Lanzar excepción si el ID está vacío
-        $type = $data->request->type;
-        $idOfSearch =$data->request->idOfSearch;
+        if(!$type && !$idOfSearch){
+            $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+            $type = $data->request->type;
+            $idOfSearch = $data->request->idOfSearch;
+        }
+        // if($data){
+        //     // if (empty($data->request->type || $data->request->idOfSearch)) throw new ValidatorBoomException(422, 'No se han enviado los parametros correctamente.'); // Lanzar excepción si el ID está vacío
+        //     $type = $data->request->type;
+        //     $idOfSearch = $data->request->idOfSearch;
+        // }
+        // else{
+        // self::dep($type);
+        // self::dep($idOfSearch);
+        // self::dep($data);
+        // exit;
+        // }
 
-        if($type == 'Inspector'){
+        if ($type == 'Inspector') {
             $sql = "SELECT 
                         insp.iidinspector_seguimiento,
                         insp.iidinspector,
@@ -514,7 +675,7 @@ class InspectorsController extends BaseController
                         AND insp.bactivo = 't';
             ";
         }
-        
+
         $params = array('idOfSearch' => $idOfSearch); // Parámetros para la consulta
         $foundRequest = Db::fetchAll($sql, $params);
         return $foundRequest; // Devolver información del inspector
@@ -559,29 +720,29 @@ class InspectorsController extends BaseController
         return array('message' => 'El inspector ha sido creado.'); // Devolver mensaje de éxito
     }
 
-        // // Método para crear el seguimiento del proceso de captura de inspector
-        public function insertInspectorTrace()
-        {
-            $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
-            $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-            $data = $data->dataTrace;
-            // self::dep($data);exit;
-            $this->validRequiredData($data, 'insertInspectorTrace'); // Validar datos requeridos
-            Db::begin(); // Iniciar transacción en la base de datos
+    // // Método para crear el seguimiento del proceso de captura de inspector
+    public function insertInspectorTrace()
+    {
+        $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
+        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        $data = $data->dataTrace;
+        // self::dep($data);exit;
+        $this->validRequiredData($data, 'insertInspectorTrace'); // Validar datos requeridos
+        Db::begin(); // Iniciar transacción en la base de datos
 
-            $params = array(
-                'iidinspector' => $data->iidinspector,
-                'iidetapa_anterior' => $data->iidetapa_anterior,
-                'iidsubetapa_anterior' => $data->iidsubetapa_anterior,
-                'iidetapa_actual' => $data->iidetapa_actual,
-                'iidsubetapa_actual' => $data->iidsubetapa_actual,
-            );
-    
-            $this->insert('tbl_inspector_seguimiento', $params);
-    
-            Db::commit(); // Confirmar transacción en la base de datos
-            return array('success'=>true,'message' => 'El seguimiento del inspector se ha guardado con éxito.'); // Devolver mensaje de éxito
-        }
+        $params = array(
+            'iidinspector' => $data->iidinspector,
+            'iidetapa_anterior' => $data->iidetapa_anterior,
+            'iidsubetapa_anterior' => $data->iidsubetapa_anterior,
+            'iidetapa_actual' => $data->iidetapa_actual,
+            'iidsubetapa_actual' => $data->iidsubetapa_actual,
+        );
+
+        $this->insert('tbl_inspector_seguimiento', $params);
+
+        Db::commit(); // Confirmar transacción en la base de datos
+        return array('success' => true, 'message' => 'El seguimiento del inspector se ha guardado con éxito.'); // Devolver mensaje de éxito
+    }
 
     // // Método para actualizar un inspector
     public function updateInspector()

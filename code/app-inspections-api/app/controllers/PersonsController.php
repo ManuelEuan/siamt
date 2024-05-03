@@ -15,6 +15,7 @@ class PersonsController extends BaseController
     {
 
         $permissions = $this->token->getPermissions()['pel']; // Obtener permisos del token de usuario
+        // var_dump($permissions);exit;
         if (!in_array($permission, $permissions)) { // Comprobar si el permiso está presente en los permisos del usuario
             throw new HttpUnauthorizedException(401, 'Permisos insuficientes.'); // Excepción de no autorizado si no se tienen los permisos necesarios
         }

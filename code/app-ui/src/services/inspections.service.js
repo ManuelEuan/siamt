@@ -147,6 +147,7 @@ export default class InspectionsService extends ApiService {
   }
 
   async createInspector(data) {
+    // console.log(data)
     return await this.post("/inspectors/new", JSON.stringify(data));
   }
 

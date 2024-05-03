@@ -313,7 +313,7 @@ export default {
             this.personaDisponible = availablePerson
 
             if (this.personaDisponible || this.personaEncontrada && person.iidpersona != 0) {
-                this.inspector.iidpersona = this.persona.iidpersona
+                this.inspector.iidpersona = person.iidpersona
             } else {
                 this.inspector.iidpersona = 0
             }

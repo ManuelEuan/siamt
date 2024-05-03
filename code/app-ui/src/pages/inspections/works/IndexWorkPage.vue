@@ -5,9 +5,9 @@
                 <curp-verification @person-info="handlePersonInfo"></curp-verification>
                 <!-- <curp-verification @person-info="handlePersonInfo" :typeOfRequest="'Inspector'"></curp-verification> -->
             </div>
-            <div class="col-md-12">
+            <!-- <div class="col-md-12">
                 <a ref="urlFrame" target="_blank">Abrir URL del Servicio Vinden</a>
-            </div>
+            </div> -->
             <div class="col-md-12">
                 <iframe ref="serviceFrame" class="embed-responsive-item" style="height: 100%; width: 100%" allowfullscreen></iframe>
             </div>
@@ -29,10 +29,11 @@
                         </li>
                     </ul>
                 </v-col>
+                <!-- :iidsubStage=exampleProccessFlow
+                :finalizeProcess=finalizeProcess -->
+                <!-- @process-flow="handleProcessFlow" -->
                 <generic-process-flow class="col-md-12" 
-                    :iidsubStage=exampleProccessFlow
-                    :finalizeProcess=finalizeProcess
-                    @process-flow="handleProcessFlow"
+                    :request=request
                     @update:dialogVisible="dialogRegisterPerson = $event" 
                     @confirm="getNextSubStage()"
                 ></generic-process-flow>
@@ -51,7 +52,7 @@
 </template>
 
 <script>
-import services from "@/services";
+// import services from "@/services";
 import CurpVerification from '@/components/common/CurpVerification.vue';
 import GenericFileInput from '@/components/common/GenericFileInput.vue';
 import GenericProcessFlow from '@/components/common/GenericProcessFlow.vue';
@@ -74,9 +75,16 @@ export default {
                 info: [],
                 process: []
             },
+            request: { //DEMO
+                type: 'Inspector',
+                idOfType: 3,
+                idOfSubStage: 7, //iidsubStage
+                idOfNextSubStage: 0, //iidsubStage
+                finalizeProcess: false,
+            },
             // REQUERIDOS PARA PROCESS FLOW
-            exampleProccessFlow: 8,
-            finalizeProcess: false,
+            // exampleProccessFlow: 8,
+            // finalizeProcess: false,
 
         }
     },
@@ -110,17 +118,17 @@ export default {
         // },
 
         // GET (BD)
-        async getServiceVindenUrlDebitaciones() {
-            try {
-                let url = await services.inspections().getServiceVindenUrlDebitaciones();
-                this.$refs.urlFrame.href = url;
-                this.$refs.serviceFrame.src = url;
-            } catch (error) {
-                const message = 'Error al cargar servicio de Vinden.';
-                // this.showError({ message, error });
-                alert(message);
-            }
-        },
+        // async getServiceVindenUrlDebitaciones() {
+        //     try {
+        //         let url = await services.inspections().getServiceVindenUrlDebitaciones();
+        //         this.$refs.urlFrame.href = url;
+        //         this.$refs.serviceFrame.src = url;
+        //     } catch (error) {
+        //         const message = 'Error al cargar servicio de Vinden.';
+        //         // this.showError({ message, error });
+        //         alert(message);
+        //     }
+        // },
         // HANDLERS DEMO
         // RETORNO DE COMPONENTE GENÉRICO CURP VERIFICATION
         handlePersonInfo(personFound, availablePerson, person) {
@@ -133,7 +141,7 @@ export default {
         
     },
     async mounted(){
-        await this.getServiceVindenUrlDebitaciones()
+        // await this.getServiceVindenUrlDebitaciones()
     }
 
 }

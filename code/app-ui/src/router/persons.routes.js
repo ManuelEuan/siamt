@@ -1,8 +1,8 @@
 export default [
      // MÓDULO PERSONAS
      {
-        path: '/dropdownTwo',
-        name: 'dropdownTwo',
+        path: '/persons',
+        name: 'persons',
         component: () => import(/* webpackChunkName: "debsons" */ '@/pages/inspections/works/IndexWorkPage.vue'),
         meta: {
             layout: 'default',
