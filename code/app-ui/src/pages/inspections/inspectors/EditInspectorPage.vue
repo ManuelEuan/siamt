@@ -334,49 +334,7 @@ export default {
                 alert('No se encontró registro de la sub etapa')
             }
         },
-        // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW (CLICK EN BUTTON)
-        async getNextSubStage() {
-            try {
-                console.log('****************this.SubStage*****************')
-                console.log(this.SubStage)
-                let dataNextSubStage = {
-                    "iidinspector": this.inspector.iidinspector,
-                    "iidetapa": this.SubStage.info.iidetapa_subetapa_siguiente,
-                    "iidsubetapa": this.SubStage.info.iidsubetapa_siguiente,
-                }
-                let dataTrace = {
-                    "iidinspector": this.inspector.iidinspector,
-                    "iidetapa_anterior": this.SubStage.info.iidetapa_subetapa_actual,
-                    "iidsubetapa_anterior": this.SubStage.info.iidsubetapa_actual,
-                    "iidetapa_actual": this.SubStage.info.iidetapa_subetapa_siguiente,
-                    "iidsubetapa_actual": this.SubStage.info.iidsubetapa_siguiente,
-                }
-
-                let updateInspectorSubStage = await services.inspections().updateInspectorSubStage(dataNextSubStage);
-                console.log('updateInspectorSubStage')
-                console.log(updateInspectorSubStage)
-                console.log(dataNextSubStage)
-                let insertInspectorTrace = await services.inspections().insertInspectorTrace({ dataTrace });
-                console.log('insertInspectorTrace')
-                console.log(insertInspectorTrace)
-                console.log(dataTrace)
-
-                if (updateInspectorSubStage.success && insertInspectorTrace.success) {
-                    this.inspector.iidsubetapa = this.SubStage.info.iidsubetapa_siguiente
-                    let message = 'Etapa actualizada'
-                    this.showSuccess(message);
-                }
-                if (!this.SubStage.hasFlowAfter) {
-                    // Si no existe una sub etapa que tenga flujo posterior significa que será el ultimo cambio posible del proceso
-                    this.finalizeProcess = true
-                }
-
-            } catch (error) {
-                const message = 'Error al guardar inspector.';
-                this.showError({ message, error });
-            }
-
-        }
+       
     },
     watch: {
 

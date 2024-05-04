@@ -76,9 +76,9 @@ export default {
                 process: []
             },
             request: { //DEMO
-                type: 'Inspector',
-                idOfType: 3,
-                idOfSubStage: 7, //iidsubStage
+                type: 'Inspector', // dinamyc Type
+                idOfType: 3, // dinamyc id
+                idOfSubStage: 1, //iidsubStage
                 idOfNextSubStage: 0, //iidsubStage
                 finalizeProcess: false,
             },

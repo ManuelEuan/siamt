@@ -391,41 +391,22 @@ class InspectorsController extends BaseController
         $currentSubStage = $this->subStage($data->idOfSubStage);
         $nextSubStage = $this->getNextSubStageFromFlow($data->idOfSubStage);
         $currentFlow=['currentSubStage' => $currentSubStage, 'nextSubStage'=>$nextSubStage];
-        // self::dep($currentFlow);exit;
-
-        $trace = []; // ACA SE VA A RECUPERAR EL HISTORIAL POR EL QUE PASÓ O SE ESCOGIÓ, NO ES OBLIGATORIO
+        $followUp = []; // ACA SE VA A RECUPERAR EL HISTORIAL POR EL QUE PASÓ O SE ESCOGIÓ, NO ES OBLIGATORIO
         if ($data->idOfType) {
-            // $follow = $this->getDinamycFollow($data->type, $data->idOfType);
-            $trace = $this->getDinamycTrace($data->type, $data->idOfType);
+            $followUp = $this->getDinamycTrace($data->type, $data->idOfType);
         }
 
         $getProcessBySubStage = $this->getProcessBySubStage($data->idOfSubStage);
         $getStagesByProcess = $this->getStagesByProcess($getProcessBySubStage->iidproceso);
         if(count($getStagesByProcess)>0){
             foreach($getStagesByProcess as $key => $stage){
-                // $stage['subStages'] = $this->getSubStagesByStage($stage->iidetapa);
                 $subStages = $this->getSubStagesByStage($stage->iidetapa);
-                // Aquí puedes hacer algo con $subStages, como imprimirlo o procesarlo de alguna manera
-                // Por ejemplo:
                 $getStagesByProcess[$key]->subStages = $subStages;
-                // self::dep($subStages);
-                // echo "Subetapas de la etapa {$stage->nombre_etapa} (iidetapa: {$stage->iidetapa}):<br>";
-                // foreach ($subStages as $subStage) {
-                //     echo "- {$subStage->txtnombre}<br>";
-                // }
             }
         }
         $getProcessBySubStage->etapas = $getStagesByProcess;
-        // self::dep($getProcessBySubStage);exit;
         $allFlow = $getProcessBySubStage;
-        
-        // $allData = [];
-        // $allData['process'] = $getProcessBySubStage;
-        // $allData['process']['stages'] = $getStagesByProcess;
-        // $allFlow = $this->getAllFlowBySubStage($data->idOfSubStage);
-        
-
-        $allData = ['currentFlow' => $currentFlow, 'trace' => $trace, 'allFlow' => $allFlow];
+        $allData = ['currentFlow' => $currentFlow, 'followUp' => $followUp, 'allFlow' => $allFlow];
         // self::dep($allData);
         // exit;
         return $allData;
@@ -636,18 +617,6 @@ class InspectorsController extends BaseController
             $type = $data->request->type;
             $idOfSearch = $data->request->idOfSearch;
         }
-        // if($data){
-        //     // if (empty($data->request->type || $data->request->idOfSearch)) throw new ValidatorBoomException(422, 'No se han enviado los parametros correctamente.'); // Lanzar excepción si el ID está vacío
-        //     $type = $data->request->type;
-        //     $idOfSearch = $data->request->idOfSearch;
-        // }
-        // else{
-        // self::dep($type);
-        // self::dep($idOfSearch);
-        // self::dep($data);
-        // exit;
-        // }
-
         if ($type == 'Inspector') {
             $sql = "SELECT 
                         insp.iidinspector_seguimiento,
@@ -802,34 +771,7 @@ class InspectorsController extends BaseController
         return array('message' => "El inspector ha sido $msg."); // Devolver mensaje de éxito
     }
 
-    public function updateInspectorSubStage()
-    {
-        $this->hasClientAuthorized('edii'); // Verificar si el cliente tiene autorización
-        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        // self::dep($data);
-        // exit;
-        $this->validRequiredData($data, 'updateInspectorSubStage'); // Validar datos requeridos
-        Db::begin(); // Iniciar transacción en la base de datos
-
-        // Actualización de inspector
-        $sql = 'UPDATE inspeccion.tbl_inspector SET 
-                iidetapa=:iidetapa,
-                iidsubetapa=:iidsubetapa,
-                dtfecha_modificacion=:dtfecha_modificacion
-            WHERE iidinspector=:iidinspector
-        ';
-        $params = array(
-            'iidetapa' => $data->iidetapa,
-            'iidsubetapa' => $data->iidsubetapa,
-            'dtfecha_modificacion' => date('Y-m-d H:i:s'), // Formato de fecha correcto
-            'iidinspector'      => $data->iidinspector,
-        ); // Parámetros para la actualización de una sub etapa
-
-        Db::execute($sql, $params); // Ejecutar actualización del inspector en la base de datos
-        Db::commit(); // Confirmar transacción en la base de datos
-
-        return array('success' => true, 'message' => 'La sub etapa ha sido actualizada.'); // Devolver mensaje de éxito
-    }
+   
     // // Método para insertar datos en la base de datos
     private function insert($table, $params)
     {

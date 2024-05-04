@@ -7,6 +7,7 @@ use App\Library\Misc\Utils;
 use App\Controllers\InspectorsController;
 use App\Controllers\WorkloadsController;
 use App\Controllers\PersonsController;
+use App\Controllers\ProcessController;
 use App\Controllers\TerritoryController;
 
 $app->mount(
@@ -34,7 +35,6 @@ $app->mount(
     
     // VINDEN
     ->get("/inspectors/getServiceVindenUrlDebitaciones", "getServiceVindenUrlDebitaciones")
-
 );
 
 $app->mount(
@@ -46,7 +46,6 @@ $app->mount(
 $app->mount(
     (new Collection())
     ->setHandler(PersonsController::class, true)
-    
     ->get("/persons/getAllSexes", "getAllSexes")
     ->get("/persons/getAllTypesPhone", "getAllTypesPhone")
     ->get("/persons/getAllLadaIdentifiers", "getAllLadaIdentifiers")
@@ -65,9 +64,7 @@ $app->mount(
     ->post("/persons/phone/new", "createPhone")
     ->put("/persons/phone", "updatePhone")
     ->post("/persons/getPersonByDinamycSearch", "getPersonByDinamycSearch")
-
 );
-
 
 $app->mount(
     (new Collection())
@@ -75,5 +72,11 @@ $app->mount(
     ->get("/territory/getAllPostalCodes", "getAllPostalCodes")
     ->post("/territory/getMunicipalityAndEntityByPostalCode", "getMunicipalityAndEntityByPostalCode")
     ->post("/territory/getColoniesByPostalCode", "getColoniesByPostalCode")
+);
+
+$app->mount(
+    (new Collection())
+    ->setHandler(ProcessController::class, true)
+    ->post("/process/newDinamycSubStage", "newDinamycSubStage")
 );
 

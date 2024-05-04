@@ -171,6 +171,11 @@ export default class InspectionsService extends ApiService {
     return await this.get("/inspectors/getServiceVindenUrlDebitaciones");
   }
 
+  async newDinamycSubStage(data) {
+    console.log('llegue al service proccess')
+    return await this.post("/process/newDinamycSubStage", JSON.stringify(data));
+  }
+
   async updateInspectorSubStage(data) {
     return await this.put("/inspectors/updateInspectorSubStage", JSON.stringify(data));
   }
@@ -178,11 +183,6 @@ export default class InspectionsService extends ApiService {
   async insertInspectorTrace(data) {
     return await this.post("/inspectors/insertInspectorTrace", JSON.stringify(data));
   }
-
-  async getDinamycTrace(data) {
-    return await this.post("/inspectors/getDinamycTrace", JSON.stringify(data));
-  }
-  
 
   
 }
