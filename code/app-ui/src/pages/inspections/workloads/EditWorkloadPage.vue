@@ -377,7 +377,7 @@ export default {
                 console.log(id);
                 console.log('idssuhfueihfiejfieojfiej');
                 // this.categories = await services.inspections().getAllCategoriesInspector();
-                // this.stages = await services.inspections().getAllStagesInspector();
+                // this.stages = await services.inspections().getAllStages();
                 this.zones = await services.inspections().getAllZonesInspector();
                 this.shifts = await services.inspections().getAllShiftsInspector();
 

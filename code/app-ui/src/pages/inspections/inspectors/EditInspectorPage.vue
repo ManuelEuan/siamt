@@ -22,11 +22,7 @@
                     <v-card flat>
                         <v-tab-item :key="1" value="generaltab" class="py-1">
                             <v-card-text>
-                                <!-- <curp-verification :style="{ display: createMode ? 'block' : 'none !important' }"
-                                    :typeOfRequest="'Inspector'" :iidpersona=inspector.iidpersona
-                                    :activateDialogPerson=activateModalPerson @person-info="handlePersonInfo"
-                                    ref="curpVerification"></curp-verification> -->
-                                    <!-- :typeOfRequest="'Inspector'" -->
+                            
                                 <curp-verification
                                     :request=request
                                     :activateDialogPerson=activateModalPerson @person-info="handlePersonInfo">
@@ -85,11 +81,12 @@
                                                 label="Fecha de baja" type="date" :mask="'####/##/##'"></v-text-field>
                                         </v-col>
 
-                                        <!-- <generic-process-flow v-if="!createMode" class="col-md-12"
-                                            :iidsubStage=inspector.iidsubetapa :finalizeProcess=finalizeProcess
-                                            :request=request @process-flow="handleProcessFlow"
-                                            @update:dialogVisible="dialogRegisterPerson = $event"
-                                            @confirm="dialogConfirmationNextSubStage = true"></generic-process-flow> -->
+                                        <generic-process-flow v-if="!createMode" class="col-md-12" 
+                                            :request=request
+                                            @update:dialogVisible="dialogRegisterPerson = $event" 
+                                            @process-flow="handleProcessFlow"
+                                        ></generic-process-flow>
+                                            <!-- @confirm="getNextSubStage()" -->
 
                                         <v-col cols="12">
                                             <v-textarea v-model="inspector.txtcomentarios" label="Comentarios"
@@ -136,7 +133,7 @@
 import rules from "@/core/rules.forms";
 import services from "@/services";
 import CurpVerification from '@/components/common/CurpVerification.vue';
-// import GenericProcessFlow from '@/components/common/GenericProcessFlow.vue';
+import GenericProcessFlow from '@/components/common/GenericProcessFlow.vue';
 import GenericDialog from '@/components/common/GenericDialog.vue';
 
 import { mapActions } from "vuex";
@@ -144,7 +141,7 @@ import { mapActions } from "vuex";
 export default {
     components: {
         CurpVerification,
-        // GenericProcessFlow,
+        GenericProcessFlow,
         GenericDialog,
     },
     data() {
@@ -161,7 +158,7 @@ export default {
             // VIENEN DE SERVICIOS
             shifts: [],
             categories: [],
-
+          
             // ARREGLOS
             persona: {
                 iidpersona: 0,
@@ -192,10 +189,12 @@ export default {
 
             // PROPS SEND
             activateModalPerson: false,
-            finalizeProcess: false,
-            request: {
-                type: 'Inspector',
-                idOfSearch: 0,
+            request: { // UTILIZANDO COMPONENTE GENÉRICO DE PROCESOS
+                type: 'Inspector', // dinamyc Type
+                idOfType: 0, // dinamyc id
+                idOfSubStage: 0, //iidsubStage
+                idOfNextSubStage: 0, //iidsubStage
+                finalizeProcess: false,
             },
 
             // REGLAS
@@ -252,11 +251,14 @@ export default {
                 const { id } = this.$route.params;
                 this.inspector = { ...await services.inspections().getInspectorInfo({ id }) };
                 console.log('**********this.request*********');
-                console.log(this.request);
+                
                 this.request = {
                     type: 'Inspector',
                     idOfSearch: this.inspector.iidpersona,
+                    idOfType: this.inspector.iidinspector,
+                    idOfSubStage: this.inspector.iidsubetapa,
                 }
+                console.log(this.request);
             } catch (error) {
                 const message = 'Error al cargar información de inspector.';
                 this.showError({ message, error });

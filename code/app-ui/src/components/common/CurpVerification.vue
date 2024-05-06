@@ -656,11 +656,10 @@ export default {
             }
         },
         'request': async function () {
-            console.log('cambio en la solicitud de seguimiento: ')
-
-            console.log(this.request)
+            console.log('cambio en la solicitud de búsqueda de personas: ')
             if (this.request.idOfSearch && this.request.type) {
-                console.log('cambio en la solicitud de seguimiento: ')
+                console.log('Leyendo: ')
+                console.log(this.request)
                 this.newRegisterPerson = localStorage.getItem('newPerson') === 'true';
                 this.personaEncontrada = true
                 this.personaDisponible = true
@@ -670,23 +669,11 @@ export default {
         }
     },
     async mounted() {
-        // Agrega un event listener para el evento keydown en el documento
-        // document.addEventListener('keydown', this.handleEnterKey);
-        // const { pel } = await services.security().getPermissions();
-        // console.log('permisos para el módulo persona')
-        // console.log(pel)
-        // if (pel) this.peopleModulePermissions = pel;
         let user = await services.app().getUserConfig();
         this.newRegisterPerson = localStorage.getItem('newPerson') === 'true';
         this.getAllInfoPermissionsFromUser = await services.admin().getActivePermissionsFromUser( user[0].id );
         this.peopleModulePermissions = this.getAllInfoPermissionsFromUser.map(permission => permission.siglas);
-        console.log('this.peopleModulePermissions**********');
-        console.log(this.peopleModulePermissions);
-    },
-    // beforeDestroy() {
-    //     // Limpia el event listener cuando el componente se destruye
-    //     document.removeEventListener('keydown', this.handleEnterKey);
-    // }
+    }
 
 }
 </script>

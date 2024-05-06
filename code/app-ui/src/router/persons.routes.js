@@ -1,6 +1,6 @@
 export default [
-     // MÓDULO PERSONAS
-     {
+    // MÓDULO PERSONAS
+    {
         path: '/persons',
         name: 'persons',
         component: () => import(/* webpackChunkName: "debsons" */ '@/pages/inspections/works/IndexWorkPage.vue'),

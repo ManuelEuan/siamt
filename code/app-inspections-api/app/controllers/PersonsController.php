@@ -633,7 +633,7 @@ class PersonsController extends BaseController
 
     public function createPhone($phone = '')
     {
-        $this->hasClientAuthorized('crmp'); // Verificar si el cliente tiene autorización
+        $this->hasClientAuthorized('crtp'); // Verificar si el cliente tiene autorización
 
         if ($phone != '') {
             $data = new \stdClass();
@@ -685,10 +685,9 @@ class PersonsController extends BaseController
         if ($existsCurrently) {
             $sql = "UPDATE persona.tbl_persona_telefono SET bactual = false WHERE iidpersona = :iidpersona";
             Db::execute($sql, $paramsVerifyCurrently);
-            // var_dump('actualizado');
         }
 
-        $paramsPersonAddress = array('iidpersona' => $iidpersona, 'iidtelefono' => $iidtelefono, 'bactual' => $data->bactual);
+        $paramsPersonAddress = array('iidpersona' => $iidpersona, 'iidtelefono' => $iidtelefono);
         $this->insert('tbl_persona_telefono', $paramsPersonAddress);
         Db::commit(); // Confirmar transacción en la base de datos
         $data->phone->iidtelefono = $iidtelefono;

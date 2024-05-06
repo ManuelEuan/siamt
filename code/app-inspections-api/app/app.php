@@ -17,7 +17,7 @@ $app->mount(
     ->post("/inspectors/getPersonByCurp", "getPersonByCurp")
     ->get("/inspectors/getAllCategoriesInspector", "getAllCategoriesInspector")
     ->get("/inspectors/getAllProcessesInspector", "getAllProcessesInspector")
-    ->get("/inspectors/getAllStagesInspector", "getAllStagesInspector")
+    ->get("/inspectors/getAllStages", "getAllStages")
     ->post("/inspectors/getAllSubStagesInspector", "getAllSubStagesInspector")
     ->get("/inspectors/getAllShiftsInspector", "getAllShiftsInspector")
     ->post("/inspectors/new", "createInspector")
@@ -28,7 +28,7 @@ $app->mount(
     ->post("/inspectors/getInfoProcess", "getInfoProcess")
     ->post("/inspectors/getAllFlowBySubStage", "getAllFlowBySubStage")
     ->post("/inspectors/hasFlowAfter", "hasFlowAfter")
-    ->post("/inspectors/getInfoBySubStage", "getInfoBySubStage")
+    // ->post("/inspectors/getInfoBySubStage", "getInfoBySubStage")
     ->put("/inspectors/updateInspectorSubStage", "updateInspectorSubStage")
     ->post("/inspectors/insertInspectorTrace", "insertInspectorTrace")
     ->post("/inspectors/getDinamycTrace", "getDinamycTrace")
@@ -77,6 +77,7 @@ $app->mount(
 $app->mount(
     (new Collection())
     ->setHandler(ProcessController::class, true)
+    ->post("/process/getInfoBySubStage", "getInfoBySubStage")
     ->post("/process/newDinamycSubStage", "newDinamycSubStage")
 );
 

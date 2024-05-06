@@ -163,10 +163,10 @@ export default {
                 idOfNextSubStage: 0, //iidsubStage
                 finalizeProcess: false,
             },
-            iidProperties: {
-                'Inspector': 'iidinspector',
-                'Boleta': 'iidboleta',
-            },
+            // iidProperties: {
+            //     'Inspector': 'iidinspector',
+            //     'Boleta': 'iidboleta',
+            // },
 
             // ARRAYS
             allFlow: [],
@@ -253,14 +253,16 @@ export default {
         ...mapActions('app', ['showError', 'showSuccess']),
         async loadFlowData() {
             try {
+                console.log('this.requestDinamyc');
+                console.log(this.requestDinamyc);
                 let allInfo = await services.inspections().getInfoBySubStage(this.requestDinamyc);
                 console.log(allInfo);
                 this.allFlow = allInfo.allFlow
                 this.currentFlow = allInfo.currentFlow
                 this.followUp = allInfo.followUp
                 this.treeData = this.convertToTreeStructure(allInfo.allFlow.etapas);
-                console.log(this.treeData)
-                if (!this.requestDinamyc.idOfType) { // Si no hay un id en especifico para buscar se mostrará un modal que diciendo que solo es fase de pruebas
+                console.log(this.requestDinamyc)
+                if (!this.requestDinamyc.type) { // Si no hay un id en especifico para buscar se mostrará un modal que diciendo que solo es fase de pruebas
                     // this.lastSubStage = true
                     this.dialogDemoProcess = true
                 }
@@ -333,51 +335,32 @@ export default {
 
         async confirmAction() {
             // this.$emit('confirm');
-
-            // this.requestDinamyc = {
-            //     type: '', //type-dinamyc
-            //     idOfType: 0, //iid-dinamyc
-            //     idOfSubStage: 0, //iidsubStage
-            //     idOfNextSubStage: 0, //iidsubStage
-            //     finalizeProcess: false,
-            // },
-            // this.requestDinamyc.idOfSubStage = this.requestDinamyc.idOfNextSubStage
             try {
                 console.log('****************this.SubStage*****************')
                 // console.log(this.SubStage)
-                // if(this.requestDinamyc.type == 'Inspector'){
                 let sendNewSubStage = {
-                    [this.iidProperties[this.requestDinamyc.type]]: this.requestDinamyc.idOfType,
-                    "iidetapa": this.currentFlow.nextSubStage.iidetapa,
-                    "iidsubetapa": this.currentFlow.nextSubStage.iidsubetapa,
-                };
-                console.log(sendNewSubStage)
-                let saveInHistory = {
-                    [this.iidProperties[this.requestDinamyc.type]]: this.requestDinamyc.idOfType,
+                    "type": this.requestDinamyc.type,
+                    "idOfType": this.requestDinamyc.idOfType,
+                    // [this.iidProperties[this.requestDinamyc.type]]: this.requestDinamyc.idOfType,
                     "iidetapa_anterior": this.currentFlow.currentSubStage.iidetapa,
                     "iidsubetapa_anterior": this.currentFlow.currentSubStage.iidsubetapa,
-                    "iidetapa_actual": this.currentFlow.nextSubStage.iidetapa,
-                    "iidsubetapa_actual": this.currentFlow.nextSubStage.iidsubetapa,
-                }
-                console.log(saveInHistory)
-                // }
-
+                    "iidetapa_nueva": this.currentFlow.nextSubStage.iidetapa,
+                    "iidsubetapa_nueva": this.currentFlow.nextSubStage.iidsubetapa,
+                };
                 let updateInspectorSubStage = await services.inspections().newDinamycSubStage(sendNewSubStage);
-                console.log('updateInspectorSubStage')
                 console.log(updateInspectorSubStage)
-                // let insertInspectorTrace = await services.inspections().insertInspectorTrace({ dataTrace });
-                // console.log('insertInspectorTrace')
-                // console.log(insertInspectorTrace)
-
-                // if (updateInspectorSubStage.success && insertInspectorTrace.success) {
-                //     this.inspector.iidsubetapa = this.SubStage.info.iidsubetapa_siguiente
-                //     let message = 'Etapa actualizada'
-                //     this.showSuccess(message);
+                this.requestDinamyc.idOfSubStage = updateInspectorSubStage.info
+                // this.requestDinamyc = {
+                //     type: '', //type-dinamyc
+                //     idOfType: 0, //iid-dinamyc
+                //     idOfSubStage: 0, //iidsubStage
+                //     idOfNextSubStage: 0, //iidsubStage
+                //     finalizeProcess: false,
                 // }
-                // if (!this.SubStage.hasFlowAfter) {
-                    // Si no existe una sub etapa que tenga flujo posterior significa que será el ultimo cambio posible del proceso
-                //     this.finalizeProcess = true
-                // }
+                
+                // console.log(this.request)
+                // console.log(this.requestDinamyc)
+                await this.loadFlowData();
 
             } catch (error) {
                 const message = 'Error al guardar inspector.';
@@ -423,6 +406,14 @@ export default {
         }
     },
     watch: {
+        'request': async function () {
+            console.log('cambio en la solicitud de procesos: ')
+            if (this.request.idOfType && this.request.type) {
+                console.log('Leyendo: ')
+                this.requestDinamyc = this.request
+                await this.loadFlowData();
+            }
+        }
     },
     async mounted() {
         console.log('cargando')

@@ -1,132 +1,99 @@
 <template>
     <div>
-        <v-card-text>
-            <!-- CAMPOS DE EVENTOS -->
-            <div class="row d-flex justify-space-around align-center mx-auto" v-if="!newRegisterPerson">
-                <p class="col-md-6 my-0">Teléfonos</p>
+        <!-- CAMPOS DE EVENTOS -->
+        <v-row class="mx-auto" v-if="!newRegisterPerson">
+            <v-col cols="12" md="12" class="d-flex justify-end py-1"
+                v-if="!newPhone && !editPhone && peopleModulePermissions.includes('crtp')">
+                <v-btn depressed color="primary" @click="newPhone = true">
+                    Nuevo teléfono
+                </v-btn>
+            </v-col>
+            <v-col cols="12" sm="6" class="d-flex justify-end py-1" v-if="newPhone || editPhone">
+                <v-btn depressed color="info" @click="showPhones()">
+                    Ver teléfonos
+                </v-btn>
+            </v-col>
+            <v-col cols="12" sm="6" class="d-flex justify-end py-1" v-if="newPhone || editPhone">
+                <v-btn v-if="editPhone && peopleModulePermissions.includes('edtp')" depressed color="primary"
+                    :disabled="!phoneValidation" @click="savePhone()">
+                    Actualizar
+                </v-btn>
+                <v-btn v-else-if="!editPhone && peopleModulePermissions.includes('crtp')" depressed color="primary"
+                    :disabled="!phoneValidation" @click="savePhone()">
+                    Guardar
+                </v-btn>
+            </v-col>
+        </v-row>
 
-                <v-col cols="12" md="6" v-if="!newPhone && !editPhone">
-                    <v-btn depressed color="primary" @click="newPhone = true">
-                        Nuevo teléfono
-                    </v-btn>
-                </v-col>
-                <v-col cols="12" md="3" v-if="newPhone || editPhone">
-                    <v-btn depressed color="info" @click="showPhones()">
-                        Ver teléfonos
-                    </v-btn>
-                </v-col>
-                <v-col cols="12" md="3" v-if="newPhone || editPhone">
-                    <v-btn depressed color="primary" :disabled="!phoneValidation" @click="savePhone()">
-                        {{ editPhone ? 'Actualizar' : 'Guardar' }}
-                    </v-btn>
-                </v-col>
-            </div>
-
-            <!-- TABLA DE TELÉFONOS -->
-            <v-row v-if="personPhones && Object.keys(personPhones).length > 0 && !newPhone && !editPhone">
-                <v-col cols="12" md="12">
-                    <v-simple-table>
-                        <template v-slot:default>
-                            <thead>
-                                <tr>
-                                    <th class="text-left">
-                                        Tipo
-                                    </th>
-                                    <th class="text-left" v-if="requiredLadaIdentifiers">
-                                        Lada
-                                    </th>
-                                    <th class="text-left">
-                                        Teléfono
-                                    </th>
-                                    <th class="text-left">
-                                        Actual
-                                    </th>
-                                    <th class="text-left">
-                                        Acciones
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="item in personPhones" :key="item.name">
-                                    <td>{{ item.txttelefono_tipo }}</td>
-                                    <td v-if="requiredLadaIdentifiers">{{ item.txtlada }}</td>
-                                    <td>{{ item.inumero }}</td>
-                                    <td>
-                                        <template item.bactual>
-                                            <v-icon v-show="item.bactual" size="medium" color="green"> mdi-check
-                                            </v-icon>
-                                            <v-icon v-show="!item.bactual" size="medium" color="red">mdi-close</v-icon>
-                                        </template>
-                                    </td>
-                                    <td>
-                                        <template>
-                                            <v-tooltip bottom>
-                                                <template v-slot:activator="{ on, attrs }">
-                                                    <v-btn v-bind="attrs" v-on="on" icon small
-                                                        @click="actionsHandlerOfTable(item, 'editPhone')">
-                                                        <v-icon small> mdi-square-edit-outline </v-icon>
-                                                    </v-btn>
-                                                </template>
-                                                <span>Editar teléfono</span>
-                                            </v-tooltip>
-                                            <v-tooltip bottom v-if="!item.bactual">
-                                                <template v-slot:activator="{ on, attrs }">
-                                                    <v-btn v-bind="attrs" v-on="on" icon small
-                                                        @click="actionsHandlerOfTable(item, 'newCurrentPhone')">
-                                                        <v-icon small v-show="item.bactivo"> mdi-close </v-icon>
-                                                        <v-icon small v-show="!item.bactivo"> mdi-check
-                                                        </v-icon>
-                                                    </v-btn>
-                                                </template>
-                                                <span>Activar teléfono</span>
-                                            </v-tooltip>
-                                            <v-tooltip bottom v-if="!item.bactual">
-                                                <template v-slot:activator="{ on, attrs }">
-                                                    <v-btn v-bind="attrs" v-on="on" icon small
-                                                        @click="actionsHandlerOfTable(item, 'deletePhone')">
-                                                        <v-icon small v-show="item.bactivo"> mdi-delete
-                                                        </v-icon>
-                                                        <v-icon small v-show="!item.bactivo"> mdi-check
-                                                        </v-icon>
-                                                    </v-btn>
-                                                </template>
-                                                <span>Eliminar teléfono</span>
-                                            </v-tooltip>
-                                        </template>
-                                    </td>
-                                </tr>
-                            </tbody>
+        <!-- TABLA DE TELÉFONOS -->
+        <v-data-table :headers="headers" :items="personPhones"
+            v-if="personPhones && Object.keys(personPhones).length > 0 && !newPhone && !editPhone">
+            <template v-slot:item.bactual="{ item }">
+                <v-icon v-show="item.bactual" size="medium" color="green">mdi-check</v-icon>
+                <v-icon v-show="!item.bactual" size="medium" color="red">mdi-close</v-icon>
+            </template>
+            <template v-slot:item.actions="{ item }">
+                <div v-if="peopleModulePermissions.includes('edtp')" style="min-width: 85px;">
+                    <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn v-bind="attrs" v-on="on" icon small
+                                @click="actionsHandlerOfTable(item, 'editPhone')">
+                                <v-icon small>mdi-square-edit-outline</v-icon>
+                            </v-btn>
                         </template>
-                    </v-simple-table>
-                    <!-- </template> -->
+                        <span>Editar teléfono</span>
+                    </v-tooltip>
+                    <v-tooltip bottom v-if="!item.bactual">
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn v-bind="attrs" v-on="on" icon small
+                                @click="actionsHandlerOfTable(item, 'newCurrentPhone')">
+                                <v-icon small v-show="item.bactivo">mdi-close</v-icon>
+                                <v-icon small v-show="!item.bactivo">mdi-check</v-icon>
+                            </v-btn>
+                        </template>
+                        <span>Activar teléfono</span>
+                    </v-tooltip>
+                    <v-tooltip bottom v-if="!item.bactual">
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn v-bind="attrs" v-on="on" icon small
+                                @click="actionsHandlerOfTable(item, 'deletePhone')">
+                                <v-icon small v-show="item.bactivo">mdi-delete</v-icon>
+                                <v-icon small v-show="!item.bactivo">mdi-check</v-icon>
+                            </v-btn>
+                        </template>
+                        <span>Eliminar teléfono</span>
+                    </v-tooltip>
+                </div>
+                <div v-else>
+                    Sin permisos
+                </div>
+            </template>
+        </v-data-table>
+
+        <!-- CAMPOS DE AGREGAR - MODIFICAR -->
+        <v-form v-model="phoneValidation" v-if="newPhone || newRegisterPerson || editPhone">
+            <v-row>
+                <v-col cols="12" md="6">
+                    <v-select v-model="phone.iidtelefono_tipo" label="Tipo*" :items="typesPhone" item-text="txtnombre"
+                        item-value="iidtelefono_tipo" hide-details="auto" small-chips clearable dense outlined
+                        :rules="[rules.required]" />
+                </v-col>
+
+                <v-col cols="12" md="6" v-if="requiredLadaIdentifiers">
+                    <v-select v-model="phone.txtlada" label="Lada*" :items="ladaIdentifiers" item-text="txtnombre"
+                        item-value="iidlada" hide-details="auto" small-chips clearable dense outlined
+                        :rules="[rules.required]" />
+                </v-col>
+                <!-- <v-col cols="12" md="6">
+                    <v-text-field v-model="phone.inumero" label="Número*" hide-details="auto" clearable dense
+                        :rules="[rules.telefono]" outlined maxlength="10" />
+                </v-col> -->
+                <v-col cols="12" md="6">
+                    <v-text-field v-model="phone.inumero" label="Número*" hide-details="auto" clearable dense outlined
+                        maxlength="14" @input="formatPhoneNumber" :rules="[rules.telefono]"></v-text-field>
                 </v-col>
             </v-row>
-
-            <!-- CAMPOS DE AGREGAR - MODIFICAR -->
-            <v-form v-model="phoneValidation" v-if="newPhone || newRegisterPerson || editPhone">
-                <v-row>
-                    <v-col cols="12" md="6">
-                        <v-select v-model="phone.iidtelefono_tipo" label="Tipo*" :items="typesPhone"
-                            item-text="txtnombre" item-value="iidtelefono_tipo" hide-details="auto" small-chips
-                            clearable dense outlined :rules="[rules.required]" />
-                    </v-col>
-
-                    <v-col cols="12" md="6" v-if="requiredLadaIdentifiers">
-                        <v-select v-model="phone.txtlada" label="Lada*" :items="ladaIdentifiers" item-text="txtnombre"
-                            item-value="iidlada" hide-details="auto" small-chips clearable dense outlined
-                            :rules="[rules.required]" />
-                    </v-col>
-                    <!-- <v-col cols="12" md="6">
-                        <v-text-field v-model="phone.inumero" label="Número*" hide-details="auto" clearable dense
-                            :rules="[rules.telefono]" outlined maxlength="10" />
-                    </v-col> -->
-                    <v-col cols="12" md="6">
-                        <v-text-field v-model="phone.inumero" label="Número*" hide-details="auto" clearable dense
-                            outlined maxlength="14" @input="formatPhoneNumber" :rules="[rules.telefono]"></v-text-field>
-                    </v-col>
-                </v-row>
-            </v-form>
-        </v-card-text>
+        </v-form>
 
         <!-- DIALOG ACTUALIZAR TELÉFONO ACTUAL -->
         <generic-dialog :dialogVisible="dialogNewCurrentPhone" dialogTitle="Actualizar teléfono principal"
@@ -178,6 +145,14 @@ export default {
             typesPhone: [],
             ladaIdentifiers: [],
             personPhones: [],
+            headers: [
+                // { text: 'ID', value: 'id' },
+                { text: 'Tipo', value: 'txttelefono_tipo' },
+                { text: 'Teléfono', value: 'inumero' },
+                { text: 'Actual', value: 'bactual' },
+                { text: 'Acciones', value: 'actions' }
+            ],
+            peopleModulePermissions: [],
 
             // MODALES
             dialogDeletePhone: false,
@@ -399,6 +374,10 @@ export default {
         if (this.requiredLadaIdentifiers) {
             await this.getLadaIdentifiers();
         }
+        let user = await services.app().getUserConfig();
+        this.newRegisterPerson = localStorage.getItem('newPerson') === 'true';
+        let getActivePermissionsFromUser = await services.admin().getActivePermissionsFromUser(user[0].id);
+        this.peopleModulePermissions = getActivePermissionsFromUser.map(permission => permission.siglas);
     }
 };
 </script>

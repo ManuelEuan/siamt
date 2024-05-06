@@ -62,6 +62,56 @@ export default [
             parentCode: 'ica'
         }
     }, 
+    {
+        path: '/process',
+        name: 'process',
+        component: () => import(/* webpackChunkName: "debsons" */ '@/pages/inspections/works/IndexWorkPage.vue'),
+        meta: {
+            layout: 'default',
+            code: 'pro',
+            // parentCode: 'ins'
+        }
+    },
+    {
+        path: '/firms',
+        name: 'firms',
+        component: () => import(/* webpackChunkName: "debsons" */ '@/pages/inspections/works/IndexWorkPage.vue'),
+        meta: {
+            layout: 'default',
+            code: 'fir',
+            // parentCode: 'ins'
+        }
+    },
+    {
+        path: '/firms1',
+        name: 'firms1',
+        component: () => import(/* webpackChunkName: "debsons" */ '@/pages/inspections/works/IndexWorkPage.vue'),
+        meta: {
+            layout: 'default',
+            code: 'fit',
+            parentCode: 'fir'
+        }
+    },
+    {
+        path: '/firms2',
+        name: 'firms2',
+        component: () => import(/* webpackChunkName: "debsons" */ '@/pages/inspections/works/IndexWorkPage.vue'),
+        meta: {
+            layout: 'default',
+            code: 'fip',
+            parentCode: 'fir'
+        }
+    },
+    {
+        path: '/firms3',
+        name: 'firms3',
+        component: () => import(/* webpackChunkName: "debsons" */ '@/pages/inspections/works/IndexWorkPage.vue'),
+        meta: {
+            layout: 'default',
+            code: 'fif',
+            parentCode: 'fir'
+        }
+    },
     // MÓDULO EXTRA
     {
         path: '/works',

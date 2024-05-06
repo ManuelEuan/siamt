@@ -144,17 +144,10 @@
                 const message = 'Error al cargar opciones de filtrado.';
                 this.showError({ message, error });
             }
-            // const { iin } = await services.security().getPermissions();
-            // console.log('permisos para módulo inspectores')
-            // console.log(iin)
-            // if (iin) this.permissions = iin;
             let user = await services.app().getUserConfig();
             this.newRegisterPerson = localStorage.getItem('newPerson') === 'true';
             this.getAllInfoPermissionsFromUser = await services.admin().getActivePermissionsFromUser( user[0].id );
             this.permissions = this.getAllInfoPermissionsFromUser.map(permission => permission.siglas);
-            console.log('this.peopleModulePermissions**********');
-            console.log(this.peopleModulePermissions);
-         
         },
     };
     </script>

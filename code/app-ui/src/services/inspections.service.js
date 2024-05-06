@@ -30,8 +30,8 @@ export default class InspectionsService extends ApiService {
     return await this.get("/inspectors/getAllProcessesInspector");
   }
   
-  async getAllStagesInspector() {
-    return await this.get("/inspectors/getAllStagesInspector");
+  async getAllStages() {
+    return await this.get("/process/getAllStages");
   }
 
   async getAllSubStagesByStage(stage){
@@ -133,7 +133,7 @@ export default class InspectionsService extends ApiService {
   }
 
   async getInfoBySubStage(data) {
-    return await this.post("/inspectors/getInfoBySubStage", JSON.stringify(data));
+    return await this.post("/process/getInfoBySubStage", JSON.stringify(data));
   }
 
   
@@ -172,7 +172,6 @@ export default class InspectionsService extends ApiService {
   }
 
   async newDinamycSubStage(data) {
-    console.log('llegue al service proccess')
     return await this.post("/process/newDinamycSubStage", JSON.stringify(data));
   }
 

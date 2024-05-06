@@ -1,6 +1,5 @@
 <template>
     <div>
-        <!-- <v-card-text> -->
         <!-- CAMPOS DE EVENTOS -->
         <v-row class="mx-auto" v-if="!newRegisterPerson">
             <v-col cols="12" md="12" class="d-flex justify-end py-1"
