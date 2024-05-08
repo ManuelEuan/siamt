@@ -2,7 +2,6 @@
     <v-container fluid>
         <v-row justify="center">
             <v-col cols="12" class="pa-0">
-                {{ createMode }}
                 <v-card flat>
                     <v-toolbar>
                         <v-toolbar-title>{{ createMode ? "Nuevo" : "Editar" }} Inspector</v-toolbar-title>

@@ -114,14 +114,18 @@ class PersonsController extends BaseController
         }
 
         // SI NO EXISTE LA PERSONA SE RETORNA VACÍO
-        if (!$personas) {
+        if (!$personas || !$personas[0]) {
             return;
         }
 
+      
         // SI EXISTE PERSONA ÚNICA SE RETORNAN LOS DATOS ESPECÍFICOS
         // $this->dep($typeOfRequest);exit;
         $permissions = $this->token->getPermissions()['pel'];
+        // self::dep('llegando');
+        // self::dep($personas);
 
+        // exit;
         if (count($personas) > 0) {
             foreach ($personas as $key => $persona) {
                 if ($typeOfRequest == 'Inspector') {
@@ -570,7 +574,7 @@ class PersonsController extends BaseController
         // self::dep($data);exit;
         $iidpersona = $data->iidpersona;
         // if (empty($data->iidpersona)) throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona');
-        $this->validRequiredData($data->address, 'direction'); // Validar datos requeridos
+        $this->validRequiredData($data->address, 'address'); // Validar datos requeridos
         // var_dump($data->address->inumero_exterior);exit;
 
         Db::begin(); // Iniciar transacción en la base de datos
@@ -808,6 +812,7 @@ class PersonsController extends BaseController
     // // Método para validar datos requeridos
     private function validRequiredData($data, $typeValidation)
     {
+        // self::dep($typeValidation);exit;
         // if($typeValidation == 'person'){
         // }
         switch ($typeValidation) {
@@ -820,7 +825,7 @@ class PersonsController extends BaseController
                     $requiredKeys[] = 'txtrfc';
                 }
                 break;
-            case 'direction':
+            case 'address':
                 $requiredKeys = array('iidcolonia'); // Claves requeridas
                 break;
             case 'phone':
@@ -871,7 +876,7 @@ class PersonsController extends BaseController
     {
         $this->hasClientAuthorized('eddp');
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        $this->validRequiredData($data->direction, 'direction'); // Validar datos requeridos
+        $this->validRequiredData($data->address, 'address'); // Validar datos requeridos
         // $this->dep($data);exit;
         Db::begin(); // Iniciar transacción en la base de datos
 
@@ -900,29 +905,30 @@ class PersonsController extends BaseController
             WHERE iiddireccion=:iiddireccion
         ';
         $params = array(
-            'iidcolonia'  => $data->direction->iidcolonia,
-            'txtcalle' => $data->direction->txtcalle,
-            'txtcalle_letra' => $data->direction->txtcalle_letra,
-            'inumero_exterior' => $data->direction->inumero_exterior !== '' ? $data->direction->inumero_exterior : null,
-            'txtnumero_exterior_letra' => $data->direction->txtnumero_exterior_letra,
-            'inumero_interior' => $data->direction->inumero_interior !== '' ? $data->direction->inumero_interior : null,
-            'txtnumero_interior_letra' => $data->direction->txtnumero_interior_letra,
-            'txtcruzamiento_uno' => $data->direction->txtcruzamiento_uno,
-            'txtcruzamiento_uno_letra' => $data->direction->txtcruzamiento_uno_letra,
-            'txtcruzamiento_dos' => $data->direction->txtcruzamiento_dos,
-            'txtcruzamiento_dos_letra' => $data->direction->txtcruzamiento_dos_letra,
-            'txtreferencia' => $data->direction->txtreferencia,
-            'flatitud' => $data->direction->flatitud !== '' ? $data->direction->flatitud : null,
-            'flongitud' => $data->direction->flongitud !== '' ? $data->direction->flongitud : null,
+            'iidcolonia'  => $data->address->iidcolonia,
+            'txtcalle' => $data->address->txtcalle,
+            'txtcalle_letra' => $data->address->txtcalle_letra,
+            'inumero_exterior' => $data->address->inumero_exterior !== '' ? $data->address->inumero_exterior : null,
+            'txtnumero_exterior_letra' => $data->address->txtnumero_exterior_letra,
+            'inumero_interior' => $data->address->inumero_interior !== '' ? $data->address->inumero_interior : null,
+            'txtnumero_interior_letra' => $data->address->txtnumero_interior_letra,
+            'txtcruzamiento_uno' => $data->address->txtcruzamiento_uno,
+            'txtcruzamiento_uno_letra' => $data->address->txtcruzamiento_uno_letra,
+            'txtcruzamiento_dos' => $data->address->txtcruzamiento_dos,
+            'txtcruzamiento_dos_letra' => $data->address->txtcruzamiento_dos_letra,
+            'txtreferencia' => $data->address->txtreferencia,
+            'flatitud' => $data->address->flatitud !== '' ? $data->address->flatitud : null,
+            'flongitud' => $data->address->flongitud !== '' ? $data->address->flongitud : null,
             'dtfecha_modificacion' => date('Y-m-d H:i:s'),
-            'itipo_direccion' => $data->direction->itipo_direccion !== '' ? $data->direction->itipo_direccion : null,
-            'itipo_vialidad' => $data->direction->itipo_vialidad !== '' ? $data->direction->itipo_vialidad : null,
-            'txtavenida_kilometro' => $data->direction->txtavenida_kilometro,
-            'txttablaje' => $data->direction->txttablaje,
-            'txtdescripcion_direccion' => $data->direction->txtdescripcion_direccion,
-            'iiddireccion' => $data->direction->iiddireccion,
+            'itipo_direccion' => $data->address->itipo_direccion !== '' ? $data->address->itipo_direccion : null,
+            'itipo_vialidad' => $data->address->itipo_vialidad !== '' ? $data->address->itipo_vialidad : null,
+            'txtavenida_kilometro' => $data->address->txtavenida_kilometro,
+            'txttablaje' => $data->address->txttablaje,
+            'txtdescripcion_direccion' => $data->address->txtdescripcion_direccion,
+            'iiddireccion' => $data->address->iiddireccion,
         );
-
+        // self::dep($data);
+        // exit;
         Db::execute($sql, $params);
         Db::commit();
 

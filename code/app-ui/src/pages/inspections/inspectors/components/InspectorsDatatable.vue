@@ -14,7 +14,6 @@
       :loading="loadingTable"
     >
       <template v-slot:item.activo="{ item }">
-        <!-- {{ item.bactivo}} -->
         <v-icon v-show="item.activo" size="medium" color="green"> mdi-check </v-icon>
         <v-icon v-show="!item.activo" size="medium" color="red">mdi-close</v-icon>
       </template>

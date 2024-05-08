@@ -2,8 +2,10 @@
     <v-container fluid>
         <div class="row">
             <div class="col-md-12">
-                <curp-verification @person-info="handlePersonInfo"></curp-verification>
+                <!-- <curp-verification @person-info="handlePersonInfo" ></curp-verification> -->
+                <curp-verification :activateDialogPerson=activateModalPerson @person-info="handlePersonInfo" :request=request ></curp-verification>
                 <!-- <curp-verification @person-info="handlePersonInfo" :typeOfRequest="'Inspector'"></curp-verification> -->
+                
             </div>
             <!-- <div class="col-md-12">
                 <a ref="urlFrame" target="_blank">Abrir URL del Servicio Vinden</a>
@@ -35,8 +37,8 @@
                 <generic-process-flow class="col-md-12" 
                     :request=request
                     @update:dialogVisible="dialogRegisterPerson = $event" 
-                    @confirm="getNextSubStage()"
-                ></generic-process-flow>
+                    ></generic-process-flow>
+                    <!-- @confirm="getNextSubStage()" -->
                 {{ SubStage }}
                 <v-expand-x-transition>
                     <v-card v-show="expand2" height="100" width="100" class="mx-auto secondary"></v-card>
@@ -94,29 +96,6 @@ export default {
             // Actualizar el modelo correspondiente dinámicamente
             this.$set(this.files, modelo, file[0]);
         },
-         // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW (AUTOMÁTICO)
-        // handleProcessFlow(foundSubStage, infoSubStage, processSubStage, hasFlowAfter) {
-        //     console.log('Retornando desde GENERIC PROCESS FLOW ')
-        //     if (foundSubStage) {
-        //         this.SubStage.info = infoSubStage
-        //         this.SubStage.process = processSubStage
-        //         this.SubStage.hasFlowAfter = hasFlowAfter
-        //     } else {
-        //         alert('No se encontró registro de la sub etapa')
-        //     }
-        // },
-         // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW (CLICK EN BUTTON)
-        // getNextSubStage(){
-        //     console.log('****************this.SubStage*****************')
-        //     console.log(this.SubStage)
-        //     this.exampleProccessFlow = this.SubStage.info.iidsubetapa_siguiente
-        //     // this.inspector.iidsubetapa = this.SubStage.info.iidsubetapa_siguiente
-        //     if(!this.SubStage.hasFlowAfter){
-        //         // Si no existe una sub etapa que tenga flujo posterior significa que será el ultimo cambio posible del proceso
-        //         this.finalizeProcess = true
-        //     }
-        // },
-
         // GET (BD)
         // async getServiceVindenUrlDebitaciones() {
         //     try {

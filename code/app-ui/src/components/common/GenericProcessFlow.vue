@@ -1,6 +1,6 @@
 <template>
     <div>
-        {{ request }}
+        {{ currentFlow.nextSubStage }}
         <div class="row">
             <p class="col-md-12 primary--text text-h6 text-center">PROCESO: <span class="text-h10"
                     style="color: #000;">{{ allFlow.txtnombre }}</span></p>
@@ -10,8 +10,6 @@
                 <v-btn color="primary" @click="dialogRequestTrace = true">Seguimiento del proceso</v-btn>
             </div>
         </div>
-
-
 
         <template>
             <v-stepper v-model="steepSubStage" vertical>
@@ -32,7 +30,7 @@
                         </div>
                     </div>
                     <div v-if="currentFlow.nextSubStage">
-                        <v-btn color="primary" @click="confirmAction">Siguiente</v-btn>
+                        <v-btn color="primary" @click="dialogverifyNextSubStage = true">Siguiente</v-btn>
                         <v-btn text @click="cancelAction">Cancelar</v-btn>
                     </div>
                     <div
@@ -67,49 +65,14 @@
         <generic-dialog :dialogVisible="dialogRequestTrace" dialogTitle="Visualizar seguimiento"
             @update:dialogVisible="dialogRequestTrace = $event" @confirm="dialogRequestTrace = false">
             <template v-slot:default>
-                dos
-                <!-- {{ allFlow.etapas }} -->
-                <!-- <template>
-                    <v-stepper v-model="activeStep" vertical>
-                        <v-stepper-step v-for="(etapa, index) in allFlow.etapas" :key="index"
-                            :complete="index < activeStep" :step="index + 1" :editable="false"
-                            @click="activeStep = index">
-                            {{ etapa.nombre_etapa }}
-                        </v-stepper-step>
-                    </v-stepper>
-                </template> -->
-                tres
-                <!-- <template>
-                    <v-stepper v-model="activeStep" vertical>
-                        <v-stepper-step v-for="(etapa, index) in allFlow.etapas" :key="index" :step="index + 1"
-                            :editable="false" @click="toggleStep(index)">
-                            {{ etapa.nombre_etapa }}
-                            <template v-if="activeStep === index">
-                                <v-divider></v-divider>
-                                <v-list>
-                                    <v-list-item v-for="(subEtapa, subIndex) in etapa.subStages" :key="subIndex">
-                                        <v-list-item-content>{{ subEtapa.txtnombre }}</v-list-item-content>
-                                    </v-list-item>
-                                </v-list>
-                            </template>
-                        </v-stepper-step>
-                    </v-stepper>
-                </template> -->
                 {{ treeData }}
                 <template>
-                    <!-- <v-treeview :items="treeData" activatable :active.sync="activeItem"></v-treeview> -->
-                    <!-- open-on-click -->
-                    <!-- <v-treeview :items="treeData" :expanded.sync="expandedItems" activatable  color="primary"
-                    transition open-all
-                        :active.sync="activeItem"></v-treeview> -->
-                    <v-treeview :items="treeData" :active.sync="activeItem" :expanded.sync="expandedItems" activatable
+                    <v-treeview :items="treeData" :expanded.sync="expandedItems" activatable
                         color="primary" transition open-all open-on-click>
                         <template v-slot:prepend="{ item }">
                             <v-icon v-if="item.icon" color="primary">{{ item.icon }}</v-icon>
                         </template>
                     </v-treeview>
-
-
                 </template>
             </template>
         </generic-dialog>
@@ -119,6 +82,13 @@
             <template v-slot:default>
                 Existen parámetros que no se han enviado o que no han sido configurados, favor de contactar al
                 administrador.
+            </template>
+        </generic-dialog>
+
+        <generic-dialog :dialogVisible="dialogverifyNextSubStage" dialogTitle="Cambio en el proceso"
+            @update:dialogVisible="dialogverifyNextSubStage = $event" @confirm="confirmAction">
+            <template v-slot:default>
+               Estos cambios son irreversibles. ¿Desea continuar con el proceso?
             </template>
         </generic-dialog>
     </div>
@@ -167,7 +137,7 @@ export default {
             //     'Inspector': 'iidinspector',
             //     'Boleta': 'iidboleta',
             // },
-
+            dialogverifyNextSubStage:false,
             // ARRAYS
             allFlow: [],
             currentFlow: { // EJEMPLO DE RESPUESTA
@@ -204,11 +174,6 @@ export default {
             },
             followUp: [],
             treeData: [],
-            activeItem: [0],
-            // activeItem: [
-            //     0, // Activa el primer elemento del arreglo (primer hijo del primer elemento)
-            //     5, // Activa el segundo elemento del arreglo (segundo hijo del segundo elemento)
-            // ],
             expandedItems: [0],
             // DIALOGS
             dialogRequestTrace: false,
@@ -267,17 +232,6 @@ export default {
                     this.dialogDemoProcess = true
                 }
 
-                // this.currentSubStage = allInfo.current
-                // this.process = await services.inspections().getInfoProcess({ iidproceso: allInfo.current.iidproceso })
-                // console.log('load DATA PROCESS')
-                // this.emitResponse= { //DEMO
-                //     foundSubStage: true, // Encontrado
-                //     currentSubStage: this.currentSubStage, // iidsubStage all data
-                //     process: this.process, // process all data
-                //     hasFlowAfter: this.hasFlowAfter, // continua proceso
-                // },
-                // this.emitToParentComponent()
-
             } catch (error) {
                 const message = 'Error al procesar datos en componente de procesos1 ';
                 this.showError({ message, error });
@@ -286,52 +240,6 @@ export default {
         cancelAction() {
             alert('click finalizar');
         },
-
-        // RETORNO DE COMPONENTE GENÉRICO PROCESS FLOW (CLICK EN BUTTON)
-        async getNextSubStage() {
-            // try {
-            //     console.log('****************this.SubStage*****************')
-            //     console.log(this.SubStage)
-            //     let dataNextSubStage = {
-            //         "iidinspector": this.inspector.iidinspector,
-            //         "iidetapa": this.SubStage.info.iidetapa_subetapa_siguiente,
-            //         "iidsubetapa": this.SubStage.info.iidsubetapa_siguiente,
-            //     }
-            //     let dataTrace = {
-            //         "iidinspector": this.inspector.iidinspector,
-            //         "iidetapa_anterior": this.SubStage.info.iidetapa_subetapa_actual,
-            //         "iidsubetapa_anterior": this.SubStage.info.iidsubetapa_actual,
-            //         "iidetapa_actual": this.SubStage.info.iidetapa_subetapa_siguiente,
-            //         "iidsubetapa_actual": this.SubStage.info.iidsubetapa_siguiente,
-            //     }
-
-            //     let updateInspectorSubStage = await services.inspections().updateInspectorSubStage(dataNextSubStage);
-            //     console.log('updateInspectorSubStage')
-            //     console.log(updateInspectorSubStage)
-            //     console.log(dataNextSubStage)
-            //     let insertInspectorTrace = await services.inspections().insertInspectorTrace({ dataTrace });
-            //     console.log('insertInspectorTrace')
-            //     console.log(insertInspectorTrace)
-            //     console.log(dataTrace)
-
-            //     if (updateInspectorSubStage.success && insertInspectorTrace.success) {
-            //         this.inspector.iidsubetapa = this.SubStage.info.iidsubetapa_siguiente
-            //         let message = 'Etapa actualizada'
-            //         this.showSuccess(message);
-            //     }
-            //     if (!this.SubStage.hasFlowAfter) {
-            //         // Si no existe una sub etapa que tenga flujo posterior significa que será el ultimo cambio posible del proceso
-            //         this.finalizeProcess = true
-            //     }
-
-            // } catch (error) {
-            //     const message = 'Error al guardar inspector.';
-            //     this.showError({ message, error });
-            // }
-
-        },
-
-
 
         async confirmAction() {
             // this.$emit('confirm');
@@ -350,16 +258,6 @@ export default {
                 let updateInspectorSubStage = await services.inspections().newDinamycSubStage(sendNewSubStage);
                 console.log(updateInspectorSubStage)
                 this.requestDinamyc.idOfSubStage = updateInspectorSubStage.info
-                // this.requestDinamyc = {
-                //     type: '', //type-dinamyc
-                //     idOfType: 0, //iid-dinamyc
-                //     idOfSubStage: 0, //iidsubStage
-                //     idOfNextSubStage: 0, //iidsubStage
-                //     finalizeProcess: false,
-                // }
-                
-                // console.log(this.request)
-                // console.log(this.requestDinamyc)
                 await this.loadFlowData();
 
             } catch (error) {
@@ -383,27 +281,37 @@ export default {
             this.$emit('process-flow', this.emitResponse);
         },
         convertToTreeStructure(etapas) {
-            console.log('-----etapas----');
-            console.log(etapas);
-            // console.log(`${this.currentFlow.currentSubStage.iidetapa}.${this.currentFlow.currentSubStage.iidsubetapa}`);
-            return etapas.map(etapa => ({
-                id: etapa.iidetapa,
-                name: `Etapa: ${etapa.nombre_etapa} -- ${etapa.iidetapa}`,
-                children: (etapa.subStages || []).map(subEtapa => ({
-                    id: `${etapa.iidetapa}.${subEtapa.iidsubetapa}`,
-                    name: `SubEtapa: ${subEtapa.txtnombre}-- ${etapa.iidetapa}.${subEtapa.iidsubetapa}`,
-                    // icon: 'mdi-check-circle' 
-                    // icon: 'mdi-checkbox-blank-circle'
-                    icon: 'mdi-checkbox-blank-circle-outline'
+            return etapas.map(etapa => {
+                console.log('-----etapa----');
+                console.log(etapa);
+                return {
+                    id: etapa.iidetapa,
+                    name: `Etapa: ${etapa.nombre_etapa} -- ${etapa.iidetapa}`,
+                    children: (etapa.subStages || []).map(subEtapa => {
+                        console.log('-----subEtapa----');
+                        console.log(subEtapa);
+                        let dinamycIcon = ''
+                        if (subEtapa.historicStatus == "pendiente") {
+                            dinamycIcon = 'mdi-checkbox-blank-circle-outline'
 
+                        }
+                        if (subEtapa.historicStatus == "actualmente") {
+                            dinamycIcon = 'mdi-check-circle'
 
-                }))
-            }));
+                        }
+                        if (subEtapa.historicStatus == "pasado") {
+                            dinamycIcon = 'mdi-checkbox-blank-circle'
+
+                        }
+                        return {
+                            id: `${etapa.iidetapa}.${subEtapa.iidsubetapa}`,
+                            name: `SubEtapa: ${subEtapa.txtnombre}-- ${etapa.iidetapa}.${subEtapa.iidsubetapa}`,
+                            icon: dinamycIcon
+                        };
+                    })
+                };
+            });
         },
-
-        toggleStep(index) {
-            this.activeStep = (this.activeStep === index) ? null : index;
-        }
     },
     watch: {
         'request': async function () {
@@ -418,8 +326,6 @@ export default {
     async mounted() {
         console.log('cargando')
         this.requestDinamyc = this.request
-        // console.log(this.request)
-        // console.log(this.requestDinamyc)
         await this.loadFlowData();
 
     }

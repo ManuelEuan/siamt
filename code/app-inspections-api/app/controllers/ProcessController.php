@@ -77,17 +77,34 @@ class ProcessController extends BaseController
         if ($data->idOfType) {
             $followUp = $this->getDinamycTrace($data->type, $data->idOfType);
         }
+        // self::dep($currentFlow['currentSubStage']->iidsubetapa);exit;
         $getProcessBySubStage = $this->getProcessBySubStage($data->idOfSubStage);
-
+        
         // PROCESO GENERAL
         $getStagesByProcess = $this->getStagesByProcess($getProcessBySubStage->iidproceso);
         if(count($getStagesByProcess)>0){
             foreach($getStagesByProcess as $key => $stage){
                 $subStages = $this->getSubStagesByStage($stage->iidetapa);
+                foreach($subStages as $keySubStage => $subStage){
+                    if(in_array($subStage->iidsubetapa, $followUp['onlySubStages'])){
+                        // echo 'el: '.$subStage->iidsubetapa. ' se ha encontrado';
+                        $historicStatus = 'pasado';
+                    }elseif($subStage->iidsubetapa == $currentFlow['currentSubStage']->iidsubetapa){
+                        // echo 'es la actual: '.$subStage->iidsubetapa. ' ';
+                        $historicStatus = 'actualmente';
+                    }else{
+                        $historicStatus = 'pendiente';
+                        // echo 'el: '.$subStage->iidsubetapa. ' no se ha encontrado';
+                    }
+                    $subStages[$keySubStage]->historicStatus = $historicStatus;
+                }
                 $getStagesByProcess[$key]->subStages = $subStages;
             }
         }
+        // self::dep($getStagesByProcess);exit;
+
         $getProcessBySubStage->etapas = $getStagesByProcess;
+        // self::dep($getProcessBySubStage->etapas);exit;
         $allFlow = $getProcessBySubStage;
         $allData = ['currentFlow' => $currentFlow, 'followUp' => $followUp, 'allFlow' => $allFlow];
         // self::dep($allData);
@@ -197,6 +214,15 @@ class ProcessController extends BaseController
 
         $params = array('idOfSearch' => $idOfSearch); // Parámetros para la consulta
         $foundRequest = Db::fetchAll($sql, $params);
+        $onlyStages=[];
+        $onlySubStages=[];
+        foreach($foundRequest as $key => $found){
+            array_push($onlyStages, $found->iidetapa_anterior);
+            array_push($onlySubStages, $found->iidsubetapa_anterior);
+        }
+        $foundRequest['onlyStages'] = $onlyStages;
+        $foundRequest['onlySubStages'] = $onlySubStages;
+        // self::dep($foundRequest);exit;
         return $foundRequest; // Devolver información del inspector
     }
 

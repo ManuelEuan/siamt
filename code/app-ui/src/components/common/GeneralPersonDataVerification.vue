@@ -1,10 +1,10 @@
 <template>
-    <div>CAUM990224HYNRCC05 
+    <div>
         <v-card-text>
             <!-- CAMPOS DE EVENTOS -->
-            <v-row class="mx-auto" v-if="peopleModulePermissions.includes('vegp')">
+            <v-row class="mx-auto" v-if="peopleModulePermissions.includes('edgp') && iidpersona">
                 <v-col cols="12" class="text-right">
-                    <v-btn v-if="peopleModulePermissions.includes('edgp')" depressed color="primary" :disabled="!generalPersonDataValidation" @click="updatePerson()">
+                    <v-btn depressed color="primary" :disabled="!generalPersonDataValidation" @click="updatePerson()">
                         Actualizar datos
                     </v-btn>
                 </v-col>

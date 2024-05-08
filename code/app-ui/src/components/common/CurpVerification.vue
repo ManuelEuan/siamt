@@ -417,8 +417,12 @@ export default {
                 console.log('responseCreatePerson create')
                 console.log(this.responseCreatePerson)
                 this.showSuccess(this.responseCreatePerson.message);
-                this.$emit('modal-create-person', this.responseCreatePerson.persona, true)
-                this.dialogModalCreatePersonWithAddressAndPhone = false
+                this.personaEncontrada= true
+                this.personaDisponible= true
+                this.persona = this.responseCreatePerson.persona
+                this.emitToParentComponent()
+                this.dialogModalPerson = false
+                // this.$emit('modal-create-person', this.responseCreatePerson.persona, true)
             } catch (error) {
                 const message = 'Error al guardar ';
                 this.showError({ message, error });
@@ -618,6 +622,10 @@ export default {
             const curpRules = this.rules.curp;
             if (curpRules) {
                 this.curpValida = curpRules(this.curp) === true;
+                if(!this.curpValida){
+                    this.personaDisponible = false
+                    this.emitToParentComponent()
+                }
             }
             this.preLoadPerson = {
                 bfisica: true,
@@ -628,6 +636,10 @@ export default {
             const rfcRules = this.rules.rfc;
             if (rfcRules) {
                 this.rfcValida = rfcRules(this.rfc) === true;
+                if(!this.rfcValida){
+                    this.personaDisponible = false
+                    this.emitToParentComponent()
+                }
             }
             this.preLoadPerson = {
                 bfisica: false,

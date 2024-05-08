@@ -1,6 +1,5 @@
 <template>
     <v-card flat>
-        <!-- filters {{ permissions.includes('crii') }} -- -->
         <v-toolbar>
             <v-toolbar-title>Inspectores</v-toolbar-title>
             <v-spacer></v-spacer>
