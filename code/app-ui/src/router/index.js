@@ -10,6 +10,7 @@ import ProfilesRoutes from "@/router/profiles.routes";
 import mtoUnidades from "@/router/mtoUnidades.routes";
 import InspectionsRoutes from "@/router/inspections.routes";
 import PersonsRoutes from "@/router/persons.routes";
+import FirmsRoutes from "@/router/firms.routes";
 
 
 import services from '@/services';
@@ -41,6 +42,7 @@ export const routes = [{
   ...mtoUnidades,
   ...InspectionsRoutes,
   ...PersonsRoutes,
+  ...FirmsRoutes,
 {
   path: '/blank',
   name: 'blank',

@@ -110,45 +110,84 @@ export default class AdminService extends ApiService {
     return await this.post("/users/getActivePermissionsFromUser", JSON.stringify(id));
   }
 
-  getPermissionsFromUser
 
-    //Perfiles
+  //Perfiles
 
-    async getProfiles(data) {
-      return await this.post("/profiles", JSON.stringify(data));
-    }
+  async getProfiles(data) {
+    return await this.post("/profiles", JSON.stringify(data));
+  }
 
-    async getEditProfileInfo(data) {
-      return await this.post("/profiles/geteditprofileinfo", JSON.stringify(data));
-    }
+  async getEditProfileInfo(data) {
+    return await this.post("/profiles/geteditprofileinfo", JSON.stringify(data));
+  }
 
-    async getUsersFromProfile(id) {
-      return await this.post(`/profiles/${id}/users`, JSON.stringify(id));
-    }
+  async getUsersFromProfile(id) {
+    return await this.post(`/profiles/${id}/users`, JSON.stringify(id));
+  }
 
-    async getPermissionsFromProfile(id) {
-      return await this.post(`/profiles/${id}/permissions`, JSON.stringify(id));
-    }
+  async getPermissionsFromProfile(id) {
+    return await this.post(`/profiles/${id}/permissions`, JSON.stringify(id));
+  }
 
-    async getModulesFromProfile(id) {
-      return await this.post(`/profiles/${id}/modules`, JSON.stringify(id));
-    }
+  async getModulesFromProfile(id) {
+    return await this.post(`/profiles/${id}/modules`, JSON.stringify(id));
+  }
 
-    
-    async createProfile(data) {
-      return await this.post("/profiles/new", JSON.stringify(data));
-    }
 
-    async deleteProfile(id) {
-      return await this.delete(`/profiles/${id}`);
-    }
+  async createProfile(data) {
+    return await this.post("/profiles/new", JSON.stringify(data));
+  }
 
-    async updateProfile(data) {
-      return await this.put("/profiles", JSON.stringify(data));
-    }
+  async deleteProfile(id) {
+    return await this.delete(`/profiles/${id}`);
+  }
 
-    async getServiceVindenUrlDebitaciones() {
-      return await this.get("/debits/getServiceVindenUrlDebitaciones");
-    }
-    
+  async updateProfile(data) {
+    return await this.put("/profiles", JSON.stringify(data));
+  }
+  
+  async getServiceVindenUrlDebitaciones() {
+    return await this.get("/debits/getServiceVindenUrlDebitaciones");
+  }
+
+  // async getDinamycCount(data) {
+  //   return await this.post("/firms/getDinamycCount", JSON.stringify(data));
+  // }
+  async getDinamycCount() {
+    return await this.get("/firms/getDinamycCount");
+  }
+
+  async getTemplateById(data) {
+    return await this.post("/firms/getTemplateById", JSON.stringify(data));
+  }
+
+  
+  async getFirmById(data) {
+    return await this.post("/firms/getFirmById", JSON.stringify(data));
+  }
+
+  async getAllTemplates() {
+    return await this.get("/firms/getAllTemplates");
+  }
+
+  async getAllFirms() {
+    return await this.get("/firms/getAllFirms");
+  }
+
+  async createTemplate(data) {
+    return await this.post("/firms/templates/new", JSON.stringify(data));
+  }
+
+  async updateTemplate(data) {
+    return await this.put("/firms/templates", JSON.stringify(data));
+  }
+
+  async saveFirmRegisterByUser(data) {
+    return await this.post("/firms/saveFirmRegisterByUser", JSON.stringify(data));
+  }
+
+  async updateFirmRegisterByUser(data) {
+    return await this.put("/firms/updateFirmRegisterByUser", JSON.stringify(data));
+  }
+
 }

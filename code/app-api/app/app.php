@@ -10,6 +10,7 @@ use App\Controllers\SurveyController;
 use App\Controllers\UsersController;
 use App\Controllers\ProfilesController;
 use App\Controllers\DebitsController;
+use App\Controllers\FirmsController;
 
 
 
@@ -148,4 +149,19 @@ $app->mount(
     ->setHandler(DebitsController::class, true)
     ->setPrefix('/admin')
     ->get("/debits/getServiceVindenUrlDebitaciones", "getServiceVindenUrlDebitaciones")
+);
+
+$app->mount(
+    (new Collection())
+    ->setHandler(FirmsController::class, true)
+    ->setPrefix('/admin')
+    ->get("/firms/getDinamycCount", "getDinamycCount")
+    ->post("/firms/getTemplateById", "getTemplateById")
+    ->post("/firms/getFirmById", "getFirmById")
+    ->get("/firms/getAllTemplates", "getAllTemplates")
+    ->get("/firms/getAllFirms", "getAllFirms")
+    ->post('/firms/templates/new', 'createTemplate')
+    ->put('/firms/templates', 'updateTemplate')
+    ->post('/firms/saveFirmRegisterByUser', 'saveFirmRegisterByUser')
+    ->put('/firms/updateFirmRegisterByUser', 'updateFirmRegisterByUser')
 );
