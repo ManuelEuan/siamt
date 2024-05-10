@@ -8,14 +8,12 @@ import store from './store';
 import router from './router';
 
 // Para máscaras de inputs
-import VueTheMask from 'vue-the-mask'
+// import VueTheMask from 'vue-the-mask'
 // Para saber el tipo de dispositivo en que se accede
 import device from 'vue-device-detector'
 
-
-
-import { vMaska } from "maska"
-Vue.directive('maska', vMaska);
+import { VueMaskDirective } from 'v-mask'
+Vue.directive('mask', VueMaskDirective); 
 
 // PLUGINS
 import vuetify from './plugins/vuetify';
@@ -33,6 +31,7 @@ import './plugins/vue-sweetalert2';
 import './plugins/r-common';
 import './plugins/vue-gmap';
 import './plugins/vue-highcharts';
+
 import VueToastr from 'vue-toastr';
 import VModal from "vue-js-modal";
 import 'tinymce/tinymce';
@@ -58,7 +57,8 @@ Vue.config.productionTip = false;
 
 Vue.use(VueToastr);
 Vue.use(VModal);
-Vue.use(VueTheMask);
+// Vue.use(VueTheMask);
+// Vue.use(VuetifyMask);  
 Vue.use(device);
 Vue.use(Editor);
 

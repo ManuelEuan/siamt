@@ -1,16 +1,5 @@
 <template>
     <v-container fluid>
-        <v-flex xs12 md4>
-            <v-text-field label="Telefono (10 digitos)" v-model="form.telefono"
-                return-masked-value
-                mask="(###) ### - ####"
-                ></v-text-field>
-        </v-flex>
-        <v-flex xs12 md4>
-            <v-text-field label="Extensión" v-model="form.extension"
-                mask="#######"
-                ></v-text-field>
-        </v-flex>
         <v-flex xs12 align-center class="my-4">
             <div v-if="template.iidfirma_plantilla" id="signature-gen"
                 style="margin: 0 auto; padding: 1em 1em 1em 1em; width: 900px; min-height: 225px; line-height: 20px; ">
@@ -42,7 +31,8 @@
                 <v-form>
                     <v-card flat class="mt-5">
                         <v-row class="px-2">
-                            <generic-form-validation :formFields="formFields" @form-valid="handleGenericFormValidation2" :formFieldsWithValues="sendFieldsWithValues"
+                            <generic-form-validation :formFields="formFields" @form-valid="handleGenericFormValidation2"
+                                :formFieldsWithValues="sendFieldsWithValues"
                                 @new-value="handleGenericFormValidation"></generic-form-validation>
                             <v-col cols="12" md="12" class="d-flex justify-end" v-if="!firm.iidfirma_registro">
                                 <v-btn color="primary" text :disabled="!validForm || !firm.iidfirma_plantilla"
@@ -73,8 +63,8 @@
                 </v-form>
             </v-col>
         </v-row>
-          <!-- MODAL BÚSQUEDA -->
-          <v-dialog transition="dialog-top-transition" max-width="600" v-model="dialogSearch">
+        <!-- MODAL BÚSQUEDA -->
+        <v-dialog transition="dialog-top-transition" max-width="600" v-model="dialogSearch">
             <v-card>
                 <v-card-title class="text-uppercase primary--text text-h6 py-2">
                     Buscar firma
@@ -84,7 +74,7 @@
                     <template>
                         <v-card>
                             <v-card-title>
-                                Firma 
+                                Firma
                                 <v-spacer></v-spacer>
                                 <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar" single-line
                                     hide-details></v-text-field>
@@ -128,10 +118,6 @@ export default {
             selected: [],
             validForm: false,
             iiduser: 0,
-            form: {
-                telefono: '',
-                extension: '',
-            },
             firm: {
                 iidfirma_registro: null,
 
@@ -175,7 +161,7 @@ export default {
                 txtoficina: { label: 'Oficina*', type: 'text', model: 'txtoficina', rules: 'required', cols: 12, md: 6, array: this.oficinas },
                 txtdepartamento: { label: 'Departamento*', type: 'text', model: 'txtdepartamento', rules: null, cols: 12, md: 6 },
                 txtemail: { label: 'Email*', type: 'text', model: 'txtemail', rules: null, cols: 12, md: 6 },
-                txttelefono: { label: 'Teléfono*', type: 'text', model: 'txttelefono', rules: null, cols: 12, md: 6 },
+                txttelefono_mask_phone: { label: 'Teléfono*', type: 'text', model: 'txttelefono_mask_phone', rules: null, cols: 12, md: 6, maskType: 'phone' },
                 txtextension: { label: 'Extensión*', type: 'text', model: 'txtextension', rules: null, cols: 12, md: 6 },
             }
 
@@ -204,8 +190,8 @@ export default {
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
-        resetFirm(){
-            this.firm= {
+        resetFirm() {
+            this.firm = {
                 iidfirma_registro: null,
                 // iplantilla: 0,
                 iidfirma_plantilla: null,
@@ -242,15 +228,15 @@ export default {
                     'iidusuario': this.iiduser,
                     'firm': this.firm
                 }
-                if(!onlyImpresion){
-                    if(!this.firm.iidfirma_registro){
+                if (!onlyImpresion) {
+                    if (!this.firm.iidfirma_registro) {
                         let { message } = await services.admin().saveFirmRegisterByUser(data);
                         this.showSuccess(message);
                         // await this.getAllFirms();
                         setTimeout(() => {
                             window.location.reload()
                         }, 3000);
-                    }else{
+                    } else {
                         let { message } = await services.admin().updateFirmRegisterByUser(data);
                         this.showSuccess(message);
                         // await this.getAllFirms();
@@ -306,12 +292,21 @@ export default {
             }
         },
         handleGenericFormValidation(key, value) {
+            console.log(key, value)
+            // if (key == '') { 
+
+            // }
             this.firm[key] = value
 
         },
         handleGenericFormValidation2(valid) {
             this.validForm = valid
         },
+        rawValue() {
+            const rawValue = this.formattedValue.replace(/\D/g, '');
+            return rawValue
+            // return maskedValue.replace(/(\d{3})(\d{3})(\d{4})/, '($1)-$2-$3');
+        }
     },
     watch: {
         'firm.iidfirma_plantilla': {

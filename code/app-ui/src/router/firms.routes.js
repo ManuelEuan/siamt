@@ -39,4 +39,34 @@ export default [
             parentCode: 'fir'
         }
     },
+    {
+        path: '/firms/mask',
+        name: 'Firmas - Plantillas',
+        component: () => import(/* webpackChunkName: "blank" */ '@/pages/admin/firms/mask.vue'),
+        meta: {
+            layout: 'default',
+            code: 'fip',
+            parentCode: 'fir'
+        }
+    },
+    {
+        path: '/firms/maskDinamyc',
+        name: 'Firmas - Plantillas',
+        component: () => import(/* webpackChunkName: "blank" */ '@/pages/admin/firms/maskDinamyc.vue'),
+        meta: {
+            layout: 'default',
+            code: 'fip',
+            parentCode: 'fir'
+        }
+    },
+    {
+        path: '/firms/maskDinamycWithForm',
+        name: 'Firmas - Plantillas',
+        component: () => import(/* webpackChunkName: "blank" */ '@/pages/admin/firms/maskDinamycWithForm.vue'),
+        meta: {
+            layout: 'default',
+            code: 'fip',
+            parentCode: 'fir'
+        }
+    },
 ]

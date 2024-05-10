@@ -5,12 +5,14 @@
                 <v-col v-for="(field, index) in genericFormFields" :key="index" :cols="field.cols" :md="field.md">
                     <template v-if="field.type === 'text'">
                         <v-text-field v-model="field.model" :label="field.label" hide-details="auto" clearable dense
-                            outlined :rules="getFieldRules(field)" />
+                            outlined :rules="getFieldRules(field)" v-mask="getMask(field)" />
                     </template>
                     <template v-else-if="field.type === 'autocomplete'">
-                        <v-autocomplete v-model="field.model" :label="field.label"
-                            :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']" dense outlined
-                            :rules="getFieldRules(field)" />
+                        <v-autocomplete v-if="field.array.type == 'list'" v-model="field.model" :label="field.label"
+                            :items="field.array.info" dense outlined :rules="getFieldRules(field)" />
+                        <v-autocomplete v-else style="display: flex; align-items:center;" :rules="getFieldRules(field)"
+                            v-model="field.model" label="Seleccione su plantilla" :items="field.array.info" dense
+                            outlined :item-text="field.array.item_text" :item-value="field.array.item_value" />
                     </template>
                 </v-col>
             </v-row>
@@ -37,6 +39,15 @@ export default {
         return {
             genericFormFields: {},
             isFormValid: false,
+            mascara: null,
+            modelosMascaras: {
+                phone:
+                {
+                    mask: '(###) ###-####',
+                    regexMask: /\D/g
+                },
+                rfc: '##-##-##'
+            }
         }
     },
     methods: {
@@ -51,42 +62,55 @@ export default {
                 });
             }
             return rulesArray;
+        },
+        getMask(type) {
+            console.log('typesdwedw***********')
+            console.log(type)
+            if (type.maskType) {
+                console.log(this.modelosMascaras[type.maskType].mask)
+                return this.modelosMascaras[type.maskType].mask
+            } else {
+                return null
+            }
         }
     },
     computed: {
-    },
-    created() {
+        atributosCampo() {
+            return {
+                // 'v-mask': this.mascara(this.modelo) // Asignar dinámicamente el v-mask según el modelo seleccionado
+            };
+        },
     },
     watch: {
-        isFormValid: {
-            handler() {
-                this.$emit('form-valid', this.isFormValid);
-            },
-            immediate: true
+        isFormValid() {
+            this.$emit('form-valid', this.isFormValid);
         },
-        formFieldsWithValues: {
-            handler() {
-                console.log('llegando al generico')
-                console.log(this.genericFormFields)
-                console.log(this.formFieldsWithValues)
-                Object.keys(this.genericFormFields).forEach(key => {
-                    const field = this.genericFormFields[key];
-                    field.model = this.formFieldsWithValues[key];
-                });
-                // this.genericFormFields = formFieldsWithValues
-            },
-            immediate: true
-        },
+        formFieldsWithValues() {
+            for (const key in this.genericFormFields) {
+                const field = this.genericFormFields[key];
+                field.model = this.formFieldsWithValues[key] || '';
+            }
+        }
+
+
     },
     mounted() {
-        this.genericFormFields = { ...this.formFields }; // Copiar los campos del objeto formFields a genericFormFields
-        Object.keys(this.genericFormFields).forEach(key => {
+        this.genericFormFields = { ...this.formFields };
+        for (const key in this.genericFormFields) {
+
             const field = this.genericFormFields[key];
-            field.model = '';
-            this.$watch(() => field.model, (newValue) => {
-                this.$emit('new-value', key, newValue);
+            field.model = ''
+            this.$watch(() => field.model, (value) => {
+                const maskIndex = key.indexOf("_mask_");
+                if (maskIndex > 1) {
+                    const maskType = key.substring(maskIndex + 6);
+                    const returnValue = value.replace(this.modelosMascaras[maskType].regexMask, '');
+                    this.$emit('new-value', key.substring(0, maskIndex), returnValue);
+                } else {
+                    this.$emit('new-value', key, value);
+                }
             });
-        });
+        }
     }
 }
 </script>
