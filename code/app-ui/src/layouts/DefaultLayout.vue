@@ -139,7 +139,10 @@
                     nav.forEach((e) => {
                         if (e.code) {
                             let r = this.$router.getRoutes().find(r => r.meta.code == e.code);
-                            e.link = r.path;
+                            if(r){
+
+                                e.link = r.path;
+                            }
                             this.transformModulesConfig(e.items);
                         } else if (e.items) {
                             this.transformModulesConfig(e.items);

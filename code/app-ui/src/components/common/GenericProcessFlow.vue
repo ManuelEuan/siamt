@@ -1,63 +1,83 @@
 <template>
     <div>
-        {{ currentFlow.nextSubStage }}
-        <div class="row">
-            <p class="col-md-12 primary--text text-h6 text-center">PROCESO: <span class="text-h10"
+        Current: {{ currentFlow.currentSubStage }}
+        <div class="row mx-2 my-3">
+            <p class="col-md-12 primary--text text-h6 text-md-center  mb-3 py-1">PROCESO: <span class="text-h10"
                     style="color: #000;">{{ allFlow.txtnombre }}</span></p>
-            <p class="col-md-8 primary--text text-h6">ETAPA ACTUAL: <span class="text-h10" style="color: #000;">
+            <p class="col-md-6 primary--text text-h6 text-md-center  mb-0 py-1">ETAPA ACTUAL: <span class="text-h10"
+                    style="color: #000;">
                     {{ currentFlow.currentSubStage.etapa_nombre }}</span></p>
-            <div class="col-md-4" v-if="request.idOfType">
-                <v-btn color="primary" @click="dialogRequestTrace = true">Seguimiento del proceso</v-btn>
+            <div class="col-md-3 d-md-flex   py-1">
+                <v-btn class="mx-auto" v-if="request.idOfType" style="max-width: 200px" color="info"
+                    @click="dialogRequestTrace = true">Seguimiento</v-btn>
+            </div>
+            <div class="col-md-3 d-md-flex  py-1">
+                <v-btn class="mx-auto" v-if="request.idOfType && currentFlow.currentSubStage.txtsigla === 'BOLE'"
+                    style="max-width: 200px" color="primary" @click="dialogShowBoletas = true">Boletas</v-btn>
             </div>
         </div>
-
         <template>
             <v-stepper v-model="steepSubStage" vertical>
                 <v-stepper-step complete editable step="1">
                     {{ currentFlow.currentSubStage.subetapa_nombre }} ({{ currentFlow.currentSubStage.txtsigla }})
-                    <span v-if="currentFlow.currentSubStage.iidetapa != currentFlow.nextSubStage.iidetapa">
+                    <span
+                        v-if="currentFlow.currentSubStage.iidetapa != currentFlow.nextSubStage.iidetapa && !!currentFlow.nextSubStage.iidetapa">
                         <i style="color: orange;" aria-hidden="true"
                             class="v-icon notranslate mdi mdi-alert theme--light"></i> Pasára a la siguiente etapa
                     </span>
                 </v-stepper-step>
 
+
                 <v-stepper-content step="1">
-                    <div height="100px">
-                        <div :style="'background-color: ' + (currentFlow.currentSubStage.txtcolor !== '' ? currentFlow.nextSubStage.txtcolor : 'gray')"
-                            class="mb-6 d-flex align-center justify-center py-2"
+                    <div height="100px" style="max-width: 90%; margin: 0 auto;">
+                        <div :style="'background-color: ' + (currentFlow.currentSubStage.txtcolor !== '' ? currentFlow.currentSubStage.txtcolor : 'gray')"
+                            class="mb-6 d-flex align-center justify-center py-2 px-2"
                             style="color: white; font-weight: bold; font-size: 16px;margin-bottom: 1rem !important;">
-                            Descripción: {{ currentFlow.currentSubStage.descripcion_subetapa_actual }}
+                            Descripción: {{ currentFlow.currentSubStage.txtdescripcion }}
+                        </div>
+                        <div v-if="currentFlow.nextSubStage.length">
+                            <v-btn color="primary" @click="verifyNextSubStage()">Siguiente</v-btn>
+                            <v-btn text @click="cancelAction">Cancelar</v-btn>
                         </div>
                     </div>
-                    <div v-if="currentFlow.nextSubStage">
-                        <v-btn color="primary" @click="dialogverifyNextSubStage = true">Siguiente</v-btn>
-                        <v-btn text @click="cancelAction">Cancelar</v-btn>
-                    </div>
-                    <div
-                        v-else-if="!currentFlow.nextSubStage && currentFlow.currentSubStage.iidsubetapa !== currentFlow.nextSubStage.iidsubetapa">
-                        <v-btn color="primary" @click="showAlertFinalize()">Ya no existe flujo posterior</v-btn>
-                    </div>
-                    <div v-else-if="currentFlow.currentSubStage.iidsubetapa === currentFlow.nextSubStage.iidsubetapa">
-                        <v-btn color="primary" @click="showAlertFinalize()">Finalizar</v-btn>
-                    </div>
-                    <div v-else>
-                        <!-- <v-btn color="primary" @click="showAlertFinalize()">Ya no existe flujo posterior</v-btn> -->
-                        No contemplado
-                    </div>
-
                 </v-stepper-content>
+                <div v-if="currentFlow.nextSubStage.length === 1">
+                    <v-stepper-step step="2">
+                        {{ currentFlow.nextSubStage[0].subetapa_nombre }} ({{ currentFlow.nextSubStage[0].txtsigla }} -
+                        {{ currentFlow.nextSubStage[0].txtdescripcion }})
+                    </v-stepper-step>
 
-                <v-stepper-step step="2">
-                    {{ currentFlow.currentSubStage.nombre_subetapa_siguiente }}
-                </v-stepper-step>
+                    <v-stepper-content step="2" class="step_two">
+                        <div>
+                            <!-- <div :style="'background-color: ' + (currentFlow.nextSubStage[0].txtcolor !== '' ? currentFlow.nextSubStage[0].txtcolor : 'gray')" -->
+                            <div :style="'background-color: gray'" class="mb-6 d-flex align-center justify-center py-2"
+                                style="color: white; font-weight: bold; font-size: 16px;margin-bottom: 1rem !important;">
+                                Descripcións: {{ currentFlow.nextSubStage[0].txtdescripcion }}
+                            </div>
+                        </div>
+                        <div>
+                            <!-- <v-btn color="primary" @click="showAlertFinalize()">Ya no existe flujo posterior</v-btn> -->
+                            Sin acciones por el momento1
+                        </div>
+                    </v-stepper-content>
+                </div>
+                <div v-if="currentFlow.nextSubStage.length > 1">
+                    <v-stepper-step step="2" >
+                        Bifurcación de proceso
+                    </v-stepper-step>
 
-                <v-stepper-content step="2">
-                    <v-card
-                        :style="'background-color: ' + (currentFlow.currentSubStage.txtcolor !== '' ? currentFlow.currentSubStage.txtcolor : 'gray')"
-                        class="mb-6 d-flex align-center justify-center" height="200px">
-                        {{ currentFlow.nextSubStage.txtdescripcion }}
-                    </v-card>
-                </v-stepper-content>
+                    <v-stepper-content step="2" class="step_two" style="">
+                        <div  height="100px" style="">
+                            <div :style="'background-color: gray;'" class="mb-6 d-flex align-center justify-center py-2"
+                                style="color: white; font-weight: bold; font-size: 16px;margin-bottom: 1rem !important;">
+                                Debe seleccionar la opción siguiente para ver los flujos disponibles
+                            </div>
+                            <div>
+                                Sin acciones por el momento2
+                            </div>
+                        </div>
+                    </v-stepper-content>
+                </div>
             </v-stepper>
         </template>
 
@@ -67,8 +87,8 @@
             <template v-slot:default>
                 {{ treeData }}
                 <template>
-                    <v-treeview :items="treeData" :expanded.sync="expandedItems" activatable
-                        color="primary" transition open-all open-on-click>
+                    <v-treeview :items="treeData" :expanded.sync="expandedItems" activatable color="primary" transition
+                        open-all open-on-click>
                         <template v-slot:prepend="{ item }">
                             <v-icon v-if="item.icon" color="primary">{{ item.icon }}</v-icon>
                         </template>
@@ -85,10 +105,65 @@
             </template>
         </generic-dialog>
 
-        <generic-dialog :dialogVisible="dialogverifyNextSubStage" dialogTitle="Cambio en el proceso"
-            @update:dialogVisible="dialogverifyNextSubStage = $event" @confirm="confirmAction">
+        <generic-dialog :dialogVisible="dialogVerifyNextSubStage" dialogTitle="Cambio en el proceso"
+            @update:dialogVisible="dialogVerifyNextSubStage = $event" @confirm="confirmAction">
             <template v-slot:default>
-               Estos cambios son irreversibles. ¿Desea continuar con el proceso?
+                Estos cambios son irreversibles. ¿Desea continuar con el proceso?
+            </template>
+        </generic-dialog>
+
+
+        <generic-dialog :dialogVisible="dialogShowBoletas" dialogTitle="Boletas generadas"
+            @update:dialogVisible="dialogShowBoletas = $event">
+            <template v-slot:default>
+                En el proceso de esta sub etapa existen diferentes flujos, favor de seleccionar uno
+                <!-- TABLA DE BOLETAS -->
+                <v-data-table :headers="headers" :items="currentFlow.nextSubStage">
+                    <template v-slot:item.bactual="{ item }">
+                        <v-icon v-show="item.bactual" size="medium" color="green">mdi-check</v-icon>
+                        <v-icon v-show="!item.bactual" size="medium" color="red">mdi-close</v-icon>
+                    </template>
+                    <template v-slot:item.actions="{ item }">
+                        <div style="min-width: 85px;">
+                            <v-tooltip bottom>
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-btn v-bind="attrs" v-on="on" icon small
+                                        @click="confirmNextSubStageOfBifurcation(item.iidetapa, item.iidsubetapa)">
+                                        <v-icon small>mdi-check</v-icon>
+                                    </v-btn>
+                                </template>
+                                <span>Seleccionar</span>
+                            </v-tooltip>
+                        </div>
+                    </template>
+                </v-data-table>
+            </template>
+        </generic-dialog>
+
+        <generic-dialog :dialogVisible="dialogBifurcation" dialogTitle="Bifurfación de proceso"
+            @update:dialogVisible="dialogBifurcation = $event">
+            <template v-slot:default>
+                En el proceso de esta sub etapa existen diferentes flujos, favor de seleccionar uno
+                <!-- TABLA DE BIFURCACIÓN -->
+                <v-data-table :headers="headers" :items="currentFlow.nextSubStage">
+                    <template v-slot:item.bactual="{ item }">
+                        <v-icon v-show="item.bactual" size="medium" color="green">mdi-check</v-icon>
+                        <v-icon v-show="!item.bactual" size="medium" color="red">mdi-close</v-icon>
+                    </template>
+                    <template v-slot:item.actions="{ item }">
+                        <div style="min-width: 85px;">
+                            <v-tooltip bottom>
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-btn v-bind="attrs" v-on="on" icon small
+                                        @click="confirmNextSubStageOfBifurcation(item.iidetapa, item.iidsubetapa)">
+                                        <v-icon small>mdi-check</v-icon>
+                                    </v-btn>
+                                </template>
+                                <span>Seleccionar</span>
+                            </v-tooltip>
+                        </div>
+                    </template>
+                </v-data-table>
             </template>
         </generic-dialog>
     </div>
@@ -97,6 +172,11 @@
 <style>
 .v-stepper__wrapper div {
     height: auto !important;
+}
+
+.v-stepper__content {
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 /* Estilos personalizados para el icono */
@@ -108,6 +188,12 @@
 .v-treeview-node__prepend {
     margin-right: 8px;
 }
+
+.step_two .v-stepper__wrapper {
+    height: 120px !important;
+    max-width: 90%; margin: 0 auto;
+}
+
 </style>
 
 <script>
@@ -133,11 +219,20 @@ export default {
                 idOfNextSubStage: 0, //iidsubStage
                 finalizeProcess: false,
             },
+            headers: [
+                // { text: 'ID', value: 'id' },
+                { text: 'Nombre', value: 'subetapa_nombre' },
+                { text: 'Sigla', value: 'txtsigla' },
+                { text: 'Descripción', value: 'txtdescripcion' },
+                { text: 'Acciones', value: 'actions' }
+            ],
             // iidProperties: {
             //     'Inspector': 'iidinspector',
             //     'Boleta': 'iidboleta',
             // },
-            dialogverifyNextSubStage:false,
+            dialogVerifyNextSubStage: false,
+            dialogBifurcation: false,
+            dialogShowBoletas: false,
             // ARRAYS
             allFlow: [],
             currentFlow: { // EJEMPLO DE RESPUESTA
@@ -212,15 +307,29 @@ export default {
                 };
             }
         },
+        demo: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
 
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
+        verifyNextSubStage() {
+            console.log(this.currentFlow.nextSubStage)
+            if (this.currentFlow.nextSubStage.length === 1) {
+                this.dialogVerifyNextSubStage = true
+            } else if (this.currentFlow.nextSubStage.length > 1) {
+                this.dialogBifurcation = true
+            }
+        },
         async loadFlowData() {
             try {
                 console.log('this.requestDinamyc');
                 console.log(this.requestDinamyc);
                 let allInfo = await services.inspections().getInfoBySubStage(this.requestDinamyc);
+                console.log('*******************allInfo*******');
                 console.log(allInfo);
                 this.allFlow = allInfo.allFlow
                 this.currentFlow = allInfo.currentFlow
@@ -240,11 +349,23 @@ export default {
         cancelAction() {
             alert('click finalizar');
         },
+        async confirmNextSubStageOfBifurcation(iidetapa, iidsubetapa) {
+            console.log('nextStage; ' + iidetapa)
+            console.log('nextSubStage; ' + iidsubetapa)
+            console.log('ORIGINAL; ')
+            console.log(this.currentFlow.nextSubStage)
+            this.currentFlow.nextSubStage[0].iidetapa = iidetapa
+            this.currentFlow.nextSubStage[0].iidsubetapa = iidsubetapa
+            console.log('Modiifiica; ')
+            console.log(this.currentFlow.nextSubStage)
+            await this.confirmAction()
+            this.dialogBifurcation = false
+        },
 
         async confirmAction() {
             // this.$emit('confirm');
             try {
-                console.log('****************this.SubStage*****************')
+                console.log('***************Confirm action*****************')
                 // console.log(this.SubStage)
                 let sendNewSubStage = {
                     "type": this.requestDinamyc.type,
@@ -252,13 +373,27 @@ export default {
                     // [this.iidProperties[this.requestDinamyc.type]]: this.requestDinamyc.idOfType,
                     "iidetapa_anterior": this.currentFlow.currentSubStage.iidetapa,
                     "iidsubetapa_anterior": this.currentFlow.currentSubStage.iidsubetapa,
-                    "iidetapa_nueva": this.currentFlow.nextSubStage.iidetapa,
-                    "iidsubetapa_nueva": this.currentFlow.nextSubStage.iidsubetapa,
+                    "iidetapa_nueva": this.currentFlow.nextSubStage[0].iidetapa,
+                    "iidsubetapa_nueva": this.currentFlow.nextSubStage[0].iidsubetapa,
                 };
-                let updateInspectorSubStage = await services.inspections().newDinamycSubStage(sendNewSubStage);
-                console.log(updateInspectorSubStage)
-                this.requestDinamyc.idOfSubStage = updateInspectorSubStage.info
+                console.log('let sendNewSubStage')
+                console.log(sendNewSubStage)
+                let message = ''
+                if (!this.demo) {
+
+                    let updateInspectorSubStage = await services.inspections().newDinamycSubStage(sendNewSubStage);
+                    console.log('response updateInspectorSubStage')
+                    console.log(updateInspectorSubStage)
+                    this.requestDinamyc.idOfSubStage = updateInspectorSubStage.info
+                    message = 'Actualización de proceso exitosa.';
+                } else {
+                    this.requestDinamyc.idOfSubStage = this.currentFlow.nextSubStage[0].iidsubetapa
+                    message = 'Actualización de proceso exitosa.';
+
+                }
                 await this.loadFlowData();
+
+                this.showSuccess(message);
 
             } catch (error) {
                 const message = 'Error al guardar inspector.';
@@ -282,14 +417,12 @@ export default {
         },
         convertToTreeStructure(etapas) {
             return etapas.map(etapa => {
-                console.log('-----etapa----');
-                console.log(etapa);
+                // console.log('-----etapa----');
+                // console.log(etapa);
                 return {
                     id: etapa.iidetapa,
                     name: `Etapa: ${etapa.nombre_etapa} -- ${etapa.iidetapa}`,
                     children: (etapa.subStages || []).map(subEtapa => {
-                        console.log('-----subEtapa----');
-                        console.log(subEtapa);
                         let dinamycIcon = ''
                         if (subEtapa.historicStatus == "pendiente") {
                             dinamycIcon = 'mdi-checkbox-blank-circle-outline'

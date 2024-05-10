@@ -71,8 +71,28 @@ class ProcessController extends BaseController
         // PROCESOS CON DATA
         // VERIFICAR SI ES LA ÚLTIMA DEL FLUJO
         $currentSubStage = $this->subStage($data->idOfSubStage);
+        // ---------------------------------------------------------- UN FLUJO ----------------------------------------------------------
+        // $nextSubStage = $this->getNextSubStageFromFlow($data->idOfSubStage);
+        // $currentFlow=['currentSubStage' => $currentSubStage, 'nextSubStage'=>$nextSubStage];
+        // ---------------------------------------------------------- MAS DE UN FLUJO ----------------------------------------------------------
+        // $getNextsSubStages = $this->getNextSubStageFromFlow($data->idOfSubStage);
+        // if(count($getNextsSubStages) == 1){
+        //     self::dep('SOLO 1');
+        //     $nextSubStage = $this->getNextSubStageFromFlow($data->idOfSubStage);
+        // }elseif(count($getNextsSubStages)>1){
+        //     self::dep('mas de 1');
+        // }
+        // ---------------------------------------------------------- demos ----------------------------------------------------------
         $nextSubStage = $this->getNextSubStageFromFlow($data->idOfSubStage);
+        // self::dep($nextSubStage);
+        // exit;
         $currentFlow=['currentSubStage' => $currentSubStage, 'nextSubStage'=>$nextSubStage];
+        // else{
+        //     self::dep('ninguno');
+        // }
+        // self::dep($data);
+        // self::dep($nextSubStage);
+        // exit;
         $followUp = []; // ACA SE VA A RECUPERAR EL HISTORIAL POR EL QUE PASÓ O SE ESCOGIÓ, NO ES OBLIGATORIO
         if ($data->idOfType) {
             $followUp = $this->getDinamycTrace($data->type, $data->idOfType);
@@ -254,16 +274,30 @@ class ProcessController extends BaseController
     }
 
     public function getNextSubStageFromFlow($iidSubStage, $allFlow = false){
-        $sql = "SELECT iidsubetapa, iidsubetapa_siguiente
-        FROM comun.cat_flujo
-        WHERE iidsubetapa = :iidsubetapa -- Cambiar a la sintaxis de parámetro según tu entorno
-        AND bactivo = true";
+        $sql = "SELECT iidsubetapa_siguiente
+                FROM comun.cat_flujo
+                WHERE iidsubetapa = :iidsubetapa
+                AND bactivo = true";
         $params = array('iidsubetapa' => $iidSubStage);
-        $currentFlow = Db::fetch($sql, $params);
-        $next = $this->subStage($currentFlow->iidsubetapa_siguiente);
-        // self::dep($next);exit;
-        return $next;
+        $currentFlow = Db::fetchAll($sql, $params);
+    
+        // Inicializamos un arreglo para almacenar los valores
+        $nextSubStages = array();
+    
+        // Recorremos los resultados y extraemos los valores
+        foreach ($currentFlow as $row) {
+            
+            // $nextSubStages[] = $row->iidsubetapa_siguiente;
+            $nextSubStages[] = $this->subStage($row->iidsubetapa_siguiente);
+        }
+        // self::dep($nextSubStages);
+        // self::dep($nextSubStages); -----------
+        // exit;
+        // Devolvemos el arreglo con los valores extraídos
+        return $nextSubStages;
     }
+    
+    
 
     public function newDinamycSubStage()
     {

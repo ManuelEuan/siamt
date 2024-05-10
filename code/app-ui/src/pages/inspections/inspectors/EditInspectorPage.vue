@@ -81,7 +81,7 @@
                                         </v-col>
 
                                         <generic-process-flow v-if="!createMode" class="col-md-12" 
-                                            :request=request
+                                            :request=request :demo=false
                                             @update:dialogVisible="dialogRegisterPerson = $event" 
                                             @process-flow="handleProcessFlow"
                                         ></generic-process-flow>
