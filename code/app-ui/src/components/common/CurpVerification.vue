@@ -1,7 +1,6 @@
 <template>
-    <div>
+    <div style="width: 100%">
         <!-- <v-data-table :headers="headers" :items="getAllInfoPermissionsFromUser"></v-data-table> -->
-        CAUM990224HYNRCC04 - CAUM990224S31 - JAI
         <v-row class="d-flex align-center mx-auto mt-5" v-if="!request.idOfSearch">
             <v-col cols="12" class="text-center" style="padding: 0;">Seleccione una forma de búsqueda:</v-col>
             <v-col cols="12" class="text-center" style="padding: 0;">

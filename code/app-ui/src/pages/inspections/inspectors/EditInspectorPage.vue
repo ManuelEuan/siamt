@@ -21,29 +21,13 @@
                     <v-card flat>
                         <v-tab-item :key="1" value="generaltab" class="py-1">
                             <v-card-text>
-                            
-                                <curp-verification
-                                    :request=request
-                                    :activateDialogPerson=activateModalPerson @person-info="handlePersonInfo">
+
+                                <curp-verification :request=request :activateDialogPerson=activateModalPerson
+                                    @person-info="handlePersonInfo">
                                 </curp-verification>
+
+                                <overlay :value="overlay"></overlay>
                                 <v-form v-model="validationFieldsInspector">
-                                    <!-- <v-row v-if="!createMode">
-                                        <v-col cols="12" md="4">
-                                            <v-text-field v-model="persona.txtnombre_completo" label="Nombre Completo*"
-                                                hide-details="auto" clearable dense :disabled="!createMode" outlined />
-                                        </v-col>
-                                        <v-col v-if="persona.bfisica" cols="12" md="4">
-                                            <v-text-field v-model="persona.txtcurp" label="CURP*" hide-details="auto"
-                                                clearable dense :disabled="!createMode" outlined />
-                                        </v-col>
-                                        <v-col v-else cols="12" md="4">
-                                            <v-text-field v-model="persona.txtrfc" label="RFC" hide-details="auto"
-                                                clearable dense :disabled="!createMode" outlined />
-                                        </v-col>
-                                        <v-col cols="12" md="4">
-                                            <v-btn color="primary" text @click=showDialogPerson()>Información Completa</v-btn>
-                                        </v-col>
-                                    </v-row> -->
                                     <v-row v-if="personaEncontrada && personaDisponible || !createMode">
                                         <v-col cols="12" md="6">
                                             <v-select v-model="inspector.iidturno" label="Turno*"
@@ -80,12 +64,8 @@
                                                 label="Fecha de baja" type="date" :mask="'####/##/##'"></v-text-field>
                                         </v-col>
 
-                                        <generic-process-flow v-if="!createMode" class="col-md-12" 
-                                            :request=request :demo=false
-                                            @update:dialogVisible="dialogRegisterPerson = $event" 
-                                            @process-flow="handleProcessFlow"
-                                        ></generic-process-flow>
-                                            <!-- @confirm="getNextSubStage()" -->
+                                        <generic-process-flow v-if="!createMode" :request=request
+                                            @process-flow="handleProcessFlow"></generic-process-flow>
 
                                         <v-col cols="12">
                                             <v-textarea v-model="inspector.txtcomentarios" label="Comentarios"
@@ -134,6 +114,7 @@ import services from "@/services";
 import CurpVerification from '@/components/common/CurpVerification.vue';
 import GenericProcessFlow from '@/components/common/GenericProcessFlow.vue';
 import GenericDialog from '@/components/common/GenericDialog.vue';
+import Overlay from '@/components/common/Overlay.vue';
 
 import { mapActions } from "vuex";
 
@@ -142,10 +123,12 @@ export default {
         CurpVerification,
         GenericProcessFlow,
         GenericDialog,
+        Overlay,
     },
     data() {
         return {
             // DATOS INFORMATIVOS
+            overlay: false,
             validationFieldsInspector: false,
             tab: "generaltab",
             personaEncontrada: false,
@@ -157,7 +140,7 @@ export default {
             // VIENEN DE SERVICIOS
             shifts: [],
             categories: [],
-          
+
             // ARREGLOS
             persona: {
                 iidpersona: 0,
@@ -250,7 +233,7 @@ export default {
                 const { id } = this.$route.params;
                 this.inspector = { ...await services.inspections().getInspectorInfo({ id }) };
                 console.log('**********this.request*********');
-                
+
                 this.request = {
                     type: 'Inspector',
                     idOfSearch: this.inspector.iidpersona,
@@ -335,10 +318,14 @@ export default {
                 alert('No se encontró registro de la sub etapa')
             }
         },
-       
+
     },
     watch: {
-
+        overlay(val) {
+            val && setTimeout(() => {
+                this.overlay = false
+            }, 3000)
+        },
     },
     async mounted() {
         await this.getAllCategoriesInspector()

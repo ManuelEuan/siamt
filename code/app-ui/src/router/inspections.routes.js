@@ -1,8 +1,8 @@
 export default [
-    // MÓDULO INSPECCIONES
+    // MOÓDULO PADRE INSPECCIONES
     {
-        path: '/dropdown',
-        name: 'dropdown',
+        path: '',
+        name: '',
         // component: () => import(/* webpackChunkName: "debsons" */ '@/pages/inspections/inspectors/IndexInspectorPage.vue'),
         meta: {
             layout: 'default',
@@ -62,16 +62,6 @@ export default [
             parentCode: 'ica'
         }
     }, 
-    {
-        path: '/process',
-        name: 'process',
-        component: () => import(/* webpackChunkName: "debsons" */ '@/pages/inspections/works/IndexWorkPage.vue'),
-        meta: {
-            layout: 'default',
-            code: 'pro',
-            // parentCode: 'ins'
-        }
-    },
     // MÓDULO EXTRA
     {
         path: '/works',
@@ -93,10 +83,6 @@ export default [
             parentCode: 'ica'
         }
     }, 
-    {
-        path: '/curp-demo',
-        name: 'curp-demo',
-        component: () => import(/* webpackChunkName: "events-edit" */ '@/components/common/CurpVerification.vue'),
-    }, 
+    
 
 ]

@@ -1,12 +1,12 @@
 <template>
     <div>
-        EditWorkPage
+        ProcessPage
     </div>
 </template>
 
 <script>
 export default {
-    name: 'IndexWork',
+    name: 'ProcessPage',
 }
 </script>
 <style lang="scss" scoped></style>

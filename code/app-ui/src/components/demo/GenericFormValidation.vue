@@ -1,17 +1,7 @@
 <template>
-  <div>
-    <v-container>
-      {{ form }}
-      <v-form>
-        <v-card flat class="mt-5">
-          <v-row class="px-2">
-            <generic-form-validation :formFields="formFields" @form-valid="handleGenericFormValidation2"
-              :formFieldsWithValues="sendFieldsWithValues"
-              @new-value="handleGenericFormValidation"></generic-form-validation>
-          </v-row>
-        </v-card>
-      </v-form>
-    </v-container>
+  <div style="width: 100% !important;">
+    <generic-form-validation :formFields="formFields" @form-valid="handleGenericFormValidation2"
+      :formFieldsWithValues="sendFieldsWithValues" @new-value="handleGenericFormValidation"></generic-form-validation>
   </div>
 </template>
 
@@ -77,7 +67,7 @@ export default {
   },
   mounted() {
     // let firm = {
-    //     // txttitulo: '',
+    //     txttitulo: '',
     //     txttelefono_mask_phone: 7889,
     //   }
     // this.sendFieldsWithValues = firm

@@ -1,23 +1,21 @@
 <template>
-    <v-container fluid>
-        <v-form v-model="isFormValid">
-            <v-row>
-                <v-col v-for="(field, index) in genericFormFields" :key="index" :cols="field.cols" :md="field.md">
-                    <template v-if="field.type === 'text'">
-                        <v-text-field v-model="field.model" :label="field.label" hide-details="auto" clearable dense
-                            outlined :rules="getFieldRules(field)" v-mask="getMask(field)" />
-                    </template>
-                    <template v-else-if="field.type === 'autocomplete'">
-                        <v-autocomplete v-if="field.array.type == 'list'" v-model="field.model" :label="field.label"
-                            :items="field.array.info" dense outlined :rules="getFieldRules(field)" />
-                        <v-autocomplete v-else style="display: flex; align-items:center;" :rules="getFieldRules(field)"
-                            v-model="field.model" label="Seleccione su plantilla" :items="field.array.info" dense
-                            outlined :item-text="field.array.item_text" :item-value="field.array.item_value" />
-                    </template>
-                </v-col>
-            </v-row>
-        </v-form>
-    </v-container>
+    <v-form v-model="isFormValid">
+        <v-row>
+            <v-col v-for="(field, index) in genericFormFields" :key="index" :cols="field.cols" :md="field.md">
+                <template v-if="field.type === 'text'">
+                    <v-text-field v-model="field.model" :label="field.label" hide-details="auto" clearable dense
+                        outlined :rules="getFieldRules(field)" v-mask="getMask(field)" />
+                </template>
+                <template v-else-if="field.type === 'autocomplete'">
+                    <v-autocomplete v-if="field.array.type == 'list'" v-model="field.model" :label="field.label"
+                        :items="field.array.info" dense outlined :rules="getFieldRules(field)" />
+                    <v-autocomplete v-else style="display: flex; align-items:center;" :rules="getFieldRules(field)"
+                        v-model="field.model" label="Seleccione su plantilla" :items="field.array.info" dense outlined
+                        :item-text="field.array.item_text" :item-value="field.array.item_value" />
+                </template>
+            </v-col>
+        </v-row>
+    </v-form>
 </template>
 
 <script>

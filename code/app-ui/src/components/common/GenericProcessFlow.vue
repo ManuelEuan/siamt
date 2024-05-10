@@ -1,6 +1,5 @@
 <template>
-    <div>
-        Current: {{ currentFlow.currentSubStage }}
+    <div style="width: 100%">
         <div class="row mx-2 my-3">
             <p class="col-md-12 primary--text text-h6 text-md-center  mb-3 py-1">PROCESO: <span class="text-h10"
                     style="color: #000;">{{ allFlow.txtnombre }}</span></p>
@@ -118,7 +117,7 @@
             <template v-slot:default>
                 En el proceso de esta sub etapa existen diferentes flujos, favor de seleccionar uno
                 <!-- TABLA DE BOLETAS -->
-                <v-data-table :headers="headers" :items="currentFlow.nextSubStage">
+                <v-data-table :headers="headers" :items="currentFlow.nextSubStage" loading-text="Cargando... Espere un momento." no-data-text="No hay registros disponibles.">
                     <template v-slot:item.bactual="{ item }">
                         <v-icon v-show="item.bactual" size="medium" color="green">mdi-check</v-icon>
                         <v-icon v-show="!item.bactual" size="medium" color="red">mdi-close</v-icon>
@@ -286,15 +285,6 @@ export default {
         }
     },
     props: {
-        nextStage: {
-            type: Boolean,
-            required: false
-        },
-        finalizeProcess: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
         request: {
             type: Object,
             default: function () {
@@ -307,12 +297,6 @@ export default {
                 };
             }
         },
-        demo: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
-
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
@@ -453,6 +437,7 @@ export default {
                 console.log('Leyendo: ')
                 this.requestDinamyc = this.request
                 await this.loadFlowData();
+                this.demo = false
             }
         }
     },

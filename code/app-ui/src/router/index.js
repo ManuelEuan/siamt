@@ -11,6 +11,8 @@ import mtoUnidades from "@/router/mtoUnidades.routes";
 import InspectionsRoutes from "@/router/inspections.routes";
 import PersonsRoutes from "@/router/persons.routes";
 import FirmsRoutes from "@/router/firms.routes";
+import ProcessRoutes from "@/router/process.routes";
+import DemoRoutes from "@/router/demo.routes";
 
 
 import services from '@/services';
@@ -43,6 +45,8 @@ export const routes = [{
   ...InspectionsRoutes,
   ...PersonsRoutes,
   ...FirmsRoutes,
+  ...ProcessRoutes,
+  ...DemoRoutes,
 {
   path: '/blank',
   name: 'blank',
