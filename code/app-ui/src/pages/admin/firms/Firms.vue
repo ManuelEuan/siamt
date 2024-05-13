@@ -31,9 +31,9 @@
                 <v-form>
                     <v-card flat class="mt-5">
                         <v-row class="px-2">
-                            <generic-form-validation :formFields="formFields" @form-valid="handleGenericFormValidation2"
+                            <generic-form-validation :formFields="formFields" @form-valid="handleGenericFormValidationConfirm"
                                 :formFieldsWithValues="sendFieldsWithValues"
-                                @new-value="handleGenericFormValidation"></generic-form-validation>
+                                @new-value="handleGenericFormValidationNewValues"></generic-form-validation>
                             <v-col cols="12" md="12" class="d-flex justify-end" v-if="!firm.iidfirma_registro">
                                 <v-btn color="primary" text :disabled="!validForm || !firm.iidfirma_plantilla"
                                     @click="downloadSignature()"> Generar
@@ -291,7 +291,7 @@ export default {
                 alert(message);
             }
         },
-        handleGenericFormValidation(key, value) {
+        handleGenericFormValidationNewValues(key, value) {
             console.log(key, value)
             // if (key == '') { 
 
@@ -299,7 +299,7 @@ export default {
             this.firm[key] = value
 
         },
-        handleGenericFormValidation2(valid) {
+        handleGenericFormValidationConfirm(valid) {
             this.validForm = valid
         },
         rawValue() {

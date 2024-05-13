@@ -15,6 +15,8 @@ import device from 'vue-device-detector'
 import { VueMaskDirective } from 'v-mask'
 Vue.directive('mask', VueMaskDirective); 
 
+import DatetimePicker from 'vuetify-datetime-picker'
+
 // PLUGINS
 import vuetify from './plugins/vuetify';
 import i18n from './plugins/vue-i18n';
@@ -61,6 +63,7 @@ Vue.use(VModal);
 // Vue.use(VuetifyMask);  
 Vue.use(device);
 Vue.use(Editor);
+Vue.use(DatetimePicker)
 
 /*
 |---------------------------------------------------------------------

@@ -32,7 +32,7 @@ export default [
     {
         path: '/generic-form-validation',
         name: 'generic-form-validation',
-        component: () => import(/* webpackChunkName: "blank" */ '@/components/demo/GenericFormValidation.vue'),
+        component: () => import(/* webpackChunkName: "blank" */ '@/components/demo/DemoGenericFormValidation.vue'),
         meta: {
             layout: 'default',
             code: 'fip',

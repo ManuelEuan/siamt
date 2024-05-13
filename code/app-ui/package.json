@@ -59,6 +59,7 @@
     "vue2-tinymce-editor": "^0.0.1",
     "vuedraggable": "^2.24.3",
     "vuetify": "^2.6.7",
+    "vuetify-datetime-picker": "^2.1.1",
     "vuetify-vue-google-autocomplete": "^1.0.0",
     "vuex": "^3.6.2",
     "xlsx": "^0.18.5"

@@ -49,7 +49,7 @@
                                         <v-col cols="12" md="6">
                                             <v-text-field v-model="workload.dfecha_inicio" label="Fecha inicial"
                                                 :min="minDate" :max="workload.dfecha_fin || '2999-12-12'"
-                                                :mask="'####/##/##'" type="date" small-chips clearable dense outlined>
+                                                 type="date" small-chips clearable dense outlined>
                                             </v-text-field>
                                         </v-col>
 
@@ -421,7 +421,10 @@ export default {
         },
     },
     watch: {
-
+        'workload.dfecha_inicio':function(){
+            console.log('this.workload.dfecha_inicio')
+            console.log(this.workload.dfecha_inicio)
+        }
     },
     async mounted() {
         console.log(this.createMode);
