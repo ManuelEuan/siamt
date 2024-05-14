@@ -123,33 +123,21 @@ export default {
 
 
   /**
-* DinamycRegisterInProcess Filters and Pagination
-*/
+  * DinamycRegisterInProcess Filters and Pagination
+  */
   setDinamycRegisterInProcess: (state, dinamycRegisterInProcess) => {
-    console.log('dinamycRegisterInProcssssssssssssssssssssssssess')
-    console.log(dinamycRegisterInProcess)
     state.dinamycRegisterInProcess = dinamycRegisterInProcess
   },
   setDinamycRegisterInProcessData: (state, data) => {
-    console.log('mutation1************************************************')
-    console.log(data)
     state.dinamycRegisterInProcessData = { ...data };
   },
   setDinamycRegisterInProcessFilters: (state, filters) => {
-    console.log('mutation2************************************************')
-    console.log(filters)
     state.dinamycRegisterInProcessFilters = { ...filters };
   },
   setDinamycRegisterInProcessTotalPages: (state, totalPages) => {
-    console.log('mutation3***********************************************')
-    console.log(totalPages)
-
     state.dinamycRegisterInProcessTotalPages = totalPages
   },
   setDinamycRegisterInProcessTotalItems: (state, totalItems) => {
-    console.log('mutation4************************************************')
-    console.log(totalItems)
-
     state.dinamycRegisterInProcessTotalItems = totalItems
   },
 }

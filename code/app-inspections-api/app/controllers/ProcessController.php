@@ -46,8 +46,8 @@ class ProcessController extends BaseController
                             dinamyc.txtdescripcion,
                             dinamyc.txtsigla,
                             dinamyc.bactivo,
-                            TO_CHAR(dinamyc.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS dtfecha_creacion,
-                            TO_CHAR(dinamyc.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS dtfecha_modificacion
+                            TO_CHAR(dinamyc.dtfecha_creacion, 'YYYY-MM-DD HH24:MI') AS dtfecha_creacion,
+                            TO_CHAR(dinamyc.dtfecha_modificacion, 'YYYY-MM-DD HH24:MI') AS dtfecha_modificacion
                         FROM comun.cat_proceso AS dinamyc)
                         ";
                 break;
@@ -86,8 +86,8 @@ class ProcessController extends BaseController
                                 dinamyc.bcancelacion,
                                 dinamyc.brequiere_motivo,
                                 dinamyc.bactivo,
-                                TO_CHAR(dinamyc.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS dtfecha_creacion,
-                                TO_CHAR(dinamyc.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS dtfecha_modificacion
+                                TO_CHAR(dinamyc.dtfecha_creacion, 'YYYY-MM-DD HH24:MI') AS dtfecha_creacion,
+                                TO_CHAR(dinamyc.dtfecha_modificacion, 'YYYY-MM-DD HH24:MI') AS dtfecha_modificacion
                             FROM comun.cat_subetapa dinamyc)
                         ";
                 break;
@@ -615,7 +615,7 @@ class ProcessController extends BaseController
             Db::begin(); // Iniciar transacción en la base de datos
 
             switch ($data->typeRegister) {
-                case 'process':
+                case 'Proceso':
                     $table = 'comun.cat_proceso';
                     $params = array(
                         'iidmodulo'  => $data->iidmodulo,
@@ -625,7 +625,7 @@ class ProcessController extends BaseController
                         'dtfecha_creacion' => date('Y-m-d H:i:s'),
                     );
                     break;
-                case 'stage':
+                case 'Etapa':
                     $table = 'comun.cat_etapa';
                     $params = array(
                         'iidproceso'  => $data->iidproceso,
@@ -641,7 +641,7 @@ class ProcessController extends BaseController
                         'dtfecha_creacion' => date('Y-m-d H:i:s'),
                     );
                     break;
-                case 'substage':
+                case 'Subetapa':
                     $table = 'comun.cat_subetapa';
                     $params = array(
                         'iidetapa'  => $data->iidetapa,
@@ -680,17 +680,17 @@ class ProcessController extends BaseController
     private function validRequiredData($data, $typeRegister)
     {
         switch ($typeRegister) {
-            case 'process':
+            case 'Proceso':
                 $requiredKeys = array('iidmodulo', 'txtnombre', 'txtsigla'); // Claves requeridas
                 break;
-            case 'stage':
+            case 'Etapa':
                 $requiredKeys = array('iidproceso', 'txtnombre', 'txtsigla'); // Claves requeridas
                 break;
-            case 'substage':
+            case 'Subetapa':
                 $requiredKeys = array('iidetapa', 'txtnombre', 'txtsigla'); // Claves requeridas
                 break;
             default:
-                $message = "Falta de información.";
+                $message = "Tipo de registro no reconocido.";
                 throw new ValidatorBoomException(422, $message);
                 break;
         }

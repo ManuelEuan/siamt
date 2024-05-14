@@ -1,9 +1,6 @@
 <template>
   <v-dialog v-model="display" :width="dialogWidth">
     <template v-slot:activator="{ on }">
-      <!-- <v-text-field v-model="time" :label="field.label"
-      prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" clearable dense
-      outlined v-on="on"></v-text-field> -->
       <v-text-field clearable dense outlined v-bind="textFieldProps" :disabled="disabled" :loading="loading"
         :label="label" :value="formattedDatetime" v-on="on" readonly>
         <template v-slot:progress>

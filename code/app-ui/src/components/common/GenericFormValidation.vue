@@ -8,7 +8,7 @@
 <template>(clase): Tendrá la clase: {{ dinamycHiddenFields.includes(index)? 'd-none' : 'd-block'  }}</template><br>
 <template>(disabled): Estará: {{ dinamycDisabledFields.includes(index)? 'deshabilitado' : 'habilitado' }}</template><br>
 </v-col> -->
-                <v-col :key="index" :cols="field.cols" :md="field.md" v-if="!dinamycRemoveFields.includes(index)"
+                <v-col v-if="!dinamycRemoveFields.includes(index)" :key="index" :cols="field.cols" :md="field.md"
                     :class="dinamycHiddenFields.includes(index) ? 'd-none' : 'd-block'">
                     <template v-if="field.type === 'text'">
                         <v-text-field v-model="field.model" :label="field.label" hide-details="auto" clearable dense
@@ -28,16 +28,23 @@
                         <v-textarea v-model="field.model" :label="field.label" hide-details="auto" clearable dense
                             outlined />
                     </template>
+                    <template v-if="field.type === 'color'">
+                        <v-text-field v-model="field.model" :label="field.label" hide-details="auto" clearable dense
+                            outlined type="color" :rules="getFieldRules(field)" v-mask="getMask(field)"
+                            :disabled="dinamycDisabledFields.includes(index)" />
+                    </template>
+                    <template v-else-if="field.type === 'boolean'">
+                        <v-switch v-model="field.model" inset
+                            :label="field.label + ':' + (field.model ? '✔️' : '❌')"></v-switch>
+                    </template>
                     <template v-else-if="field.type === 'date'">
-                        <!-- <v-text-field v-model="field.model" type="date" :label="field.label"
-                            :disabled="dinamycDisabledFields.includes(index)" :min="field.min" :max="field.max"
-                            small-chips clearable dense outlined>
-                        </v-text-field> -->
                         <v-menu v-model="field[index]" :close-on-content-click="false" :nudge-right="40"
                             transition="scale-transition" offset-y min-width="auto">
                             <template v-slot:activator="{ on, attrs }">
                                 <v-text-field v-model="field.model" :label="field.label" prepend-icon="mdi-calendar"
-                                    readonly v-bind="attrs" v-on="on" clearable dense outlined></v-text-field>
+                                    readonly v-bind="attrs" v-on="on" clearable dense outlined
+                                    :rules="getFieldRules(field)" v-mask="getMask(field)"
+                                    :disabled="dinamycDisabledFields.includes(index)"></v-text-field>
                             </template>
                             <v-date-picker v-model="field.model" @input="field[index] = false"></v-date-picker>
                         </v-menu>
@@ -52,29 +59,23 @@
                             <template v-slot:activator="{ on, attrs }">
                                 <v-text-field v-model="field.model" :label="field.label"
                                     prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" clearable dense
-                                    outlined v-on="on"></v-text-field>
+                                    outlined v-on="on" :rules="getFieldRules(field)" v-mask="getMask(field)"
+                                    :disabled="dinamycDisabledFields.includes(index)"></v-text-field>
                             </template>
                             <v-time-picker v-if="field[index]" v-model="field.model" ampm-in-title format="24hr"
                                 full-width scrollable @click:minute="saveModel(index, field.model)"></v-time-picker>
                         </v-menu>
                     </template>
-                    <template v-if="field.type === 'color'">
-                        <v-text-field v-model="field.model" :label="field.label" hide-details="auto" clearable dense type="color"
-                            outlined :rules="getFieldRules(field)" :disabled="dinamycDisabledFields.includes(index)"
-                            v-mask="getMask(field)" />
-                    </template>
-                    <template v-else-if="field.type === 'boolean'">
-                        <v-switch v-model="field.model" inset
-                            :label="field.label + ':' + (field.model ? '✔️' : '❌')"></v-switch>
-                    </template>
+
                     <template v-else-if="field.type === 'datetime'">
-                        <v-datetime-picker v-model="field.model" date-format="MM/dd/yyyy" :label="field.label"
+                        <v-datetime-picker v-model="field.model" :label="field.label" :rules="getFieldRules(field)"
+                            v-mask="getMask(field)" :disabled="dinamycDisabledFields.includes(index)"
                             @input="handleDateTime(field)" :textFieldProps="{
-                                prependIcon: 'mdi-calendar-clock-outline ',
-                                clearable: true,
-                                dense: true,
-                                outlined: true,
-                            }">
+        prependIcon: 'mdi-calendar-clock-outline ',
+        clearable: true,
+        dense: true,
+        outlined: true,
+    }">
                             <template slot="dateIcon">
                                 <v-icon>mdi-calendar-range</v-icon>
                             </template>
@@ -82,20 +83,21 @@
                                 <v-icon>mdi-clock-time-eight-outline</v-icon>
                             </template>
                         </v-datetime-picker>
-
-                        <!-- <GenericDateTimePicker :textFieldProps="textFieldProps"></GenericDateTimePicker> -->
-                        <!-- <slot name="dateIcon">
-                            <v-icon> mdi-plus </v-icon>
-                          </slot> -->
-                        <!-- <v-text-field type="datetime-local" v-model="field.model" :label="field.label"
-                            :rules="getFieldRules(field)" hide-details="auto" clearable dense outlined /> -->
                     </template>
+
                 </v-col>
 
             </template>
         </v-row>
     </v-form>
 </template>
+
+<style>
+.v-dialog__container+* {
+    /* Estilos para el elemento hermano de .v-dialog__container */
+    margin-top: 1rem !important;
+}
+</style>
 
 <script>
 import rules from "@/core/rules.forms";
@@ -130,6 +132,7 @@ export default {
     data() {
         return {
             switch1: false,
+            datetimeString: '2019-01-01 12:00',
             // DATETIME
             // textFieldProps: {
             // appendIcon: 'mdi-calendar-clock-outline ',
@@ -176,12 +179,9 @@ export default {
         handleDateTime(field) {
             let format = this.formatDateTime(field.model)
             console.log('handleeee');
+            console.log('Valor normal:', field.model);
             console.log('Valor formateado:', format);
-            // console.log(format);
-            console.log(field);
             field.model = format
-            console.log('otro valor');
-            console.log(field);
         },
         formatDateTime(value) {
             const date = new Date(value);
@@ -234,11 +234,17 @@ export default {
         isFormValid() {
             this.$emit('form-valid', this.isFormValid);
         },
-        formFieldsWithValues() {
-            for (const key in this.genericFormFields) {
-                const field = this.genericFormFields[key];
-                field.model = this.formFieldsWithValues[key] || '';
-            }
+        'formFieldsWithValues': {
+            handler: () => {
+                console.log('llegando de padre')
+                console.log(this.genericFormFields)
+                // for (const key in this.genericFormFields) {
+                //     const field = this.genericFormFields[key];
+                //     field.model = this.formFieldsWithValues[key] || '';
+                // }
+            },
+            deep: true
+
         },
         formFields() {
             console.log('this.formFields formValidation')
@@ -248,7 +254,10 @@ export default {
             for (const key in this.genericFormFields) {
 
                 const field = this.genericFormFields[key];
-                field.model = ''
+                if (field.model === key) {
+                    field.model = ''
+                }
+
                 this.$watch(() => field.model, (value) => {
                     const maskIndex = key.indexOf("_mask_");
                     if (maskIndex > 1) {
@@ -263,22 +272,18 @@ export default {
         }
     },
     mounted() {
-        // this.genericFormFields = { ...this.formFields };
-        // for (const key in this.genericFormFields) {
+        // if(this.formFieldsWithValues){
 
-        //     const field = this.genericFormFields[key];
-        //     field.model = ''
-        //     this.$watch(() => field.model, (value) => {
-        //         const maskIndex = key.indexOf("_mask_");
-        //         if (maskIndex > 1) {
-        //             const maskType = key.substring(maskIndex + 6);
-        //             const returnValue = value.replace(this.modelosMascaras[maskType].regexMask, '');
-        //             this.$emit('new-value', key.substring(0, maskIndex), returnValue);
-        //         } else {
-        //             this.$emit('new-value', key, value);
-        //         }
-        //     });
-        // }
+        // console.log('this.formFieldsWithValues')
+        // console.log(this.formFieldsWithValues)
+        // this.genericFormFields = this.formFieldsWithValues
+        // this.genericFormFields = this.formFields
+        console.log('demo')
+        console.log(this.genericFormFields)
+        // // for (const key in this.genericFormFields) {
+        // //     const field = this.genericFormFields[key];
+        // //     field.model = this.formFieldsWithValues[key] || '';
+        // // }
     }
 }
 </script>
