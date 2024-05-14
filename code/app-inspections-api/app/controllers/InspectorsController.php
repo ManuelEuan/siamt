@@ -214,23 +214,7 @@ class InspectorsController extends BaseController
         return $categories;
     }
 
-    public function getAllProcessesInspector()
-    {
-        $sql = "SELECT 
-            iidproceso,
-            iidmodulo,
-            txtnombre,
-            txtdescripcion,
-            txtsigla,
-            bactivo AS activo,
-            TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-            TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-            FROM comun.cat_proceso
-            WHERE bactivo='t'
-        ";
-        $processes = Db::fetchAll($sql);
-        return $processes;
-    }
+
 
 
 

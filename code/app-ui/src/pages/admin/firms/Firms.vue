@@ -13,56 +13,48 @@
                 </h3>
             </div>
         </v-flex>
-        <v-row justify="center">
-            <v-col cols="12" class="pa-0">
-                <v-card flat>
-                    <v-row class="py-0 px-2 my-0">
-                        <v-col cols="12" md="4" style="display: flex; align-items:center;">
-                            <v-toolbar-title>Datos para la firma</v-toolbar-title>
-                        </v-col>
-                        <v-col cols="12" md="8" class="mt-4 py-0">
-                            <v-autocomplete style="display: flex; align-items:center;" :rules="[rules.required]"
-                                v-model="firm.iidfirma_plantilla" label="Seleccione su plantilla" :items="templates"
-                                dense outlined item-text="txtnombre" item-value="iidfirma_plantilla" />
-                        </v-col>
-                    </v-row>
 
-                </v-card>
-                <v-form>
-                    <v-card flat class="mt-5">
-                        <v-row class="px-2">
-                            <generic-form-validation :formFields="formFields" @form-valid="handleGenericFormValidationConfirm"
-                                :formFieldsWithValues="sendFieldsWithValues"
-                                @new-value="handleGenericFormValidationNewValues"></generic-form-validation>
-                            <v-col cols="12" md="12" class="d-flex justify-end" v-if="!firm.iidfirma_registro">
-                                <v-btn color="primary" text :disabled="!validForm || !firm.iidfirma_plantilla"
-                                    @click="downloadSignature()"> Generar
-                                    firma
-                                </v-btn>
-                                <a href="//:0" id="download-signature" style="display:none"></a>
-                                <v-btn color="info" text @click="dialogSearch = true">
-                                    Buscar</v-btn>
-                            </v-col>
-                            <v-col cols="12" md="12" class="d-flex justify-end" v-else>
-                                <v-btn color="warning" text :disabled="!validForm || !firm.iidfirma_plantilla"
-                                    @click="resetFirm()"> Nueva Firma
-                                </v-btn>
-                                <v-btn color="primary" text :disabled="!validForm || !firm.iidfirma_plantilla"
-                                    @click="downloadSignature(true)"> Obtener
-                                    firma
-                                </v-btn>
-                                <v-btn color="primary" text :disabled="!validForm || !firm.iidfirma_plantilla"
-                                    @click="downloadSignature()"> Actualizar firma
-                                </v-btn>
-                                <a href="//:0" id="download-signature" style="display:none"></a>
-                                <v-btn color="info" text @click="dialogSearch = true">
-                                    Buscar</v-btn>
-                            </v-col>
-                        </v-row>
-                    </v-card>
-                </v-form>
+        <v-row class="py-0 px-2 my-0" style="background:#fff; border-radius:20px;">
+            <v-col cols="12" md="4" style="display: flex; align-items:center;">
+                <v-toolbar-title>Datos para la firma</v-toolbar-title>
+            </v-col>
+            <v-col cols="12" md="8" class="mt-4 py-0">
+                <v-autocomplete style="display: flex; align-items:center;" v-model="firm.iidfirma_plantilla"
+                    label="Seleccione su plantilla" :items="templates" dense outlined item-text="txtnombre"
+                    item-value="iidfirma_plantilla" />
             </v-col>
         </v-row>
+        {{ template.iidfirma_plantilla }}
+        <v-row  class="row px-4 mt-5 pt-3"  style="background:#fff; border-radius:20px;">
+            <generic-form-validation :formFields="formFields" @form-valid="handleGenericFormValidationConfirm"
+                :formFieldsWithValues="sendFieldsWithValues"
+                @new-value="handleGenericFormValidationNewValues"></generic-form-validation>
+            <v-col cols="12" md="12" class="d-flex justify-end" v-if="!firm.iidfirma_registro ">
+                <v-btn v-if="template.iidfirma_plantilla" color="primary" text :disabled="!validForm || !firm.iidfirma_plantilla"
+                    @click="downloadSignature()"> Generar
+                    firma
+                </v-btn>
+                <a href="//:0" id="download-signature" style="display:none"></a>
+                <v-btn color="info" text @click="dialogSearch = true">
+                    Buscar Firma</v-btn>
+            </v-col>
+            <v-col cols="12" md="12" class="d-flex justify-end" v-else>
+                <v-btn color="warning" text :disabled="!validForm || !firm.iidfirma_plantilla" @click="resetFirm()">
+                    Nueva Firma
+                </v-btn>
+                <v-btn color="primary" text :disabled="!validForm || !firm.iidfirma_plantilla"
+                    @click="downloadSignature(true)"> Obtener
+                    firma
+                </v-btn>
+                <v-btn color="primary" text :disabled="!validForm || !firm.iidfirma_plantilla"
+                    @click="downloadSignature()"> Actualizar firma
+                </v-btn>
+                <a href="//:0" id="download-signature" style="display:none"></a>
+                <v-btn color="info" text @click="dialogSearch = true">
+                    Buscar</v-btn>
+            </v-col>
+        </v-row>
+
         <!-- MODAL BÚSQUEDA -->
         <v-dialog transition="dialog-top-transition" max-width="600" v-model="dialogSearch">
             <v-card>
@@ -70,13 +62,13 @@
                     Buscar firma
                 </v-card-title>
                 <v-divider></v-divider>
-                <v-card-text class="text-lowercase text-body-1 py-2">
+                <v-card-text class=" py-2">
                     <template>
                         <v-card>
-                            <v-card-title>
+                            <v-card-title class="info--text">
                                 Firma
                                 <v-spacer></v-spacer>
-                                <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar" single-line
+                                <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar Firma" single-line
                                     hide-details></v-text-field>
                             </v-card-title>
                             <v-data-table v-model="selected" :headers="headers" :items="firms" :search="search"
@@ -101,7 +93,7 @@
 import { mapActions } from "vuex";
 import GenericFormValidation from "@/components/common/GenericFormValidation.vue";
 import services from "@/services";
-import rules from "@/core/rules.forms";
+// import rules from "@/core/rules.forms";
 import capture from "html2canvas";
 export default {
     name: 'Firms',
@@ -149,21 +141,10 @@ export default {
                 // { text: 'Nombre', value: 'txtnombre' },
             ],
             firms: [],
-            rules: rules,
-            formFields: {
-                // iplantilla: { label: 'Plantilla*', type: 'autocomplete', model: 'iplantilla', rules: 'required', cols: 12, md: 6, array: this.dependencias },
-                txttitulo: { label: 'Título', type: 'text', model: 'txttitulo', rules: null, cols: 12, md: 6 },
-                txtnombre: { label: 'Nombre/s*', type: 'text', model: 'txtnombre', rules: 'required', cols: 12, md: 6 },
-                txtapepat: { label: 'Apellido paterno*', type: 'text', model: 'txtapepat', rules: 'required', cols: 12, md: 6 },
-                txtapemat: { label: 'Apellido materno', type: 'text', model: 'txtapemat', rules: null, cols: 12, md: 6 },
-                txtpuesto: { label: 'Puesto', type: 'text', model: 'txtpuesto', rules: 'required', cols: 12, md: 6 },
-                // iiddependencia: { label: 'Dependencia*', type: 'autocomplete', model: 'iiddependencia', rules: 'required', cols: 12, md: 6 },
-                txtoficina: { label: 'Oficina*', type: 'text', model: 'txtoficina', rules: 'required', cols: 12, md: 6, array: this.oficinas },
-                txtdepartamento: { label: 'Departamento*', type: 'text', model: 'txtdepartamento', rules: null, cols: 12, md: 6 },
-                txtemail: { label: 'Email*', type: 'text', model: 'txtemail', rules: null, cols: 12, md: 6 },
-                txttelefono_mask_phone: { label: 'Teléfono*', type: 'text', model: 'txttelefono_mask_phone', rules: null, cols: 12, md: 6, maskType: 'phone' },
-                txtextension: { label: 'Extensión*', type: 'text', model: 'txtextension', rules: null, cols: 12, md: 6 },
-            }
+            // rules: rules,
+            // formFields: {
+
+            // }
 
 
         }
@@ -190,6 +171,22 @@ export default {
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
+        async dataFirstForm() {
+            this.formFields = {
+                // iplantilla: { label: 'Plantilla*', type: 'autocomplete', model: 'iplantilla', rules: 'required', cols: 12, md: 6, array: this.dependencias },
+                txttitulo: { label: 'Título', type: 'text', model: 'txttitulo', rules: null, cols: 12, md: 6 },
+                txtnombre: { label: 'Nombre/s*', type: 'text', model: 'txtnombre', rules: 'required', cols: 12, md: 6 },
+                txtapepat: { label: 'Apellido paterno*', type: 'text', model: 'txtapepat', rules: 'required', cols: 12, md: 6 },
+                txtapemat: { label: 'Apellido materno', type: 'text', model: 'txtapemat', rules: null, cols: 12, md: 6 },
+                txtpuesto: { label: 'Puesto', type: 'text', model: 'txtpuesto', rules: 'required', cols: 12, md: 6 },
+                // iiddependencia: { label: 'Dependencia*', type: 'autocomplete', model: 'iiddependencia', rules: 'required', cols: 12, md: 6 },
+                txtoficina: { label: 'Oficina*', type: 'text', model: 'txtoficina', rules: 'required', cols: 12, md: 6, array: this.oficinas },
+                txtdepartamento: { label: 'Departamento*', type: 'text', model: 'txtdepartamento', rules: null, cols: 12, md: 6 },
+                txtemail: { label: 'Email*', type: 'text', model: 'txtemail', rules: null, cols: 12, md: 6 },
+                txttelefono_mask_phone: { label: 'Teléfono*', type: 'text', model: 'txttelefono_mask_phone', rules: null, cols: 12, md: 6, maskType: 'phone' },
+                txtextension: { label: 'Extensión*', type: 'text', model: 'txtextension', rules: null, cols: 12, md: 6 },
+            }
+        },
         resetFirm() {
             this.firm = {
                 iidfirma_registro: null,
@@ -321,6 +318,7 @@ export default {
     async mounted() {
         await this.getAllTemplates();
         await this.getAllFirms();
+        await this.dataFirstForm()
         let user = await services.app().getUserConfig();
         this.iiduser = user[0].id
         let getActivePermissionsFromUser = await services.admin().getActivePermissionsFromUser(user[0].id);

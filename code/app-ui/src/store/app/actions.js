@@ -69,7 +69,10 @@ const getProfiles = async ({ state, commit }, { data, filters }) => {
 const getInspectors = async ({ state, commit }, { data, filters }) => {
   if (data) commit('setInspectorsData', data)
   if (filters) commit('setInspectorsFilters', filters)
-
+    console.log(state)
+  console.log(commit)
+  console.log(data)
+  console.log(filters)
   const { inspectors, totalPages, totalItems } = await services.inspections().getInspectors({
     ...state.inspectorsData,
     filters: state.inspectorsFilters
@@ -80,6 +83,28 @@ const getInspectors = async ({ state, commit }, { data, filters }) => {
   commit('setInspectorsTotalItems', totalItems)
 }
 
+const getDinamycRegisterInProcess = async ({ state, commit }, { data, filters }) => {
+  console.log('desde actions*************************s')
+  console.log(state)
+  console.log(commit)
+  console.log(data)
+  console.log(filters)
+  if (data) commit('setDinamycRegisterInProcessData', data)
+  if (filters) commit('setDinamycRegisterInProcessFilters', filters)
+
+  const { dinamycRegisterInProcess, totalPages, totalItems } = await services.inspections().getDinamycRegisterInProcess({
+    ...state.dinamycRegisterInProcessData,
+    filters: state.dinamycRegisterInProcessFilters
+  })
+  console.log('wdjiwujdijiodinamycRegisterInProcess')
+  console.log(dinamycRegisterInProcess)
+  console.log(totalPages)
+  console.log(totalItems)
+  commit('setDinamycRegisterInProcess', dinamycRegisterInProcess)
+  commit('setDinamycRegisterInProcessTotalPages', totalPages)
+  commit('setDinamycRegisterInProcessTotalItems', totalItems)
+}
+
 export default {
   showToast,
   showError,
@@ -87,4 +112,5 @@ export default {
   getUsers,
   getProfiles,
   getInspectors,
+  getDinamycRegisterInProcess,
 }

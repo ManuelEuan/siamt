@@ -3,6 +3,7 @@ export default {
 	min5char: v => !v || v.length >= 5 || 'Mínimo 5 caracteres.',
 	min8char: v => !v || v.length >= 8 || 'Mínimo 8 caracteres.',
 	max3chars: v => !v || (v && v.length <= 3) || 'Máximo 3 caracteres.',
+	max4chars: v => !v || (v && v.length <= 4) || 'Máximo 4 caracteres.',
 	max13chars: v => !v || (v && v.length <= 13) || 'Máximo 13 caracteres.',
 	max18chars: v => !v || (v && v.length <= 18) || 'Máximo 18 caracteres.',
 	max20chars: v => !v || (v && v.length <= 20) || 'Máximo 20 caracteres.',

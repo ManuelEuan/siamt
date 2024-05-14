@@ -4,17 +4,16 @@
             <v-toolbar-title>Procesos</v-toolbar-title>
             <v-spacer></v-spacer>
             <!-- <v-tooltip v-if="permissions.includes('crii')" top> -->
-            {{ selectedRegister }}
             <v-tooltip top>
                 <template v-slot:activator="{ on, attrs }">
-                    <v-btn color="primary" class="me-1" @click="dialogNewRegister = true" v-bind="attrs" v-on="on">
+                    <v-btn color="primary" class="me-1" @click="openDialogDinamycRegister(0)" v-bind="attrs" v-on="on">
                         <v-icon> mdi-plus </v-icon>
                     </v-btn>
                 </template>
                 <span>Agregar registro</span>
             </v-tooltip>
             <v-divider vertical class="mx-2"></v-divider>
-            <!-- <v-badge overlap :content="activeFilters" :value="activeFilters">
+            <v-badge overlap :content="activeFilters" :value="activeFilters">
                 <v-dialog v-model="dialog" width="600">
                     <template v-slot:activator="{ on, attrs }">
                         <v-btn fab color="secondary" v-bind="attrs" v-on="on" small>
@@ -28,25 +27,35 @@
                         <v-card-text>
                             <v-row dense>
                                 <v-col cols="12" md="6">
+                                    <v-autocomplete v-model="filters.typeRegister" label="Tipo de registro"
+                                    :items="['Proceso', 'Etapa', 'Subetapa']" dense outlined :rules="[rules.required]" />
+                                    <!-- <v-text-field v-model="filters.name" label="Nombre" hide-details="auto" clearable
+                                        dense outlined></v-text-field> -->
+                                </v-col>
+                                <v-col cols="12" md="6">
                                     <v-text-field v-model="filters.name" label="Nombre" hide-details="auto" clearable
                                         dense outlined></v-text-field>
                                 </v-col>
                                 <v-col cols="12" md="6">
-                                    <v-text-field v-model="filters.tarjeton" label="Folio" hide-details="auto" clearable
-                                        dense outlined></v-text-field>
+                                    <v-select v-model="filters.active" label="Activo" :items="items.active"
+                                        item-text="text" item-value="value" hide-details clearable outlined dense>
+                                        <template v-slot:prepend-inner>
+                                            <div class="d-flex align-center" style="height: 25px;">
+                                                <v-icon v-if="filters.active === 't'" size="medium" color="green">
+                                                    mdi-check
+                                                </v-icon>
+                                                <v-icon v-else-if="filters.active === 'f'" size="medium" color="red">
+                                                    mdi-close
+                                                </v-icon>
+                                                <v-icon v-else size="medium">
+                                                    mdi-minus
+                                                </v-icon>
+                                                <v-divider class="mx-1" vertical></v-divider>
+                                            </div>
+                                        </template>
+                                    </v-select>
                                 </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="filters.etapa" label="Etapa" hide-details="auto" clearable
-                                        dense outlined></v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="filters.turno" label="Turno" hide-details="auto" clearable
-                                        dense outlined></v-text-field>
-                                </v-col>
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="filters.categoria" label="Categoría" hide-details="auto"
-                                        clearable dense outlined></v-text-field>
-                                </v-col>
+
                             </v-row>
                         </v-card-text>
                         <v-divider></v-divider>
@@ -64,32 +73,39 @@
                         </v-card-actions>
                     </v-card>
                 </v-dialog>
-            </v-badge> -->
+            </v-badge>
         </v-toolbar>
         <!-- DIALOG ACTUALIZAR TELÉFONO ACTUAL -->
-        <generic-dialog :dialogVisible="dialogNewRegister" dialogTitle="Nuevo registro"
-            @update:dialogVisible="dialogNewRegister = $event" @confirm="saveRegisterDinamyc()">
+        <generic-dialog :dialogVisible="dialogDinamycRegister" dialogTitle="Nuevo registro" :maxWidth="800"
+            :disabledButtonConfirm="validForm" @update:dialogVisible="dialogDinamycRegister = $event"
+            @confirm="saveRegisterDinamyc()">
             <template v-slot:default>
                 Seleccione las opciones necesarias según su tipo de registros
-                <generic-form-validation :formFields="formFieldTypeRegister"
-                    @form-valid="handleGenericFormValidationConfirmFragmentOne"
-                    :formFieldsWithValues="sendFieldsWithValues"
-                    @new-value="handleGenericFormValidationNewValuesFragmentOne"></generic-form-validation>
-
-                <generic-form-validation :formFields="formFieldTypeRegister"
-                    @form-valid="handleGenericFormValidationConfirmFragmentTwo"
-                    :formFieldsWithValues="sendFieldsWithValues"
-                    @new-value="handleGenericFormValidationNewValuesFragmentTwo"></generic-form-validation>
+                <generic-form-validation :formFields="formFields" @form-valid="handleGenericFormValidationConfirm"
+                    :formFieldsWithValues="sendFieldsWithValues" :dinamycRemoveFields="dinamycRemoveFields"
+                    :dinamycHiddenFields="dinamycHiddenFields" :dinamycDisabledFields="dinamycDisabledFields"
+                    @new-value="handleGenericFormValidationNewValues"></generic-form-validation>
             </template>
         </generic-dialog>
+        validForm: {{ validForm }}
+        <!-- <v-divider></v-divider> -->
+        <!-- <v-card-actions class="justify-end">
+          <v-btn color="error" text @click="cancelAction">Cancelar</v-btn>
+          <v-btn color="primary" text :disabled="!validForm" @click="confirmAction">Aceptar</v-btn>
+        </v-card-actions> -->
+        <!-- <v-btn  v-if="validForm" color="primary" class="me-1">
+            <v-icon> mdi-plus </v-icon>
+        </v-btn> -->
     </v-card>
 </template>
 
 
 <script>
 import services from '@/services';
+import rules from "@/core/rules.forms";
 import GenericDialog from '@/components/common/GenericDialog.vue';
 import GenericFormValidation from "@/components/common/GenericFormValidation.vue";
+import { mapActions, mapState } from "vuex";
 export default {
     name: 'ProcessPage',
     components: {
@@ -98,10 +114,24 @@ export default {
     },
     data() {
         return {
-            dialogNewRegister: false,
+            newRegister: false,
+            dialogDinamycRegister: false,
+            dialogDinamycFilters: false,
+            dialog: false,
             selectedRegister: null,
             sendFieldsWithValues: {},
             validForm: false,
+            filters: {
+                active: '',
+                name: '',
+            },
+            items: {
+                active: [
+                    { text: 'activo', value: 't' },
+                    { text: 'inactivo', value: 'f' },
+                ],
+                roles: [],
+            },
             typesRegister: [
                 {
                     "type": 'process',
@@ -116,69 +146,289 @@ export default {
                     "name": "Nueva subetapa",
                 }
             ],
+            formFields: {
+
+            },
+            dinamycRemoveFields: ['iidmodulo', 'iidproceso', 'iidetapa', 'txtnombre', 'txtdescripcion', 'txtsigla', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'bactivo', 'dtfecha_creacion', 'dtfecha_modificacion'],  // Decide quita el campo,
+            dinamycHiddenFields: [], // Decide si estará oculto el campo,
+            dinamycDisabledFields: [], // Decide si estará visible el campo pero deshabilitado,
             peopleModulePermissions: [],
             form: {
-                permisos_autocomplete_list: [],
-                permisos_autocomplete_object: [],
-                txttitulo: '',
-                txttelefono: '',
+                binicial: 'f',
+                bfinal: 'f',
+                bcancelacion: 'f',
+                brequiere_motivo: 'f',
+                bactivo: 'f',
+            },
+            modules: [],
+            stages: [],
+            processes: [],
+              // REGLAS
+              rules: {
+                ...rules,
             },
         }
     },
     computed: {
-        formFieldTypeRegister() {
+        ...mapState('app', ['dinamycRegisterInProcessFilters']),
+
+        activeFilters() {
+            return Object
+                .values(this.dinamycRegisterInProcessFilters)
+                .filter(v => v && (typeof (v) === 'string' ? v.trim() : v.length))
+                .length;
+        }
+    },
+    methods: {
+        ...mapActions('app', ['getDinamycRegisterInProcess', 'showError']),
+        cleanFilters() {
+            this.filters = { active: '', name: '', username: '', roles: [] };
+        },
+        async saveRegisterDinamyc() {
+
+            // this.modules =
+            try {
+                let saveRegister = await services.inspections().newRegisterInProcess(this.form);
+                console.log('this.saveRegister')
+                console.log(saveRegister)
+                let message = saveRegister.message
+                this.showSuccess(message);
+            } catch (error) {
+                const message = 'Error al guardar el registro ';
+                this.showError({ message, error });
+            }
+        },
+        async applyFilters() {
+            const filters = this.filters;
+            console.log(filters)
+            await this.getDinamycRegisterInProcess({ filters });
+            this.dialog = false;
+        },
+        closeFilters() {
+            this.filters = { ...this.dinamycRegisterInProcessFilters };
+            this.dialog = false;
+        },
+        async getAllModules() {
+            try {
+                this.modules = await services.inspections().getAllModules();
+            } catch (error) {
+                const message = 'Error al precuperar los módulos ';
+                this.showError({ message, error });
+            }
+        },
+        async getAllStages() {
+            try {
+                this.stages = await services.inspections().getAllStages();
+            } catch (error) {
+                const message = 'Error al precuperar los módulos ';
+                this.showError({ message, error });
+            }
+        },
+        async getAllProcess() {
+            try {
+                this.processes = await services.inspections().getAllProcess();
+            } catch (error) {
+                const message = 'Error al precuperar los módulos ';
+                this.showError({ message, error });
+            }
+        },
+        async openDialogDinamycRegister(newRegister) {
+            if (!newRegister) {
+                this.dialogDinamycRegister = true
+                this.formFields = await this.dataFirstForm()
+                this.dinamycHiddenFields = ['bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
+            } else {
+                console.log(newRegister)
+                this.dinamycDisabledFields = ['dtfecha_creacion', 'dtfecha_modificacion']
+            }
+
+        },
+        async dataFirstForm() {
             return {
-                selectedRegister: {
+                typeRegister: {
                     label: 'Seleccione su tipo de registro*',
                     type: 'autocomplete',
                     model: 'selectedRegister',
                     rules: 'required',
                     cols: 12,
                     md: 12,
-                    class: 'mx-auto',
-                    style: 'max-width: 50%',
+                    inputClass: 'mx-auto',
+                    inputStyle: 'max-width: 50%',
                     array: { type: 'object', info: this.typesRegister, item_text: 'name', item_value: 'type' }
                 },
-                txttitulo: { label: 'Título', type: 'text', model: 'txttitulo', rules: null, cols: 12, md: 6 },
+                iidmodulo: {
+                    label: 'Seleccione el módulo*',
+                    type: 'autocomplete',
+                    model: 'iidmodulo',
+                    rules: 'required',
+                    cols: 12,
+                    md: 6,
+                    array: { type: 'object', info: this.modules, item_text: 'nombre', item_value: 'id' }
+                },
+                iidproceso: {
+                    label: 'Seleccione el proceso*',
+                    type: 'autocomplete',
+                    model: 'iidproceso',
+                    rules: 'required',
+                    cols: 12,
+                    md: 6,
+                    array: { type: 'object', info: this.processes, item_text: 'txtnombre', item_value: 'iidproceso' }
+                },
+                iidetapa: {
+                    label: 'Seleccione la etapa*',
+                    type: 'autocomplete',
+                    model: 'iidetapa',
+                    rules: 'required',
+                    cols: 12,
+                    md: 6,
+                    array: { type: 'object', info: this.stages, item_text: 'txtetapa_nombre', item_value: 'iidetapa' }
+                },
+                txtnombre: {
+                    label: 'Nombre',
+                    type: 'text',
+                    model: 'txtnombre',
+                    rules: 'required',
+                    cols: 12,
+                    md: 6
+                },
+                txtdescripcion: {
+                    label: 'Descripción',
+                    type: 'text',
+                    model: 'txtdescripcion',
+                    rules: null,
+                    cols: 12,
+                    md: 6
+                },
+                txtsigla: {
+                    label: 'Siglas',
+                    type: 'text',
+                    model: 'txtsigla',
+                    rules: 'required|max4chars',
+                    cols: 12,
+                    md: 6
+                },
+                txtcolor: {
+                    label: 'Color',
+                    type: 'color',
+                    model: 'txtcolor',
+                    rules: null,
+                    cols: 12,
+                    md: 6
+                },
+                txtpermiso: {
+                    label: 'Permiso',
+                    type: 'text',
+                    model: 'txtpermiso',
+                    rules: null,
+                    cols: 12,
+                    md: 6
+                },
+                binicial: {
+                    label: 'Inicial',
+                    type: 'boolean',
+                    model: 'binicial',
+                    rules: null,
+                    cols: 6,
+                    md: 3
+                },
+                bfinal: {
+                    label: 'Final',
+                    type: 'boolean',
+                    model: 'bfinal',
+                    rules: null,
+                    cols: 6,
+                    md: 3
+                },
+                bcancelacion: {
+                    label: 'Cancelacion',
+                    type: 'boolean',
+                    model: 'bcancelacion',
+                    rules: null,
+                    cols: 6,
+                    md: 3
+                },
+                brequiere_motivo: {
+                    label: 'Motivo',
+                    type: 'boolean',
+                    model: 'brequiere_motivo',
+                    rules: null,
+                    cols: 6,
+                    md: 3
+                },
+                bactivo: {
+                    label: 'Activo',
+                    type: 'boolean',
+                    model: 'bactivo',
+                    rules: null,
+                    cols: 6,
+                    md: 3
+                },
+
+                dtfecha_creacion: {
+                    label: '´Fecha de creación',
+                    type: 'datetime',
+                    model: 'dtfecha_creacion',
+                    rules: null,
+                    cols: 12,
+                    md: 6
+                },
+                dtfecha_modificacion: {
+                    label: 'Fecha de modificación',
+                    type: 'datetime',
+                    model: 'dtfecha_modificacion',
+                    rules: null,
+                    cols: 12,
+                    md: 6
+                },
                 // txttelefono_mask_phone: { label: 'Teléfono*', type: 'text', model: 'txttelefono_mask_phone', rules: 'required|telefono', cols: 12, md: 6, maskType: 'phone' },
             }
-        }
+        },
+        handleGenericFormValidationConfirm(valid) {
+            console.log('Retorno de generic-form-validation valid-form ')
+
+            console.log(valid);
+            this.validForm = valid
+            // this.validForm = valid
+        },
+        handleGenericFormValidationNewValues(key, value) {
+            console.log('Retorno de generic-form-validation key-values ')
+            console.log(key, value)
+            if (key == 'typeRegister') {
+                this.typeRegister = value
+            }
+            this.form[key] = value
+            if (this.form.typeRegister === 'process') {
+                this.dinamycRemoveFields = ['iidproceso', 'iidetapa', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
+            } else if (this.form.typeRegister === 'stage') {
+                this.dinamycRemoveFields = ['iidmodulo', 'iidetapa']
+            } else if (this.form.typeRegister === 'substage') {
+                this.dinamycRemoveFields = ['iidproceso', 'iidmodulo']
+            }
+            console.log('this.form')
+            console.log(this.form)
+        },
+
     },
-    methods: {
-        saveRegisterDinamyc() {
-            console.log(this.selectedRegister)
-        },
-        handleGenericFormValidationConfirmFragmentOne(valid) {
-            console.log('Retorno de generic-form-validation valid-form FragmentOne')
-
-            console.log(valid);
-            // this.validForm = valid
-        },
-        handleGenericFormValidationNewValuesFragmentOne(key, value) {
-            console.log('Retorno de generic-form-validation key-values FragmentOne')
-            console.log(key, value)
-            // if ()
-        },
-        handleGenericFormValidationConfirmFragmentTwo(valid) {
-            console.log('Retorno de generic-form-validation valid-form FragmentTwo')
-            console.log(valid);
-            // this.validForm = valid
-        },
-        handleGenericFormValidationNewValuesFragmentTwo(key, value) {
-            console.log('Retorno de generic-form-validation key-values FragmentTwo')
-            console.log(key, value)
-            // if ()
-        },
-
+    watch: {
+        // async dialogDinamycRegister() {
+        //     console.log('se abrio: ' + this.dialogDinamycRegister)
+        //     if (this.dialogDinamycRegister) {
+        //         this.newRegister=true
+        //         this.formFields = await this.dataFirstForm()
+        //     }else{
+        //         this.form.typeRegister
+        //     }
+        // },
     },
     async mounted() {
-        // await this.getAllTemplates();
-        // await this.getAllFirms();
+        await this.getAllModules()
+        await this.getAllStages()
+        await this.getAllProcess()
         let user = await services.app().getUserConfig();
         let getActivePermissionsFromUser = await services.admin().getActivePermissionsFromUser(user[0].id);
         this.peopleModulePermissions = getActivePermissionsFromUser.map(permission => permission.siglas);
         console.log('procesos permisos')
-        console.log(this.peopleModulePermissions)
+        // console.log(this.peopleModulePermissions)
         // let firm = {
         //     txttitulo: '',
         //     txttelefono_mask_phone: 7889,

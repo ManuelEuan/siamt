@@ -36,13 +36,13 @@
                         <v-menu v-model="field[index]" :close-on-content-click="false" :nudge-right="40"
                             transition="scale-transition" offset-y min-width="auto">
                             <template v-slot:activator="{ on, attrs }">
-                                <v-text-field v-model="field.model" :label="field.label" prepend-icon="mdi-calendar" readonly
-                                    v-bind="attrs" v-on="on" clearable dense outlined></v-text-field>
+                                <v-text-field v-model="field.model" :label="field.label" prepend-icon="mdi-calendar"
+                                    readonly v-bind="attrs" v-on="on" clearable dense outlined></v-text-field>
                             </template>
                             <v-date-picker v-model="field.model" @input="field[index] = false"></v-date-picker>
                         </v-menu>
                     </template>
-                 
+
                     <template v-else-if="field.type === 'time'">
                         <!-- <v-text-field type="time" v-model="field.model" :label="field.label"
                             :rules="getFieldRules(field)" hide-details="auto" clearable dense outlined /> -->
@@ -54,24 +54,18 @@
                                     prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" clearable dense
                                     outlined v-on="on"></v-text-field>
                             </template>
-                            <v-time-picker v-if="field[index]" v-model="field.model" ampm-in-title format="24hr" full-width
-                                scrollable @click:minute="saveModel(index, field.model)"></v-time-picker>
+                            <v-time-picker v-if="field[index]" v-model="field.model" ampm-in-title format="24hr"
+                                full-width scrollable @click:minute="saveModel(index, field.model)"></v-time-picker>
                         </v-menu>
                     </template>
+                    <template v-if="field.type === 'color'">
+                        <v-text-field v-model="field.model" :label="field.label" hide-details="auto" clearable dense type="color"
+                            outlined :rules="getFieldRules(field)" :disabled="dinamycDisabledFields.includes(index)"
+                            v-mask="getMask(field)" />
+                    </template>
                     <template v-else-if="field.type === 'boolean'">
-                        {{ field }}
-                        <!-- <v-sheet class="pa-5"> -->
-                            <v-switch
-                              v-model="switch1"
-                              inset
-                              :label="`Switch 1: ${switch1.toString()}`"
-                            ></v-switch>
-                            <!-- <v-switch
-                              v-model="switch2"
-                              inset
-                              :label="`Switch 2: ${switch2.toString()}`"
-                            ></v-switch> -->
-                          <!-- </v-sheet> -->
+                        <v-switch v-model="field.model" inset
+                            :label="field.label + ':' + (field.model ? '✔️' : '❌')"></v-switch>
                     </template>
                     <template v-else-if="field.type === 'datetime'">
                         <v-datetime-picker v-model="field.model" date-format="MM/dd/yyyy" :label="field.label"
@@ -247,6 +241,7 @@ export default {
             }
         },
         formFields() {
+            console.log('this.formFields formValidation')
             console.log(this.formFields)
 
             this.genericFormFields = { ...this.formFields };

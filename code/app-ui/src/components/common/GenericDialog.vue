@@ -9,7 +9,7 @@
         <v-card-actions class="justify-end" v-if="showButtons">
           <!-- <v-spacer /> -->
           <v-btn color="error" text @click="cancelAction">Cancelar</v-btn>
-          <v-btn color="primary" text @click="confirmAction">Aceptar</v-btn>
+          <v-btn color="primary" text :disabled=!disabledButtonConfirm @click="confirmAction">Aceptar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -27,6 +27,11 @@
         required: true
       },
       showButtons: {
+        type: Boolean,
+        required: false,
+        default: true
+      },
+      disabledButtonConfirm: {
         type: Boolean,
         required: false,
         default: true

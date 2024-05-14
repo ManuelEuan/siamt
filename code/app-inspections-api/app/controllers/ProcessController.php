@@ -29,6 +29,215 @@ class ProcessController extends BaseController
         $format .= print_r('</pre>');
         return $format;
     }
+    public function dinamycRegisterInProcess()
+    {
+        $data =  $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+
+        $itemsPerPage = $data->itemsPerPage; // Obtener número de ítems por página
+        $offset = ($data->page - 1) * $itemsPerPage; // Calcular offset
+        $typeRegister = $data->filters->typeRegister ? $data->filters->typeRegister : 'Proceso';
+        switch ($typeRegister) {
+            case 'Proceso':
+                $sql = "WITH registers AS (
+                        SELECT 
+                            dinamyc.iidproceso AS iidOfType,
+                            dinamyc.iidmodulo,
+                            dinamyc.txtnombre,
+                            dinamyc.txtdescripcion,
+                            dinamyc.txtsigla,
+                            dinamyc.bactivo,
+                            TO_CHAR(dinamyc.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS dtfecha_creacion,
+                            TO_CHAR(dinamyc.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS dtfecha_modificacion
+                        FROM comun.cat_proceso AS dinamyc)
+                        ";
+                break;
+            case 'Etapa':
+                $sql = "WITH registers AS (
+                            SELECT 
+                                dinamyc.iidetapa AS iidOfType,
+                                dinamyc.iidproceso,
+                                dinamyc.txtnombre,
+                                dinamyc.txtsigla,
+                                dinamyc.txtdescripcion,
+                                dinamyc.txtcolor,
+                                dinamyc.txtpermiso,
+                                dinamyc.binicial,
+                                dinamyc.bfinal,
+                                dinamyc.bcancelacion,
+                                dinamyc.brequiere_motivo,
+                                dinamyc.bactivo,
+                                TO_CHAR(dinamyc.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS dtfecha_creacion,
+                                TO_CHAR(dinamyc.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS dtfecha_modificacion
+                            FROM comun.cat_etapa AS dinamyc)
+                        ";
+                break;
+            case 'Subetapa':
+                $sql = "WITH registers AS (
+                            SELECT 
+                                dinamyc.iidsubetapa AS iidOfType,
+                                dinamyc.iidetapa,
+                                dinamyc.txtnombre,
+                                dinamyc.txtsigla,
+                                dinamyc.txtdescripcion,
+                                dinamyc.txtcolor,
+                                dinamyc.txtpermiso,
+                                dinamyc.binicial,
+                                dinamyc.bfinal,
+                                dinamyc.bcancelacion,
+                                dinamyc.brequiere_motivo,
+                                dinamyc.bactivo,
+                                TO_CHAR(dinamyc.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS dtfecha_creacion,
+                                TO_CHAR(dinamyc.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS dtfecha_modificacion
+                            FROM comun.cat_subetapa dinamyc)
+                        ";
+                break;
+        }
+        $params = array();
+        if ($data->filters) { // Aplicar filtros si están presentes en la solicitud
+            list($sql2, $params2) = $this->filterRegisters($data->filters); // Aplicar filtros
+            $sql .= $sql2; // Agregar filtros a la consulta principal
+            $params += $params2; // Agregar parámetros de los filtros
+        } else {
+            $sql .= 'SELECT *, COUNT(registers.iidOfType) OVER() AS total_registers FROM registers '; // Obtener perfiles sin filtros
+        }
+        $sql .= $this->sortRegisters($data->sortBy, $data->sortDesc); // Ordenar inspectores
+
+        if ($itemsPerPage > 0) { // Si se especifica un número de ítems por página
+            $sql .= 'LIMIT :items OFFSET :offset'; // Limitar resultados por página
+            $params['items'] = $itemsPerPage; // Añadir parámetro de ítems por página
+            $params['offset'] = $offset; // Añadir parámetro de offset
+        }
+        // self::dep($sql);
+        // exit;
+        $registers = Db::fetchAll($sql, $params); // Ejecutar consulta para obtener inspectores      
+        $totalItems = $registers[0]->total_registers ?? 0; // Obtener total de inspectores
+        $totalPages = ceil($totalItems / $itemsPerPage); // Calcular total de páginas
+
+        return array(
+            'dinamycRegisterInProcess' => $registers, // Devolver inspectores
+            'totalPages' => $totalPages, // Devolver total de páginas
+            'totalItems' => $totalItems, // Devolver total de ítems
+        );
+    }
+
+    private function filterRegisters($filters)
+    {
+        $params = [];
+        $sql = "SELECT *, COUNT(registers.iidOfType) OVER() AS total_registers FROM registers ";
+        $sql2 = 'WHERE '; // Inicializar fragmento de consulta para filtros
+        foreach ($filters as $filter => $value) { // Para cada filtro
+            if (empty($value) || $filter == 'typeRegister') continue; // Si el valor del filtro está vacío o es para roles, continuar al siguiente filtro
+            if ($sql2 !== 'WHERE ') $sql2 .= 'AND '; // Si no es el primer filtro, añadir "AND"
+            switch ($filter) { // Según el filtro
+                case 'typeRegister': // Filtro por nombre
+                    break;
+                case 'name': // Filtro por nombre
+                    $sql2 .= "registers.txtnombre ILIKE :name "; // Condición para nombre (ignorando mayúsculas y minúsculas)
+                    $params['name'] = '%' . $filters->name . '%'; // Parámetro para nombre
+                    break;
+                case 'turno': // Filtro por turno
+                    $sql2 .= "registers.txtinspector_turno ILIKE :turno "; // Condición para nombre (ignorando mayúsculas y minúsculas)
+                    $params['turno'] = '%' . $filters->turno . '%'; // Parámetro para nombre
+                    break;
+                case 'categoria': // Filtro por categoria
+                    $sql2 .= "registers.txtinspector_categoria ILIKE :categoria "; // Condición para nombre (ignorando mayúsculas y minúsculas)
+                    $params['categoria'] = '%' . $filters->categoria . '%'; // Parámetro para nombre
+                    break;
+                case 'active': // Filtro por estado activo
+                    $sql2 .= 'registers.bactivo = :active '; // Condición para estado activo
+                    $params['active'] = $filters->active; // Parámetro para estado activo
+                    break;
+            }
+        }
+        if ($sql2 !== 'WHERE ') $sql .= $sql2; // Si se agregaron filtros, añadirlos a la consulta principal
+        return array($sql, $params); // Devolver consulta y parámetros
+    }
+
+    // // Método para ordenar inspectores
+    private function sortRegisters($sortBy, $sortDesc)
+    {
+        $sortCount = count($sortBy); // Contar cantidad de criterios de ordenamiento
+        if ($sortCount === 0) return 'ORDER BY registers.iidOfType '; // Si no hay criterios, ordenar por ID por defecto
+
+        $sql = 'ORDER BY '; // Inicializar fragmento de consulta para ordenamiento
+        $comma = $sortCount - 1; // Último índice para agregar coma
+
+        for ($i = 0; $i < $sortCount; $i++) { // Para cada criterio de ordenamiento
+            $order = $sortDesc[$i] ? 'DESC ' : 'ASC '; // Determinar orden ascendente o descendente
+            $column = $sortBy[$i]; // Obtener columna para ordenamiento
+
+            switch ($column) { // Según la columna
+                case 'txtnombre': // Ordenar por nombre completo
+                    $sql .= 'registers.txtnombre '; // Agregar columna de nombre completo
+                    break;
+                case 'txtdescripcion': // Ordenar por usuario
+                    $sql .= 'registers.txtdescripcion '; // Agregar columna de usuario
+                    break;
+
+                case 'txtsigla': // Ordenar por correo
+                    $sql .= 'registers.txtsigla '; // Agregar columna de correo
+                    break;
+                case 'activo': // Ordenar por estado activo
+                    $sql .= 'registers.bactivo '; // Agregar columna de estado activo
+                    break;
+                default: // Si no se reconoce la columna
+                    $sql .= 'registers.iidOfType '; // Ordenar por ID
+            }
+
+            $sql .= "$order NULLS LAST"; // Añadir orden y manejo de nulos
+            $sql .= $i < $comma ? ', ' : ' '; // Agregar coma si no es el último criterio
+        }
+
+        return $sql; // Devolver fragmento de consulta para ordenamiento
+    }
+
+    public function getAllModules()
+    {
+        // $default = 50; // Mérida
+        // $params = array('iclave_municipio' => $default);
+        $sql = "SELECT 
+                    id, nombre
+                FROM 
+                    usuario.modulo
+                WHERE 
+                    activo='t';
+        ";
+        $modules = Db::fetchAll($sql);
+        return $modules;
+    }
+
+    public function getAllSubStages()
+    {
+        // $default = 50; // Mérida
+        // $params = array('iclave_municipio' => $default);
+        $sql = "SELECT 
+                    iidsubetapa, txtnombre
+                FROM 
+                    comun.cat_subetapa
+                WHERE 
+                    activo='t';
+        ";
+        $subStages = Db::fetchAll($sql);
+        return $subStages;
+    }
+
+    public function getAllProcess()
+    {
+        $sql = "SELECT 
+            iidproceso,
+            iidmodulo,
+            txtnombre,
+            txtdescripcion,
+            txtsigla,
+            bactivo AS activo,
+            TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
+            TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
+            FROM comun.cat_proceso
+            WHERE bactivo='t'
+        ";
+        $processes = Db::fetchAll($sql);
+        return $processes;
+    }
 
     public function getAllStages()
     {
@@ -86,7 +295,7 @@ class ProcessController extends BaseController
         $nextSubStage = $this->getNextSubStageFromFlow($data->idOfSubStage);
         // self::dep($nextSubStage);
         // exit;
-        $currentFlow=['currentSubStage' => $currentSubStage, 'nextSubStage'=>$nextSubStage];
+        $currentFlow = ['currentSubStage' => $currentSubStage, 'nextSubStage' => $nextSubStage];
         // else{
         //     self::dep('ninguno');
         // }
@@ -99,20 +308,20 @@ class ProcessController extends BaseController
         }
         // self::dep($currentFlow['currentSubStage']->iidsubetapa);exit;
         $getProcessBySubStage = $this->getProcessBySubStage($data->idOfSubStage);
-        
+
         // PROCESO GENERAL
         $getStagesByProcess = $this->getStagesByProcess($getProcessBySubStage->iidproceso);
-        if(count($getStagesByProcess)>0){
-            foreach($getStagesByProcess as $key => $stage){
+        if (count($getStagesByProcess) > 0) {
+            foreach ($getStagesByProcess as $key => $stage) {
                 $subStages = $this->getSubStagesByStage($stage->iidetapa);
-                foreach($subStages as $keySubStage => $subStage){
-                    if(in_array($subStage->iidsubetapa, $followUp['onlySubStages'])){
+                foreach ($subStages as $keySubStage => $subStage) {
+                    if (in_array($subStage->iidsubetapa, $followUp['onlySubStages'])) {
                         // echo 'el: '.$subStage->iidsubetapa. ' se ha encontrado';
                         $historicStatus = 'pasado';
-                    }elseif($subStage->iidsubetapa == $currentFlow['currentSubStage']->iidsubetapa){
+                    } elseif ($subStage->iidsubetapa == $currentFlow['currentSubStage']->iidsubetapa) {
                         // echo 'es la actual: '.$subStage->iidsubetapa. ' ';
                         $historicStatus = 'actualmente';
-                    }else{
+                    } else {
                         $historicStatus = 'pendiente';
                         // echo 'el: '.$subStage->iidsubetapa. ' no se ha encontrado';
                     }
@@ -150,7 +359,8 @@ class ProcessController extends BaseController
         return $stages;
     }
 
-    public function getSubStagesByStage($iidStage){
+    public function getSubStagesByStage($iidStage)
+    {
         $sql = "SELECT 
                 s.iidsubetapa,
                 s.txtnombre,
@@ -175,7 +385,8 @@ class ProcessController extends BaseController
         return $subStage;
     }
 
-    public function getProcessBySubStage($iidSubStage){
+    public function getProcessBySubStage($iidSubStage)
+    {
         $sql = "SELECT
                     cat_proceso.iidproceso, 
                     cat_proceso.iidmodulo, 
@@ -199,7 +410,7 @@ class ProcessController extends BaseController
     public function getDinamycTrace($type, $idOfSearch)
     {
         // $this->hasClientAuthorized('veii'); // Verificar si el cliente tiene autorización
-        if(!$type && !$idOfSearch){
+        if (!$type && !$idOfSearch) {
             $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
             $type = $data->request->type;
             $idOfSearch = $data->request->idOfSearch;
@@ -234,9 +445,9 @@ class ProcessController extends BaseController
 
         $params = array('idOfSearch' => $idOfSearch); // Parámetros para la consulta
         $foundRequest = Db::fetchAll($sql, $params);
-        $onlyStages=[];
-        $onlySubStages=[];
-        foreach($foundRequest as $key => $found){
+        $onlyStages = [];
+        $onlySubStages = [];
+        foreach ($foundRequest as $key => $found) {
             array_push($onlyStages, $found->iidetapa_anterior);
             array_push($onlySubStages, $found->iidsubetapa_anterior);
         }
@@ -273,20 +484,21 @@ class ProcessController extends BaseController
         return Db::fetch($sql, $params);
     }
 
-    public function getNextSubStageFromFlow($iidSubStage, $allFlow = false){
+    public function getNextSubStageFromFlow($iidSubStage, $allFlow = false)
+    {
         $sql = "SELECT iidsubetapa_siguiente
                 FROM comun.cat_flujo
                 WHERE iidsubetapa = :iidsubetapa
                 AND bactivo = true";
         $params = array('iidsubetapa' => $iidSubStage);
         $currentFlow = Db::fetchAll($sql, $params);
-    
+
         // Inicializamos un arreglo para almacenar los valores
         $nextSubStages = array();
-    
+
         // Recorremos los resultados y extraemos los valores
         foreach ($currentFlow as $row) {
-            
+
             // $nextSubStages[] = $row->iidsubetapa_siguiente;
             $nextSubStages[] = $this->subStage($row->iidsubetapa_siguiente);
         }
@@ -296,8 +508,8 @@ class ProcessController extends BaseController
         // Devolvemos el arreglo con los valores extraídos
         return $nextSubStages;
     }
-    
-    
+
+
 
     public function newDinamycSubStage()
     {
@@ -361,11 +573,11 @@ class ProcessController extends BaseController
 
             // Devolver mensaje de éxito
             $info = [
-                'type'=> $type, //type-dinamyc
-                'idOfType'=> $iidsubetapa_nueva, //iid-dinamyc
-                'idOfSubStage'=> 0, //iidsubStage
-                'idOfNextSubStage'=> 0, //iidsubStage
-                'finalizeProcess'=> false,
+                'type' => $type, //type-dinamyc
+                'idOfType' => $iidsubetapa_nueva, //iid-dinamyc
+                'idOfSubStage' => 0, //iidsubStage
+                'idOfNextSubStage' => 0, //iidsubStage
+                'finalizeProcess' => false,
             ];
             return ['success' => true, 'message' => 'Actualización satisfactoria.', 'info' => $iidsubetapa_nueva];
         } catch (\Exception $e) {
@@ -383,5 +595,136 @@ class ProcessController extends BaseController
         $phs = ':' . str_replace(', ', ', :', $cols); // Obtener marcadores de posición para los valores
         $sql = "INSERT INTO $table ($cols) VALUES ($phs)"; // Consulta de inserción
         return Db::execute($sql, $params); // Ejecutar inserción en la base de datos
+    }
+
+    public function newRegisterInProcess()
+    {
+        // Obtener datos de la solicitud HTTP
+        $data = $this->request->getJsonRawBody();
+
+
+        // Verifica que exista un tipo
+        if (!isset($data->typeRegister)) {
+            throw new \Exception('Tipo de solicitud no válido');
+        }
+
+        $this->validRequiredData($data, $data->typeRegister); // Validar datos requeridos
+        // self::dep($data);
+        // exit;
+        try {
+            Db::begin(); // Iniciar transacción en la base de datos
+
+            switch ($data->typeRegister) {
+                case 'process':
+                    $table = 'comun.cat_proceso';
+                    $params = array(
+                        'iidmodulo'  => $data->iidmodulo,
+                        'txtnombre' => $data->txtnombre,
+                        'txtdescripcion' => $data->txtdescripcion,
+                        'txtsigla' => $data->txtsigla,
+                        'dtfecha_creacion' => date('Y-m-d H:i:s'),
+                    );
+                    break;
+                case 'stage':
+                    $table = 'comun.cat_etapa';
+                    $params = array(
+                        'iidproceso'  => $data->iidproceso,
+                        'txtnombre' => $data->txtnombre,
+                        'txtdescripcion' => $data->txtdescripcion,
+                        'txtsigla' => $data->txtsigla,
+                        'txtcolor' => $data->txtcolor,
+                        'txtpermiso' => $data->txtpermiso,
+                        'binicial' => $data->binicial,
+                        'bfinal' => $data->bfinal,
+                        'bcancelacion' => $data->bcancelacion,
+                        'brequiere_motivo' => $data->brequiere_motivo,
+                        'dtfecha_creacion' => date('Y-m-d H:i:s'),
+                    );
+                    break;
+                case 'substage':
+                    $table = 'comun.cat_subetapa';
+                    $params = array(
+                        'iidetapa'  => $data->iidetapa,
+                        'txtnombre' => $data->txtnombre,
+                        'txtdescripcion' => $data->txtdescripcion,
+                        'txtsigla' => $data->txtsigla,
+                        'txtcolor' => $data->txtcolor,
+                        'txtpermiso' => $data->txtpermiso,
+                        'binicial' => $data->binicial,
+                        'bfinal' => $data->bfinal,
+                        'bcancelacion' => $data->bcancelacion,
+                        'brequiere_motivo' => $data->brequiere_motivo,
+                        'dtfecha_creacion' => date('Y-m-d H:i:s'),
+                    );
+                    break;
+                default:
+                    $message = "Tipo de dato no capturado, contacte al administrador.";
+                    throw new ValidatorBoomException(422, $message);
+                    break;
+            }
+
+
+            $iidDinamyc = $this->insert($table, $params, true);
+
+            Db::commit(); // Confirmar transacción en la base de datos
+            return ['success' => true, 'message' => 'Registro exitoso.', 'info' => $iidDinamyc];
+        } catch (\Exception $e) {
+            // Revertir transacción en caso de error
+            Db::rollback();
+            // Lanzar excepción para manejo adicional
+            throw $e;
+        }
+    }
+
+    // // Método para validar datos requeridos
+    private function validRequiredData($data, $typeRegister)
+    {
+        switch ($typeRegister) {
+            case 'process':
+                $requiredKeys = array('iidmodulo', 'txtnombre', 'txtsigla'); // Claves requeridas
+                break;
+            case 'stage':
+                $requiredKeys = array('iidproceso', 'txtnombre', 'txtsigla'); // Claves requeridas
+                break;
+            case 'substage':
+                $requiredKeys = array('iidetapa', 'txtnombre', 'txtsigla'); // Claves requeridas
+                break;
+            default:
+                $message = "Falta de información.";
+                throw new ValidatorBoomException(422, $message);
+                break;
+        }
+
+        $actualKeys = array_keys(get_object_vars($data)); // Claves presentes en los datos
+        $missingKeys = array_diff($requiredKeys, $actualKeys); // Claves faltantes
+        $message = 'Faltan valores requeridos.';
+
+        if (!empty($missingKeys)) throw new ValidatorBoomException(422, $message);
+
+        foreach ($data as $key => $value) {
+            if (!in_array($key, $requiredKeys)) continue;
+            // Validar tipos de valores según la clave
+            switch ($key) {
+                case 'iidmodulo':
+                case 'iidproceso':
+                case 'iidetapa':
+                    $message = "Tipo de valor incorrectos en $key.";
+                    if (!is_int($value)) throw new ValidatorBoomException(422, $message);
+                    break;
+                case 'binicial':
+                case 'bfinal':
+                case 'bcancelacion':
+                case 'brequiere_motivo':
+                    $message = "Tipo de valor incorrecto en $key.";
+                    if (!is_bool($value)) throw new ValidatorBoomException(422, $message);
+                    break;
+                default:
+                    $message = "Tipo de valor incorrecto en $key.";
+                    if (!is_string($value)) throw new ValidatorBoomException(422, $message);
+                    $message = "Valor vacío en $key.";
+                    if (empty(trim($value))) throw new ValidatorBoomException(422, $message);
+                    break;
+            }
+        }
     }
 }

@@ -26,13 +26,8 @@ export default class InspectionsService extends ApiService {
     return await this.get("/inspectors/getAllCategoriesInspector");
   }
 
-  async getAllProcessesInspector() {
-    return await this.get("/inspectors/getAllProcessesInspector");
-  }
+
   
-  async getAllStages() {
-    return await this.get("/process/getAllStages");
-  }
 
   async getAllSubStagesByStage(stage){
     return await this.post("/inspectors/getAllSubStagesByStage", JSON.stringify(stage));
@@ -182,6 +177,32 @@ export default class InspectionsService extends ApiService {
   async insertInspectorTrace(data) {
     return await this.post("/inspectors/insertInspectorTrace", JSON.stringify(data));
   }
+  
+  async getAllModules() {
+    return await this.get("/process/getAllModules");
+  }
 
+  async getAllProcess() {
+    return await this.get("/process/getAllProcess");
+  }
+
+  async getAllStages() {
+    return await this.get("/process/getAllStages");
+  }
+
+  async getAllSubStages() {
+    return await this.get("/process/getAllSubStages");
+  }
+
+  async newRegisterInProcess(data) {
+    return await this.post("/process/newRegisterInProcess", JSON.stringify(data));
+  }
+
+  
+  async getDinamycRegisterInProcess(data) {
+    return await this.post("/process/dinamycRegisterInProcess", JSON.stringify(data));
+  }
+
+  
   
 }

@@ -54,7 +54,7 @@ export default {
         }
       ],
       formFields: {},
-      dinamycRemoveFields:['iidmodulo', 'iidproceso', 'iidetapa', 'txtnombre', 'txtdescripcion', 'txtsigla',  'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'bactivo', 'dtfecha_creacion', 'dtfecha_modificacion'],  // Decide quita el campo,
+      dinamycRemoveFields:[ 'iidetapa', 'txtnombre', 'txtdescripcion', 'txtsigla',  'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'bactivo', 'dtfecha_creacion', 'dtfecha_modificacion'],  // Decide quita el campo,
       dinamycHiddenFields: [], // Decide si estará oculto el campo,
       dinamycDisabledFields: [], // Decide si estará visible el campo pero deshabilitado,
     }

@@ -1,14 +1,14 @@
 <template>
   <div class="wrapper">
-    
-    <profiles-datatable-dialogs ref="dialogs" />
+    <!-- <profiles-datatable-dialogs ref="dialogs" /> -->
+
     <v-data-table
       class="elevation-1"
       loading-text="Cargando información"
       :headers="headers"
-      :items="profiles"
-      :page-count="profilesTotalPages"
-      :server-items-length="profilesTotalItems"
+      :items="dinamycRegisterInProcess"
+      :page-count="dinamycRegisterInProcessTotalPages"
+      :server-items-length="dinamycRegisterInProcessTotalItems"
       :options.sync="options"
       :loading="loadingTable"
     >
@@ -66,29 +66,28 @@
 
       </template>
     </v-data-table>
-
-    {{profiles}}
+    {{ dinamycRegisterInProcess }}--
   </div>
 </template>
 
 <script>
-import ProfilesDatatableDialogs from "@/pages/admin/profiles/components/ProfilesDatatableDialogs";
-import services from "@/services";
+// import DinamycRegisterInProcessDatatableDialogs from "@/pages/admin/profiles/components/DinamycRegisterInProcessDatatableDialogs";
+// import services from "@/services";
 import { mapActions, mapState } from "vuex";
 
 export default {
-  name: "ProfilesDatatable",
+  name: "ProcessDatatable",
   components: {
-    ProfilesDatatableDialogs,
+    // DinamycRegisterInProcessDatatableDialogs,
   },
   data() {
     return {
       permissions: [],
       options: {
-        profiles: [],
+        dinamycRegisterInProcess: [],
         page: 1,
         itemsPerPage: 10,
-        sortBy: ['nombre'],//nombre
+        sortBy: ['txtnombre'],//nombre
         sortDesc: [false],
         multiSort: true,
         mustSort: false,
@@ -97,20 +96,20 @@ export default {
       headers: [
         {
           text: "Nombre",
-          value: "nombre",
+          value: "txtnombre",
           align: "center",
           class: "font-weight-bold",
         },
        
         {
           text: "Descripción",
-          value: "descripcion",
+          value: "txtdescripcion",
           align: "center",
           class: "font-weight-bold",
         },
         {
           text: "Activo",
-          value: "activo",
+          value: "bactivo",
           align: "center",
           class: "font-weight-bold",
         },
@@ -125,14 +124,15 @@ export default {
     };
   },
   computed: {
-    ...mapState('app', ['profiles', 'profilesTotalPages', 'profilesTotalItems']),
+    ...mapState('app', ['dinamycRegisterInProcess', 'dinamycRegisterInProcessTotalPages', 'dinamycRegisterInProcessTotalItems']),
   },
   methods: {
-    ...mapActions('app', ['getProfiles']),
-    async loadProfilesTable() {
+    ...mapActions('app', ['getDinamycRegisterInProcess']),
+    async loadDinamycRegisterInProcessTable() {
+
       const { page, itemsPerPage, sortBy, sortDesc } = this.options;
       const data = { page, itemsPerPage, sortBy, sortDesc }; 
-      this.getProfiles({ data });
+      this.getDinamycRegisterInProcess({ data });
       this.loadingTable = false;
     },
     actionsHandler(profile, action) {
@@ -147,15 +147,17 @@ export default {
   },
   watch: {
     options: {
-      handler() {
-        this.loadProfilesTable();
+      async handler() {
+        let hola = await this.loadDinamycRegisterInProcessTable();
+        console.log('--------------------------hola')
+        console.log(hola)
       },
       deep: true,
     },
   },
   async mounted() {
-    const { per } = await services.security().getPermissions();
-    if (per) this.permissions = per;
+    // const { per } = await services.security().getPermissions();
+    // if (per) this.permissions = per;
   }
 };
 </script>
