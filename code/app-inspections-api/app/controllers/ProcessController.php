@@ -341,6 +341,156 @@ class ProcessController extends BaseController
         return $allData;
     }
 
+    public function getProcessWithStagesAndSubstages()
+    {
+        // PROCESO GENERAL
+        $data = $this->request->getJsonRawBody();
+        $getStagesByProcess = $this->getStagesByProcess($data->iidproceso);
+        if (count($getStagesByProcess) > 0) {
+            foreach ($getStagesByProcess as $key => $stage) {
+                $subStages = $this->getSubStagesByStage($stage->iidetapa);
+                // self::dep($subStages);
+                //   foreach ($subStages as $keySubStage => $subStage) {
+                //   if (in_array($subStage->iidsubetapa, $followUp['onlySubStages'])) {
+                //       // echo 'el: '.$subStage->iidsubetapa. ' se ha encontrado';
+                //       $historicStatus = 'pasado';
+                //   } elseif ($subStage->iidsubetapa == $currentFlow['currentSubStage']->iidsubetapa) {
+                //       // echo 'es la actual: '.$subStage->iidsubetapa. ' ';
+                //       $historicStatus = 'actualmente';
+                //   } else {
+                //       $historicStatus = 'pendiente';
+                //       // echo 'el: '.$subStage->iidsubetapa. ' no se ha encontrado';
+                //   }
+                //   $subStages[$keySubStage]->historicStatus = $historicStatus;
+                //   }
+                $getStagesByProcess[$key]->subStages = $subStages;
+            }
+        }
+        // self::dep($getStagesByProcess);
+        // exit;
+        return $getStagesByProcess;
+    }
+
+
+    public function getFlowByProcess()
+    {
+
+        // $objetoInicial= [
+        //     "iidsubetapa"=> 1,
+        //     "iidetapa"=> 1,
+        //     "txtnombre"=> "Entrevista",
+        //     "txtsigla"=> "MJC1",
+        //     "txtdescripcion"=> "Ejemplo subetapa 1",
+        //     "txtcolor"=> "orange",
+        //     "txtpermiso"=> null,
+        //     "binicial"=> true,
+        //     "bfinal"=> false,
+        //     "bcancelacion"=> false,
+        //     "brequiere_motivo"=> false,
+        //     "bactivo"=> true,
+        //     "dtfecha_creacion"=> "2024-03-28 11=>25",
+        //     "dtfecha_modificacion"=> "2024-03-28 11=>25",
+        //     "total_registers"=> 12
+        // ];
+        // $objetoInicial = json_decode(json_encode($objetoInicial));
+        $data = $this->request->getJsonRawBody();
+        $getStagesByProcess = $this->getStagesByProcess($data->iidproceso);
+        $objetoInicial = 0;
+        if (count($getStagesByProcess) > 0) {
+            foreach ($getStagesByProcess as $key => $stage) {
+                $subStages = $this->getSubStagesByStage($stage->iidetapa);
+                foreach ($subStages as $keySubStage => $subStage) {
+                    if ($subStage->binicial) {
+                        $objetoInicial = $this->subStage($subStage->iidsubetapa);
+                    }
+                }
+            }
+        }
+
+        if (!$objetoInicial) {
+            return ['success' => true, 'message' => 'No se ha encontrado una etapa inicial, favor de configurar'];
+        } else {
+            $arbol = $this->construirArbol($objetoInicial, $objetoInicial->iidsubetapa);
+            $formattedObject = $this->formatObjectForJavaScript($arbol);
+            // self::dep($arbol);
+            // exit;
+            return ['success' => true, 'message' => 'Flujo encontrado.', 'info' => $arbol, 'info2' =>$formattedObject];
+        }
+    }
+
+    // Función para convertir el objeto PHP en un array asociativo
+    function objectToArray($object)
+    {
+        return json_decode(json_encode($object), true);
+    }
+
+    // Función para formatear el objeto en el formato JavaScript deseado
+    function formatObjectForJavaScript($object)
+    {
+        $formattedItems = [];
+        $items = $this->objectToArray($object);
+
+        // Recorre los elementos y sus hijos
+        foreach ($items['children'] as $child) {
+            $formattedChild = [
+                'id' => $child['iidsubetapa'],
+                'name' => $child['subetapa_nombre'],
+                'children' => $this->formatObjectForJavaScript($child)
+            ];
+
+            $formattedItems[] = $formattedChild;
+        }
+
+        return $formattedItems;
+    }
+
+
+    public function getNextSubStageFromFlow($iidSubStage)
+    {
+        $sql = "SELECT iidsubetapa_siguiente
+                FROM comun.cat_flujo
+                WHERE iidsubetapa = :iidsubetapa
+                AND bactivo = true";
+        $params = array('iidsubetapa' => $iidSubStage);
+        $currentFlow = Db::fetchAll($sql, $params);
+
+        $nextSubStages = array();
+        foreach ($currentFlow as $row) {
+            $nextSubStages[] = $this->subStage($row->iidsubetapa_siguiente);
+        }
+
+        return $nextSubStages;
+    }
+
+    // Función para construir el árbol
+    function construirArbol($objetoInicial, $getNextSubStageFunction, $processedSubStages = array())
+    {
+        $nextSubStages = $this->getNextSubStageFromFlow($getNextSubStageFunction);
+
+        // Si no hay subetapas siguientes o ya hemos procesado esta subetapa, retornamos el objeto inicial
+        if (empty($nextSubStages) || in_array($objetoInicial->iidsubetapa, $processedSubStages)) {
+            return $objetoInicial;
+        }
+
+        // Añadimos la subetapa actual al conjunto de subetapas procesadas
+        $processedSubStages[] = $objetoInicial->iidsubetapa;
+
+        $objetoInicial->children = array();
+        foreach ($nextSubStages as $subStage) {
+            // Llamamos recursivamente a construirArbol solo si no hemos procesado esta subetapa antes
+            $objetoInicial->children[] = $this->construirArbol($subStage, $subStage->iidsubetapa, $processedSubStages);
+        }
+        return $objetoInicial;
+    }
+
+    // Función para imprimir el árbol en formato JSON
+    function imprimirArbol($arbol)
+    {
+        echo json_encode($arbol, JSON_PRETTY_PRINT);
+    }
+
+
+
     public function getStagesByProcess($iidproceso)
     {
         $sql = "SELECT
@@ -484,30 +634,7 @@ class ProcessController extends BaseController
         return Db::fetch($sql, $params);
     }
 
-    public function getNextSubStageFromFlow($iidSubStage, $allFlow = false)
-    {
-        $sql = "SELECT iidsubetapa_siguiente
-                FROM comun.cat_flujo
-                WHERE iidsubetapa = :iidsubetapa
-                AND bactivo = true";
-        $params = array('iidsubetapa' => $iidSubStage);
-        $currentFlow = Db::fetchAll($sql, $params);
 
-        // Inicializamos un arreglo para almacenar los valores
-        $nextSubStages = array();
-
-        // Recorremos los resultados y extraemos los valores
-        foreach ($currentFlow as $row) {
-
-            // $nextSubStages[] = $row->iidsubetapa_siguiente;
-            $nextSubStages[] = $this->subStage($row->iidsubetapa_siguiente);
-        }
-        // self::dep($nextSubStages);
-        // self::dep($nextSubStages); -----------
-        // exit;
-        // Devolvemos el arreglo con los valores extraídos
-        return $nextSubStages;
-    }
 
 
 
@@ -674,6 +801,122 @@ class ProcessController extends BaseController
             // Lanzar excepción para manejo adicional
             throw $e;
         }
+    }
+
+    public function updateRegisterInProcess()
+    {
+        // $this->hasClientAuthorized('edtp'); // Verificar si el cliente tiene autorización
+        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        // Verifica que exista un tipo
+        if (!isset($data->typeRegister)) {
+            throw new \Exception('Tipo de solicitud no válido');
+        }
+
+        $this->validRequiredData($data, $data->typeRegister); // Validar datos requeridos
+        // self::dep($data);
+        // exit;
+        try {
+            Db::begin();
+            switch ($data->typeRegister) {
+                case 'Proceso':
+                    $sql = 'UPDATE comun.cat_proceso SET 
+                                iidmodulo=:iidmodulo,
+                                txtnombre=:txtnombre,
+                                txtdescripcion=:txtdescripcion,
+                                txtsigla=:txtsigla,
+                                bactivo=:bactivo,
+                                dtfecha_modificacion=:dtfecha_modificacion
+                            WHERE iidproceso=:iidproceso
+                    ';
+                    $params = array(
+                        'iidmodulo'  => $data->iidmodulo,
+                        'txtnombre' => $data->txtnombre,
+                        'txtdescripcion' => $data->txtdescripcion,
+                        'txtsigla' => $data->txtsigla,
+                        'bactivo' => $data->bactivo ? 't' : 'f',
+                        'dtfecha_modificacion' => date('Y-m-d H:i:s'), // Formato de fecha correcto
+                        'iidproceso'      => $data->iidoftype,
+                    );
+                    break;
+                case 'Etapa':
+                    $sql = 'UPDATE comun.cat_etapa SET 
+                                    iidproceso=:iidproceso,
+                                    txtnombre=:txtnombre,
+                                    txtdescripcion=:txtdescripcion,
+                                    txtsigla=:txtsigla,
+                                    txtcolor=:txtcolor,
+                                    txtpermiso=:txtpermiso,
+                                    binicial=:binicial,
+                                    bfinal=:bfinal,
+                                    bcancelacion=:bcancelacion,
+                                    brequiere_motivo=:brequiere_motivo,
+                                    bactivo=:bactivo,
+                                    dtfecha_modificacion=:dtfecha_modificacion
+                                WHERE iidetapa=:iidetapa
+                        ';
+                    $params = array(
+                        'iidproceso'  => $data->iidproceso,
+                        'txtnombre' => $data->txtnombre,
+                        'txtdescripcion' => $data->txtdescripcion,
+                        'txtsigla' => $data->txtsigla,
+                        'txtcolor' => $data->txtcolor,
+                        'txtpermiso' => $data->txtpermiso,
+                        'binicial' => $data->binicial ? 't' : 'f',
+                        'bfinal' => $data->bfinal ? 't' : 'f',
+                        'bcancelacion' => $data->bcancelacion ? 't' : 'f',
+                        'brequiere_motivo' => $data->brequiere_motivo ? 't' : 'f',
+                        'bactivo' => $data->bactivo ? 't' : 'f',
+                        'dtfecha_modificacion' => date('Y-m-d H:i:s'), // Formato de fecha correcto
+                        'iidetapa'      => $data->iidoftype,
+                    );
+                    break;
+                case 'Subetapa':
+                    $sql = 'UPDATE comun.cat_subetapa SET 
+                                        iidetapa=:iidetapa,
+                                        txtnombre=:txtnombre,
+                                        txtdescripcion=:txtdescripcion,
+                                        txtsigla=:txtsigla,
+                                        txtcolor=:txtcolor,
+                                        txtpermiso=:txtpermiso,
+                                        binicial=:binicial,
+                                        bfinal=:bfinal,
+                                        bcancelacion=:bcancelacion,
+                                        brequiere_motivo=:brequiere_motivo,
+                                        bactivo=:bactivo,
+                                        dtfecha_modificacion=:dtfecha_modificacion
+                                    WHERE iidsubetapa=:iidsubetapa
+                            ';
+                    $params = array(
+                        'iidetapa'  => $data->iidetapa,
+                        'txtnombre' => $data->txtnombre,
+                        'txtdescripcion' => $data->txtdescripcion,
+                        'txtsigla' => $data->txtsigla,
+                        'txtcolor' => $data->txtcolor,
+                        'txtpermiso' => $data->txtpermiso,
+                        'binicial' => $data->binicial ? 't' : 'f',
+                        'bfinal' => $data->bfinal ? 't' : 'f',
+                        'bcancelacion' => $data->bcancelacion ? 't' : 'f',
+                        'brequiere_motivo' => $data->brequiere_motivo ? 't' : 'f',
+                        'bactivo' => $data->bactivo ? 't' : 'f',
+                        'dtfecha_modificacion' => date('Y-m-d H:i:s'), // Formato de fecha correcto
+                        'iidsubetapa'      => $data->iidoftype,
+                    );
+                    break;
+            }
+            // Parámetros para la actualización del teléfono
+            // $this->dep($data);exit;
+            Db::execute($sql, $params); // Ejecutar actualización del teléfono en la base de datos
+            Db::commit(); // Confirmar transacción en la base de datos
+
+            return array('message' => 'El registro ha sido actualizado.'); // Devolver mensaje de éxito
+
+        } catch (\Exception $e) {
+            // Revertir transacción en caso de error
+            Db::rollback();
+            // Lanzar excepción para manejo adicional
+            throw $e;
+        }
+        // Actualización de telefono
     }
 
     // // Método para validar datos requeridos

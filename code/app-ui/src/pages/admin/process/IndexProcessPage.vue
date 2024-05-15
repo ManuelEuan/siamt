@@ -4,9 +4,18 @@
             <v-col cols="12" class="pa-0">
                 <v-card flat>
                     <v-toolbar>
-                        <v-toolbar-title>Procesos</v-toolbar-title>
+                        <v-toolbar-title>{{ typeRegister }}s</v-toolbar-title>
                         <v-spacer></v-spacer>
                         <!-- <v-tooltip v-if="permissions.includes('crii')" top> -->
+                        <!-- <v-tooltip top>
+                            <template v-slot:activator="{ on, attrs }">
+                                <v-btn color="info" class="me-1" @click="actionsHandler({}, 'flow')" v-bind="attrs"
+                                    v-on="on">
+                                    <v-icon> mdi-sitemap-outline </v-icon>
+                                </v-btn>
+                            </template>
+<span>Ver flujos</span>
+</v-tooltip> -->
                         <v-tooltip top>
                             <template v-slot:activator="{ on, attrs }">
                                 <v-btn color="primary" class="me-1" @click="actionsHandler({}, 'new')" v-bind="attrs"
@@ -86,9 +95,10 @@
                         </v-badge>
                     </v-toolbar>
                     <!-- DIALOG ACTUALIZAR TELÉFONO ACTUAL -->
-                    <generic-dialog :dialogVisible="dialogDinamycRegister" dialogTitle="Nuevo registro" :maxWidth="800"
-                        :disabledButtonConfirm="validForm" @update:dialogVisible="dialogDinamycRegister = $event"
-                        @confirm="saveRegisterDinamyc()">
+                    <generic-dialog :dialogVisible="dialogDinamycRegister"
+                        :dialogTitle="newRegister ? `Nuevo registro (${typeRegister})` : `Editar registro (${typeRegister})`"
+                        :maxWidth="800" :disabledButtonConfirm="validForm"
+                        @update:dialogVisible="dialogDinamycRegister = $event" @confirm="saveRegisterDinamyc()">
                         <template v-slot:default>
                             Seleccione las opciones necesarias según su tipo de registros
                             <generic-form-validation :formFields="formFields"
@@ -115,6 +125,24 @@
                         </template>
 
                         <template v-slot:item.acciones="{ item }">
+
+                            <v-tooltip v-if="peopleModulePermissions.includes('vepe')" bottom>
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-btn v-bind="attrs" v-on="on" icon small @click="actionsHandler(item, 'flow')">
+                                        <v-icon small> mdi-sitemap-outline </v-icon>
+                                    </v-btn>
+                                </template>
+                                <span>Ver Etapas y Subetapas</span>
+                            </v-tooltip>
+                            <v-tooltip v-if="peopleModulePermissions.includes('vepe')" bottom>
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-btn v-bind="attrs" v-on="on" icon small @click="actionsHandler(item, 'process')">
+                                        <v-icon small> mdi-stack-overflow </v-icon>
+                                    </v-btn>
+                                </template>
+                                <span>Ver Etapas y Subetapas</span>
+                            </v-tooltip>
+
                             <v-tooltip v-if="peopleModulePermissions.includes('vepe')" bottom>
                                 <template v-slot:activator="{ on, attrs }">
                                     <v-btn v-bind="attrs" v-on="on" icon small @click="actionsHandler(item, 'view')">
@@ -130,10 +158,10 @@
                                         <v-icon small> mdi-square-edit-outline </v-icon>
                                     </v-btn>
                                 </template>
-                                <span>Editar registro</span>
+                                <span>Editar registro ({{ typeRegister }})</span>
                             </v-tooltip>
 
-                            <v-tooltip v-if="peopleModulePermissions.includes('bope')" bottom>
+                            <!-- <v-tooltip v-if="peopleModulePermissions.includes('bope')" bottom>
                                 <template v-slot:activator="{ on, attrs }">
                                     <v-btn v-bind="attrs" v-on="on" icon small @click="actionsHandler(item, 'delete')">
                                         <v-icon small v-show="item.bactivo"> mdi-close </v-icon>
@@ -141,7 +169,7 @@
                                     </v-btn>
                                 </template>
                                 <span>{{ item.bactivo ? "Desactivar" : "Activar" }} registro</span>
-                            </v-tooltip>
+                            </v-tooltip> -->
 
                         </template>
                     </v-data-table>
@@ -179,6 +207,38 @@
                             </v-list>
                         </template>
                     </generic-dialog>
+
+                    <!-- DIALOG VIEW PROCESS -->
+                    <generic-dialog :dialogVisible="dialogViewProcess" dialogTitle="Visualizar Etapas y Subetapas"
+                        @update:dialogVisible="dialogViewProcess = $event" @confirm="dialogViewProcess = false">
+                        <template v-slot:default>
+                            <v-row dense>
+                                <v-treeview :items="treeProcess" activatable color="primary" transition open-all
+                                    open-on-click>
+                                    <template v-slot:prepend="{ item }">
+                                        <v-icon v-if="item.icon" color="primary">{{ item.icon }}</v-icon>
+                                    </template>
+                                </v-treeview>
+                            </v-row>
+                        </template>
+                    </generic-dialog>
+
+                    <!-- DIALOG VIEW FLOW -->
+                    <generic-dialog :dialogVisible="dialogViewFlow" dialogTitle="Visualizar flujo"
+                        @update:dialogVisible="dialogViewFlow = $event" @confirm="dialogViewFlow = false">
+                        <template v-slot:default>
+                            <v-row dense>
+                                Acá va el flujo
+                                <!-- <v-treeview :items="treeProcess" activatable color="primary" transition open-all
+                                  open-on-click>
+                                  <template v-slot:prepend="{ item }">
+                                      <v-icon v-if="item.icon" color="primary">{{ item.icon }}</v-icon>
+                                  </template>
+            </v-treeview> -->
+                                <v-treeview :items="treeFlow" activatable></v-treeview>
+                            </v-row>
+                        </template>
+                    </generic-dialog>
                 </div>
             </v-col>
         </v-row>
@@ -200,6 +260,8 @@ export default {
     },
     data() {
         return {
+            treeProcess: [],
+            treeFlow: [],
             typeRegister: 'Proceso',
             newRegister: false,
             dialogDinamycRegister: false,
@@ -208,6 +270,12 @@ export default {
             selectedRegister: null,
             sendFieldsWithValues: {},
             validForm: false,
+            process: {
+                iidproceso: 0
+            },
+            flow: {
+                iidproceso: 0
+            },
             filters: {
                 active: '',
                 name: '',
@@ -256,6 +324,8 @@ export default {
             },
             peopleModulePermissions: [],
             dialogViewRegister: false,
+            dialogViewProcess: false,
+            dialogViewFlow: false,
             options: {
                 dinamycRegisterInProcess: [],
                 page: 1,
@@ -324,15 +394,100 @@ export default {
         cleanFilters() {
             this.filters = { active: '', name: '', username: '', roles: [] };
         },
+        async getFlowByProcess(iidproceso) {
+            try {
+                let info = await services.inspections().getFlowByProcess({ iidproceso });
+                console.log(info.info)
+                this.treeFlow = info.info2
+                // this.treeFlow = info.info
+                // this.treeFlow = this.formatDataForTreeview(treeFlow);
+                // this.treeFlow = [treeObject].map(item => {
+                //     console.log('Elemento:', item); // Imprime el elemento en la consola
+                //     return {
+                //         id: item.iidsubetapa,
+                //         text: item.subetapa_nombre,
+                //         children: item.children || [] // Asegura que siempre haya un array para 'children'
+                //     };
+                // });
+                // this.treeProcess = this.convertToTreeStructure(info);
+            } catch (error) {
+                const message = 'Error al precuperar los módulos ';
+                this.showError({ message, error });
+            }
+        },
+        formatDataForTreeview(data) {
+            // Aquí formatea los datos según la estructura esperada por el v-treeview
+            // Por ejemplo, mapear los datos recibidos para que coincidan con la estructura de árbol
+            // y devolverlos en el formato correcto
+            return data.map(item => ({
+                id: item.iidsubetapa,
+                text: item.subetapa_nombre,
+                children: item.children || [] // Asegura que siempre haya un array para 'children'
+            }));
+        },
+        async getProcessWithStagesAndSubstages(iidproceso) {
+            try {
+                let info = await services.inspections().getProcessWithStagesAndSubstages({ iidproceso });
+                this.treeProcess = this.convertToTreeStructure(info);
+            } catch (error) {
+                const message = 'Error al precuperar los módulos ';
+                this.showError({ message, error });
+            }
+        },
+        convertToTreeStructure(etapas) {
+            return etapas.map(etapa => {
+                // console.log('-----etapa----');
+                // console.log(etapa);
+                return {
+                    id: etapa.iidetapa,
+                    name: `Etapa: ${etapa.nombre_etapa} -- ${etapa.iidetapa}`,
+                    icon: 'mdi-check-circle',
+                    children: (etapa.subStages || []).map(subEtapa => {
+                        // console.log('-----etapa----');
+                        // console.log(etapa);
+                        // let dinamycIcon = ''
+                        // if (subEtapa.historicStatus == "pendiente") {
+                        //     dinamycIcon = 'mdi-checkbox-blank-circle-outline'
+
+                        // }
+                        // if (subEtapa.historicStatus == "actualmente") {
+                        //     dinamycIcon = 'mdi-check-circle'
+
+                        // }
+                        // if (subEtapa.historicStatus == "pasado") {
+                        //     dinamycIcon = 'mdi-checkbox-blank-circle'
+
+                        // }
+                        return {
+                            id: `${etapa.iidetapa}.${subEtapa.iidsubetapa}`,
+                            name: `SubEtapa: ${subEtapa.txtnombre}-- ${etapa.iidetapa}.${subEtapa.iidsubetapa}`,
+                            // icon: dinamycIcon
+                            icon: 'mdi-check-circle'
+                        };
+                    })
+                };
+            });
+        },
         async saveRegisterDinamyc() {
 
             // this.modules =
             try {
-                let saveRegister = await services.inspections().newRegisterInProcess(this.form);
-                console.log('this.saveRegister')
-                console.log(saveRegister)
-                let message = saveRegister.message
-                this.showSuccess(message);
+                console.log('datos a enviar')
+                console.log(this.form)
+                if (!this.form.iidoftype) {
+                    let saveRegister = await services.inspections().newRegisterInProcess(this.form);
+                    console.log('this.saveRegister')
+                    console.log(saveRegister)
+                    let message = saveRegister.message
+                    this.showSuccess(message);
+                } else {
+                    let saveRegister = await services.inspections().updateRegisterInProcess(this.form);
+                    console.log('this.saveRegister')
+                    console.log(saveRegister)
+                    let message = saveRegister.message
+                    this.showSuccess(message);
+                }
+                this.loadDinamycRegisterInProcessTable()
             } catch (error) {
                 const message = 'Error al guardar el registro ';
                 this.showError({ message, error });
@@ -485,7 +640,7 @@ export default {
                     cols: 6,
                     md: 3
                 },
-              
+
 
                 dtfecha_creacion: {
                     label: '´Fecha de creación',
@@ -525,36 +680,54 @@ export default {
         async actionsHandler(register, action) {
             switch (action) {
                 case 'new':
+                    this.newRegister = true
                     this.dialogDinamycRegister = true
                     this.formFields = await this.dataFirstForm()
                     this.applyRulesForDinamycForm()
                     this.dinamycRemoveFields = ['iidmodulo', 'iidproceso', 'iidetapa', 'txtnombre', 'txtdescripcion', 'txtsigla', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'bactivo', 'dtfecha_creacion', 'dtfecha_modificacion'],  // Decide quita el campo,
-                    this.dinamycHiddenFields = ['bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
-                    this.dinamycDisabledFields= []
+                        this.dinamycHiddenFields = ['bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
+                    this.dinamycDisabledFields = []
+                    this.form.iidoftype = 0
                     break;
                 case 'edit':
+                    console.log('registro seleccionado')
+                    console.log(register)
+                    this.newRegister = false
                     this.dialogDinamycRegister = true
                     this.formFields = await this.dataFirstForm()
                     this.applyRulesForDinamycForm()
                     this.dinamycHiddenFields = ['typeRegister']
-                    this.dinamycDisabledFields= ['bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
+                    this.dinamycDisabledFields = ['bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
                     register.typeRegister = this.typeRegister
+                    this.form.iidoftype = register.iidoftype
                     Object.keys(this.formFields).forEach(key => {
                         if (Object.prototype.hasOwnProperty.call(register, key)) {
                             console.log(`La clave ${key} está presente en el objeto registers. --- valor: ${register[key]}`);
                             this.formFields[key].model = register[key]
+                            this.form[key] = register[key]
                         }
                         else {
                             console.log(`La clave ${key} no está presente en el objeto registers.`);
                             this.formFields[key].model = ''
                         }
                     });
+                    console.log(this.form)
                     break;
                 case 'view':
                     this.dialogViewRegister = true;
                     this.register = register
                     console.log('view register')
                     console.log(register)
+                    break;
+                case 'process':
+                    this.dialogViewProcess = true;
+                    this.getProcessWithStagesAndSubstages(register.iidoftype)
+                    // this.process.iidproceso = register.iidoftype
+                    break;
+                case 'flow':
+                    this.dialogViewFlow = true;
+                    this.getFlowByProcess(register.iidoftype)
+                    // this.flow.iidproceso = register.iidoftype
                     break;
                 default: this.$refs.dialogs.show[action] = true;
             }
@@ -579,7 +752,7 @@ export default {
         },
         applyRulesForDinamycForm() {
             if (this.typeRegister === 'Proceso') {
-                this.dinamycRemoveFields = ['iidproceso', 'iidetapa', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'bactivo']
+                this.dinamycRemoveFields = ['iidproceso', 'iidetapa', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo']
             } else if (this.typeRegister === 'Etapa') {
                 this.dinamycRemoveFields = ['iidmodulo', 'iidetapa']
             } else if (this.typeRegister === 'Subetapa') {
@@ -589,7 +762,13 @@ export default {
 
     },
     watch: {
-        'form.typeRegister':function() {
+        // 'flow.iidproceso': async function () {
+        //     await this.getFlowByProcess();
+        // },
+        // 'process.iidproceso': async function () {
+        //     await this.getProcessWithStagesAndSubstages();
+        // },
+        'form.typeRegister': function () {
             this.typeRegister = this.form.typeRegister
             this.applyRulesForDinamycForm()
         },

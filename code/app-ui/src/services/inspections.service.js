@@ -194,10 +194,22 @@ export default class InspectionsService extends ApiService {
     return await this.get("/process/getAllSubStages");
   }
 
+  async getProcessWithStagesAndSubstages(data) {
+    return await this.post("/process/getProcessWithStagesAndSubstages", JSON.stringify(data));
+  }
+
+  async getFlowByProcess(data) {
+    return await this.post("/process/getFlowByProcess", JSON.stringify(data));
+  }
+  
+
   async newRegisterInProcess(data) {
     return await this.post("/process/newRegisterInProcess", JSON.stringify(data));
   }
 
+  async updateRegisterInProcess(data) {
+    return await this.put("/process/updateRegisterInProcess", JSON.stringify(data));
+  }
   
   async getDinamycRegisterInProcess(data) {
     return await this.post("/process/dinamycRegisterInProcess", JSON.stringify(data));
