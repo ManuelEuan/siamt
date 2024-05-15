@@ -414,9 +414,9 @@ class ProcessController extends BaseController
             $subStages = $this->getSubStagesByStage($stage->iidetapa);
             foreach ($subStages as $keySubStage => $subStage) {
                 // self::dep($data->iidsubetapa);
-                // if($subStage->iidsubetapa != $data->iidsubetapa){
+                if($subStage->iidsubetapa != $data->iidsubetapa){
                     $onlySubStages[]=$subStage;
-                // }
+                }
             }
         }
         if(!$onlySubStages){

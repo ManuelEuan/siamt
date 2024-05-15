@@ -6,16 +6,6 @@
                     <v-toolbar>
                         <v-toolbar-title>{{ typeRegister }}s</v-toolbar-title>
                         <v-spacer></v-spacer>
-                        <!-- <v-tooltip v-if="permissions.includes('crii')" top> -->
-                        <!-- <v-tooltip top>
-                            <template v-slot:activator="{ on, attrs }">
-                                <v-btn color="info" class="me-1" @click="actionsHandler({}, 'flow')" v-bind="attrs"
-                                    v-on="on">
-                                    <v-icon> mdi-sitemap-outline </v-icon>
-                                </v-btn>
-                            </template>
-<span>Ver flujos</span>
-</v-tooltip> -->
                         <v-tooltip top>
                             <template v-slot:activator="{ on, attrs }">
                                 <v-btn color="primary" class="me-1" @click="actionsHandler({}, 'new')" v-bind="attrs"
@@ -126,7 +116,7 @@
 
                         <template v-slot:item.acciones="{ item }">
 
-                            <v-tooltip v-if="peopleModulePermissions.includes('vepe')" bottom>
+                            <v-tooltip v-if="peopleModulePermissions.includes('vepe') && typeRegister == 'Proceso'" bottom>
                                 <template v-slot:activator="{ on, attrs }">
                                     <v-btn v-bind="attrs" v-on="on" icon small @click="actionsHandler(item, 'flow')">
                                         <v-icon small> mdi-sitemap-outline </v-icon>
@@ -134,7 +124,7 @@
                                 </template>
                                 <span>Ver Etapas y Subetapas</span>
                             </v-tooltip>
-                            <v-tooltip v-if="peopleModulePermissions.includes('vepe')" bottom>
+                            <v-tooltip v-if="peopleModulePermissions.includes('vepe') && typeRegister == 'Proceso'" bottom>
                                 <template v-slot:activator="{ on, attrs }">
                                     <v-btn v-bind="attrs" v-on="on" icon small @click="actionsHandler(item, 'process')">
                                         <v-icon small> mdi-stack-overflow </v-icon>
@@ -160,17 +150,6 @@
                                 </template>
                                 <span>Editar registro ({{ typeRegister }})</span>
                             </v-tooltip>
-
-                            <!-- <v-tooltip v-if="peopleModulePermissions.includes('bope')" bottom>
-                                <template v-slot:activator="{ on, attrs }">
-                                    <v-btn v-bind="attrs" v-on="on" icon small @click="actionsHandler(item, 'delete')">
-                                        <v-icon small v-show="item.bactivo"> mdi-close </v-icon>
-                                        <v-icon small v-show="!item.bactivo"> mdi-check </v-icon>
-                                    </v-btn>
-                                </template>
-                                <span>{{ item.bactivo ? "Desactivar" : "Activar" }} registro</span>
-                            </v-tooltip> -->
-
                         </template>
                     </v-data-table>
 
@@ -516,14 +495,17 @@ export default {
             }
         },
 
-        async getAllNextSubStagesEnabled() {
+        async getAllNextSubStagesEnabled(value) {
             try {
-                let info = await services.inspections().getAllNextSubStagesEnabled(this.form);
-                this.dinamycDisabledFields = this.dinamycDisabledFields.filter(item => item !== 'iidsubetapa_siguiente');
+                console.log('this.form*********')
+                console.log(this.form)
+                let info = await services.inspections().getAllNextSubStagesEnabled({'iidsubetapa': value});
                 console.log('info next substage')
                 console.log(info)
+                this.dinamycDisabledFields = this.dinamycDisabledFields.filter(item => item !== 'iidsubetapa_siguiente');
                 this.nextSubstagesEnabled = info.info
                 console.log('ultimo')
+                this.formFields.iidsubetapa_siguiente.array.info = info.info
                 console.log(this.nextSubstagesEnabled)
 
                 // this.flowMessage = info.message
@@ -763,7 +745,7 @@ export default {
             this.validForm = valid
             // this.validForm = valid
         },
-        handleGenericFormValidationNewValues(key, value) {
+        async handleGenericFormValidationNewValues(key, value) {
             console.log('Retorno de generic-form-validation key-values ')
             console.log(key, value)
             if (key == 'typeRegister') {
@@ -772,7 +754,7 @@ export default {
             }
             if (key == 'iidsubetapa') {
                 console.log('Cambio en iidsubetapa ')
-                this.getAllNextSubStagesEnabled()
+                await this.getAllNextSubStagesEnabled(value)
             }
 
             this.form[key] = value
@@ -796,26 +778,15 @@ export default {
                 this.dinamycDisabledFields = []
             } else if (this.typeRegister === 'Flujo') {
                 this.dinamycRemoveFields = ['iidetapa', 'iidmodulo','iidproceso', 'txtnombre', 'txtdescripcion', 'txtsigla', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
-                this.dinamycDisabledFields = ['iidsubetapa_siguiente']
+                this.dinamycDisabledFields = []
                 this.dinamycHiddenFields = []
             }
             else{
                 this.showError({'message':'Tipo de registro no configurado'})
             }
         }
-        // this.dinamycHiddenFields = ['bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
-        // this.dinamycDisabledFields = []
-        // this.dinamycHiddenFields = ['typeRegister']
-        //     this.dinamycDisabledFields = ['bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
-
     },
     watch: {
-        // 'flow.iidproceso': async function () {
-        //     await this.getFlowByProcess();
-        // },
-        // 'process.iidproceso': async function () {
-        //     await this.getProcessWithStagesAndSubstages();
-        // },
         'form.typeRegister': function () {
             this.typeRegister = this.form.typeRegister
             this.applyRulesForDinamycForm()
