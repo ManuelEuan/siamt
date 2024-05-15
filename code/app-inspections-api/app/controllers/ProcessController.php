@@ -372,50 +372,47 @@ class ProcessController extends BaseController
     }
 
 
+    // $objetoInicial= [
+    //     "iidsubetapa"=> 1,
+    //     "iidetapa"=> 1,
+    //     "txtnombre"=> "Entrevista",
+    //     "txtsigla"=> "MJC1",
+    //     "txtdescripcion"=> "Ejemplo subetapa 1",
+    //     "txtcolor"=> "orange",
+    //     "txtpermiso"=> null,
+    //     "binicial"=> true,
+    //     "bfinal"=> false,
+    //     "bcancelacion"=> false,
+    //     "brequiere_motivo"=> false,
+    //     "bactivo"=> true,
+    //     "dtfecha_creacion"=> "2024-03-28 11=>25",
+    //     "dtfecha_modificacion"=> "2024-03-28 11=>25",
+    //     "total_registers"=> 12
+    // ];
+    // $objetoInicial = json_decode(json_encode($objetoInicial));
     public function getFlowByProcess()
     {
-
-        // $objetoInicial= [
-        //     "iidsubetapa"=> 1,
-        //     "iidetapa"=> 1,
-        //     "txtnombre"=> "Entrevista",
-        //     "txtsigla"=> "MJC1",
-        //     "txtdescripcion"=> "Ejemplo subetapa 1",
-        //     "txtcolor"=> "orange",
-        //     "txtpermiso"=> null,
-        //     "binicial"=> true,
-        //     "bfinal"=> false,
-        //     "bcancelacion"=> false,
-        //     "brequiere_motivo"=> false,
-        //     "bactivo"=> true,
-        //     "dtfecha_creacion"=> "2024-03-28 11=>25",
-        //     "dtfecha_modificacion"=> "2024-03-28 11=>25",
-        //     "total_registers"=> 12
-        // ];
-        // $objetoInicial = json_decode(json_encode($objetoInicial));
         $data = $this->request->getJsonRawBody();
         $getStagesByProcess = $this->getStagesByProcess($data->iidproceso);
-        $objetoInicial = 0;
-        if (count($getStagesByProcess) > 0) {
-            foreach ($getStagesByProcess as $key => $stage) {
-                $subStages = $this->getSubStagesByStage($stage->iidetapa);
-                foreach ($subStages as $keySubStage => $subStage) {
-                    if ($subStage->binicial) {
-                        $objetoInicial = $this->subStage($subStage->iidsubetapa);
-                    }
+        $objetoInicial = null;
+
+        foreach ($getStagesByProcess as $stage) {
+            $subStages = $this->getSubStagesByStage($stage->iidetapa);
+            foreach ($subStages as $subStage) {
+                if ($subStage->binicial) {
+                    $objetoInicial = $this->construirArbol($subStage, $subStage->iidsubetapa);
+                    break 2; // Salir de ambos bucles
                 }
             }
         }
 
         if (!$objetoInicial) {
             return ['success' => true, 'message' => 'No se ha encontrado una etapa inicial, favor de configurar'];
-        } else {
-            $arbol = $this->construirArbol($objetoInicial, $objetoInicial->iidsubetapa);
-            $formattedObject = $this->formatObjectForJavaScript($arbol);
-            // self::dep($arbol);
-            // exit;
-            return ['success' => true, 'message' => 'Flujo encontrado.', 'info' => $arbol, 'info2' =>$formattedObject];
         }
+
+        $formattedObject = $this->formatObjectForJavaScript($objetoInicial);
+
+        return ['success' => true, 'message' => 'Flujo encontrado.', 'info' => $objetoInicial, 'info2' => $formattedObject];
     }
 
     // Función para convertir el objeto PHP en un array asociativo
@@ -428,13 +425,11 @@ class ProcessController extends BaseController
     function formatObjectForJavaScript($object)
     {
         $formattedItems = [];
-        $items = $this->objectToArray($object);
 
-        // Recorre los elementos y sus hijos
-        foreach ($items['children'] as $child) {
+        foreach ($object->children as $child) {
             $formattedChild = [
-                'id' => $child['iidsubetapa'],
-                'name' => $child['subetapa_nombre'],
+                'id' => $child->iidsubetapa,
+                'name' => $child->subetapa_nombre,
                 'children' => $this->formatObjectForJavaScript($child)
             ];
 
