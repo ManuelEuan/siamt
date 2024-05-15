@@ -86,6 +86,7 @@ $app->mount(
     ->post("/process/getProcessWithStagesAndSubstages", "getProcessWithStagesAndSubstages")
     ->post("/process/getFlowByProcess", "getFlowByProcess")
     ->post("/process/newRegisterInProcess", "newRegisterInProcess")
+    ->post("/process/getAllNextSubStagesEnabled", "getAllNextSubStagesEnabled")
     ->put("/process/updateRegisterInProcess", "updateRegisterInProcess")
 
     

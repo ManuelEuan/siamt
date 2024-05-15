@@ -208,14 +208,13 @@ class ProcessController extends BaseController
 
     public function getAllSubStages()
     {
-        // $default = 50; // Mérida
-        // $params = array('iclave_municipio' => $default);
+      
         $sql = "SELECT 
                     iidsubetapa, txtnombre
                 FROM 
                     comun.cat_subetapa
                 WHERE 
-                    activo='t';
+                    bactivo='t';
         ";
         $subStages = Db::fetchAll($sql);
         return $subStages;
@@ -349,26 +348,14 @@ class ProcessController extends BaseController
         if (count($getStagesByProcess) > 0) {
             foreach ($getStagesByProcess as $key => $stage) {
                 $subStages = $this->getSubStagesByStage($stage->iidetapa);
-                // self::dep($subStages);
-                //   foreach ($subStages as $keySubStage => $subStage) {
-                //   if (in_array($subStage->iidsubetapa, $followUp['onlySubStages'])) {
-                //       // echo 'el: '.$subStage->iidsubetapa. ' se ha encontrado';
-                //       $historicStatus = 'pasado';
-                //   } elseif ($subStage->iidsubetapa == $currentFlow['currentSubStage']->iidsubetapa) {
-                //       // echo 'es la actual: '.$subStage->iidsubetapa. ' ';
-                //       $historicStatus = 'actualmente';
-                //   } else {
-                //       $historicStatus = 'pendiente';
-                //       // echo 'el: '.$subStage->iidsubetapa. ' no se ha encontrado';
-                //   }
-                //   $subStages[$keySubStage]->historicStatus = $historicStatus;
-                //   }
                 $getStagesByProcess[$key]->subStages = $subStages;
             }
+            return ['info' => $getStagesByProcess, 'message' => 'Proceso encontrado'];
+        }else{
+            return ['info' => $getStagesByProcess, 'message' => 'Proceso sin configuración, favor de verificar'];
         }
         // self::dep($getStagesByProcess);
         // exit;
-        return $getStagesByProcess;
     }
 
 
@@ -396,6 +383,8 @@ class ProcessController extends BaseController
         $getStagesByProcess = $this->getStagesByProcess($data->iidproceso);
         $objetoInicial = null;
 
+            // self::dep($getStagesByProcess);exit;
+        
         foreach ($getStagesByProcess as $stage) {
             $subStages = $this->getSubStagesByStage($stage->iidetapa);
             foreach ($subStages as $subStage) {
@@ -407,12 +396,35 @@ class ProcessController extends BaseController
         }
 
         if (!$objetoInicial) {
-            return ['success' => true, 'message' => 'No se ha encontrado una etapa inicial, favor de configurar'];
+            return ['success' => true, 'message' => 'No se ha encontrado una etapa inicial, verifique la configuración del proceso'];
         }
 
         $formattedObject = $this->formatObjectForJavaScript($objetoInicial);
 
         return ['success' => true, 'message' => 'Flujo encontrado.', 'info' => $objetoInicial, 'info2' => $formattedObject];
+    }
+
+    public function getAllNextSubStagesEnabled()
+    {
+        $data = $this->request->getJsonRawBody();
+        $process = $this->getProcessBySubStage($data->iidsubetapa);
+        $getStagesByProcess = $this->getStagesByProcess($process->iidproceso);
+        $onlySubStages = [];
+        foreach ($getStagesByProcess as $stage) {
+            $subStages = $this->getSubStagesByStage($stage->iidetapa);
+            foreach ($subStages as $keySubStage => $subStage) {
+                // self::dep($data->iidsubetapa);
+                // if($subStage->iidsubetapa != $data->iidsubetapa){
+                    $onlySubStages[]=$subStage;
+                // }
+            }
+        }
+        if(!$onlySubStages){
+            return ['success' => true, 'message' => 'No hay subetapas configuradas en este proceso.'];
+        }else{
+            return ['success' => true, 'message' => 'Subetapas disponibles.', 'info' => $onlySubStages];
+
+        }
     }
 
     // Función para convertir el objeto PHP en un array asociativo

@@ -42,7 +42,7 @@
                                         <v-row dense>
                                             <v-col cols="12" md="6">
                                                 <v-autocomplete v-model="filters.typeRegister" label="Tipo de registro"
-                                                    :items="['Proceso', 'Etapa', 'Subetapa']" dense outlined
+                                                    :items="['Proceso', 'Etapa', 'Subetapa', 'Flujo']" dense outlined
                                                     :rules="[rules.required]" />
                                                 <!-- <v-text-field v-model="filters.name" label="Nombre" hide-details="auto" clearable
                                         dense outlined></v-text-field> -->
@@ -100,7 +100,7 @@
                         :maxWidth="800" :disabledButtonConfirm="validForm"
                         @update:dialogVisible="dialogDinamycRegister = $event" @confirm="saveRegisterDinamyc()">
                         <template v-slot:default>
-                            Seleccione las opciones necesarias según su tipo de registros
+                            Seleccione las opciones necesarias según su tipo de registros -- {{typeRegister}}
                             <generic-form-validation :formFields="formFields"
                                 @form-valid="handleGenericFormValidationConfirm"
                                 :formFieldsWithValues="sendFieldsWithValues" :dinamycRemoveFields="dinamycRemoveFields"
@@ -213,12 +213,15 @@
                         @update:dialogVisible="dialogViewProcess = $event" @confirm="dialogViewProcess = false">
                         <template v-slot:default>
                             <v-row dense>
-                                <v-treeview :items="treeProcess" activatable color="primary" transition open-all
+                                <v-treeview v-if="treeProcess.length" :items="treeProcess" activatable color="primary" transition open-all
                                     open-on-click>
                                     <template v-slot:prepend="{ item }">
                                         <v-icon v-if="item.icon" color="primary">{{ item.icon }}</v-icon>
                                     </template>
                                 </v-treeview>
+                                <div v-else>
+                                    {{processMessage}}
+                                </div>
                             </v-row>
                         </template>
                     </generic-dialog>
@@ -228,11 +231,16 @@
                         @update:dialogVisible="dialogViewFlow = $event" @confirm="dialogViewFlow = false">
                         <template v-slot:default>
                             <v-row dense>
-                                <v-treeview :items="treeFlow" activatable color="primary" transition open-all
+                                <v-treeview v-if="treeFlow" :items="treeFlow" activatable color="primary" transition open-all
                                     open-on-click>
                                     <template v-slot:prepend="{ item }">
                                         <v-icon v-if="item.icon" color="primary">{{ item.icon }}</v-icon>
-                                    </template>></v-treeview>
+                                    </template>
+                                </v-treeview>
+                                <div>
+                                {{ flowMessage }}
+                                </div>
+                            
                             </v-row>
                         </template>
                     </generic-dialog>
@@ -258,7 +266,9 @@ export default {
     data() {
         return {
             treeProcess: [],
+            processMessage: '',
             treeFlow: [],
+            flowMessage: '',
             typeRegister: 'Proceso',
             newRegister: false,
             dialogDinamycRegister: false,
@@ -294,8 +304,12 @@ export default {
                     "name": "Nueva etapa",
                 },
                 {
-                    "type": 'SubEtapa',
+                    "type": 'Subetapa',
                     "name": "Nueva subetapa",
+                },
+                {
+                    "type": 'Flujo',
+                    "name": "Nuevo flujo",
                 }
             ],
             formFields: {
@@ -396,7 +410,8 @@ export default {
                 let info = await services.inspections().getFlowByProcess({ iidproceso });
                 console.log(info.info)
                 this.treeFlow = info.info2
-
+                this.flowMessage = info.message
+                this.showSuccess(this.flowMessage);
             } catch (error) {
                 const message = 'Error al precuperar los módulos ';
                 this.showError({ message, error });
@@ -406,7 +421,10 @@ export default {
         async getProcessWithStagesAndSubstages(iidproceso) {
             try {
                 let info = await services.inspections().getProcessWithStagesAndSubstages({ iidproceso });
-                this.treeProcess = this.convertToTreeStructure(info);
+                // let objectProcess = this.convertToTreeStructure(info.info);
+                this.treeProcess = this.convertToTreeStructure(info.info);
+                this.processMessage = info.message
+                this.showSuccess(this.processMessage);
             } catch (error) {
                 const message = 'Error al precuperar los módulos ';
                 this.showError({ message, error });
@@ -414,28 +432,11 @@ export default {
         },
         convertToTreeStructure(etapas) {
             return etapas.map(etapa => {
-                // console.log('-----etapa----');
-                // console.log(etapa);
                 return {
                     id: etapa.iidetapa,
                     name: `Etapa: ${etapa.nombre_etapa} -- ${etapa.iidetapa}`,
                     icon: 'mdi-check-circle',
                     children: (etapa.subStages || []).map(subEtapa => {
-                        // console.log('-----etapa----');
-                        // console.log(etapa);
-                        // let dinamycIcon = ''
-                        // if (subEtapa.historicStatus == "pendiente") {
-                        //     dinamycIcon = 'mdi-checkbox-blank-circle-outline'
-
-                        // }
-                        // if (subEtapa.historicStatus == "actualmente") {
-                        //     dinamycIcon = 'mdi-check-circle'
-
-                        // }
-                        // if (subEtapa.historicStatus == "pasado") {
-                        //     dinamycIcon = 'mdi-checkbox-blank-circle'
-
-                        // }
                         return {
                             id: `${etapa.iidetapa}.${subEtapa.iidsubetapa}`,
                             name: `SubEtapa: ${subEtapa.txtnombre}-- ${etapa.iidetapa}.${subEtapa.iidsubetapa}`,
@@ -494,7 +495,15 @@ export default {
             try {
                 this.stages = await services.inspections().getAllStages();
             } catch (error) {
-                const message = 'Error al precuperar los módulos ';
+                const message = 'Error al precuperar las etapas ';
+                this.showError({ message, error });
+            }
+        },
+        async getAllSubStages() {
+            try {
+                this.substages = await services.inspections().getAllSubStages();
+            } catch (error) {
+                const message = 'Error al precuperar las subetapas ';
                 this.showError({ message, error });
             }
         },
@@ -506,6 +515,27 @@ export default {
                 this.showError({ message, error });
             }
         },
+
+        async getAllNextSubStagesEnabled() {
+            try {
+                let info = await services.inspections().getAllNextSubStagesEnabled(this.form);
+                this.dinamycDisabledFields = this.dinamycDisabledFields.filter(item => item !== 'iidsubetapa_siguiente');
+                console.log('info next substage')
+                console.log(info)
+                this.nextSubstagesEnabled = info.info
+                console.log('ultimo')
+                console.log(this.nextSubstagesEnabled)
+
+                // this.flowMessage = info.message
+                // this.showSuccess(this.flowMessage);
+                this.showSuccess(info.message);
+
+            } catch (error) {
+                const message = 'Error al precuperar los módulos ';
+                this.showError({ message, error });
+            }
+        },
+
         async dataFirstForm() {
             return {
                 typeRegister: {
@@ -545,6 +575,24 @@ export default {
                     cols: 12,
                     md: 6,
                     array: { type: 'object', info: this.stages, item_text: 'txtetapa_nombre', item_value: 'iidetapa' }
+                },
+                iidsubetapa: {
+                    label: 'Seleccione la subetapa*',
+                    type: 'autocomplete',
+                    model: 'iidsubetapa',
+                    rules: 'required',
+                    cols: 12,
+                    md: 6,
+                    array: { type: 'object', info: this.substages, item_text: 'txtnombre', item_value: 'iidsubetapa' }
+                },
+                iidsubetapa_siguiente: {
+                    label: 'Seleccione la subetapa siguiente*',
+                    type: 'autocomplete',
+                    model: 'iidsubetapa_siguiente',
+                    rules: 'required',
+                    cols: 12,
+                    md: 6,
+                    array: { type: 'object', info: this.nextSubstagesEnabled, item_text: 'txtnombre', item_value: 'iidsubetapa' }
                 },
                 txtnombre: {
                     label: 'Nombre',
@@ -662,9 +710,8 @@ export default {
                     this.dialogDinamycRegister = true
                     this.formFields = await this.dataFirstForm()
                     this.applyRulesForDinamycForm()
-                    this.dinamycRemoveFields = ['iidmodulo', 'iidproceso', 'iidetapa', 'txtnombre', 'txtdescripcion', 'txtsigla', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'bactivo', 'dtfecha_creacion', 'dtfecha_modificacion'],  // Decide quita el campo,
-                        this.dinamycHiddenFields = ['bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
-                    this.dinamycDisabledFields = []
+                    this.dinamycRemoveFields = ['iidmodulo', 'iidproceso', 'iidetapa', 'iidsubetapa','iidsubetapa_siguiente','txtnombre', 'txtdescripcion', 'txtsigla', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'bactivo', 'dtfecha_creacion', 'dtfecha_modificacion'],  // Decide quita el campo,
+                    this.dinamycRemoveFields.push('bactivo', 'dtfecha_creacion', 'dtfecha_modificacion');
                     this.form.iidoftype = 0
                     break;
                 case 'edit':
@@ -674,8 +721,7 @@ export default {
                     this.dialogDinamycRegister = true
                     this.formFields = await this.dataFirstForm()
                     this.applyRulesForDinamycForm()
-                    this.dinamycHiddenFields = ['typeRegister']
-                    this.dinamycDisabledFields = ['bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
+                 
                     register.typeRegister = this.typeRegister
                     this.form.iidoftype = register.iidoftype
                     Object.keys(this.formFields).forEach(key => {
@@ -721,22 +767,46 @@ export default {
             console.log('Retorno de generic-form-validation key-values ')
             console.log(key, value)
             if (key == 'typeRegister') {
+                console.log('Cambio en typeRegister ')
                 this.typeRegister = value
             }
+            if (key == 'iidsubetapa') {
+                console.log('Cambio en iidsubetapa ')
+                this.getAllNextSubStagesEnabled()
+            }
+
             this.form[key] = value
             this.applyRulesForDinamycForm()
+            // this.dinamycDisabledFields.push('iidsubetapa_siguiente')
             console.log('this.form')
             console.log(this.form)
         },
         applyRulesForDinamycForm() {
             if (this.typeRegister === 'Proceso') {
-                this.dinamycRemoveFields = ['iidproceso', 'iidetapa', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo']
+                this.dinamycRemoveFields = ['iidproceso', 'iidetapa', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'iidsubetapa', 'iidsubetapa_siguiente', 'bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
+                this.dinamycHiddenFields = []
+                this.dinamycDisabledFields = []
             } else if (this.typeRegister === 'Etapa') {
-                this.dinamycRemoveFields = ['iidmodulo', 'iidetapa']
+                this.dinamycRemoveFields = ['iidmodulo', 'iidetapa', 'iidsubetapa', 'iidsubetapa_siguiente', 'bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
+                this.dinamycHiddenFields = []
+                this.dinamycDisabledFields = []
             } else if (this.typeRegister === 'Subetapa') {
-                this.dinamycRemoveFields = ['iidproceso', 'iidmodulo']
+                this.dinamycRemoveFields = ['iidproceso', 'iidmodulo', 'iidsubetapa', 'iidsubetapa_siguiente', 'bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
+                this.dinamycHiddenFields = []
+                this.dinamycDisabledFields = []
+            } else if (this.typeRegister === 'Flujo') {
+                this.dinamycRemoveFields = ['iidetapa', 'iidmodulo','iidproceso', 'txtnombre', 'txtdescripcion', 'txtsigla', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
+                this.dinamycDisabledFields = ['iidsubetapa_siguiente']
+                this.dinamycHiddenFields = []
+            }
+            else{
+                this.showError({'message':'Tipo de registro no configurado'})
             }
         }
+        // this.dinamycHiddenFields = ['bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
+        // this.dinamycDisabledFields = []
+        // this.dinamycHiddenFields = ['typeRegister']
+        //     this.dinamycDisabledFields = ['bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
 
     },
     watch: {
@@ -750,6 +820,7 @@ export default {
             this.typeRegister = this.form.typeRegister
             this.applyRulesForDinamycForm()
         },
+
         options: {
             async handler() {
                 await this.loadDinamycRegisterInProcessTable();
@@ -760,7 +831,9 @@ export default {
     async mounted() {
         await this.getAllModules()
         await this.getAllStages()
+        await this.getAllSubStages()
         await this.getAllProcess()
+        
         this.formFields = await this.dataFirstForm()
         let user = await services.app().getUserConfig();
         let getActivePermissionsFromUser = await services.admin().getActivePermissionsFromUser(user[0].id);
