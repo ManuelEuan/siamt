@@ -22,6 +22,191 @@ class ProcessController extends BaseController
     // }
 
     // Método para depurar y mostrar datos
+    public function getStructureFirstForm(){
+        $typesRegister = [
+            [
+                "type" => 'Proceso',
+                "name" => "Nuevo proceso",
+            ],
+            [
+                "type" => 'Etapa',
+                "name" => "Nueva etapa",
+            ],
+            [
+                "type" => 'Subetapa',
+                "name" => "Nueva subetapa",
+            ],
+            [
+                "type" => 'Flujo',
+                "name" => "Nuevo flujo",
+            ]
+        ];
+        $formulario =  (object)array(
+            'typeRegister' => (object)array(
+                'label' => 'Seleccione su tipo de registro*',
+                'type' => 'autocomplete',
+                'model' => 'selectedRegister',
+                'rules' => 'required',
+                'cols' => 12,
+                'md' => 12,
+                'inputClass' => 'mx-auto',
+                'inputStyle' => 'max-width: 50%',
+                'array' => (object)array('type' => 'object', 'info' => $typesRegister, 'item_text' => 'name', 'item_value' => 'type')
+            ),
+            'iidmodulo' => (object)array(
+                'label' => 'Seleccione el módulo*',
+                'type' => 'autocomplete',
+                'model' => 'iidmodulo',
+                'rules' => 'required',
+                'cols' => 12,
+                'md' => 6,
+                'array' => (object)array('type' => 'object', 'info' => $this->modules, 'item_text' => 'nombre', 'item_value' => 'id')
+            ),
+            'iidproceso' => (object)array(
+                'label' => 'Seleccione el proceso*',
+                'type' => 'autocomplete',
+                'model' => 'iidproceso',
+                'rules' => 'required',
+                'cols' => 12,
+                'md' => 6,
+                'array' => (object)array('type' => 'object', 'info' => $this->processes, 'item_text' => 'txtnombre', 'item_value' => 'iidproceso')
+            ),
+            'iidetapa' => (object)array(
+                'label' => 'Seleccione la etapa*',
+                'type' => 'autocomplete',
+                'model' => 'iidetapa',
+                'rules' => 'required',
+                'cols' => 12,
+                'md' => 6,
+                'array' => (object)array('type' => 'object', 'info' => $this->stages, 'item_text' => 'txtetapa_nombre', 'item_value' => 'iidetapa')
+            ),
+            'iidsubetapa' => (object)array(
+                'label' => 'Seleccione la subetapa*',
+                'type' => 'autocomplete',
+                'model' => 'iidsubetapa',
+                'rules' => 'required',
+                'cols' => 12,
+                'md' => 6,
+                'array' => (object)array('type' => 'object', 'info' => $this->substages, 'item_text' => 'txtnombre', 'item_value' => 'iidsubetapa')
+            ),
+            'iidsubetapa_siguiente' => (object)array(
+                'label' => 'Seleccione la subetapa siguiente*',
+                'type' => 'autocomplete',
+                'model' => 'iidsubetapa_siguiente',
+                'rules' => 'required',
+                'cols' => 12,
+                'md' => 6,
+                'array' => (object)array('type' => 'object', 'info' => $this->nextSubstagesEnabled, 'item_text' => 'txtnombre', 'item_value' => 'iidsubetapa')
+            ),
+            'txtnombre' => (object)array(
+                'label' => 'Nombre',
+                'type' => 'text',
+                'model' => 'txtnombre',
+                'rules' => 'required',
+                'cols' => 12,
+                'md' => 6
+            ),
+            'txtdescripcion' => (object)array(
+                'label' => 'Descripción',
+                'type' => 'text',
+                'model' => 'txtdescripcion',
+                'rules' => null,
+                'cols' => 12,
+                'md' => 6
+            ),
+            'txtsigla' => (object)array(
+                'label' => 'Siglas',
+                'type' => 'text',
+                'model' => 'txtsigla',
+                'rules' => 'required|max4chars',
+                'cols' => 12,
+                'md' => 6
+            ),
+            'txtcolor' => (object)array(
+                'label' => 'Color',
+                'type' => 'color',
+                'model' => 'txtcolor',
+                'rules' => null,
+                'cols' => 12,
+                'md' => 6
+            ),
+            'txtpermiso' => (object)array(
+                'label' => 'Permiso',
+                'type' => 'text',
+                'model' => 'txtpermiso',
+                'rules' => null,
+                'cols' => 12,
+                'md' => 6
+            ),
+            'binicial' => (object)array(
+                'label' => 'Inicial',
+                'type' => 'boolean',
+                'model' => 'binicial',
+                'rules' => null,
+                'cols' => 6,
+                'md' => 3
+            ),
+            'bfinal' => (object)array(
+                'label' => 'Final',
+                'type' => 'boolean',
+                'model' => 'bfinal',
+                'rules' => null,
+                'cols' => 6,
+                'md' => 3
+            ),
+            'bcancelacion' => (object)array(
+                'label' => 'Cancelacion',
+                'type' => 'boolean',
+                'model' => 'bcancelacion',
+                'rules' => null,
+                'cols' => 6,
+                'md' => 3
+            ),
+            'brequiere_motivo' => (object)array(
+                'label' => 'Motivo',
+                'type' => 'boolean',
+                'model' => 'brequiere_motivo',
+                'rules' => null,
+                'cols' => 6,
+                'md' => 3
+            ),
+            'dtfecha_creacion' => (object)array(
+                'label' => '´Fecha de creación',
+                'type' => 'datetime',
+                'model' => 'dtfecha_creacion',
+                'rules' => null,
+                'cols' => 12,
+                'md' => 4
+            ),
+            'dtfecha_modificacion' => (object)array(
+                'label' => 'Fecha de modificación',
+                'type' => 'datetime',
+                'model' => 'dtfecha_modificacion',
+                'rules' => null,
+                'cols' => 12,
+                'md' => 4
+            ),
+            'bactivo' => (object)array(
+                'label' => 'Activo',
+                'type' => 'boolean',
+                'model' => 'bactivo',
+                'rules' => null,
+                'cols' => 6,
+                'md' => 4
+            ),
+            // 'txttelefono_mask_phone' => array(
+            //     'label' => 'Teléfono*',
+            //     'type' => 'text',
+            //     'model' => 'txttelefono_mask_phone',
+            //     'rules' => 'required|telefono',
+            //     'cols' => 12,
+            //     'md' => 6,
+            //     'maskType' => 'phone'
+            // ),
+        );
+        return json_encode($formulario);
+    }
+
     public function dep($data)
     {
         $format  = print_r('<pre>');

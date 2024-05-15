@@ -291,9 +291,7 @@ export default {
                     "name": "Nuevo flujo",
                 }
             ],
-            formFields: {
-
-            },
+            formFields: {},
             dinamycRemoveFields: [],  // Decide quita el campo,
             dinamycHiddenFields: [], // Decide si estará oculto el campo,
             dinamycDisabledFields: [], // Decide si estará visible el campo pero deshabilitado,
@@ -519,163 +517,176 @@ export default {
         },
 
         async dataFirstForm() {
-            return {
-                typeRegister: {
-                    label: 'Seleccione su tipo de registro*',
-                    type: 'autocomplete',
-                    model: 'selectedRegister',
-                    rules: 'required',
-                    cols: 12,
-                    md: 12,
-                    inputClass: 'mx-auto',
-                    inputStyle: 'max-width: 50%',
-                    array: { type: 'object', info: this.typesRegister, item_text: 'name', item_value: 'type' }
-                },
-                iidmodulo: {
-                    label: 'Seleccione el módulo*',
-                    type: 'autocomplete',
-                    model: 'iidmodulo',
-                    rules: 'required',
-                    cols: 12,
-                    md: 6,
-                    array: { type: 'object', info: this.modules, item_text: 'nombre', item_value: 'id' }
-                },
-                iidproceso: {
-                    label: 'Seleccione el proceso*',
-                    type: 'autocomplete',
-                    model: 'iidproceso',
-                    rules: 'required',
-                    cols: 12,
-                    md: 6,
-                    array: { type: 'object', info: this.processes, item_text: 'txtnombre', item_value: 'iidproceso' }
-                },
-                iidetapa: {
-                    label: 'Seleccione la etapa*',
-                    type: 'autocomplete',
-                    model: 'iidetapa',
-                    rules: 'required',
-                    cols: 12,
-                    md: 6,
-                    array: { type: 'object', info: this.stages, item_text: 'txtetapa_nombre', item_value: 'iidetapa' }
-                },
-                iidsubetapa: {
-                    label: 'Seleccione la subetapa*',
-                    type: 'autocomplete',
-                    model: 'iidsubetapa',
-                    rules: 'required',
-                    cols: 12,
-                    md: 6,
-                    array: { type: 'object', info: this.substages, item_text: 'txtnombre', item_value: 'iidsubetapa' }
-                },
-                iidsubetapa_siguiente: {
-                    label: 'Seleccione la subetapa siguiente*',
-                    type: 'autocomplete',
-                    model: 'iidsubetapa_siguiente',
-                    rules: 'required',
-                    cols: 12,
-                    md: 6,
-                    array: { type: 'object', info: this.nextSubstagesEnabled, item_text: 'txtnombre', item_value: 'iidsubetapa' }
-                },
-                txtnombre: {
-                    label: 'Nombre',
-                    type: 'text',
-                    model: 'txtnombre',
-                    rules: 'required',
-                    cols: 12,
-                    md: 6
-                },
-                txtdescripcion: {
-                    label: 'Descripción',
-                    type: 'text',
-                    model: 'txtdescripcion',
-                    rules: null,
-                    cols: 12,
-                    md: 6
-                },
-                txtsigla: {
-                    label: 'Siglas',
-                    type: 'text',
-                    model: 'txtsigla',
-                    rules: 'required|max4chars',
-                    cols: 12,
-                    md: 6
-                },
-                txtcolor: {
-                    label: 'Color',
-                    type: 'color',
-                    model: 'txtcolor',
-                    rules: null,
-                    cols: 12,
-                    md: 6
-                },
-                txtpermiso: {
-                    label: 'Permiso',
-                    type: 'text',
-                    model: 'txtpermiso',
-                    rules: null,
-                    cols: 12,
-                    md: 6
-                },
-                binicial: {
-                    label: 'Inicial',
-                    type: 'boolean',
-                    model: 'binicial',
-                    rules: null,
-                    cols: 6,
-                    md: 3
-                },
-                bfinal: {
-                    label: 'Final',
-                    type: 'boolean',
-                    model: 'bfinal',
-                    rules: null,
-                    cols: 6,
-                    md: 3
-                },
-                bcancelacion: {
-                    label: 'Cancelacion',
-                    type: 'boolean',
-                    model: 'bcancelacion',
-                    rules: null,
-                    cols: 6,
-                    md: 3
-                },
-                brequiere_motivo: {
-                    label: 'Motivo',
-                    type: 'boolean',
-                    model: 'brequiere_motivo',
-                    rules: null,
-                    cols: 6,
-                    md: 3
-                },
+            // return {
+            //     typeRegister: {
+            //         label: 'Seleccione su tipo de registro*',
+            //         type: 'autocomplete',
+            //         model: 'selectedRegister',
+            //         rules: 'required',
+            //         cols: 12,
+            //         md: 12,
+            //         inputClass: 'mx-auto',
+            //         inputStyle: 'max-width: 50%',
+            //         array: { type: 'object', info: this.typesRegister, item_text: 'name', item_value: 'type' }
+            //     },
+            //     iidmodulo: {
+            //         label: 'Seleccione el módulo*',
+            //         type: 'autocomplete',
+            //         model: 'iidmodulo',
+            //         rules: 'required',
+            //         cols: 12,
+            //         md: 6,
+            //         array: { type: 'object', info: this.modules, item_text: 'nombre', item_value: 'id' }
+            //     },
+            //     iidproceso: {
+            //         label: 'Seleccione el proceso*',
+            //         type: 'autocomplete',
+            //         model: 'iidproceso',
+            //         rules: 'required',
+            //         cols: 12,
+            //         md: 6,
+            //         array: { type: 'object', info: this.processes, item_text: 'txtnombre', item_value: 'iidproceso' }
+            //     },
+            //     iidetapa: {
+            //         label: 'Seleccione la etapa*',
+            //         type: 'autocomplete',
+            //         model: 'iidetapa',
+            //         rules: 'required',
+            //         cols: 12,
+            //         md: 6,
+            //         array: { type: 'object', info: this.stages, item_text: 'txtetapa_nombre', item_value: 'iidetapa' }
+            //     },
+            //     iidsubetapa: {
+            //         label: 'Seleccione la subetapa*',
+            //         type: 'autocomplete',
+            //         model: 'iidsubetapa',
+            //         rules: 'required',
+            //         cols: 12,
+            //         md: 6,
+            //         array: { type: 'object', info: this.substages, item_text: 'txtnombre', item_value: 'iidsubetapa' }
+            //     },
+            //     iidsubetapa_siguiente: {
+            //         label: 'Seleccione la subetapa siguiente*',
+            //         type: 'autocomplete',
+            //         model: 'iidsubetapa_siguiente',
+            //         rules: 'required',
+            //         cols: 12,
+            //         md: 6,
+            //         array: { type: 'object', info: this.nextSubstagesEnabled, item_text: 'txtnombre', item_value: 'iidsubetapa' }
+            //     },
+            //     txtnombre: {
+            //         label: 'Nombre',
+            //         type: 'text',
+            //         model: 'txtnombre',
+            //         rules: 'required',
+            //         cols: 12,
+            //         md: 6
+            //     },
+            //     txtdescripcion: {
+            //         label: 'Descripción',
+            //         type: 'text',
+            //         model: 'txtdescripcion',
+            //         rules: null,
+            //         cols: 12,
+            //         md: 6
+            //     },
+            //     txtsigla: {
+            //         label: 'Siglas',
+            //         type: 'text',
+            //         model: 'txtsigla',
+            //         rules: 'required|max4chars',
+            //         cols: 12,
+            //         md: 6
+            //     },
+            //     txtcolor: {
+            //         label: 'Color',
+            //         type: 'color',
+            //         model: 'txtcolor',
+            //         rules: null,
+            //         cols: 12,
+            //         md: 6
+            //     },
+            //     txtpermiso: {
+            //         label: 'Permiso',
+            //         type: 'text',
+            //         model: 'txtpermiso',
+            //         rules: null,
+            //         cols: 12,
+            //         md: 6
+            //     },
+            //     binicial: {
+            //         label: 'Inicial',
+            //         type: 'boolean',
+            //         model: 'binicial',
+            //         rules: null,
+            //         cols: 6,
+            //         md: 3
+            //     },
+            //     bfinal: {
+            //         label: 'Final',
+            //         type: 'boolean',
+            //         model: 'bfinal',
+            //         rules: null,
+            //         cols: 6,
+            //         md: 3
+            //     },
+            //     bcancelacion: {
+            //         label: 'Cancelacion',
+            //         type: 'boolean',
+            //         model: 'bcancelacion',
+            //         rules: null,
+            //         cols: 6,
+            //         md: 3
+            //     },
+            //     brequiere_motivo: {
+            //         label: 'Motivo',
+            //         type: 'boolean',
+            //         model: 'brequiere_motivo',
+            //         rules: null,
+            //         cols: 6,
+            //         md: 3
+            //     },
 
 
-                dtfecha_creacion: {
-                    label: '´Fecha de creación',
-                    type: 'datetime',
-                    model: 'dtfecha_creacion',
-                    rules: null,
-                    cols: 12,
-                    md: 4
-                },
-                dtfecha_modificacion: {
-                    label: 'Fecha de modificación',
-                    type: 'datetime',
-                    model: 'dtfecha_modificacion',
-                    rules: null,
-                    cols: 12,
-                    md: 4
-                },
-                bactivo: {
-                    label: 'Activo',
-                    type: 'boolean',
-                    model: 'bactivo',
-                    rules: null,
-                    cols: 6,
-                    md: 4
-                },
-                // txttelefono_mask_phone: { label: 'Teléfono*', type: 'text', model: 'txttelefono_mask_phone', rules: 'required|telefono', cols: 12, md: 6, maskType: 'phone' },
+            //     dtfecha_creacion: {
+            //         label: '´Fecha de creación',
+            //         type: 'datetime',
+            //         model: 'dtfecha_creacion',
+            //         rules: null,
+            //         cols: 12,
+            //         md: 4
+            //     },
+            //     dtfecha_modificacion: {
+            //         label: 'Fecha de modificación',
+            //         type: 'datetime',
+            //         model: 'dtfecha_modificacion',
+            //         rules: null,
+            //         cols: 12,
+            //         md: 4
+            //     },
+            //     bactivo: {
+            //         label: 'Activo',
+            //         type: 'boolean',
+            //         model: 'bactivo',
+            //         rules: null,
+            //         cols: 6,
+            //         md: 4
+            //     },
+            //     // txttelefono_mask_phone: { label: 'Teléfono*', type: 'text', model: 'txttelefono_mask_phone', rules: 'required|telefono', cols: 12, md: 6, maskType: 'phone' },
+            // }
+            try {
+                let formulario = await services.inspections().getStructureFirstForm();
+                console.log('-----formulario')
+                console.log(formulario)
+                setTimeout(() => {
+                    this.formFields = formulario
+                }, 200);
+                // this.formFields={[{}]}
+            } catch (error) {
+                const message = 'Error al precuperar los formulario ';
+                this.showError({ message, error });
             }
+            
         },
 
         async loadDinamycRegisterInProcessTable() {
@@ -805,7 +816,7 @@ export default {
         await this.getAllSubStages()
         await this.getAllProcess()
         
-        this.formFields = await this.dataFirstForm()
+        await this.dataFirstForm()
         let user = await services.app().getUserConfig();
         let getActivePermissionsFromUser = await services.admin().getActivePermissionsFromUser(user[0].id);
         this.peopleModulePermissions = getActivePermissionsFromUser.map(permission => permission.siglas);

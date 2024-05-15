@@ -194,6 +194,10 @@ export default class InspectionsService extends ApiService {
     return await this.get("/process/getAllSubStages");
   }
 
+  async getStructureFirstForm() {
+    return await this.get("/process/getStructureFirstForm");
+  }
+
   async getProcessWithStagesAndSubstages(data) {
     return await this.post("/process/getProcessWithStagesAndSubstages", JSON.stringify(data));
   }
