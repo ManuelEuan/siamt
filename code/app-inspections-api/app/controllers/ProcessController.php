@@ -430,6 +430,7 @@ class ProcessController extends BaseController
             $formattedChild = [
                 'id' => $child->iidsubetapa,
                 'name' => $child->subetapa_nombre,
+                'icon'=> 'mdi-check-circle',
                 'children' => $this->formatObjectForJavaScript($child)
             ];
 

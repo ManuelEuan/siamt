@@ -228,14 +228,11 @@
                         @update:dialogVisible="dialogViewFlow = $event" @confirm="dialogViewFlow = false">
                         <template v-slot:default>
                             <v-row dense>
-                                Acá va el flujo
-                                <!-- <v-treeview :items="treeProcess" activatable color="primary" transition open-all
-                                  open-on-click>
-                                  <template v-slot:prepend="{ item }">
-                                      <v-icon v-if="item.icon" color="primary">{{ item.icon }}</v-icon>
-                                  </template>
-            </v-treeview> -->
-                                <v-treeview :items="treeFlow" activatable></v-treeview>
+                                <v-treeview :items="treeFlow" activatable color="primary" transition open-all
+                                    open-on-click>
+                                    <template v-slot:prepend="{ item }">
+                                        <v-icon v-if="item.icon" color="primary">{{ item.icon }}</v-icon>
+                                    </template>></v-treeview>
                             </v-row>
                         </template>
                     </generic-dialog>
@@ -399,32 +396,13 @@ export default {
                 let info = await services.inspections().getFlowByProcess({ iidproceso });
                 console.log(info.info)
                 this.treeFlow = info.info2
-                // this.treeFlow = info.info
-                // this.treeFlow = this.formatDataForTreeview(treeFlow);
-                // this.treeFlow = [treeObject].map(item => {
-                //     console.log('Elemento:', item); // Imprime el elemento en la consola
-                //     return {
-                //         id: item.iidsubetapa,
-                //         text: item.subetapa_nombre,
-                //         children: item.children || [] // Asegura que siempre haya un array para 'children'
-                //     };
-                // });
-                // this.treeProcess = this.convertToTreeStructure(info);
+
             } catch (error) {
                 const message = 'Error al precuperar los módulos ';
                 this.showError({ message, error });
             }
         },
-        formatDataForTreeview(data) {
-            // Aquí formatea los datos según la estructura esperada por el v-treeview
-            // Por ejemplo, mapear los datos recibidos para que coincidan con la estructura de árbol
-            // y devolverlos en el formato correcto
-            return data.map(item => ({
-                id: item.iidsubetapa,
-                text: item.subetapa_nombre,
-                children: item.children || [] // Asegura que siempre haya un array para 'children'
-            }));
-        },
+
         async getProcessWithStagesAndSubstages(iidproceso) {
             try {
                 let info = await services.inspections().getProcessWithStagesAndSubstages({ iidproceso });
