@@ -31,7 +31,7 @@ export default {
 		return regex.test(v) || 'El usuario contiene caracteres no admitidos.';
 	},
 	curp: v => {
-		const regex = /^[A-Z]{4}[0-9]{6}[HM][A-Z]{5}[0-9]{2}$/;
+		const regex = /^[A-Z]{4}[0-9]{6}[HM][A-Z]{5}\w{2}$/;
 		return regex.test(v) || 'CURP válida requerida.'; 
 	},
 	rfc: v => {
