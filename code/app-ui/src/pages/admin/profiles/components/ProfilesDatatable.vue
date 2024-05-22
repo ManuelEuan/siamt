@@ -66,8 +66,6 @@
 
       </template>
     </v-data-table>
-
-    {{profiles}}
   </div>
 </template>
 

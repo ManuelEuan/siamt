@@ -75,11 +75,12 @@
                                 </v-form>
                             </v-card-text>
                         </v-tab-item>
-                        <v-card-actions>
+                        {{!personaEncontrada}} -- {{!personaDisponible}} -- {{ !validationFieldsInspector }}
+                        <v-card-actions v-if="!createMode || personaEncontrada && personaDisponible">
                             <v-spacer />
                             <v-btn color="error" text @click="showAllInspectors()"> Cerrar </v-btn>
                             <v-btn color="primary" text
-                                :disabled="!validationFieldsInspector || !personaEncontrada || !personaDisponible"
+                                :disabled="!validationFieldsInspector"
                                 @click="saveInspector()">
                                 Guardar </v-btn>
                         </v-card-actions>

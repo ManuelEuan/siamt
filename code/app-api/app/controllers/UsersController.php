@@ -107,7 +107,7 @@ class UsersController extends BaseController
         ';
         $params = array('id' => $data->id);
         $user['usuario'] = Db::fetchOne($sql, $params);
-
+        
         $sql = 'SELECT iddominio FROM usuario.usuario_dominio WHERE idusuario=:id AND activo=true';
         $domains = Db::fetchAll($sql, $params);
         $user['usuario']->dominios = array_column($domains, 'iddominio');
@@ -117,7 +117,7 @@ class UsersController extends BaseController
         $user['usuario']->perfiles = array_column($roles, 'idperfil');
 
         // $user['usuario']->permisos = array_column($permissions, 'idpermiso');
-        $ActivePermissions = self::getActivePermissions($data->id);
+        $ActivePermissions = self::getActivePermissionsFromUser($data->id);
         $user['usuario']->permisos = array_column($ActivePermissions, 'id');
         return $user;
     }
