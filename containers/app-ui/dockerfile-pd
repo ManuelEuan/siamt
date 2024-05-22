@@ -4,7 +4,7 @@ ARG GIT_USR=$GIT_USR
 ARG GIT_PASS=$GIT_PASS
 
 RUN set -ex && \
-    git clone --depth 1 --filter=blob:none --sparse https://$GIT_USR:$GIT_PASS@gitlab.com/yucatan/siamt.git /srv/siamt && \
+    git clone --depth 1 --filter=blob:none --sparse https://$GIT_USR:$GIT_PASS@gitaty.transporteyucatan.org.mx/aty/siamt.git /srv/siamt && \
     cd /srv/siamt && git sparse-checkout add code/app-ui && \
     cd /srv/siamt/code/app-ui && yarn install && yarn build && \
     echo "#!/usr/bin/env bash \ncp -fR /srv/siamt/code/app-ui/dist/* /srv/www" > /docker-entrypoint.d/init.sh

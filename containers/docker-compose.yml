@@ -16,7 +16,7 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services
+      - internal-services-siamt
     depends_on:
       - "app-api"
       - "auth-api"
@@ -35,7 +35,7 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services
+      - internal-services-siamt
     depends_on:
       - "liquibase"
       - "redis"
@@ -53,7 +53,7 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services
+      - internal-services-siamt
   auth-api:
     image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
     volumes:
@@ -63,7 +63,7 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services
+      - internal-services-siamt
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -78,7 +78,7 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services
+      - internal-services-siamt
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -93,7 +93,7 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services
+      - internal-services-siamt
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -108,7 +108,7 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services
+      - internal-services-siamt
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -123,7 +123,7 @@ services:
 #    env_file:
 #      - dv.env
 #    networks:
-#      - internal-services
+#      - internal-services-siamt
 #    extra_hosts:
 #      - "host.docker.internal:host-gateway"
 #    depends_on:
@@ -135,7 +135,7 @@ services:
       - "6379:6379"
       - "8001:8001"
     networks:
-      - internal-services
+      - internal-services-siamt
     sysctls:
       net.core.somaxconn: 1024
   liquibase:
@@ -145,11 +145,11 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services
+      - internal-services-siamt
     extra_hosts:
       - "host.docker.internal:host-gateway"
 networks:
-  internal-services:
+  internal-services-siamt:
     ipam:
       driver: default
       config:
