@@ -6,9 +6,9 @@
                     <!-- <v-col  :key="index" :cols="field.cols" :md="field.md"  >
                         {{ index }}<br>
                         <template>(v-if): {{ dinamycRemoveFields.includes(index)  ? 'Se removerá' : 'Existirá'}}</template><br>
-    <template>(clase): Tendrá la clase: {{ dinamycHiddenFields.includes(index)? 'd-none' : 'd-block'  }}</template><br>
-    <template>(disabled): Estará: {{ dinamycDisabledFields.includes(index)? 'deshabilitado' : 'habilitado' }}</template><br>
-    </v-col> -->
+<template>(clase): Tendrá la clase: {{ dinamycHiddenFields.includes(index)? 'd-none' : 'd-block'  }}</template><br>
+<template>(disabled): Estará: {{ dinamycDisabledFields.includes(index)? 'deshabilitado' : 'habilitado' }}</template><br>
+</v-col> -->
                     <v-col v-if="!dinamycRemoveFields.includes(index)" :key="index" :cols="field.cols" :md="field.md"
                         :class="dinamycHiddenFields.includes(index) ? 'd-none' : 'd-block'">
                         <template v-if="field.type === 'text'">
@@ -23,7 +23,8 @@
                             <v-autocomplete v-else :rules="getFieldRules(field)" :class="field.inputClass"
                                 :style="field.inputStyle" v-model="field.model" :label="field.label"
                                 :items="field.array.info" dense outlined :item-text="field.array.item_text"
-                                :item-value="field.array.item_value" :disabled="dinamycDisabledFields.includes(index)" />
+                                :item-value="field.array.item_value"
+                                :disabled="dinamycDisabledFields.includes(index)" />
                         </template>
                         <template v-else-if="field.type === 'textarea'">
                             <v-textarea v-model="field.model" :label="field.label" hide-details="auto" clearable dense
@@ -50,33 +51,33 @@
                                 <v-date-picker v-model="field.model" @input="field[index] = false"></v-date-picker>
                             </v-menu>
                         </template>
-    
+
                         <template v-else-if="field.type === 'time'">
                             <!-- <v-text-field type="time" v-model="field.model" :label="field.label"
                                 :rules="getFieldRules(field)" hide-details="auto" clearable dense outlined /> -->
-                            <v-menu :ref="index" v-model="field[index]" :close-on-content-click="false" :nudge-right="40"
-                                :return-value.sync="field.model" transition="scale-transition" offset-y max-width="290px"
-                                min-width="290px">
+                            <v-menu :ref="index" v-model="field[index]" :close-on-content-click="false"
+                                :nudge-right="40" :return-value.sync="field.model" transition="scale-transition"
+                                offset-y max-width="290px" min-width="290px">
                                 <template v-slot:activator="{ on, attrs }">
                                     <v-text-field v-model="field.model" :label="field.label"
-                                        prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" clearable dense
-                                        outlined v-on="on" :rules="getFieldRules(field)" v-mask="getMask(field)"
+                                        prepend-icon="mdi-clock-time-four-outline" readonly v-bind="attrs" clearable
+                                        dense outlined v-on="on" :rules="getFieldRules(field)" v-mask="getMask(field)"
                                         :disabled="dinamycDisabledFields.includes(index)"></v-text-field>
                                 </template>
                                 <v-time-picker v-if="field[index]" v-model="field.model" ampm-in-title format="24hr"
                                     full-width scrollable @click:minute="saveModel(index, field.model)"></v-time-picker>
                             </v-menu>
                         </template>
-    
+
                         <template v-else-if="field.type === 'datetime'">
                             <v-datetime-picker v-model="field.model" :label="field.label" :rules="getFieldRules(field)"
                                 v-mask="getMask(field)" :disabled="dinamycDisabledFields.includes(index)"
                                 @input="handleDateTime(field)" :textFieldProps="{
-            prependIcon: 'mdi-calendar-clock-outline ',
-            clearable: true,
-            dense: true,
-            outlined: true,
-        }">
+                                    prependIcon: 'mdi-calendar-clock-outline ',
+                                    clearable: true,
+                                    dense: true,
+                                    outlined: true,
+                                }">
                                 <template slot="dateIcon">
                                     <v-icon>mdi-calendar-range</v-icon>
                                 </template>
@@ -85,9 +86,9 @@
                                 </template>
                             </v-datetime-picker>
                         </template>
-    
+
                     </v-col>
-    
+
                 </template>
             </v-row>
         </v-form>
@@ -99,11 +100,15 @@
     /* Estilos para el elemento hermano de .v-dialog__container */
     margin-top: 1rem !important;
 }
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.5s;
+
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.5s;
 }
-.fade-enter, .fade-leave-to {
-  opacity: 0;
+
+.fade-enter,
+.fade-leave-to {
+    opacity: 0;
 }
 </style>
 
@@ -140,39 +145,9 @@ export default {
     data() {
         return {
             switch1: false,
-            datetimeString: '2019-01-01 12:00',
-            // DATETIME
-            // textFieldProps: {
-            // appendIcon: 'mdi-calendar-clock-outline ',
-            // prependIcon: 'mdi-calendar-clock-outline ',
-            // clearable: true,
-            // dense: true,
-            // outlined: true,
-            // },
-            // nullDatetime: null,
-            // datetime: new Date(),
-            // datetimeString: '2019-01-01 12:00',
-            // formattedDatetime: '09/01/2019 12:00',
-            // textFieldProps: {
-            //     appendIcon: 'event'
-            // },
-            // dateProps: {
-            //     headerColor: 'red'
-            // },
-            // timeProps: {
-            //     useSeconds: true,
-            //     ampmInTitle: true
-            // },
             genericFormFields: {},
             isFormValid: false,
             mascara: null,
-            // date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
-            // menu: false,
-            // modal: false,
-            // menu2: false,
-            // time: null,
-            menu2: false,
-            // modal2: false,
             modelosMascaras: {
                 phone:
                 {
@@ -242,30 +217,31 @@ export default {
         isFormValid() {
             this.$emit('form-valid', this.isFormValid);
         },
-        'formFieldsWithValues': {
-            handler: () => {
-                console.log('llegando de padre')
-                console.log(this.genericFormFields)
-                // for (const key in this.genericFormFields) {
-                //     const field = this.genericFormFields[key];
-                //     field.model = this.formFieldsWithValues[key] || '';
-                // }
-            },
-            deep: true
+        formFieldsWithValues() {
+            console.log('this.formFieldsWithValues ')
+            console.log(this.formFieldsWithValues)
+            console.log(this.formFields)
+
+            this.genericFormFields = { ...this.formFields };
+            console.log(this.genericFormFields)
+
+            for (const key in this.formFieldsWithValues) {
+                let value = this.formFieldsWithValues[key];
+                if (Object.prototype.hasOwnProperty.call(this.genericFormFields, key)) {
+                    this.genericFormFields[key].model = value;
+                }
+            }
 
         },
         formFields() {
             console.log('this.formFields formValidation')
             console.log(this.formFields)
-
             this.genericFormFields = { ...this.formFields };
             for (const key in this.genericFormFields) {
-
                 const field = this.genericFormFields[key];
                 if (field.model === key) {
                     field.model = ''
                 }
-
                 this.$watch(() => field.model, (value) => {
                     const maskIndex = key.indexOf("_mask_");
                     if (maskIndex > 1) {
@@ -280,18 +256,24 @@ export default {
         }
     },
     mounted() {
-        // if(this.formFieldsWithValues){
-
-        // console.log('this.formFieldsWithValues')
-        // console.log(this.formFieldsWithValues)
-        // this.genericFormFields = this.formFieldsWithValues
-        // this.genericFormFields = this.formFields
-        console.log('demo')
-        console.log(this.genericFormFields)
-        // // for (const key in this.genericFormFields) {
-        // //     const field = this.genericFormFields[key];
-        // //     field.model = this.formFieldsWithValues[key] || '';
-        // // }
+        this.genericFormFields = { ...this.formFields };
+        if (this.formFieldsWithValues) {
+            for (const key in this.genericFormFields) {
+                const field = this.genericFormFields[key];
+                field.model = this.formFieldsWithValues[key] || '';
+                this.$watch(() => field.model, (value) => {
+                    const maskIndex = key.indexOf("_mask_");
+                    if (maskIndex > 1) {
+                        const maskType = key.substring(maskIndex + 6);
+                        const returnValue = value.replace(this.modelosMascaras[maskType].regexMask, '');
+                        this.$emit('new-value', key.substring(0, maskIndex), returnValue);
+                    } else {
+                        this.$emit('new-value', key, value);
+                    }
+                });
+            }
+        }
     }
+
 }
 </script>

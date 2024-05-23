@@ -22,193 +22,20 @@ class ProcessController extends BaseController
     // }
 
     // Método para depurar y mostrar datos
-    public function getStructureFirstForm(){
+    public function getStructureFirstForm()
+    {
         $typesRegister = [
-            [
-                "type" => 'Proceso',
-                "name" => "Nuevo proceso",
-            ],
-            [
-                "type" => 'Etapa',
-                "name" => "Nueva etapa",
-            ],
-            [
-                "type" => 'Subetapa',
-                "name" => "Nueva subetapa",
-            ],
-            [
-                "type" => 'Flujo',
-                "name" => "Nuevo flujo",
-            ]
+            ["type" => 'Proceso', "name" => "Proceso"],
+            ["type" => 'Etapa', "name" => "Etapa"],
+            ["type" => 'Subetapa', "name" => "Subetapa"],
+            ["type" => 'Flujo', "name" => "Flujo"]
         ];
-        // $formulario =  (object)array(
-        //     'typeRegister' => (object)array(
-        //         'label' => 'Seleccione su tipo de registro*',
-        //         'type' => 'autocomplete',
-        //         'model' => 'selectedRegister',
-        //         'rules' => 'required',
-        //         'cols' => 12,
-        //         'md' => 12,
-        //         'inputClass' => 'mx-auto',
-        //         'inputStyle' => 'max-width: 50%',
-        //         'array' => (object)array('type' => 'object', 'info' => $typesRegister, 'item_text' => 'name', 'item_value' => 'type')
-        //     ),
-        //     'iidmodulo' => (object)array(
-        //         'label' => 'Seleccione el módulo*',
-        //         'type' => 'autocomplete',
-        //         'model' => 'iidmodulo',
-        //         'rules' => 'required',
-        //         'cols' => 12,
-        //         'md' => 6,
-        //         'array' => (object)array('type' => 'object', 'info' => $this->modules, 'item_text' => 'nombre', 'item_value' => 'id')
-        //     ),
-        //     'iidproceso' => (object)array(
-        //         'label' => 'Seleccione el proceso*',
-        //         'type' => 'autocomplete',
-        //         'model' => 'iidproceso',
-        //         'rules' => 'required',
-        //         'cols' => 12,
-        //         'md' => 6,
-        //         'array' => (object)array('type' => 'object', 'info' => $this->processes, 'item_text' => 'txtnombre', 'item_value' => 'iidproceso')
-        //     ),
-        //     'iidetapa' => (object)array(
-        //         'label' => 'Seleccione la etapa*',
-        //         'type' => 'autocomplete',
-        //         'model' => 'iidetapa',
-        //         'rules' => 'required',
-        //         'cols' => 12,
-        //         'md' => 6,
-        //         'array' => (object)array('type' => 'object', 'info' => $this->stages, 'item_text' => 'txtetapa_nombre', 'item_value' => 'iidetapa')
-        //     ),
-        //     'iidsubetapa' => (object)array(
-        //         'label' => 'Seleccione la subetapa*',
-        //         'type' => 'autocomplete',
-        //         'model' => 'iidsubetapa',
-        //         'rules' => 'required',
-        //         'cols' => 12,
-        //         'md' => 6,
-        //         'array' => (object)array('type' => 'object', 'info' => $this->substages, 'item_text' => 'txtnombre', 'item_value' => 'iidsubetapa')
-        //     ),
-        //     'iidsubetapa_siguiente' => (object)array(
-        //         'label' => 'Seleccione la subetapa siguiente*',
-        //         'type' => 'autocomplete',
-        //         'model' => 'iidsubetapa_siguiente',
-        //         'rules' => 'required',
-        //         'cols' => 12,
-        //         'md' => 6,
-        //         'array' => (object)array('type' => 'object', 'info' => $this->nextSubstagesEnabled, 'item_text' => 'txtnombre', 'item_value' => 'iidsubetapa')
-        //     ),
-        //     'txtnombre' => (object)array(
-        //         'label' => 'Nombre',
-        //         'type' => 'text',
-        //         'model' => 'txtnombre',
-        //         'rules' => 'required',
-        //         'cols' => 12,
-        //         'md' => 6
-        //     ),
-        //     'txtdescripcion' => (object)array(
-        //         'label' => 'Descripción',
-        //         'type' => 'text',
-        //         'model' => 'txtdescripcion',
-        //         'rules' => null,
-        //         'cols' => 12,
-        //         'md' => 6
-        //     ),
-        //     'txtsigla' => (object)array(
-        //         'label' => 'Siglas',
-        //         'type' => 'text',
-        //         'model' => 'txtsigla',
-        //         'rules' => 'required|max4chars',
-        //         'cols' => 12,
-        //         'md' => 6
-        //     ),
-        //     'txtcolor' => (object)array(
-        //         'label' => 'Color',
-        //         'type' => 'color',
-        //         'model' => 'txtcolor',
-        //         'rules' => null,
-        //         'cols' => 12,
-        //         'md' => 6
-        //     ),
-        //     'txtpermiso' => (object)array(
-        //         'label' => 'Permiso',
-        //         'type' => 'text',
-        //         'model' => 'txtpermiso',
-        //         'rules' => null,
-        //         'cols' => 12,
-        //         'md' => 6
-        //     ),
-        //     'binicial' => (object)array(
-        //         'label' => 'Inicial',
-        //         'type' => 'boolean',
-        //         'model' => 'binicial',
-        //         'rules' => null,
-        //         'cols' => 6,
-        //         'md' => 3
-        //     ),
-        //     'bfinal' => (object)array(
-        //         'label' => 'Final',
-        //         'type' => 'boolean',
-        //         'model' => 'bfinal',
-        //         'rules' => null,
-        //         'cols' => 6,
-        //         'md' => 3
-        //     ),
-        //     'bcancelacion' => (object)array(
-        //         'label' => 'Cancelacion',
-        //         'type' => 'boolean',
-        //         'model' => 'bcancelacion',
-        //         'rules' => null,
-        //         'cols' => 6,
-        //         'md' => 3
-        //     ),
-        //     'brequiere_motivo' => (object)array(
-        //         'label' => 'Motivo',
-        //         'type' => 'boolean',
-        //         'model' => 'brequiere_motivo',
-        //         'rules' => null,
-        //         'cols' => 6,
-        //         'md' => 3
-        //     ),
-        //     'dtfecha_creacion' => (object)array(
-        //         'label' => '´Fecha de creación',
-        //         'type' => 'datetime',
-        //         'model' => 'dtfecha_creacion',
-        //         'rules' => null,
-        //         'cols' => 12,
-        //         'md' => 4
-        //     ),
-        //     'dtfecha_modificacion' => (object)array(
-        //         'label' => 'Fecha de modificación',
-        //         'type' => 'datetime',
-        //         'model' => 'dtfecha_modificacion',
-        //         'rules' => null,
-        //         'cols' => 12,
-        //         'md' => 4
-        //     ),
-        //     'bactivo' => (object)array(
-        //         'label' => 'Activo',
-        //         'type' => 'boolean',
-        //         'model' => 'bactivo',
-        //         'rules' => null,
-        //         'cols' => 6,
-        //         'md' => 4
-        //     ),
-        //     // 'txttelefono_mask_phone' => array(
-        //     //     'label' => 'Teléfono*',
-        //     //     'type' => 'text',
-        //     //     'model' => 'txttelefono_mask_phone',
-        //     //     'rules' => 'required|telefono',
-        //     //     'cols' => 12,
-        //     //     'md' => 6,
-        //     //     'maskType' => 'phone'
-        //     // ),
-        // );
+    
         $formulario =  (object)array(
             'typeRegister' => (object)array(
                 'label' => 'Seleccione su tipo de registro*',
                 'type' => 'autocomplete',
-                'model' => 'selectedRegister',
+                'model' => 'typeRegister',
                 'rules' => 'required',
                 'cols' => 12,
                 'md' => 12,
@@ -223,7 +50,7 @@ class ProcessController extends BaseController
                 'rules' => 'required',
                 'cols' => 12,
                 'md' => 6,
-                'array' => (object)array('type' => 'object', 'info' => $this->modules, 'item_text' => 'nombre', 'item_value' => 'id')
+                'array' => (object)array('type' => 'object', 'info' => self::getAllModules(), 'item_text' => 'nombre', 'item_value' => 'id')
             ),
             'iidproceso' => (object)array(
                 'label' => 'Seleccione el proceso*',
@@ -232,7 +59,7 @@ class ProcessController extends BaseController
                 'rules' => 'required',
                 'cols' => 12,
                 'md' => 6,
-                'array' => (object)array('type' => 'object', 'info' => $this->processes, 'item_text' => 'txtnombre', 'item_value' => 'iidproceso')
+                'array' => (object)array('type' => 'object', 'info' => self::getAllProcess(), 'item_text' => 'txtnombre', 'item_value' => 'iidproceso')
             ),
             'iidetapa' => (object)array(
                 'label' => 'Seleccione la etapa*',
@@ -241,7 +68,7 @@ class ProcessController extends BaseController
                 'rules' => 'required',
                 'cols' => 12,
                 'md' => 6,
-                'array' => (object)array('type' => 'object', 'info' => $this->stages, 'item_text' => 'txtetapa_nombre', 'item_value' => 'iidetapa')
+                'array' => (object)array('type' => 'object', 'info' => self::getAllStages(), 'item_text' => 'txtetapa_nombre', 'item_value' => 'iidetapa')
             ),
             'iidsubetapa' => (object)array(
                 'label' => 'Seleccione la subetapa*',
@@ -250,7 +77,7 @@ class ProcessController extends BaseController
                 'rules' => 'required',
                 'cols' => 12,
                 'md' => 6,
-                'array' => (object)array('type' => 'object', 'info' => $this->substages, 'item_text' => 'txtnombre', 'item_value' => 'iidsubetapa')
+                'array' => (object)array('type' => 'object', 'info' => self::getAllSubStages(), 'item_text' => 'txtnombre', 'item_value' => 'iidsubetapa')
             ),
             'iidsubetapa_siguiente' => (object)array(
                 'label' => 'Seleccione la subetapa siguiente*',
@@ -259,7 +86,7 @@ class ProcessController extends BaseController
                 'rules' => 'required',
                 'cols' => 12,
                 'md' => 6,
-                'array' => (object)array('type' => 'object', 'info' => $this->nextSubstagesEnabled, 'item_text' => 'txtnombre', 'item_value' => 'iidsubetapa')
+                'array' => (object)array('type' => 'object', 'info' => '', 'item_text' => 'txtnombre', 'item_value' => 'iidsubetapa')
             ),
             'txtnombre' => (object)array(
                 'label' => 'Nombre',
@@ -333,22 +160,22 @@ class ProcessController extends BaseController
                 'cols' => 6,
                 'md' => 3
             ),
-            'dtfecha_creacion' => (object)array(
-                'label' => '´Fecha de creación',
-                'type' => 'datetime',
-                'model' => 'dtfecha_creacion',
-                'rules' => null,
-                'cols' => 12,
-                'md' => 4
-            ),
-            'dtfecha_modificacion' => (object)array(
-                'label' => 'Fecha de modificación',
-                'type' => 'datetime',
-                'model' => 'dtfecha_modificacion',
-                'rules' => null,
-                'cols' => 12,
-                'md' => 4
-            ),
+            // 'dtfecha_creacion' => (object)array(
+            //     'label' => '´Fecha de creación',
+            //     'type' => 'datetime',
+            //     'model' => 'dtfecha_creacion',
+            //     'rules' => null,
+            //     'cols' => 12,
+            //     'md' => 4
+            // ),
+            // 'dtfecha_modificacion' => (object)array(
+            //     'label' => 'Fecha de modificación',
+            //     'type' => 'datetime',
+            //     'model' => 'dtfecha_modificacion',
+            //     'rules' => null,
+            //     'cols' => 12,
+            //     'md' => 4
+            // ),
             'bactivo' => (object)array(
                 'label' => 'Activo',
                 'type' => 'boolean',
@@ -384,6 +211,7 @@ class ProcessController extends BaseController
         $itemsPerPage = $data->itemsPerPage; // Obtener número de ítems por página
         $offset = ($data->page - 1) * $itemsPerPage; // Calcular offset
         $typeRegister = $data->filters->typeRegister ? $data->filters->typeRegister : 'Proceso';
+        // $typeRegister = $data->filters->typeRegister;
         switch ($typeRegister) {
             case 'Proceso':
                 $sql = "WITH registers AS (
@@ -439,6 +267,27 @@ class ProcessController extends BaseController
                             FROM comun.cat_subetapa dinamyc)
                         ";
                 break;
+            case 'Flujo':
+                $sql = "WITH registers AS (
+                            SELECT 
+                                dinamyc.iidsubetapa AS iidOfType,
+                                dinamyc.iidsubetapa,
+                                dinamyc.iidsubetapa_siguiente,
+                                dinamyc.bactivo,
+                                TO_CHAR(dinamyc.dtfecha_creacion, 'YYYY-MM-DD HH24:MI') AS dtfecha_creacion,
+                                TO_CHAR(dinamyc.dtfecha_modificacion, 'YYYY-MM-DD HH24:MI') AS dtfecha_modificacion,
+                                subetapa.txtnombre AS txtnombre,
+                                siguiente.txtnombre AS txtnombre_siguiente
+                            FROM comun.cat_flujo dinamyc
+                            LEFT JOIN comun.cat_subetapa AS subetapa ON dinamyc.iidsubetapa = subetapa.iidsubetapa
+                            LEFT JOIN comun.cat_subetapa AS siguiente ON dinamyc.iidsubetapa_siguiente = siguiente.iidsubetapa
+                            )
+                        ";
+                break;
+            default:
+                $message = "Tipo de registro no habilitado, contacte al administrador.";
+                throw new ValidatorBoomException(422, $message);
+                break;
         }
         $params = array();
         if ($data->filters) { // Aplicar filtros si están presentes en la solicitud
@@ -449,14 +298,11 @@ class ProcessController extends BaseController
             $sql .= 'SELECT *, COUNT(registers.iidOfType) OVER() AS total_registers FROM registers '; // Obtener perfiles sin filtros
         }
         $sql .= $this->sortRegisters($data->sortBy, $data->sortDesc); // Ordenar inspectores
-
         if ($itemsPerPage > 0) { // Si se especifica un número de ítems por página
             $sql .= 'LIMIT :items OFFSET :offset'; // Limitar resultados por página
             $params['items'] = $itemsPerPage; // Añadir parámetro de ítems por página
             $params['offset'] = $offset; // Añadir parámetro de offset
         }
-        // self::dep($sql);
-        // exit;
         $registers = Db::fetchAll($sql, $params); // Ejecutar consulta para obtener inspectores      
         $totalItems = $registers[0]->total_registers ?? 0; // Obtener total de inspectores
         $totalPages = ceil($totalItems / $itemsPerPage); // Calcular total de páginas
@@ -471,6 +317,7 @@ class ProcessController extends BaseController
     private function filterRegisters($filters)
     {
         $params = [];
+        
         $sql = "SELECT *, COUNT(registers.iidOfType) OVER() AS total_registers FROM registers ";
         $sql2 = 'WHERE '; // Inicializar fragmento de consulta para filtros
         foreach ($filters as $filter => $value) { // Para cada filtro
@@ -556,7 +403,7 @@ class ProcessController extends BaseController
 
     public function getAllSubStages()
     {
-      
+
         $sql = "SELECT 
                     iidsubetapa, txtnombre
                 FROM 
@@ -624,67 +471,23 @@ class ProcessController extends BaseController
     {
         $data = $this->request->getJsonRawBody();
 
-        // PROCESOS CON DATA
-        // VERIFICAR SI ES LA ÚLTIMA DEL FLUJO
         $currentSubStage = $this->subStage($data->idOfSubStage);
-        // ---------------------------------------------------------- UN FLUJO ----------------------------------------------------------
-        // $nextSubStage = $this->getNextSubStageFromFlow($data->idOfSubStage);
-        // $currentFlow=['currentSubStage' => $currentSubStage, 'nextSubStage'=>$nextSubStage];
-        // ---------------------------------------------------------- MAS DE UN FLUJO ----------------------------------------------------------
-        // $getNextsSubStages = $this->getNextSubStageFromFlow($data->idOfSubStage);
-        // if(count($getNextsSubStages) == 1){
-        //     self::dep('SOLO 1');
-        //     $nextSubStage = $this->getNextSubStageFromFlow($data->idOfSubStage);
-        // }elseif(count($getNextsSubStages)>1){
-        //     self::dep('mas de 1');
-        // }
-        // ---------------------------------------------------------- demos ----------------------------------------------------------
         $nextSubStage = $this->getNextSubStageFromFlow($data->idOfSubStage);
-        // self::dep($nextSubStage);
-        // exit;
         $currentFlow = ['currentSubStage' => $currentSubStage, 'nextSubStage' => $nextSubStage];
-        // else{
-        //     self::dep('ninguno');
-        // }
-        // self::dep($data);
-        // self::dep($nextSubStage);
-        // exit;
+
         $followUp = []; // ACA SE VA A RECUPERAR EL HISTORIAL POR EL QUE PASÓ O SE ESCOGIÓ, NO ES OBLIGATORIO
         if ($data->idOfType) {
             $followUp = $this->getDinamycTrace($data->type, $data->idOfType);
         }
-        // self::dep($currentFlow['currentSubStage']->iidsubetapa);exit;
+        $checkSubStages = $followUp['onlySubStages'];
+        $checkCurrentSubStage =  $currentFlow['currentSubStage']->iidsubetapa;
+        $markers = ['checkSubStages' => $checkSubStages, 'checkCurrentSubStage' => $checkCurrentSubStage];
         $getProcessBySubStage = $this->getProcessBySubStage($data->idOfSubStage);
-
-        // PROCESO GENERAL
-        $getStagesByProcess = $this->getStagesByProcess($getProcessBySubStage->iidproceso);
-        if (count($getStagesByProcess) > 0) {
-            foreach ($getStagesByProcess as $key => $stage) {
-                $subStages = $this->getSubStagesByStage($stage->iidetapa);
-                foreach ($subStages as $keySubStage => $subStage) {
-                    if (in_array($subStage->iidsubetapa, $followUp['onlySubStages'])) {
-                        // echo 'el: '.$subStage->iidsubetapa. ' se ha encontrado';
-                        $historicStatus = 'pasado';
-                    } elseif ($subStage->iidsubetapa == $currentFlow['currentSubStage']->iidsubetapa) {
-                        // echo 'es la actual: '.$subStage->iidsubetapa. ' ';
-                        $historicStatus = 'actualmente';
-                    } else {
-                        $historicStatus = 'pendiente';
-                        // echo 'el: '.$subStage->iidsubetapa. ' no se ha encontrado';
-                    }
-                    $subStages[$keySubStage]->historicStatus = $historicStatus;
-                }
-                $getStagesByProcess[$key]->subStages = $subStages;
-            }
-        }
-        // self::dep($getStagesByProcess);exit;
-
-        $getProcessBySubStage->etapas = $getStagesByProcess;
+        $flowComplete = self::getFlowByProcess($getProcessBySubStage->iidproceso, $markers);
+        $getProcessBySubStage->etapas = $flowComplete;
         // self::dep($getProcessBySubStage->etapas);exit;
         $allFlow = $getProcessBySubStage;
         $allData = ['currentFlow' => $currentFlow, 'followUp' => $followUp, 'allFlow' => $allFlow];
-        // self::dep($allData);
-        // exit;
         return $allData;
     }
 
@@ -699,11 +502,9 @@ class ProcessController extends BaseController
                 $getStagesByProcess[$key]->subStages = $subStages;
             }
             return ['info' => $getStagesByProcess, 'message' => 'Proceso encontrado'];
-        }else{
+        } else {
             return ['info' => $getStagesByProcess, 'message' => 'Proceso sin configuración, favor de verificar'];
         }
-        // self::dep($getStagesByProcess);
-        // exit;
     }
 
 
@@ -725,31 +526,52 @@ class ProcessController extends BaseController
     //     "total_registers"=> 12
     // ];
     // $objetoInicial = json_decode(json_encode($objetoInicial));
-    public function getFlowByProcess()
+    public function getFlowByProcess($iidproceso=0, $markers=[])
     {
-        $data = $this->request->getJsonRawBody();
-        $getStagesByProcess = $this->getStagesByProcess($data->iidproceso);
-        $objetoInicial = null;
+        // $iidproceso=1;
 
-            // self::dep($getStagesByProcess);exit;
-        
+        // exit;
+        if(!$iidproceso){
+            $data = $this->request->getJsonRawBody();
+            $getStagesByProcess = $this->getStagesByProcess($data->iidproceso);
+        }else{
+            $getStagesByProcess = $this->getStagesByProcess($iidproceso);
+        }
+        // $insertIcons=self::leerChildrenDinamicamente($info[0],$markers);
+        $objetoInicial = null;
         foreach ($getStagesByProcess as $stage) {
             $subStages = $this->getSubStagesByStage($stage->iidetapa);
+            // self::dep($markers);exit;
             foreach ($subStages as $subStage) {
+                // self::dep($markers);exit;
+                if($markers){
+                    if(in_array($subStage->iidsubetapa,$markers['checkSubStages']) && $subStage->iidsubetapa != $markers['checkCurrentSubStage']){
+                        $subStage->textIcon = 'Encontrado en flujo' . $subStage->iidsubetapa;
+                        $subStage->icon = 'mdi-checkbox-blank-circle';
+                    }elseif($subStage->iidsubetapa ==$markers['checkCurrentSubStage']){
+                        $subStage->textIcon = 'Encontrado en flujo actual' . $subStage->iidsubetapa;
+                        $subStage->icon = 'mdi-check-circle';
+                    }else{
+                        $subStage->textIcon = 'No encontrado en flujo' . $subStage->iidsubetapa;
+                        $subStage->icon = 'mdi-checkbox-blank-circle-outline';
+                    }
+                }
                 if ($subStage->binicial) {
-                    $objetoInicial = $this->construirArbol($subStage, $subStage->iidsubetapa);
+                    $objetoInicial = $this->construirArbol($subStage, $subStage->iidsubetapa, [], $markers);
                     break 2; // Salir de ambos bucles
                 }
             }
         }
-
+        
+        // self::dep($objetoInicial);
+        // exit;
         if (!$objetoInicial) {
             return ['success' => true, 'message' => 'No se ha encontrado una etapa inicial, verifique la configuración del proceso'];
         }
-
         $formattedObject = $this->formatObjectForJavaScript($objetoInicial);
-
-        return ['success' => true, 'message' => 'Flujo encontrado.', 'info' => $objetoInicial, 'info2' => $formattedObject];
+        // $formateo[0]=$objetoInicial;
+        // $formattedObject = $this->formatObjectForJavaScript($formateo);
+        return ['success' => true, 'message' => '', 'info' => $objetoInicial, 'info2' => $formattedObject];
     }
 
     public function getAllNextSubStagesEnabled()
@@ -761,17 +583,15 @@ class ProcessController extends BaseController
         foreach ($getStagesByProcess as $stage) {
             $subStages = $this->getSubStagesByStage($stage->iidetapa);
             foreach ($subStages as $keySubStage => $subStage) {
-                // self::dep($data->iidsubetapa);
-                if($subStage->iidsubetapa != $data->iidsubetapa){
-                    $onlySubStages[]=$subStage;
+                if ($subStage->iidsubetapa != $data->iidsubetapa) {
+                    $onlySubStages[] = $subStage;
                 }
             }
         }
-        if(!$onlySubStages){
+        if (!$onlySubStages) {
             return ['success' => true, 'message' => 'No hay subetapas configuradas en este proceso.'];
-        }else{
+        } else {
             return ['success' => true, 'message' => 'Subetapas disponibles.', 'info' => $onlySubStages];
-
         }
     }
 
@@ -785,23 +605,33 @@ class ProcessController extends BaseController
     function formatObjectForJavaScript($object)
     {
         $formattedItems = [];
-
+        // self::dep($object);
         foreach ($object->children as $child) {
-            $formattedChild = [
-                'id' => $child->iidsubetapa,
-                'name' => $child->subetapa_nombre,
-                'icon'=> 'mdi-check-circle',
-                'children' => $this->formatObjectForJavaScript($child)
-            ];
-
+            // self::dep($child);
+            if($child->icon){
+                $formattedChild = [
+                    'id' => $child->iidsubetapa,
+                    'name' => $child->subetapa_nombre,
+                    'icon' => $child->icon,
+                    'children' => $this->formatObjectForJavaScript($child)
+                ];
+            }else{
+                $formattedChild = [
+                    'id' => $child->iidsubetapa,
+                    'name' => $child->subetapa_nombre,
+                    'icon' => 'mdi-check-circle',
+                    'children' => $this->formatObjectForJavaScript($child)
+                ];
+            }
             $formattedItems[] = $formattedChild;
-        }
 
+        }
+        // var_dump($formattedItems);exit;
         return $formattedItems;
     }
 
 
-    public function getNextSubStageFromFlow($iidSubStage)
+    public function getNextSubStageFromFlow($iidSubStage,$markers=[])
     {
         $sql = "SELECT iidsubetapa_siguiente
                 FROM comun.cat_flujo
@@ -812,29 +642,29 @@ class ProcessController extends BaseController
 
         $nextSubStages = array();
         foreach ($currentFlow as $row) {
-            $nextSubStages[] = $this->subStage($row->iidsubetapa_siguiente);
+            $nextSubStages[] = $this->subStage($row->iidsubetapa_siguiente,$markers);
         }
 
         return $nextSubStages;
     }
 
     // Función para construir el árbol
-    function construirArbol($objetoInicial, $getNextSubStageFunction, $processedSubStages = array())
+    function construirArbol($objetoInicial, $getNextSubStageFunction, $processedSubStages = array(), $markers =[])
     {
-        $nextSubStages = $this->getNextSubStageFromFlow($getNextSubStageFunction);
-
+        // self::dep($markers);exit;
+        $nextSubStages = $this->getNextSubStageFromFlow($getNextSubStageFunction, $markers);
+        // self::dep($nextSubStages);
         // Si no hay subetapas siguientes o ya hemos procesado esta subetapa, retornamos el objeto inicial
         if (empty($nextSubStages) || in_array($objetoInicial->iidsubetapa, $processedSubStages)) {
             return $objetoInicial;
         }
-
+        
         // Añadimos la subetapa actual al conjunto de subetapas procesadas
         $processedSubStages[] = $objetoInicial->iidsubetapa;
-
         $objetoInicial->children = array();
         foreach ($nextSubStages as $subStage) {
             // Llamamos recursivamente a construirArbol solo si no hemos procesado esta subetapa antes
-            $objetoInicial->children[] = $this->construirArbol($subStage, $subStage->iidsubetapa, $processedSubStages);
+            $objetoInicial->children[] = $this->construirArbol($subStage, $subStage->iidsubetapa, $processedSubStages, $markers);
         }
         return $objetoInicial;
     }
@@ -954,16 +784,15 @@ class ProcessController extends BaseController
         $onlyStages = [];
         $onlySubStages = [];
         foreach ($foundRequest as $key => $found) {
-            array_push($onlyStages, $found->iidetapa_anterior);
-            array_push($onlySubStages, $found->iidsubetapa_anterior);
+            array_push($onlyStages, $found->iidetapa_actual);
+            array_push($onlySubStages, $found->iidsubetapa_actual);
         }
         $foundRequest['onlyStages'] = $onlyStages;
         $foundRequest['onlySubStages'] = $onlySubStages;
-        // self::dep($foundRequest);exit;
         return $foundRequest; // Devolver información del inspector
     }
 
-    public function subStage($iidSubStage)
+    public function subStage($iidSubStage,$markers=[])
     {
         $sql = "SELECT 
                     s.iidsubetapa,
@@ -987,7 +816,23 @@ class ProcessController extends BaseController
                     s.bactivo = 't' AND s.iidsubetapa = :iidsubetapa
         ";
         $params = array('iidsubetapa' => $iidSubStage);
-        return Db::fetch($sql, $params);
+        $subStage = Db::fetch($sql, $params);
+
+        if($markers){
+            if(in_array($subStage->iidsubetapa,$markers['checkSubStages']) && $subStage->iidsubetapa != $markers['checkCurrentSubStage']){
+                $subStage->textIcon = 'subStage - Encontrado en flujo' . $subStage->iidsubetapa;
+                $subStage->icon = 'mdi-checkbox-blank-circle';
+            }elseif($subStage->iidsubetapa ==$markers['checkCurrentSubStage']){
+                $subStage->textIcon = 'subStage - Encontrado en flujo actual' . $subStage->iidsubetapa;
+                $subStage->icon = 'mdi-check-circle';
+            }else{
+                $subStage->textIcon = 'subStage - No encontrado en flujo' . $subStage->iidsubetapa;
+                $subStage->icon = 'mdi-checkbox-blank-circle-outline';
+            }
+            // self::dep($subStage);exit;
+        }
+        // self::dep($subStage);
+        return $subStage;
     }
 
 
@@ -1092,8 +937,6 @@ class ProcessController extends BaseController
         }
 
         $this->validRequiredData($data, $data->typeRegister); // Validar datos requeridos
-        // self::dep($data);
-        // exit;
         try {
             Db::begin(); // Iniciar transacción en la base de datos
 
@@ -1117,10 +960,10 @@ class ProcessController extends BaseController
                         'txtsigla' => $data->txtsigla,
                         'txtcolor' => $data->txtcolor,
                         'txtpermiso' => $data->txtpermiso,
-                        'binicial' => $data->binicial,
-                        'bfinal' => $data->bfinal,
-                        'bcancelacion' => $data->bcancelacion,
-                        'brequiere_motivo' => $data->brequiere_motivo,
+                        'binicial' => !empty($data->binicial) ? $data->binicial : 'f',
+                        'bfinal' => !empty($data->bfinal) ? $data->bfinal : 'f',
+                        'bcancelacion' => !empty($data->bcancelacion) ? $data->bcancelacion : 'f',
+                        'brequiere_motivo' => !empty($data->brequiere_motivo) ? $data->brequiere_motivo : 'f',
                         'dtfecha_creacion' => date('Y-m-d H:i:s'),
                     );
                     break;
@@ -1133,10 +976,18 @@ class ProcessController extends BaseController
                         'txtsigla' => $data->txtsigla,
                         'txtcolor' => $data->txtcolor,
                         'txtpermiso' => $data->txtpermiso,
-                        'binicial' => $data->binicial,
-                        'bfinal' => $data->bfinal,
-                        'bcancelacion' => $data->bcancelacion,
-                        'brequiere_motivo' => $data->brequiere_motivo,
+                        'binicial' => !empty($data->binicial) ? $data->binicial : 'f',
+                        'bfinal' => !empty($data->bfinal) ? $data->bfinal : 'f',
+                        'bcancelacion' => !empty($data->bcancelacion) ? $data->bcancelacion : 'f',
+                        'brequiere_motivo' => !empty($data->brequiere_motivo) ? $data->brequiere_motivo : 'f',
+                        'dtfecha_creacion' => date('Y-m-d H:i:s'),
+                    );
+                    break;
+                case 'Flujo':
+                    $table = 'comun.cat_flujo';
+                    $params = array(
+                        'iidsubetapa'  => $data->iidsubetapa,
+                        'iidsubetapa_siguiente' => $data->iidsubetapa_siguiente,
                         'dtfecha_creacion' => date('Y-m-d H:i:s'),
                     );
                     break;
@@ -1169,8 +1020,6 @@ class ProcessController extends BaseController
         }
 
         $this->validRequiredData($data, $data->typeRegister); // Validar datos requeridos
-        // self::dep($data);
-        // exit;
         try {
             Db::begin();
             switch ($data->typeRegister) {
@@ -1288,6 +1137,9 @@ class ProcessController extends BaseController
             case 'Subetapa':
                 $requiredKeys = array('iidetapa', 'txtnombre', 'txtsigla'); // Claves requeridas
                 break;
+            case 'Flujo':
+                $requiredKeys = array('iidsubetapa', 'iidsubetapa_siguiente'); // Claves requeridas
+                break;
             default:
                 $message = "Tipo de registro no reconocido.";
                 throw new ValidatorBoomException(422, $message);
@@ -1307,6 +1159,8 @@ class ProcessController extends BaseController
                 case 'iidmodulo':
                 case 'iidproceso':
                 case 'iidetapa':
+                case 'iidsubetapa':
+                case 'iidsubetapa_siguiente':
                     $message = "Tipo de valor incorrectos en $key.";
                     if (!is_int($value)) throw new ValidatorBoomException(422, $message);
                     break;

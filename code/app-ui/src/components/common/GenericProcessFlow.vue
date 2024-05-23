@@ -84,7 +84,7 @@
         <generic-dialog :dialogVisible="dialogRequestTrace" dialogTitle="Visualizar seguimiento"
             @update:dialogVisible="dialogRequestTrace = $event" @confirm="dialogRequestTrace = false">
             <template v-slot:default>
-                {{ treeData }}
+                Movimientos en el flujo: {{ allFlow.txtnombre }}
                 <template>
                     <v-treeview :items="treeData" :expanded.sync="expandedItems" activatable color="primary" transition
                         open-all open-on-click>
@@ -318,7 +318,8 @@ export default {
                 this.allFlow = allInfo.allFlow
                 this.currentFlow = allInfo.currentFlow
                 this.followUp = allInfo.followUp
-                this.treeData = this.convertToTreeStructure(allInfo.allFlow.etapas);
+                this.treeData = allInfo.allFlow.etapas.info2
+                // this.treeData = this.convertToTreeStructure(allInfo.allFlow.etapas);
                 console.log(this.requestDinamyc)
                 if (!this.requestDinamyc.type) { // Si no hay un id en especifico para buscar se mostrará un modal que diciendo que solo es fase de pruebas
                     // this.lastSubStage = true
