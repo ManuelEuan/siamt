@@ -29,7 +29,61 @@ class WorkloadsController extends BaseController
         return $format;
     }
 
-    public function getAllZonesInspector()
+    public function getStructureFormWorkloads(){
+        $formulario = [
+            'iidzona' => [
+                'label' => 'Seleccione el módulo*',
+                'type' => 'autocomplete',
+                'model' => 'iidzona',
+                'rules' => 'required',
+                'cols' => 12,
+                'md' => 6,
+                'array' => ['type' => 'object', 'info' => self::getAllZones(), 'item_text' => 'txtnombre', 'item_value' => 'iidzona']
+            ],
+            'txtnombre' => [
+                'label' => 'Nombre',
+                'type' => 'text',
+                'model' => 'txtnombre',
+                'rules' => 'required',
+                'cols' => 12,
+                'md' => 6
+            ],
+            'dfecha_inicial' => (object)array(
+                'label' => '´Fecha inicio',
+                'type' => 'date',
+                'model' => 'dfecha_inicial',
+                'rules' => null,
+                'cols' => 12,
+                'md' => 4
+            ),
+            'dfecha_final' => (object)array(
+                'label' => 'Fecha final',
+                'type' => 'date',
+                'model' => 'dfecha_final',
+                'rules' => null,
+                'cols' => 12,
+                'md' => 4
+            ),
+            'txtcomentario' => [
+                'label' => 'Nombre',
+                'type' => 'textarea',
+                'model' => 'txtcomentario',
+                'rules' => 'required',
+                'cols' => 12,
+                'md' => 12
+            ],
+            // 'bactivo' => [
+            //     'label' => 'Activo',
+            //     'type' => 'boolean',
+            //     'model' => 'bactivo',
+            //     'cols' => 6,
+            //     'md' => 4
+            // ],
+        ];
+        return $formulario;
+    }
+
+    public function getAllZones()
     {
         $sql = "SELECT 
             iidzona,

@@ -258,29 +258,21 @@ export default {
             selectedRegister: null,
             sendFieldsWithValues: {},
             validForm: false,
-            process: {
-                iidproceso: 0
-            },
-            flow: {
-                iidproceso: 0
-            },
+            process: { iidproceso: 0 },
+            flow: { iidproceso: 0 },
             filters: {
                 active: '',
                 name: '',
                 typeRegister: 'Proceso',
             },
             items: {
-                active: [
-                    { text: 'activo', value: 't' },
-                    { text: 'inactivo', value: 'f' },
-                ],
+                active: [{ text: 'activo', value: 't' }, { text: 'inactivo', value: 'f' }],
                 roles: [],
             },
-
             formFields: {},
-            dinamycRemoveFields: [],  // Decide quita el campo,
-            dinamycHiddenFields: [], // Decide si estará oculto el campo,
-            dinamycDisabledFields: [], // Decide si estará visible el campo pero deshabilitado,
+            dinamycRemoveFields: [],
+            dinamycHiddenFields: [],
+            dinamycDisabledFields: [],
             form: {
                 typeRegister: 'Proceso',
                 txtnombre: '',
@@ -290,12 +282,8 @@ export default {
                 brequiere_motivo: 'f',
                 bactivo: 'f',
             },
-
             formularioDB: {},
-            // REGLAS
-            rules: {
-                ...rules,
-            },
+            rules: { ...rules },
             peopleModulePermissions: [],
             dialogViewRegister: false,
             dialogViewProcess: false,
@@ -304,7 +292,7 @@ export default {
                 dinamycRegisterInProcess: [],
                 page: 1,
                 itemsPerPage: 10,
-                sortBy: ['txtnombre'],//nombre
+                sortBy: ['txtnombre'],
                 sortDesc: [false],
                 multiSort: true,
                 mustSort: false,
@@ -322,174 +310,91 @@ export default {
                 dtfecha_modificacion: "Fecha modificación",
             },
             headersDatatable: [
-                {text: "Nombre", value: "txtnombre", align: "center", class: "font-weight-bold"},
-                {text: "Descripción", value: "txtdescripcion", align: "center", class: "font-weight-bold"},
-                {text: "Activo", value: "bactivo", align: "center", class: "font-weight-bold"},
-                {text: "Acciones", value: "acciones", align: "center", sortable: false, width: "196px"},
+                { text: "Nombre", value: "txtnombre", align: "center", class: "font-weight-bold" },
+                { text: "Descripción", value: "txtdescripcion", align: "center", class: "font-weight-bold" },
+                { text: "Activo", value: "bactivo", align: "center", class: "font-weight-bold" },
+                { text: "Acciones", value: "acciones", align: "center", sortable: false, width: "196px" },
             ],
         }
     },
     computed: {
         ...mapState('app', ['dinamycRegisterInProcessFilters', 'dinamycRegisterInProcess', 'dinamycRegisterInProcessTotalPages', 'dinamycRegisterInProcessTotalItems']),
         activeFilters() {
-            return Object
-                .values(this.dinamycRegisterInProcessFilters)
+            return Object.values(this.dinamycRegisterInProcessFilters)
                 .filter(v => v && (typeof (v) === 'string' ? v.trim() : v.length))
                 .length;
         }
     },
+
     methods: {
         ...mapActions('app', ['getDinamycRegisterInProcess', 'showSuccess', 'showError']),
-        cleanFilters() {
+        // FILTROS
+        async cleanFilters() {
             this.filters = { active: '', name: '', username: '', roles: [] };
-        },
-        async getFlowByProcess(iidproceso) {
-            try {
-                let info = await services.inspections().getFlowByProcess({ iidproceso });
-                console.log(info.info)
-                this.treeFlow = info.info2
-                this.flowMessage = info.message
-                // this.showSuccess(this.flowMessage);
-            } catch (error) {
-                const message = 'Error al precuperar el flujo ';
-                this.showError({ message, error });
-            }
-        },
-
-        async getProcessWithStagesAndSubstages(iidproceso) {
-            try {
-                let info = await services.inspections().getProcessWithStagesAndSubstages({ iidproceso });
-                // let objectProcess = this.convertToTreeStructure(info.info);
-                this.treeProcess = this.convertToTreeStructure(info.info);
-                this.processMessage = info.message
-                this.showSuccess(this.processMessage);
-            } catch (error) {
-                const message = 'Error al precuperar los módulos ';
-                this.showError({ message, error });
-            }
-        },
-        convertToTreeStructure(etapas) {
-            return etapas.map(etapa => {
-                return {
-                    id: etapa.iidetapa,
-                    name: `Etapa: ${etapa.nombre_etapa}`,
-                    icon: 'mdi-check-circle',
-                    children: (etapa.subStages || []).map(subEtapa => {
-                        return {
-                            id: `${etapa.iidetapa}.${subEtapa.iidsubetapa}`,
-                            name: `SubEtapa: ${subEtapa.txtnombre}`,
-                            icon: 'mdi-check-circle'
-                        };
-                    })
-                };
-            });
-        },
-        async saveRegisterDinamyc() {
-
-            // this.modules =
-            try {
-                console.log('datos a enviar')
-                console.log(this.form)
-                if (!this.form.iidoftype) {
-                    let saveRegister = await services.inspections().newRegisterInProcess(this.form);
-                    console.log('this.saveRegister')
-                    console.log(saveRegister)
-                    let message = saveRegister.message
-                    this.showSuccess(message);
-                    // this.typeRegister = this.form.typeRegister
-                    this.formFields.typeRegister.model = this.form.typeRegister
-                    this.applyRulesForDinamycForm()
-                } else {
-                    let saveRegister = await services.inspections().updateRegisterInProcess(this.form);
-                    console.log('this.saveRegister')
-                    console.log(saveRegister)
-                    let message = saveRegister.message
-                    this.showSuccess(message);
-                }
-                this.loadDinamycRegisterInProcessTable()
-            } catch (error) {
-                const message = 'Error al guardar el registro ';
-                this.showError({ message, error });
-            }
-        },
-        async applyFilters() {
-            const filters = this.filters; // Recuperación de filtros
-            this.dinamycName = this.filters.typeRegister // Nombre dinámico según registros
-            this.formFields.typeRegister.model = this.filters.typeRegister
-            console.log(filters)
-            await this.getDinamycRegisterInProcess({ filters });
-            if (this.filters.typeRegister === 'Flujo') {
-                this.headersDatatable = [
-                    { text: "Etapa actual", value: "txtnombre", align: "center", class: "font-weight-bold" },
-                    { text: "Etapa siguiente", value: "txtnombre_siguiente", align: "center", class: "font-weight-bold" },
-                    { text: "Activo", value: "bactivo", align: "center", class: "font-weight-bold" },
-                    { text: "Acciones", value: "acciones", align: "center", sortable: false, width: "196px" }
-                ];
-            } else {
-                this.headersDatatable = [
-                    { text: "Nombre", value: "txtnombre", align: "center", class: "font-weight-bold" },
-                    { text: "Descripción", value: "txtdescripcion", align: "center", class: "font-weight-bold" },
-                    { text: "Activo", value: "bactivo", align: "center", class: "font-weight-bold" },
-                    { text: "Acciones", value: "acciones", align: "center", sortable: false, width: "196px" }
-                ];
-            }
-            this.dialog = false;
         },
         closeFilters() {
             this.filters = { ...this.dinamycRegisterInProcessFilters };
             this.dialog = false;
         },
+        // VALIDACIÓN FORMULARIO DINÁMICO
+        applyRulesForDinamycForm() {
+            if (this.form.typeRegister === 'Proceso') {
+                this.dinamycRemoveFields = ['iidproceso', 'iidetapa', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'iidsubetapa', 'iidsubetapa_siguiente']
+                this.dinamycHiddenFields = []
+                this.dinamycDisabledFields = []
+            } else if (this.form.typeRegister === 'Etapa') {
+                this.dinamycRemoveFields = ['iidmodulo', 'iidetapa', 'iidsubetapa', 'iidsubetapa_siguiente']
+                this.dinamycHiddenFields = []
+                this.dinamycDisabledFields = []
+            } else if (this.form.typeRegister === 'Subetapa') {
+                this.dinamycRemoveFields = ['iidproceso', 'iidmodulo', 'iidsubetapa', 'iidsubetapa_siguiente']
+                this.dinamycHiddenFields = []
+                this.dinamycDisabledFields = []
+            } else if (this.form.typeRegister === 'Flujo') {
+                this.dinamycRemoveFields = ['iidetapa', 'iidmodulo', 'iidproceso', 'txtnombre', 'txtdescripcion', 'txtsigla', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo']
+                this.dinamycDisabledFields = []
+                this.dinamycHiddenFields = []
+                // this.sendFieldsWithValues.iidsubetapa_siguiente
+                console.log('this.sendFieldsWithValues desde applyrules')
+                console.log(this.sendFieldsWithValues)
+                if (this.sendFieldsWithValues.iidsubetapa_siguiente) {
+                    this.getAllNextSubStagesEnabled(this.sendFieldsWithValues.iidsubetapa, this.sendFieldsWithValues.iidsubetapa_siguiente)
 
-        async getAllNextSubStagesEnabled(value, valueNext = 0) {
-            try {
-                console.log('this.form*********')
-                console.log(this.form)
-                let info = await services.inspections().getAllNextSubStagesEnabled({ 'iidsubetapa': value });
-                console.log('info next substage')
-                console.log(info)
-                // this.dinamycDisabledFields = this.dinamycDisabledFields.filter(item => item !== 'iidsubetapa_siguiente');
-                this.nextSubstagesEnabled = info.info
-                console.log('ultimo')
-                this.formFields.iidsubetapa_siguiente.array.info = info.info
-                if (valueNext) {
-                    this.formFields.iidsubetapa_siguiente.model = valueNext
                 }
-                this.showSuccess(info.message);
-            } catch (error) {
-                const message = 'Error al precuperar los módulos ';
-                this.showError({ message, error });
+
+            }
+            else {
+                this.showError({ 'message': 'Tipo de registro no configurado' })
+            }
+            if (!this.newRegister) {
+                this.dinamycHiddenFields = ['typeRegister']
+                this.dinamycDisabledFields = ['txtsigla', 'dtfecha_creacion', 'dtfecha_modificacion']
+            }else{
+                this.dinamycHiddenFields = ['bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
             }
         },
-
-        async dataFirstForm() {
-            try {
-                let formulario = await services.inspections().getStructureFirstForm();
-                console.log('-----formulario')
-                console.log(formulario)
-                this.formFields = formulario
-            } catch (error) {
-                const message = 'Error al precuperar los formulario ';
-                this.showError({ message, error });
-            }
+        // HANDLERS
+        handleGenericFormValidationConfirm(valid) {
+            console.log('Retorno de generic-form-validation valid-form ')
+            this.validForm = valid
         },
-
-        async setRegisterInForm() {
-            try {
-                this.formularioDB = await services.inspections().getStructureFirstForm();
-
-            } catch (error) {
-                const message = 'Error al precuperar los formulario ';
-                this.showError({ message, error });
+        async handleGenericFormValidationNewValues(key, value) {
+            console.log('Retorno de generic-form-validation key-values ')
+            console.log(key, value)
+            if (key == 'typeRegister') {
+                console.log('Cambio en typeRegister ')
+                this.form.typeRegister = value
             }
-        },
+            if (key == 'iidsubetapa') {
+                console.log('Cambio en iidsubetapa ')
+                await this.getAllNextSubStagesEnabled(value)
+            }
 
-
-        async loadDinamycRegisterInProcessTable() {
-
-            const { page, itemsPerPage, sortBy, sortDesc } = this.options;
-            const data = { page, itemsPerPage, sortBy, sortDesc };
-            this.getDinamycRegisterInProcess({ data });
-            this.loadingTable = false;
+            this.form[key] = value
+            this.applyRulesForDinamycForm()
+            // this.dinamycDisabledFields.push('iidsubetapa_siguiente')
+            console.log('this.form')
+            console.log(this.form)
         },
         actionsHandler(register, action) {
             switch (action) {
@@ -501,8 +406,6 @@ export default {
                     console.log('action new')
                     console.log(this.formFields)
                     this.applyRulesForDinamycForm()
-                    this.dinamycRemoveFields = ['iidmodulo', 'iidproceso', 'iidetapa', 'iidsubetapa', 'iidsubetapa_siguiente', 'txtnombre', 'txtdescripcion', 'txtsigla', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'bactivo', 'dtfecha_creacion', 'dtfecha_modificacion'],  // Decide quita el campo,
-                        this.dinamycRemoveFields.push('bactivo', 'dtfecha_creacion', 'dtfecha_modificacion');
                     this.form.iidoftype = 0
                     break;
                 case 'edit':
@@ -540,76 +443,116 @@ export default {
                 default: this.$refs.dialogs.show[action] = true;
             }
         },
-        handleGenericFormValidationConfirm(valid) {
-            console.log('Retorno de generic-form-validation valid-form ')
-
-            console.log(valid);
-            this.validForm = valid
-            // this.validForm = valid
+        async getFlowByProcess(iidproceso) {
+            try {
+                const info = await services.inspections().getFlowByProcess({ iidproceso });
+                this.treeFlow = info.info2;
+                this.flowMessage = info.message;
+            } catch (error) {
+                this.showError({ message: 'Error al recuperar el flujo', error });
+            }
         },
-        async handleGenericFormValidationNewValues(key, value) {
-            console.log('Retorno de generic-form-validation key-values ')
-            console.log(key, value)
-            if (key == 'typeRegister') {
-                console.log('Cambio en typeRegister ')
-                this.form.typeRegister = value
+        async getProcessWithStagesAndSubstages(iidproceso) {
+            try {
+                const info = await services.inspections().getProcessWithStagesAndSubstages({ iidproceso });
+                this.treeProcess = this.convertToTreeStructure(info.info);
+                this.processMessage = info.message;
+                this.showSuccess(this.processMessage);
+            } catch (error) {
+                this.showError({ message: 'Error al recuperar los módulos', error });
             }
-            if (key == 'iidsubetapa') {
-                console.log('Cambio en iidsubetapa ')
-                await this.getAllNextSubStagesEnabled(value)
-            }
-
-            this.form[key] = value
-            this.applyRulesForDinamycForm()
-            // this.dinamycDisabledFields.push('iidsubetapa_siguiente')
-            console.log('this.form')
-            console.log(this.form)
         },
-        applyRulesForDinamycForm() {
-            if (this.form.typeRegister === 'Proceso') {
-                this.dinamycRemoveFields = ['iidproceso', 'iidetapa', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'iidsubetapa', 'iidsubetapa_siguiente', 'bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
-                this.dinamycHiddenFields = []
-                this.dinamycDisabledFields = []
-            } else if (this.form.typeRegister === 'Etapa') {
-                this.dinamycRemoveFields = ['iidmodulo', 'iidetapa', 'iidsubetapa', 'iidsubetapa_siguiente', 'bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
-                this.dinamycHiddenFields = []
-                this.dinamycDisabledFields = []
-            } else if (this.form.typeRegister === 'Subetapa') {
-                this.dinamycRemoveFields = ['iidproceso', 'iidmodulo', 'iidsubetapa', 'iidsubetapa_siguiente', 'bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
-                this.dinamycHiddenFields = []
-                this.dinamycDisabledFields = []
-            } else if (this.form.typeRegister === 'Flujo') {
-                this.dinamycRemoveFields = ['iidetapa', 'iidmodulo', 'iidproceso', 'txtnombre', 'txtdescripcion', 'txtsigla', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
-                this.dinamycDisabledFields = []
-                this.dinamycHiddenFields = []
-                // this.sendFieldsWithValues.iidsubetapa_siguiente
-                console.log('this.sendFieldsWithValues desde applyrules')
-                console.log(this.sendFieldsWithValues)
-                if (this.sendFieldsWithValues.iidsubetapa_siguiente) {
-                    this.getAllNextSubStagesEnabled(this.sendFieldsWithValues.iidsubetapa, this.sendFieldsWithValues.iidsubetapa_siguiente)
+        convertToTreeStructure(etapas) {
+            return etapas.map(etapa => ({
+                id: etapa.iidetapa,
+                name: `Etapa: ${etapa.nombre_etapa}`,
+                icon: 'mdi-check-circle',
+                children: (etapa.subStages || []).map(subEtapa => ({
+                    id: `${etapa.iidetapa}.${subEtapa.iidsubetapa}`,
+                    name: `SubEtapa: ${subEtapa.txtnombre}`,
+                    icon: 'mdi-check-circle'
+                }))
+            }));
+        },
+        async saveRegisterDinamyc() {
+            try {
+                const saveRegister = this.form.iidoftype ?
+                    await services.inspections().updateRegisterInProcess(this.form) :
+                    await services.inspections().newRegisterInProcess(this.form);
 
-                }
+                this.showSuccess(saveRegister.message);
+                this.formFields.typeRegister.model = this.form.typeRegister;
+                this.applyRulesForDinamycForm();
+                this.loadDinamycRegisterInProcessTable();
+            } catch (error) {
+                this.showError({ message: 'Error al guardar el registro', error });
             }
-            else {
-                this.showError({ 'message': 'Tipo de registro no configurado' })
+        },
+        async applyFilters() {
+            try {
+                this.dinamycName = this.filters.typeRegister;
+                this.formFields.typeRegister.model = this.filters.typeRegister;
+                await this.getDinamycRegisterInProcess({ filters: this.filters });
+
+                this.headersDatatable = this.filters.typeRegister === 'Flujo' ?
+                    [
+                        { text: "Etapa actual", value: "txtnombre", align: "center", class: "font-weight-bold" },
+                        { text: "Etapa siguiente", value: "txtnombre_siguiente", align: "center", class: "font-weight-bold" },
+                        { text: "Activo", value: "bactivo", align: "center", class: "font-weight-bold" },
+                        { text: "Acciones", value: "acciones", align: "center", sortable: false, width: "196px" }
+                    ] :
+                    [
+                        { text: "Nombre", value: "txtnombre", align: "center", class: "font-weight-bold" },
+                        { text: "Descripción", value: "txtdescripcion", align: "center", class: "font-weight-bold" },
+                        { text: "Activo", value: "bactivo", align: "center", class: "font-weight-bold" },
+                        { text: "Acciones", value: "acciones", align: "center", sortable: false, width: "196px" }
+                    ];
+
+                this.dialog = false;
+            } catch (error) {
+                this.showError({ message: 'Error al aplicar filtros', error });
             }
-            if (!this.newRegister) {
-                this.dinamycHiddenFields = ['typeRegister']
+        },
+        async getAllNextSubStagesEnabled(value, valueNext = 0) {
+            try {
+                const info = await services.inspections().getAllNextSubStagesEnabled({ 'iidsubetapa': value });
+                this.nextSubstagesEnabled = info.info;
+                this.formFields.iidsubetapa_siguiente.array.info = info.info;
+                if (valueNext) this.formFields.iidsubetapa_siguiente.model = valueNext;
+                this.showSuccess(info.message);
+            } catch (error) {
+                this.showError({ message: 'Error al recuperar los módulos', error });
             }
-        }
+        },
+        async dataFirstForm() {
+            try {
+                this.formFields = await services.inspections().getStructureFirstForm();
+            } catch (error) {
+                this.showError({ message: 'Error al recuperar los formularios', error });
+            }
+        },
+        async loadDinamycRegisterInProcessTable() {
+            try {
+                const { page, itemsPerPage, sortBy, sortDesc } = this.options;
+                const data = { page, itemsPerPage, sortBy, sortDesc };
+                await this.getDinamycRegisterInProcess({ data });
+                this.loadingTable = false;
+            } catch (error) {
+                this.showError({ message: 'Error al cargar la tabla de registros', error });
+            }
+        },
+        // Otros métodos...
     },
     watch: {
-
         options: {
-            async handler() {
-                await this.loadDinamycRegisterInProcessTable();
-            },
+            handler() { this.loadDinamycRegisterInProcessTable(); },
             deep: true,
         },
     },
     async mounted() {
-        await this.dataFirstForm()
-        await this.applyFilters()
+        await this.dataFirstForm();
+        await this.applyFilters();
+        // this.loadUserPermissions();
         let user = await services.app().getUserConfig();
         let getActivePermissionsFromUser = await services.admin().getActivePermissionsFromUser(user[0].id);
         this.peopleModulePermissions = getActivePermissionsFromUser.map(permission => permission.siglas);

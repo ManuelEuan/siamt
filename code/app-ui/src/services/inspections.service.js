@@ -37,9 +37,6 @@ export default class InspectionsService extends ApiService {
     return await this.get("/inspectors/getAllShiftsInspector");
   }
 
-  async getAllZonesInspector() {
-    return await this.get("/workloads/getAllZonesInspector");
-  }
 
   async getAllSexes() {
     return await this.get("/persons/getAllSexes");
@@ -199,7 +196,7 @@ export default class InspectionsService extends ApiService {
   }
 
   async getStructureFormWorkloads() {
-    return await this.get("/inspectors/getStructureFormWorkloads");
+    return await this.get("/workloads/getStructureFormWorkloads");
   }
   
 

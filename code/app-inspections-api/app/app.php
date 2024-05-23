@@ -31,7 +31,6 @@ $app->mount(
     ->post("/inspectors/getDinamycTrace", "getDinamycTrace")
 
     // CARGAS DE TRABAJO
-    ->get("/inspectors/getStructureFormWorkloads", "getStructureFormWorkloads")
     
     // VINDEN
     ->get("/inspectors/getServiceVindenUrlDebitaciones", "getServiceVindenUrlDebitaciones")
@@ -40,7 +39,7 @@ $app->mount(
 $app->mount(
     (new Collection())
     ->setHandler(WorkloadsController::class, true)
-    ->get("/workloads/getAllZonesInspector", "getAllZonesInspector")
+    ->get("/workloads/getStructureFormWorkloads", "getStructureFormWorkloads")
 );
 
 $app->mount(
