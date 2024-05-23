@@ -160,22 +160,22 @@ class ProcessController extends BaseController
                 'cols' => 6,
                 'md' => 3
             ),
-            // 'dtfecha_creacion' => (object)array(
-            //     'label' => '´Fecha de creación',
-            //     'type' => 'datetime',
-            //     'model' => 'dtfecha_creacion',
-            //     'rules' => null,
-            //     'cols' => 12,
-            //     'md' => 4
-            // ),
-            // 'dtfecha_modificacion' => (object)array(
-            //     'label' => 'Fecha de modificación',
-            //     'type' => 'datetime',
-            //     'model' => 'dtfecha_modificacion',
-            //     'rules' => null,
-            //     'cols' => 12,
-            //     'md' => 4
-            // ),
+            'dtfecha_creacion' => (object)array(
+                'label' => '´Fecha de creación',
+                'type' => 'datetime',
+                'model' => 'dtfecha_creacion',
+                'rules' => null,
+                'cols' => 12,
+                'md' => 4
+            ),
+            'dtfecha_modificacion' => (object)array(
+                'label' => 'Fecha de modificación',
+                'type' => 'datetime',
+                'model' => 'dtfecha_modificacion',
+                'rules' => null,
+                'cols' => 12,
+                'md' => 4
+            ),
             'bactivo' => (object)array(
                 'label' => 'Activo',
                 'type' => 'boolean',

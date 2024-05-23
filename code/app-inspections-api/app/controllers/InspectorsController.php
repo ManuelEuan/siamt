@@ -22,6 +22,28 @@ class InspectorsController extends BaseController
         }
     }
 
+    public function getStructureFormWorkloads(){
+        $formulario =  (object)array(
+            'txtnombre' => (object)array(
+                'label' => 'Nombre',
+                'type' => 'text',
+                'model' => 'txtnombre',
+                'rules' => 'required',
+                'cols' => 12,
+                'md' => 6
+            ),
+            'bactivo' => (object)array(
+                'label' => 'Activo',
+                'type' => 'boolean',
+                'model' => 'bactivo',
+                'rules' => null,
+                'cols' => 6,
+                'md' => 4
+            ),
+        );
+        return $formulario;
+    }
+
     // Método para depurar y mostrar datos
     public function dep($data)
     {

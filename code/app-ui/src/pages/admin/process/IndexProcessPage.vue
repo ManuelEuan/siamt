@@ -116,8 +116,7 @@
 
                         <template v-slot:item.acciones="{ item }">
 
-                            <v-tooltip
-                                v-if="peopleModulePermissions.includes('vepe') && dinamycName == 'Proceso'"
+                            <v-tooltip v-if="peopleModulePermissions.includes('vepe') && dinamycName == 'Proceso'"
                                 bottom>
                                 <template v-slot:activator="{ on, attrs }">
                                     <v-btn v-bind="attrs" v-on="on" icon small @click="actionsHandler(item, 'flow')">
@@ -126,8 +125,7 @@
                                 </template>
                                 <span>Ver Flujo General</span>
                             </v-tooltip>
-                            <v-tooltip
-                                v-if="peopleModulePermissions.includes('vepe') && dinamycName == 'Proceso'"
+                            <v-tooltip v-if="peopleModulePermissions.includes('vepe') && dinamycName == 'Proceso'"
                                 bottom>
                                 <template v-slot:activator="{ on, attrs }">
                                     <v-btn v-bind="attrs" v-on="on" icon small @click="actionsHandler(item, 'process')">
@@ -324,40 +322,15 @@ export default {
                 dtfecha_modificacion: "Fecha modificación",
             },
             headersDatatable: [
-                {
-                    text: "Nombre",
-                    value: "txtnombre",
-                    align: "center",
-                    class: "font-weight-bold",
-                },
-
-                {
-                    text: "Descripción",
-                    value: "txtdescripcion",
-                    align: "center",
-                    class: "font-weight-bold",
-                },
-                {
-                    text: "Activo",
-                    value: "bactivo",
-                    align: "center",
-                    class: "font-weight-bold",
-                },
-                {
-                    text: "Acciones",
-                    value: "acciones",
-                    align: "center",
-                    sortable: false,
-                    width: "196px",
-                },
+                {text: "Nombre", value: "txtnombre", align: "center", class: "font-weight-bold"},
+                {text: "Descripción", value: "txtdescripcion", align: "center", class: "font-weight-bold"},
+                {text: "Activo", value: "bactivo", align: "center", class: "font-weight-bold"},
+                {text: "Acciones", value: "acciones", align: "center", sortable: false, width: "196px"},
             ],
         }
     },
     computed: {
         ...mapState('app', ['dinamycRegisterInProcessFilters', 'dinamycRegisterInProcess', 'dinamycRegisterInProcessTotalPages', 'dinamycRegisterInProcessTotalItems']),
-        //         computed: {
-        //     ...mapState('app', ['dinamycRegisterInProcess', 'dinamycRegisterInProcessTotalPages', 'dinamycRegisterInProcessTotalItems']),
-        //   },
         activeFilters() {
             return Object
                 .values(this.dinamycRegisterInProcessFilters)
@@ -400,14 +373,11 @@ export default {
                 return {
                     id: etapa.iidetapa,
                     name: `Etapa: ${etapa.nombre_etapa}`,
-                    // name: `Etapa: ${etapa.nombre_etapa} -- ${etapa.iidetapa}`,
                     icon: 'mdi-check-circle',
                     children: (etapa.subStages || []).map(subEtapa => {
                         return {
                             id: `${etapa.iidetapa}.${subEtapa.iidsubetapa}`,
                             name: `SubEtapa: ${subEtapa.txtnombre}`,
-                            // name: `SubEtapa: ${subEtapa.txtnombre}-- ${etapa.iidetapa}.${subEtapa.iidsubetapa}`,
-                            // icon: dinamycIcon
                             icon: 'mdi-check-circle'
                         };
                     })
@@ -481,15 +451,10 @@ export default {
                 this.nextSubstagesEnabled = info.info
                 console.log('ultimo')
                 this.formFields.iidsubetapa_siguiente.array.info = info.info
-                if(valueNext){
+                if (valueNext) {
                     this.formFields.iidsubetapa_siguiente.model = valueNext
                 }
-                console.log(this.nextSubstagesEnabled)
-
-                // this.flowMessage = info.message
-                // this.showSuccess(this.flowMessage);
                 this.showSuccess(info.message);
-
             } catch (error) {
                 const message = 'Error al precuperar los módulos ';
                 this.showError({ message, error });
@@ -501,15 +466,11 @@ export default {
                 let formulario = await services.inspections().getStructureFirstForm();
                 console.log('-----formulario')
                 console.log(formulario)
-                // setTimeout(() => {
                 this.formFields = formulario
-                // }, 200);
-                // this.formFields={[{}]}
             } catch (error) {
                 const message = 'Error al precuperar los formulario ';
                 this.showError({ message, error });
             }
-
         },
 
         async setRegisterInForm() {
@@ -541,7 +502,7 @@ export default {
                     console.log(this.formFields)
                     this.applyRulesForDinamycForm()
                     this.dinamycRemoveFields = ['iidmodulo', 'iidproceso', 'iidetapa', 'iidsubetapa', 'iidsubetapa_siguiente', 'txtnombre', 'txtdescripcion', 'txtsigla', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'bactivo', 'dtfecha_creacion', 'dtfecha_modificacion'],  // Decide quita el campo,
-                    this.dinamycRemoveFields.push('bactivo', 'dtfecha_creacion', 'dtfecha_modificacion');
+                        this.dinamycRemoveFields.push('bactivo', 'dtfecha_creacion', 'dtfecha_modificacion');
                     this.form.iidoftype = 0
                     break;
                 case 'edit':
@@ -557,7 +518,7 @@ export default {
                     this.sendFieldsWithValues.typeRegister = this.filters.typeRegister
                     this.form.typeRegister = this.filters.typeRegister
                     this.applyRulesForDinamycForm()
-                    
+
                     console.log(this.sendFieldsWithValues)
                     break;
                 case 'view':
@@ -591,8 +552,6 @@ export default {
             console.log(key, value)
             if (key == 'typeRegister') {
                 console.log('Cambio en typeRegister ')
-                // this.typeRegister = value
-                // this.formFields.typeRegister.model = value
                 this.form.typeRegister = value
             }
             if (key == 'iidsubetapa') {
@@ -626,15 +585,16 @@ export default {
                 // this.sendFieldsWithValues.iidsubetapa_siguiente
                 console.log('this.sendFieldsWithValues desde applyrules')
                 console.log(this.sendFieldsWithValues)
-                if(this.sendFieldsWithValues.iidsubetapa_siguiente){
+                if (this.sendFieldsWithValues.iidsubetapa_siguiente) {
                     this.getAllNextSubStagesEnabled(this.sendFieldsWithValues.iidsubetapa, this.sendFieldsWithValues.iidsubetapa_siguiente)
 
                 }
-                // iidsubetapa_siguiente
-                    
             }
             else {
                 this.showError({ 'message': 'Tipo de registro no configurado' })
+            }
+            if (!this.newRegister) {
+                this.dinamycHiddenFields = ['typeRegister']
             }
         }
     },

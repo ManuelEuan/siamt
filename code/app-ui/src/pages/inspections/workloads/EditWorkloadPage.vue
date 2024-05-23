@@ -13,25 +13,30 @@
                     <v-tabs-slider color="primary" />
                     <v-tab href="#generaltab">
                         Datos Generales
-                        <v-icon> mdi-clipboard-text </v-icon>
+                        <v-badge class="badge_change" :color="receivedTabGeneralData.valid ? 'success' : 'warning'">
+                            <v-icon> mdi-clipboard-text </v-icon>
+                        </v-badge>
                     </v-tab>
+
                     <v-tab href="#turnostab">
                         Turnos
-                        <v-icon> mdi-card-account-details </v-icon>
-                    </v-tab>
-                    <v-tab href="#ispectorestab">
-                        Ispectores
-                        <v-icon> mdi-card-account-details </v-icon>
+                        <v-badge class="badge_change" :color="receivedTabTurnData.valid ? 'success' : 'warning'">
+                            <v-icon> mdi-card-account-details </v-icon>
+                        </v-badge>
                     </v-tab>
                     <v-tab href="#trabajostab">
                         Trabajos
-                        <v-icon> mdi-card-account-details </v-icon>
+                        <v-badge class="badge_change"
+                            :color="receivedTabWorkData.valid ? 'success' : 'warning'">
+                            <v-icon> mdi-clipboard-text </v-icon>
+                        </v-badge>
                     </v-tab>
                 </v-tabs>
                 <v-tabs-items v-model="tab">
                     <v-card flat>
                         <v-tab-item :key="1" value="generaltab" class="py-1">
                             <v-card-text>
+
                                 <v-form v-model="valid">
                                     <v-row>
                                         <v-col cols="12" md="6">
@@ -48,8 +53,8 @@
 
                                         <v-col cols="12" md="6">
                                             <v-text-field v-model="workload.dfecha_inicio" label="Fecha inicial"
-                                                :min="minDate" :max="workload.dfecha_fin || '2999-12-12'"
-                                                 type="date" small-chips clearable dense outlined>
+                                                :min="minDate" :max="workload.dfecha_fin || '2999-12-12'" type="date"
+                                                small-chips clearable dense outlined>
                                             </v-text-field>
                                         </v-col>
 
@@ -318,6 +323,22 @@ export default {
     },
     data() {
         return {
+            // HANDLERS
+            receivedTabGeneralData: {
+                newOrEdit: false,
+                data: {},
+                valid: false,
+            },
+            receivedTabTurnData: {
+                newOrEdit: false,
+                data: {},
+                valid: false,
+            },
+            receivedTabWorkData: {
+                newOrEdit: false,
+                data: {},
+                valid: false,
+            },
             click: {
                 user: false,
                 permission: false,
@@ -419,18 +440,32 @@ export default {
         exitWindow() {
             this.$router.push("/inspections/inspectors");
         },
+        async inputsFormWorkloads() {
+            try {
+                let formulario = await services.inspections().getStructureFormWorkloads();
+                console.log('-----formulario workloadss')
+                console.log(formulario)
+                // this.formFields = formulario
+            } catch (error) {
+                const message = 'Error al precuperar los formulario ';
+                this.showError({ message, error });
+            }
+        },
     },
     watch: {
-        'workload.dfecha_inicio':function(){
+        'workload.dfecha_inicio': function () {
             console.log('this.workload.dfecha_inicio')
             console.log(this.workload.dfecha_inicio)
         }
     },
+
     async mounted() {
-        console.log(this.createMode);
-        console.log('createMode');
-        await this.loadSelectableData();
-        if (!this.createMode) await this.setEditMode();
+        await this.inputsFormWorkloads()
+        // await this.applyFilters()
+        let user = await services.app().getUserConfig();
+        let getActivePermissionsFromUser = await services.admin().getActivePermissionsFromUser(user[0].id);
+        this.peopleModulePermissions = getActivePermissionsFromUser.map(permission => permission.siglas);
+        console.log('workloads permisos')
     },
 };
 </script>

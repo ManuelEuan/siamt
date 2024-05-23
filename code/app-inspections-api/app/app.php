@@ -13,24 +13,25 @@ use App\Controllers\TerritoryController;
 $app->mount(
     (new Collection())
     ->setHandler(InspectorsController::class, true)
+    // INSPECTORES
     ->post("/inspectors", "getInspectors")
     ->post("/inspectors/getPersonByCurp", "getPersonByCurp")
     ->get("/inspectors/getAllCategoriesInspector", "getAllCategoriesInspector")
-
     ->post("/inspectors/getAllSubStagesInspector", "getAllSubStagesInspector")
     ->get("/inspectors/getAllShiftsInspector", "getAllShiftsInspector")
     ->post("/inspectors/new", "createInspector")
     ->put("/inspectors", "updateInspector")
     ->delete("/inspectors/{id}", "deleteInspector")
     ->post("/inspectors/getInspectorInfo", "getInspectorInfo")
-    // PROCESOS
     ->post("/inspectors/getInfoProcess", "getInfoProcess")
     ->post("/inspectors/getAllFlowBySubStage", "getAllFlowBySubStage")
     ->post("/inspectors/hasFlowAfter", "hasFlowAfter")
-    // ->post("/inspectors/getInfoBySubStage", "getInfoBySubStage")
     ->put("/inspectors/updateInspectorSubStage", "updateInspectorSubStage")
     ->post("/inspectors/insertInspectorTrace", "insertInspectorTrace")
     ->post("/inspectors/getDinamycTrace", "getDinamycTrace")
+
+    // CARGAS DE TRABAJO
+    ->get("/inspectors/getStructureFormWorkloads", "getStructureFormWorkloads")
     
     // VINDEN
     ->get("/inspectors/getServiceVindenUrlDebitaciones", "getServiceVindenUrlDebitaciones")
