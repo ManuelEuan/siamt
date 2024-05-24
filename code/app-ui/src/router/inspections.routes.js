@@ -21,7 +21,7 @@ export default [
         }
     },
     {
-        path: '/inspectors/new',
+        path: '/inspections/inspectors/new',
         name: 'inspectors-new',
         component: () => import(/* webpackChunkName: "events-edit" */ '@/pages/inspections/inspectors/EditInspectorPage.vue'),
         meta: {
@@ -31,7 +31,7 @@ export default [
         }
     }, 
     {
-        path: '/inspectors/:id/edit',
+        path: '/inspections/inspectors/:id/edit',
         name: 'inspectors-edit',
         component: () => import(/* webpackChunkName: "events-edit" */ '@/pages/inspections/inspectors/EditInspectorPage.vue'),
         meta: {
@@ -43,7 +43,7 @@ export default [
 
     // MÓDULO CARGAS DE TRABAJO
     {
-        path: '/workloads',
+        path: '/inspections/workloads',
         name: 'workloads',
         component: () => import(/* webpackChunkName: "debsons" */ '@/pages/inspections/workloads/IndexWorkloadPage.vue'),
         meta: {
@@ -53,7 +53,7 @@ export default [
         }
     },
     {
-        path: '/workloads/new',
+        path: '/inspections/workloads/new',
         name: 'workloads-new',
         component: () => import(/* webpackChunkName: "events-edit" */ '@/pages/inspections/workloads/EditWorkloadPage.vue'),
         meta: {
@@ -64,7 +64,7 @@ export default [
     }, 
     // MÓDULO EXTRA
     {
-        path: '/works',
+        path: '/inspections/works',
         name: 'works',
         component: () => import(/* webpackChunkName: "debsons" */ '@/pages/inspections/works/IndexWorkPage.vue'),
         meta: {
@@ -74,7 +74,7 @@ export default [
         }
     },
     {
-        path: '/works/new',
+        path: '/inspections/works/new',
         name: 'works-new',
         component: () => import(/* webpackChunkName: "events-edit" */ '@/pages/inspections/works/EditWorkPage.vue'),
         meta: {

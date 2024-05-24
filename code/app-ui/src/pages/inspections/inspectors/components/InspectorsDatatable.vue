@@ -159,7 +159,7 @@ export default {
       this.$refs.dialogs.inspector = inspector;
 
       switch (action) {
-        case 'edit': this.$router.push(`/inspectors/${inspector.iidinspector}/edit`); break;
+        case 'edit': this.$router.push(`/inspections/inspectors/${inspector.iidinspector}/edit`); break;
         case 'view': this.$refs.dialogs.viewInspector(); break;
         default: this.$refs.dialogs.show[action] = true;
       }

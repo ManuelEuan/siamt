@@ -133,7 +133,7 @@
                 this.dialog = false;
             },
             newWorkload() {
-                this.$router.push("/workloads/new");
+                this.$router.push("/inspections/workloads/new");
             },
         },
         async mounted() {

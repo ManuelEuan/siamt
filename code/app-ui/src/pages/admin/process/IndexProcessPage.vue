@@ -1,6 +1,7 @@
 <template>
     <v-container fluid>
         <v-row justify="center">
+            <!-- ENCABEZADO -->
             <v-col cols="12" class="pa-0">
                 <v-card flat>
                     <v-toolbar>
@@ -23,7 +24,6 @@
                                         <v-icon>mdi-filter</v-icon>
                                     </v-btn>
                                 </template>
-
                                 <v-card>
                                     <v-card-title
                                         class="text-uppercase primary--text text-h6 py-2">Filtros</v-card-title>
@@ -34,8 +34,6 @@
                                                 <v-autocomplete v-model="filters.typeRegister" label="Tipo de registro"
                                                     :items="['Proceso', 'Etapa', 'Subetapa', 'Flujo']" dense outlined
                                                     :rules="[rules.required]" />
-                                                <!-- <v-text-field v-model="filters.name" label="Nombre" hide-details="auto" clearable
-                                        dense outlined></v-text-field> -->
                                             </v-col>
                                             <v-col cols="12" md="6">
                                                 <v-text-field v-model="filters.name" label="Nombre" hide-details="auto"
@@ -84,27 +82,11 @@
                             </v-dialog>
                         </v-badge>
                     </v-toolbar>
-                    <!-- DIALOG ACTUALIZAR TELÉFONO ACTUAL -->
-                    <generic-dialog :dialogVisible="dialogDinamycRegister"
-                        :dialogTitle="newRegister ? `Nuevo registro (${dinamycName})` : `Editar registro (${dinamycName})`"
-                        :maxWidth="800" :disabledButtonConfirm="validForm"
-                        @update:dialogVisible="dialogDinamycRegister = $event" @confirm="saveRegisterDinamyc()">
-                        <template v-slot:default>
-                            Seleccione las opciones necesarias según su tipo de registros {{ dinamycName }}
-                            <generic-form-validation :formFields="formFields"
-                                @form-valid="handleGenericFormValidationConfirm"
-                                :formFieldsWithValues="sendFieldsWithValues" :dinamycRemoveFields="dinamycRemoveFields"
-                                :dinamycHiddenFields="dinamycHiddenFields"
-                                :dinamycDisabledFields="dinamycDisabledFields"
-                                @new-value="handleGenericFormValidationNewValues"></generic-form-validation>
-                        </template>
-                    </generic-dialog>
                 </v-card>
             </v-col>
+            <!-- DATATABLE -->
             <v-col cols="12" class="pa-0 mt-2">
                 <div class="wrapper">
-                    <!-- <profiles-datatable-dialogs ref="dialogs" /> -->
-
                     <v-data-table class="elevation-1" loading-text="Cargando información" :headers="headersDatatable"
                         :items="dinamycRegisterInProcess" :page-count="dinamycRegisterInProcessTotalPages"
                         :server-items-length="dinamycRegisterInProcessTotalItems" :options.sync="options"
@@ -113,9 +95,7 @@
                             <v-icon v-show="item.bactivo" size="medium" color="green"> mdi-check </v-icon>
                             <v-icon v-show="!item.bactivo" size="medium" color="red">mdi-close</v-icon>
                         </template>
-
                         <template v-slot:item.acciones="{ item }">
-
                             <v-tooltip v-if="peopleModulePermissions.includes('vepe') && dinamycName == 'Proceso'"
                                 bottom>
                                 <template v-slot:activator="{ on, attrs }">
@@ -154,80 +134,92 @@
                             </v-tooltip>
                         </template>
                     </v-data-table>
-
-
-
-                    <!-- DIALOG GENERIC VIEW REGISTER -->
-                    <generic-dialog :dialogVisible="dialogViewRegister" dialogTitle="Ver registro"
-                        @update:dialogVisible="dialogViewRegister = $event" @confirm="this.dialogViewRegister = false">
-                        <template v-slot:default>
-                            <!-- Regsitro sele -->
-                            <v-list class="pa-0 ma-0">
-                                <v-container class="pa-0 ma-0">
-                                    <v-row dense>
-                                        <template v-for="(value, key, index) in register">
-                                            <v-col v-if="headersRegister[key]" class="pa-0 ma-0" cols="6" :key="index">
-                                                <v-list-item>
-                                                    <v-list-item-content class="py-2">
-                                                        <v-list-item-title class="text-h7">
-                                                            {{ headersRegister[key] }}
-                                                        </v-list-item-title>
-                                                        <v-list-item-subtitle class="text-body-1">
-                                                            {{ typeof value === 'boolean' ? '' : value }}
-                                                            <v-icon v-show="value === true" size="medium" color="green">
-                                                                mdi-check </v-icon>
-                                                            <v-icon v-show="value === false" size="medium"
-                                                                color="red">mdi-close</v-icon>
-                                                        </v-list-item-subtitle>
-                                                    </v-list-item-content>
-                                                </v-list-item>
-                                            </v-col>
-                                        </template>
-                                    </v-row>
-                                </v-container>
-                            </v-list>
-                        </template>
-                    </generic-dialog>
-
-                    <!-- DIALOG VIEW PROCESS -->
-                    <generic-dialog :dialogVisible="dialogViewProcess" dialogTitle="Visualizar Etapas y Subetapas"
-                        @update:dialogVisible="dialogViewProcess = $event" @confirm="dialogViewProcess = false">
-                        <template v-slot:default>
-                            <v-row dense>
-                                <v-treeview v-if="treeProcess.length" :items="treeProcess" activatable color="primary"
-                                    transition open-all open-on-click>
-                                    <template v-slot:prepend="{ item }">
-                                        <v-icon v-if="item.icon" color="primary">{{ item.icon }}</v-icon>
-                                    </template>
-                                </v-treeview>
-                                <div v-else>
-                                    {{ processMessage }}
-                                </div>
-                            </v-row>
-                        </template>
-                    </generic-dialog>
-
-                    <!-- DIALOG VIEW FLOW -->
-                    <generic-dialog :dialogVisible="dialogViewFlow" dialogTitle="Visualizar flujo"
-                        @update:dialogVisible="dialogViewFlow = $event" @confirm="dialogViewFlow = false">
-                        <template v-slot:default>
-                            <v-row dense>
-                                <v-treeview v-if="treeFlow" :items="treeFlow" activatable color="primary" transition
-                                    open-all open-on-click>
-                                    <template v-slot:prepend="{ item }">
-                                        <v-icon v-if="item.icon" color="primary">{{ item.icon }}</v-icon>
-                                    </template>
-                                </v-treeview>
-                                <div>
-                                    {{ flowMessage }}
-                                </div>
-
-                            </v-row>
-                        </template>
-                    </generic-dialog>
                 </div>
             </v-col>
         </v-row>
+        <!-- DIALOG (NEW - EDIT) REGISTER -->
+        <generic-dialog :dialogVisible="dialogDinamycRegister"
+            :dialogTitle="newRegister ? `Nuevo registro (${dinamycName})` : `Editar registro (${dinamycName})`"
+            :maxWidth="800" :disabledButtonConfirm="validForm" @update:dialogVisible="dialogDinamycRegister = $event"
+            @confirm="saveRegisterDinamyc()">
+            <template v-slot:default>
+                Seleccione las opciones necesarias según su tipo de registros {{ dinamycName }}
+                <generic-form-validation :formFields="formFields" :formFieldsWithValues="sendFieldsWithValues"
+                    :dinamycRemoveFields="dinamycRemoveFields" :dinamycHiddenFields="dinamycHiddenFields"
+                    :dinamycDisabledFields="dinamycDisabledFields" @form-valid="handleGenericFormValidationConfirm"
+                    @new-value="handleGenericFormValidationNewValues">
+                </generic-form-validation>
+            </template>
+        </generic-dialog>
+
+        <!-- DIALOG VIEW REGISTER -->
+        <generic-dialog :dialogVisible="dialogViewRegister" dialogTitle="Ver registro"
+            @update:dialogVisible="dialogViewRegister = $event" @confirm="this.dialogViewRegister = false">
+            <template v-slot:default>
+                <!-- Regsitro sele -->
+                <v-list class="pa-0 ma-0">
+                    <v-container class="pa-0 ma-0">
+                        <v-row dense>
+                            <template v-for="(value, key, index) in register">
+                                <v-col v-if="headersRegister[key]" class="pa-0 ma-0" cols="6" :key="index">
+                                    <v-list-item>
+                                        <v-list-item-content class="py-2">
+                                            <v-list-item-title class="text-h7">
+                                                {{ headersRegister[key] }}
+                                            </v-list-item-title>
+                                            <v-list-item-subtitle class="text-body-1">
+                                                {{ typeof value === 'boolean' ? '' : value }}
+                                                <v-icon v-show="value === true" size="medium" color="green">
+                                                    mdi-check </v-icon>
+                                                <v-icon v-show="value === false" size="medium"
+                                                    color="red">mdi-close</v-icon>
+                                            </v-list-item-subtitle>
+                                        </v-list-item-content>
+                                    </v-list-item>
+                                </v-col>
+                            </template>
+                        </v-row>
+                    </v-container>
+                </v-list>
+            </template>
+        </generic-dialog>
+
+        <!-- DIALOG VIEW PROCESS -->
+        <generic-dialog :dialogVisible="dialogViewProcess" dialogTitle="Visualizar Etapas y Subetapas"
+            @update:dialogVisible="dialogViewProcess = $event" @confirm="dialogViewProcess = false">
+            <template v-slot:default>
+                <v-row dense>
+                    <v-treeview v-if="treeProcess.length" :items="treeProcess" activatable color="primary" transition
+                        open-all open-on-click>
+                        <template v-slot:prepend="{ item }">
+                            <v-icon v-if="item.icon" color="primary">{{ item.icon }}</v-icon>
+                        </template>
+                    </v-treeview>
+                    <div v-else>
+                        {{ processMessage }}
+                    </div>
+                </v-row>
+            </template>
+        </generic-dialog>
+
+        <!-- DIALOG VIEW FLOW -->
+        <generic-dialog :dialogVisible="dialogViewFlow" dialogTitle="Visualizar flujo"
+            @update:dialogVisible="dialogViewFlow = $event" @confirm="dialogViewFlow = false">
+            <template v-slot:default>
+                <v-row dense>
+                    <v-treeview v-if="treeFlow" :items="treeFlow" activatable color="primary" transition open-all
+                        open-on-click>
+                        <template v-slot:prepend="{ item }">
+                            <v-icon v-if="item.icon" color="primary">{{ item.icon }}</v-icon>
+                        </template>
+                    </v-treeview>
+                    <div>
+                        {{ flowMessage }}
+                    </div>
+
+                </v-row>
+            </template>
+        </generic-dialog>
     </v-container>
 </template>
 
@@ -336,7 +328,35 @@ export default {
             this.filters = { ...this.dinamycRegisterInProcessFilters };
             this.dialog = false;
         },
-        // VALIDACIÓN FORMULARIO DINÁMICO
+
+        // FUNCIONES UTILIZADAS PARA COMPONENTES GENÉRICOS
+        async dataFirstForm() {
+            try {
+                this.formFields = await services.inspections().getStructureFirstForm();
+            } catch (error) {
+                this.showError({ message: 'Error al recuperar los formularios', error });
+            }
+        },
+        // MANEJADORES DE EVENTOS COMPONENTES HIJOS
+        handleGenericFormValidationConfirm(valid) {
+            console.log('Retorno de generic-form-validation valid-form ')
+            this.validForm = valid
+        },
+        async handleGenericFormValidationNewValues(key, value) {
+            console.log('Retorno de generic-form-validation key-values ')
+            console.log(key, value)
+            if (key == 'typeRegister') {
+                console.log('Cambio en typeRegister ')
+                this.form.typeRegister = value
+            }
+            if (key == 'iidsubetapa') {
+                console.log('Cambio en iidsubetapa ')
+                await this.getAllNextSubStagesEnabled(value)
+            }
+            this.form[key] = value
+            this.applyRulesForDinamycForm()
+        },
+        // APLICACIÓN DE REGLAS EXTRA EN FORMULARIO GENÉRICO (LÓGICA DE FORMULARIO)
         applyRulesForDinamycForm() {
             if (this.form.typeRegister === 'Proceso') {
                 this.dinamycRemoveFields = ['iidproceso', 'iidetapa', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'iidsubetapa', 'iidsubetapa_siguiente']
@@ -369,33 +389,11 @@ export default {
             if (!this.newRegister) {
                 this.dinamycHiddenFields = ['typeRegister']
                 this.dinamycDisabledFields = ['txtsigla', 'dtfecha_creacion', 'dtfecha_modificacion']
-            }else{
+            } else {
                 this.dinamycHiddenFields = ['bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
             }
         },
-        // HANDLERS
-        handleGenericFormValidationConfirm(valid) {
-            console.log('Retorno de generic-form-validation valid-form ')
-            this.validForm = valid
-        },
-        async handleGenericFormValidationNewValues(key, value) {
-            console.log('Retorno de generic-form-validation key-values ')
-            console.log(key, value)
-            if (key == 'typeRegister') {
-                console.log('Cambio en typeRegister ')
-                this.form.typeRegister = value
-            }
-            if (key == 'iidsubetapa') {
-                console.log('Cambio en iidsubetapa ')
-                await this.getAllNextSubStagesEnabled(value)
-            }
-
-            this.form[key] = value
-            this.applyRulesForDinamycForm()
-            // this.dinamycDisabledFields.push('iidsubetapa_siguiente')
-            console.log('this.form')
-            console.log(this.form)
-        },
+        // MANEJADORES DE EVENTOS COMPONENTE ACTUAL
         actionsHandler(register, action) {
             switch (action) {
                 case 'new':
@@ -403,26 +401,17 @@ export default {
                     this.dialogDinamycRegister = true
                     this.sendFieldsWithValues = {}
                     this.formFields = this.dataFirstForm()
-                    console.log('action new')
-                    console.log(this.formFields)
                     this.applyRulesForDinamycForm()
                     this.form.iidoftype = 0
                     break;
                 case 'edit':
                     this.newRegister = false
                     this.dialogDinamycRegister = true
-                    console.log('action edit')
-                    console.log(register)
-                    // this.formFields = this.dataFirstForm()
                     this.sendFieldsWithValues = register
                     this.form = register
-                    // this.sendFieldsWithValues.allForm = this.formFields
-                    // this.sendFieldsWithValues.typeRegister="Proceso"
                     this.sendFieldsWithValues.typeRegister = this.filters.typeRegister
                     this.form.typeRegister = this.filters.typeRegister
                     this.applyRulesForDinamycForm()
-
-                    console.log(this.sendFieldsWithValues)
                     break;
                 case 'view':
                     this.dialogViewRegister = true;
@@ -433,14 +422,42 @@ export default {
                 case 'process':
                     this.dialogViewProcess = true;
                     this.getProcessWithStagesAndSubstages(register.iidoftype)
-                    // this.process.iidproceso = register.iidoftype
                     break;
                 case 'flow':
                     this.dialogViewFlow = true;
                     this.getFlowByProcess(register.iidoftype)
-                    // this.flow.iidproceso = register.iidoftype
                     break;
                 default: this.$refs.dialogs.show[action] = true;
+            }
+        },
+
+        // FUNCIONES GENERALES
+        convertToTreeStructure(etapas) {
+            return etapas.map(etapa => ({
+                id: etapa.iidetapa,
+                name: `Etapa: ${etapa.nombre_etapa}`,
+                icon: 'mdi-check-circle',
+                children: (etapa.subStages || []).map(subEtapa => ({
+                    id: `${etapa.iidetapa}.${subEtapa.iidsubetapa}`,
+                    name: `SubEtapa: ${subEtapa.txtnombre}`,
+                    icon: 'mdi-check-circle'
+                }))
+            }));
+        },
+
+        // FUNCIONES CON BASE DE DATOS
+        async saveRegisterDinamyc() {
+            try {
+                const saveRegister = this.form.iidoftype ?
+                    await services.inspections().updateRegisterInProcess(this.form) :
+                    await services.inspections().newRegisterInProcess(this.form);
+
+                this.showSuccess(saveRegister.message);
+                this.formFields.typeRegister.model = this.form.typeRegister;
+                this.applyRulesForDinamycForm();
+                this.loadDinamycRegisterInProcessTable();
+            } catch (error) {
+                this.showError({ message: 'Error al guardar el registro', error });
             }
         },
         async getFlowByProcess(iidproceso) {
@@ -462,32 +479,19 @@ export default {
                 this.showError({ message: 'Error al recuperar los módulos', error });
             }
         },
-        convertToTreeStructure(etapas) {
-            return etapas.map(etapa => ({
-                id: etapa.iidetapa,
-                name: `Etapa: ${etapa.nombre_etapa}`,
-                icon: 'mdi-check-circle',
-                children: (etapa.subStages || []).map(subEtapa => ({
-                    id: `${etapa.iidetapa}.${subEtapa.iidsubetapa}`,
-                    name: `SubEtapa: ${subEtapa.txtnombre}`,
-                    icon: 'mdi-check-circle'
-                }))
-            }));
-        },
-        async saveRegisterDinamyc() {
+        async getAllNextSubStagesEnabled(value, valueNext = 0) {
             try {
-                const saveRegister = this.form.iidoftype ?
-                    await services.inspections().updateRegisterInProcess(this.form) :
-                    await services.inspections().newRegisterInProcess(this.form);
-
-                this.showSuccess(saveRegister.message);
-                this.formFields.typeRegister.model = this.form.typeRegister;
-                this.applyRulesForDinamycForm();
-                this.loadDinamycRegisterInProcessTable();
+                const info = await services.inspections().getAllNextSubStagesEnabled({ 'iidsubetapa': value });
+                this.nextSubstagesEnabled = info.info;
+                this.formFields.iidsubetapa_siguiente.array.info = info.info;
+                if (valueNext) this.formFields.iidsubetapa_siguiente.model = valueNext;
+                this.showSuccess(info.message);
             } catch (error) {
-                this.showError({ message: 'Error al guardar el registro', error });
+                this.showError({ message: 'Error al recuperar los módulos', error });
             }
         },
+
+        // FUNCIONES CON VUEX
         async applyFilters() {
             try {
                 this.dinamycName = this.filters.typeRegister;
@@ -513,24 +517,6 @@ export default {
                 this.showError({ message: 'Error al aplicar filtros', error });
             }
         },
-        async getAllNextSubStagesEnabled(value, valueNext = 0) {
-            try {
-                const info = await services.inspections().getAllNextSubStagesEnabled({ 'iidsubetapa': value });
-                this.nextSubstagesEnabled = info.info;
-                this.formFields.iidsubetapa_siguiente.array.info = info.info;
-                if (valueNext) this.formFields.iidsubetapa_siguiente.model = valueNext;
-                this.showSuccess(info.message);
-            } catch (error) {
-                this.showError({ message: 'Error al recuperar los módulos', error });
-            }
-        },
-        async dataFirstForm() {
-            try {
-                this.formFields = await services.inspections().getStructureFirstForm();
-            } catch (error) {
-                this.showError({ message: 'Error al recuperar los formularios', error });
-            }
-        },
         async loadDinamycRegisterInProcessTable() {
             try {
                 const { page, itemsPerPage, sortBy, sortDesc } = this.options;
@@ -541,7 +527,6 @@ export default {
                 this.showError({ message: 'Error al cargar la tabla de registros', error });
             }
         },
-        // Otros métodos...
     },
     watch: {
         options: {
@@ -552,7 +537,6 @@ export default {
     async mounted() {
         await this.dataFirstForm();
         await this.applyFilters();
-        // this.loadUserPermissions();
         let user = await services.app().getUserConfig();
         let getActivePermissionsFromUser = await services.admin().getActivePermissionsFromUser(user[0].id);
         this.peopleModulePermissions = getActivePermissionsFromUser.map(permission => permission.siglas);

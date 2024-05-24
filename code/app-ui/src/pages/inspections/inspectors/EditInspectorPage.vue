@@ -75,7 +75,6 @@
                                 </v-form>
                             </v-card-text>
                         </v-tab-item>
-                        {{!personaEncontrada}} -- {{!personaDisponible}} -- {{ !validationFieldsInspector }}
                         <v-card-actions v-if="!createMode || personaEncontrada && personaDisponible">
                             <v-spacer />
                             <v-btn color="error" text @click="showAllInspectors()"> Cerrar </v-btn>

@@ -18,11 +18,11 @@
                         </template>
                         <template v-else-if="field.type === 'autocomplete'">
                             <v-autocomplete v-if="field.array.type == 'list'" v-model="field.model" :label="field.label"
-                                :items="field.array.info" dense outlined :rules="getFieldRules(field)"
+                                :items="field.array.info" clearable dense outlined :rules="getFieldRules(field)"
                                 :disabled="dinamycDisabledFields.includes(index)" />
                             <v-autocomplete v-else :rules="getFieldRules(field)" :class="field.inputClass"
                                 :style="field.inputStyle" v-model="field.model" :label="field.label"
-                                :items="field.array.info" dense outlined :item-text="field.array.item_text"
+                                :items="field.array.info" clearable dense outlined :item-text="field.array.item_text"
                                 :item-value="field.array.item_value"
                                 :disabled="dinamycDisabledFields.includes(index)" />
                         </template>
@@ -40,6 +40,7 @@
                                 :label="field.label + ':' + (field.model ? '✔️' : '❌')"></v-switch>
                         </template>
                         <template v-else-if="field.type === 'date'">
+                            {{ field }}
                             <v-menu v-model="field[index]" :close-on-content-click="false" :nudge-right="40"
                                 transition="scale-transition" offset-y min-width="auto">
                                 <template v-slot:activator="{ on, attrs }">
@@ -48,7 +49,7 @@
                                         :rules="getFieldRules(field)" v-mask="getMask(field)"
                                         :disabled="dinamycDisabledFields.includes(index)"></v-text-field>
                                 </template>
-                                <v-date-picker v-model="field.model" @input="field[index] = false"></v-date-picker>
+                                <v-date-picker  :min="field.min" :max="field.max" v-model="field.model" @input="field[index] = false"></v-date-picker>
                             </v-menu>
                         </template>
 

@@ -30,9 +30,9 @@ class ProcessController extends BaseController
             ["type" => 'Subetapa', "name" => "Subetapa"],
             ["type" => 'Flujo', "name" => "Flujo"]
         ];
-    
-        $formulario =  (object)array(
-            'typeRegister' => (object)array(
+
+        $formulario =  [
+            'typeRegister' => [
                 'label' => 'Seleccione su tipo de registro*',
                 'type' => 'autocomplete',
                 'model' => 'typeRegister',
@@ -41,159 +41,181 @@ class ProcessController extends BaseController
                 'md' => 12,
                 'inputClass' => 'mx-auto',
                 'inputStyle' => 'max-width: 50%',
-                'array' => (object)array('type' => 'object', 'info' => $typesRegister, 'item_text' => 'name', 'item_value' => 'type')
-            ),
-            'iidmodulo' => (object)array(
+                'array' => [
+                    'type' => 'object',
+                    'info' => $typesRegister,
+                    'item_text' => 'name',
+                    'item_value' => 'type'
+                ]
+            ],
+            'iidmodulo' => [
                 'label' => 'Seleccione el módulo*',
                 'type' => 'autocomplete',
                 'model' => 'iidmodulo',
                 'rules' => 'required',
                 'cols' => 12,
                 'md' => 6,
-                'array' => (object)array('type' => 'object', 'info' => self::getAllModules(), 'item_text' => 'nombre', 'item_value' => 'id')
-            ),
-            'iidproceso' => (object)array(
+                'array' => [
+                    'type' => 'object',
+                    'info' => self::getAllModules(),
+                    'item_text' => 'nombre',
+                    'item_value' => 'id'
+                ]
+            ],
+            'iidproceso' => [
                 'label' => 'Seleccione el proceso*',
                 'type' => 'autocomplete',
                 'model' => 'iidproceso',
                 'rules' => 'required',
                 'cols' => 12,
                 'md' => 6,
-                'array' => (object)array('type' => 'object', 'info' => self::getAllProcess(), 'item_text' => 'txtnombre', 'item_value' => 'iidproceso')
-            ),
-            'iidetapa' => (object)array(
+                'array' => [
+                    'type' => 'object',
+                    'info' => self::getAllProcess(),
+                    'item_text' => 'txtnombre',
+                    'item_value' => 'iidproceso'
+                ]
+            ],
+            'iidetapa' => [
                 'label' => 'Seleccione la etapa*',
                 'type' => 'autocomplete',
                 'model' => 'iidetapa',
                 'rules' => 'required',
                 'cols' => 12,
                 'md' => 6,
-                'array' => (object)array('type' => 'object', 'info' => self::getAllStages(), 'item_text' => 'txtetapa_nombre', 'item_value' => 'iidetapa')
-            ),
-            'iidsubetapa' => (object)array(
+                'array' => [
+                    'type' => 'object',
+                    'info' => self::getAllStages(),
+                    'item_text' => 'txtetapa_nombre',
+                    'item_value' => 'iidetapa'
+                ]
+            ],
+            'iidsubetapa' => [
                 'label' => 'Seleccione la subetapa*',
                 'type' => 'autocomplete',
                 'model' => 'iidsubetapa',
                 'rules' => 'required',
                 'cols' => 12,
                 'md' => 6,
-                'array' => (object)array('type' => 'object', 'info' => self::getAllSubStages(), 'item_text' => 'txtnombre', 'item_value' => 'iidsubetapa')
-            ),
-            'iidsubetapa_siguiente' => (object)array(
+                'array' => [
+                    'type' => 'object',
+                    'info' => self::getAllSubStages(),
+                    'item_text' => 'txtnombre',
+                    'item_value' => 'iidsubetapa'
+                ]
+            ],
+            'iidsubetapa_siguiente' => [
                 'label' => 'Seleccione la subetapa siguiente*',
                 'type' => 'autocomplete',
                 'model' => 'iidsubetapa_siguiente',
                 'rules' => 'required',
                 'cols' => 12,
                 'md' => 6,
-                'array' => (object)array('type' => 'object', 'info' => '', 'item_text' => 'txtnombre', 'item_value' => 'iidsubetapa')
-            ),
-            'txtnombre' => (object)array(
+                'array' => [
+                    'type' => 'object',
+                    'info' => '',
+                    'item_text' => 'txtnombre',
+                    'item_value' => 'iidsubetapa'
+                ]
+            ],
+            'txtnombre' => [
                 'label' => 'Nombre',
                 'type' => 'text',
                 'model' => 'txtnombre',
                 'rules' => 'required',
                 'cols' => 12,
                 'md' => 6
-            ),
-            'txtdescripcion' => (object)array(
+            ],
+            'txtdescripcion' => [
                 'label' => 'Descripción',
                 'type' => 'text',
                 'model' => 'txtdescripcion',
                 'rules' => null,
                 'cols' => 12,
                 'md' => 6
-            ),
-            'txtsigla' => (object)array(
+            ],
+            'txtsigla' => [
                 'label' => 'Siglas',
                 'type' => 'text',
                 'model' => 'txtsigla',
                 'rules' => 'required|max4chars',
                 'cols' => 12,
                 'md' => 6
-            ),
-            'txtcolor' => (object)array(
+            ],
+            'txtcolor' => [
                 'label' => 'Color',
                 'type' => 'color',
                 'model' => 'txtcolor',
                 'rules' => null,
                 'cols' => 12,
                 'md' => 6
-            ),
-            'txtpermiso' => (object)array(
+            ],
+            'txtpermiso' => [
                 'label' => 'Permiso',
                 'type' => 'text',
                 'model' => 'txtpermiso',
                 'rules' => null,
                 'cols' => 12,
                 'md' => 6
-            ),
-            'binicial' => (object)array(
+            ],
+            'binicial' => [
                 'label' => 'Inicial',
                 'type' => 'boolean',
                 'model' => 'binicial',
                 'rules' => null,
                 'cols' => 6,
                 'md' => 3
-            ),
-            'bfinal' => (object)array(
+            ],
+            'bfinal' => [
                 'label' => 'Final',
                 'type' => 'boolean',
                 'model' => 'bfinal',
                 'rules' => null,
                 'cols' => 6,
                 'md' => 3
-            ),
-            'bcancelacion' => (object)array(
+            ],
+            'bcancelacion' => [
                 'label' => 'Cancelacion',
                 'type' => 'boolean',
                 'model' => 'bcancelacion',
                 'rules' => null,
                 'cols' => 6,
                 'md' => 3
-            ),
-            'brequiere_motivo' => (object)array(
+            ],
+            'brequiere_motivo' => [
                 'label' => 'Motivo',
                 'type' => 'boolean',
                 'model' => 'brequiere_motivo',
                 'rules' => null,
                 'cols' => 6,
                 'md' => 3
-            ),
-            'dtfecha_creacion' => (object)array(
-                'label' => '´Fecha de creación',
+            ],
+            'dtfecha_creacion' => [
+                'label' => 'Fecha de creación',
                 'type' => 'datetime',
                 'model' => 'dtfecha_creacion',
                 'rules' => null,
                 'cols' => 12,
                 'md' => 4
-            ),
-            'dtfecha_modificacion' => (object)array(
+            ],
+            'dtfecha_modificacion' => [
                 'label' => 'Fecha de modificación',
                 'type' => 'datetime',
                 'model' => 'dtfecha_modificacion',
                 'rules' => null,
                 'cols' => 12,
                 'md' => 4
-            ),
-            'bactivo' => (object)array(
+            ],
+            'bactivo' => [
                 'label' => 'Activo',
                 'type' => 'boolean',
                 'model' => 'bactivo',
                 'rules' => null,
                 'cols' => 6,
                 'md' => 4
-            ),
-            // 'txttelefono_mask_phone' => array(
-            //     'label' => 'Teléfono*',
-            //     'type' => 'text',
-            //     'model' => 'txttelefono_mask_phone',
-            //     'rules' => 'required|telefono',
-            //     'cols' => 12,
-            //     'md' => 6,
-            //     'maskType' => 'phone'
-            // ),
-        );
+            ]
+        ];
+
         return json_encode($formulario);
     }
 
@@ -317,7 +339,7 @@ class ProcessController extends BaseController
     private function filterRegisters($filters)
     {
         $params = [];
-        
+
         $sql = "SELECT *, COUNT(registers.iidOfType) OVER() AS total_registers FROM registers ";
         $sql2 = 'WHERE '; // Inicializar fragmento de consulta para filtros
         foreach ($filters as $filter => $value) { // Para cada filtro
@@ -526,15 +548,15 @@ class ProcessController extends BaseController
     //     "total_registers"=> 12
     // ];
     // $objetoInicial = json_decode(json_encode($objetoInicial));
-    public function getFlowByProcess($iidproceso=0, $markers=[])
+    public function getFlowByProcess($iidproceso = 0, $markers = [])
     {
         // $iidproceso=1;
 
         // exit;
-        if(!$iidproceso){
+        if (!$iidproceso) {
             $data = $this->request->getJsonRawBody();
             $getStagesByProcess = $this->getStagesByProcess($data->iidproceso);
-        }else{
+        } else {
             $getStagesByProcess = $this->getStagesByProcess($iidproceso);
         }
         // $insertIcons=self::leerChildrenDinamicamente($info[0],$markers);
@@ -544,14 +566,14 @@ class ProcessController extends BaseController
             // self::dep($markers);exit;
             foreach ($subStages as $subStage) {
                 // self::dep($markers);exit;
-                if($markers){
-                    if(in_array($subStage->iidsubetapa,$markers['checkSubStages']) && $subStage->iidsubetapa != $markers['checkCurrentSubStage']){
+                if ($markers) {
+                    if (in_array($subStage->iidsubetapa, $markers['checkSubStages']) && $subStage->iidsubetapa != $markers['checkCurrentSubStage']) {
                         $subStage->textIcon = 'Encontrado en flujo' . $subStage->iidsubetapa;
                         $subStage->icon = 'mdi-checkbox-blank-circle';
-                    }elseif($subStage->iidsubetapa ==$markers['checkCurrentSubStage']){
+                    } elseif ($subStage->iidsubetapa == $markers['checkCurrentSubStage']) {
                         $subStage->textIcon = 'Encontrado en flujo actual' . $subStage->iidsubetapa;
                         $subStage->icon = 'mdi-check-circle';
-                    }else{
+                    } else {
                         $subStage->textIcon = 'No encontrado en flujo' . $subStage->iidsubetapa;
                         $subStage->icon = 'mdi-checkbox-blank-circle-outline';
                     }
@@ -562,7 +584,7 @@ class ProcessController extends BaseController
                 }
             }
         }
-        
+
         // self::dep($objetoInicial);
         // exit;
         if (!$objetoInicial) {
@@ -608,14 +630,14 @@ class ProcessController extends BaseController
         // self::dep($object);
         foreach ($object->children as $child) {
             // self::dep($child);
-            if($child->icon){
+            if ($child->icon) {
                 $formattedChild = [
                     'id' => $child->iidsubetapa,
                     'name' => $child->subetapa_nombre,
                     'icon' => $child->icon,
                     'children' => $this->formatObjectForJavaScript($child)
                 ];
-            }else{
+            } else {
                 $formattedChild = [
                     'id' => $child->iidsubetapa,
                     'name' => $child->subetapa_nombre,
@@ -624,14 +646,13 @@ class ProcessController extends BaseController
                 ];
             }
             $formattedItems[] = $formattedChild;
-
         }
         // var_dump($formattedItems);exit;
         return $formattedItems;
     }
 
 
-    public function getNextSubStageFromFlow($iidSubStage,$markers=[])
+    public function getNextSubStageFromFlow($iidSubStage, $markers = [])
     {
         $sql = "SELECT iidsubetapa_siguiente
                 FROM comun.cat_flujo
@@ -642,14 +663,14 @@ class ProcessController extends BaseController
 
         $nextSubStages = array();
         foreach ($currentFlow as $row) {
-            $nextSubStages[] = $this->subStage($row->iidsubetapa_siguiente,$markers);
+            $nextSubStages[] = $this->subStage($row->iidsubetapa_siguiente, $markers);
         }
 
         return $nextSubStages;
     }
 
     // Función para construir el árbol
-    function construirArbol($objetoInicial, $getNextSubStageFunction, $processedSubStages = array(), $markers =[])
+    function construirArbol($objetoInicial, $getNextSubStageFunction, $processedSubStages = array(), $markers = [])
     {
         // self::dep($markers);exit;
         $nextSubStages = $this->getNextSubStageFromFlow($getNextSubStageFunction, $markers);
@@ -658,7 +679,7 @@ class ProcessController extends BaseController
         if (empty($nextSubStages) || in_array($objetoInicial->iidsubetapa, $processedSubStages)) {
             return $objetoInicial;
         }
-        
+
         // Añadimos la subetapa actual al conjunto de subetapas procesadas
         $processedSubStages[] = $objetoInicial->iidsubetapa;
         $objetoInicial->children = array();
@@ -792,7 +813,7 @@ class ProcessController extends BaseController
         return $foundRequest; // Devolver información del inspector
     }
 
-    public function subStage($iidSubStage,$markers=[])
+    public function subStage($iidSubStage, $markers = [])
     {
         $sql = "SELECT 
                     s.iidsubetapa,
@@ -818,14 +839,14 @@ class ProcessController extends BaseController
         $params = array('iidsubetapa' => $iidSubStage);
         $subStage = Db::fetch($sql, $params);
 
-        if($markers){
-            if(in_array($subStage->iidsubetapa,$markers['checkSubStages']) && $subStage->iidsubetapa != $markers['checkCurrentSubStage']){
+        if ($markers) {
+            if (in_array($subStage->iidsubetapa, $markers['checkSubStages']) && $subStage->iidsubetapa != $markers['checkCurrentSubStage']) {
                 $subStage->textIcon = 'subStage - Encontrado en flujo' . $subStage->iidsubetapa;
                 $subStage->icon = 'mdi-checkbox-blank-circle';
-            }elseif($subStage->iidsubetapa ==$markers['checkCurrentSubStage']){
+            } elseif ($subStage->iidsubetapa == $markers['checkCurrentSubStage']) {
                 $subStage->textIcon = 'subStage - Encontrado en flujo actual' . $subStage->iidsubetapa;
                 $subStage->icon = 'mdi-check-circle';
-            }else{
+            } else {
                 $subStage->textIcon = 'subStage - No encontrado en flujo' . $subStage->iidsubetapa;
                 $subStage->icon = 'mdi-checkbox-blank-circle-outline';
             }

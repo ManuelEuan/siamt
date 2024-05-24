@@ -132,7 +132,7 @@
                 this.dialog = false;
             },
             newInspector() {
-                this.$router.push("/inspectors/new");
+                this.$router.push("/inspections/inspectors/new");
             },
         },
         async mounted() {
