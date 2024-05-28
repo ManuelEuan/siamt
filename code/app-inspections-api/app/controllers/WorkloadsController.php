@@ -166,6 +166,58 @@ class WorkloadsController extends BaseController
             ],
            
         ];
+        // $inputsAforoForm = [
+        //     'iidcarga_trabajo_tipo' => [
+        //         'label' => 'Seleccione la zona*',
+        //         'type' => 'autocomplete',
+        //         'model' => 'iidcarga_trabajo_tipo',
+        //         'rules' => 'required',
+        //         'cols' => 12,
+        //         'md' => 6,
+        //         'array' => ['type' => 'object', 'info' => self::getAllTypesWorkload(), 'item_text' => 'txtnombre', 'item_value' => 'iidcarga_trabajo_tipo']
+        //     ],
+        //     'txtdescripcion' => [
+        //         'label' => 'Descripción',
+        //         'type' => 'textarea',
+        //         'model' => 'txtdescripcion',
+        //         'rules' => 'required',
+        //         'cols' => 12,
+        //         'md' => 12
+        //     ],
+        //     'txtlatitud' => [
+        //         'label' => 'Latitud',
+        //         'type' => 'text',
+        //         'model' => 'txtlatitud',
+        //         'rules' => 'required',
+        //         'cols' => 12,
+        //         'md' => 6
+        //     ],
+        //     'txtlongitud' => [
+        //         'label' => 'Longitud',
+        //         'type' => 'text',
+        //         'model' => 'txtlongitud',
+        //         'rules' => 'required',
+        //         'cols' => 12,
+        //         'md' => 6
+        //     ],
+        //     'dtfecha_hora_inicio' => [
+        //         'label' => 'Fecha hora inicio',
+        //         'type' => 'datetime',
+        //         'model' => 'dtfecha_hora_inicio',
+        //         'rules' => null,
+        //         'cols' => 12,
+        //         'md' => 6
+        //     ],
+        //     'dtfecha_hora_fin' => [
+        //         'label' => 'Fecha hora fin',
+        //         'type' => 'datetime',
+        //         'model' => 'dtfecha_hora_fin',
+        //         'rules' => null,
+        //         'cols' => 12,
+        //         'md' => 6
+        //     ],
+           
+        // ];
         $allForms = [
             'inputsGeneralForm'=>$inputsGeneralForm, 
             'inputsTurnsForm'=>$inputsTurnsForm, 

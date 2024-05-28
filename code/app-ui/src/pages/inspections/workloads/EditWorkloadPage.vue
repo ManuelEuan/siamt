@@ -37,6 +37,12 @@
                             <v-icon> mdi-clipboard-text </v-icon>
                         </v-badge>
                     </v-tab>
+                    <v-tab href="#programadatab">
+                        Programadas
+                        <v-badge class="badge_change" :color="receivedTabWorksData.valid ? 'success' : 'warning'">
+                            <v-icon> mdi-clipboard-text </v-icon>
+                        </v-badge>
+                    </v-tab>
                 </v-tabs>
                 <v-tabs-items v-model="tab">
                     <v-card flat>
@@ -171,6 +177,15 @@
                                     @new-value="handleValuesWorksTab">
                                 </generic-form-validation> </v-card-text>
                         </v-tab-item>
+                        <v-tab-item :key="4" value="programadatab" class="py-1">
+                            <v-card-text>
+                                <!-- <generic-form-validation :formFields="formFieldsWorksTab"
+                                    :formFieldsWithValues="sendFieldsWorksTab" @form-valid="handleValidationWorksTab"
+                                    @new-value="handleValuesWorksTab">
+                                </generic-form-validation> -->
+                             </v-card-text>
+                        </v-tab-item>
+                        
                         <v-card-actions>
                             <v-spacer />
                             <v-btn color="error" text @click="exitWindow()"> Cerrar </v-btn>
