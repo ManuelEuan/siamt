@@ -49,7 +49,8 @@
                                         :rules="getFieldRules(field)" v-mask="getMask(field)"
                                         :disabled="dinamycDisabledFields.includes(index)"></v-text-field>
                                 </template>
-                                <v-date-picker  :min="field.min" :max="field.max" v-model="field.model" @input="field[index] = false"></v-date-picker>
+                                <v-date-picker :min="field.min" :max="field.max" v-model="field.model"
+                                    @input="field[index] = false"></v-date-picker>
                             </v-menu>
                         </template>
 
@@ -72,8 +73,8 @@
 
                         <template v-else-if="field.type === 'datetime'">
                             <v-datetime-picker v-model="field.model" :label="field.label" :rules="getFieldRules(field)"
-                                v-mask="getMask(field)" :disabled="dinamycDisabledFields.includes(index)"
-                                @input="handleDateTime(field)" :textFieldProps="{
+                                :disabled="dinamycDisabledFields.includes(index)" @input="handleDateTime(field)"
+                                :textFieldProps="{
                                     prependIcon: 'mdi-calendar-clock-outline ',
                                     clearable: true,
                                     dense: true,
@@ -86,6 +87,20 @@
                                     <v-icon>mdi-clock-time-eight-outline</v-icon>
                                 </template>
                             </v-datetime-picker>
+                        </template>
+                        <template v-else-if="field.type === 'checkbox'">
+                            <v-checkbox v-model="field.model" :label="field.label" :rules="getFieldRules(field)"
+                                :disabled="dinamycDisabledFields.includes(index)" />
+                        </template>
+                        <template v-else-if="field.type === 'radiobuttons'">
+                            <div>
+                                <label>{{ field.label }}</label>
+                                <v-radio-group v-model="field.model">
+                                    <v-radio v-for="(option, optionIndex) in field.options" :key="optionIndex"
+                                        :label="option.label" :value="option.value" :rules="getFieldRules(field)"
+                                        :disabled="dinamycDisabledFields.includes(index)" />
+                                </v-radio-group>
+                            </div>
                         </template>
 
                     </v-col>
@@ -161,10 +176,13 @@ export default {
     },
     methods: {
         handleDateTime(field) {
+            console.log('datetime field')
+            console.log(field)
             let format = this.formatDateTime(field.model)
             console.log('handleeee');
             console.log('Valor normal:', field.model);
             console.log('Valor formateado:', format);
+
             field.model = format
         },
         formatDateTime(value) {
@@ -175,8 +193,9 @@ export default {
             const hours = String(date.getHours()).padStart(2, '0');
             const minutes = String(date.getMinutes()).padStart(2, '0');
             const seconds = String(date.getSeconds()).padStart(2, '0');
-
-            const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            console.log(seconds)
+            // const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}`;
 
             // Ahora puedes hacer lo que quieras con el valor formateado, como emitir un evento o actualizar una variable en tu componente.
             // console.log('Valor formateado:', formattedDateTime);

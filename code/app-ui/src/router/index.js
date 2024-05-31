@@ -6,6 +6,7 @@ import config from '../configs';
 // Routes
 import UsersRoutes from "@/router/users.routes";
 import DebitacionRoutes from "@/router/debitacion.routes";
+import ModulesRoutes from "@/router/modules.routes";
 import ProfilesRoutes from "@/router/profiles.routes";
 import mtoUnidades from "@/router/mtoUnidades.routes";
 import InspectionsRoutes from "@/router/inspections.routes";
@@ -39,6 +40,7 @@ export const routes = [{
   }
 },
   ...UsersRoutes,
+  ...ModulesRoutes,
   ...DebitacionRoutes,
   ...ProfilesRoutes,
   ...mtoUnidades,

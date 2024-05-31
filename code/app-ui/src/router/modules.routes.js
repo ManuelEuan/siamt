@@ -1,38 +1,31 @@
 export default [
     {
-        path: '/users',
-        name: 'users',
-        component: () => import(/* webpackChunkName: "persons" */ '@/pages/admin/users/UsersPage.vue'),
+        path: '/modules',
+        name: 'modules',
+        component: () => import(/* webpackChunkName: "persons" */ '@/pages/admin/modules/ModulesPage.vue'),
         meta: {
             layout: 'default',
-            code: 'usr'
+            code: 'mod'
         }
-    }, {
-        path: '/users/new',
-        name: 'users-new',
-        component: () => import(/* webpackChunkName: "events-edit" */ '@/pages/admin/users/EditUserPage.vue'),
+    },
+    {
+        path: '/modules/new',
+        name: 'modules-new',
+        component: () => import(/* webpackChunkName: "events-edit" */ '@/pages/admin/modules/EditModulePage.vue'),
         meta: {
             layout: 'default',
             code: 'nus',
-            parentCode: 'usr'
+            parentCode: 'mod'
         }
-    }, {
-        path: '/users/:id/edit',
-        name: 'users-edit',
-        component: () => import(/* webpackChunkName: "events-edit" */ '@/pages/admin/users/EditUserPage.vue'),
+    },
+    {
+        path: '/modules/:id/edit',
+        name: 'modules-edit',
+        component: () => import(/* webpackChunkName: "events-edit" */ '@/pages/admin/modules/EditModulePage.vue'),
         meta: {
             layout: 'default',
             code: 'tus',
-            parentCode: 'usr'
-        }
-    }, {
-        path: '/users/:id/profile',
-        name: 'users-profile',
-        component: () => import(/* webpackChunkName: "persons-profile" */ '@/pages/admin/users/UserProfilePage.vue'),
-        meta: {
-            layout: 'default',
-            code: 'pus',
-            parentCode: 'usr'
+            parentCode: 'mod'
         }
     }
 ]

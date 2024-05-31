@@ -93,7 +93,7 @@ export default {
       },
       rules: rules,
       breadcrumbs: [
-        { text: 'Modulos', to: '/admin/modules', exact: true }
+        { text: 'Modulos', to: '/modules', exact: true }
       ]
     }
   },
@@ -103,6 +103,7 @@ export default {
       
       if(!this.validateFields()) return;
       this.loading = true;
+      console.log(this.editMode)
       if(this.editMode){
         await services.admin().updateModule(this.id, this.data);  
       } else {
@@ -112,7 +113,7 @@ export default {
       this.back();
     },
     back() {
-      this.$router.push({ path: '/admin/modules'});
+      this.$router.push({ path: '/modules'});
     },
     async loadData(id) {
       let data = await services.admin().getModule(id);

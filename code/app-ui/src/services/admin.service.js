@@ -22,6 +22,18 @@ export default class AdminService extends ApiService {
     return config;
   }
 
+  async getPermissionsOfModule(data) {
+    return await this.post("/modules/getPermissionsOfModule", JSON.stringify(data));
+  }
+  
+  async updatePermission(data) {
+    return await this.post(`/modules/updatePermission`, JSON.stringify(data));
+  }
+
+  async createPermission(data) {
+    return await this.post("/modules/createPermission", JSON.stringify(data));
+  }
+
   async getModules(params = {}) {
     return await this.get("/modules", params);
   }

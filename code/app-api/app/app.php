@@ -8,6 +8,7 @@ use App\Controllers\TerritoryController;
 use App\Controllers\LayersController;
 use App\Controllers\SurveyController;
 use App\Controllers\UsersController;
+use App\Controllers\ModulesController;
 use App\Controllers\ProfilesController;
 use App\Controllers\DebitsController;
 use App\Controllers\FirmsController;
@@ -75,11 +76,11 @@ $app->get('/admin/domains', function () {
     return $domains;
 });
 
-$app->get('/admin/modules', function () {
-    $sql = "SELECT * FROM usuario.modulo WHERE activo=true";
-    $modules = \App\Library\Db\Db::fetchAll($sql);
-    return $modules;
-});
+// $app->get('/admin/modules', function () {
+//     $sql = "SELECT * FROM usuario.modulo WHERE activo=true";
+//     $modules = \App\Library\Db\Db::fetchAll($sql);
+//     return $modules;
+// });
 
 $app->get('/admin/permissions', function () {
     $sql = "SELECT * FROM usuario.permiso WHERE activo=true";
@@ -128,9 +129,28 @@ $app->mount(
         ->put('/users/change', 'changeUserPass')
         ->delete('/users/{id}', 'deleteUser')
         ->post('/users/{id}/permissions', 'getPermissionsFromUser')
-   
-
 );
+
+$app->mount(
+    (new Collection())
+    ->setHandler(ModulesController::class, true)
+    ->setPrefix('/admin/modules')
+    ->get('/', 'getAll')
+    ->post('/', 'create')
+    ->get('/{id}', 'get')
+    ->post('/{id}', 'update')
+    ->post('/{id}/activate', 'activate')
+    ->post('/{id}/deactivate', 'deactivate')
+    ->delete('/{id}', 'delete')
+    ->post('/batch', 'batch')
+    ->post('/getPermissionsOfModule', 'getPermissionsOfModule')
+    ->post('/createPermission', 'createPermission')
+    ->post('/updatePermission', 'updatePermission')
+
+    
+);
+
+
 $app->mount(
     (new Collection())
     ->setHandler(ProfilesController::class, true)
