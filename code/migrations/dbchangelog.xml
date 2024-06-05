@@ -1,35 +1,53 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
+
+
 	<!-- V1 -->
 		<!-- <include file="changes/javp-1.sql"/>
 		<include file="changes/javp-2.sql"/>
 		<include file="changes/aicf-1.sql"/>
 		<include file="changes/aicf-2.sql"/>
 		<include file="changes/aicf-3.sql"/> -->
-		<!-- <include file="changes/mjcu-1.sql"/> -->
+
+	<!-- V1.1 -->
+		<include file="changes/schemas/create-schemas.sql"/>
+	<!-- CREACIÓN DE TABLAS -->
+		<include file="changes/tables/tables-schema-usuario.sql"/>
+	<!-- CREACIÓN DE MÓDULOS -->
+	
+		<include file="changes/modules/siamt-module-usuarios.sql"/>
+		<include file="changes/modules/siamt-module-modulos.sql"/>
+		<!-- <include file="changes/modules/siamt-module-perfiles.sql"/> -->
+	<!-- INSERCIONES GENERALES -->
+		<include file="changes/inserts/inserts-schema-usuario.sql"/>
+
+
+		
 	
 	<!-- ****************************************MODULES AND PERMISSIONS****************************** -->
-	<!-- 	
-		<include file="changes/modules/siamt-module-personas.sql"/>
+		
+		<!-- <include file="changes/modules/siamt-module-personas.sql"/>
 		<include file="changes/modules/siamt-module-procesos.sql"/>
 		<include file="changes/modules/siamt-module-firma.sql"/>
 		<include file="changes/modules/siamt-module-inspeccion.sql"/>
 		<include file="changes/modules/siamt-module-mto_unidades.sql"/>  
-	-->
+
+		<include file="changes/mjcu-1.sql"/> -->
+	
 	
 	<!-- V2 -->
 	<!-- ****************************************SCHEMAS AND EXTENSIONS****************************** -->
 		
-		<include file="changes/schemas/create-schemas.sql"/>
+		<!-- <include file="changes/schemas/create-schemas.sql"/> -->
 
 		<!-- ****************************************ESTRUCTURE AND DATA****************************** -->
 	
-		<include file="changes/structure/usuario.sql"/>
+		<!-- <include file="changes/structure/usuario.sql"/>
 		<include file="changes/structure/comun.sql"/>
 		<include file="changes/structure/territorio.sql"/>
 		<include file="changes/structure/persona.sql"/>
-		<include file="changes/structure/inspeccion.sql"/> 
+		<include file="changes/structure/inspeccion.sql"/>  -->
 
 
 </databaseChangeLog>
