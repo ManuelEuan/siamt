@@ -57,7 +57,7 @@ class ProcessController extends BaseController
                 'md' => 6,
                 'array' => [
                     'type' => 'object',
-                    'info' => self::getAllModules(),
+                    'info' => self::getAllModules(true),
                     'item_text' => 'nombre',
                     'item_value' => 'id'
                 ]
@@ -408,17 +408,34 @@ class ProcessController extends BaseController
         return $sql; // Devolver fragmento de consulta para ordenamiento
     }
 
-    public function getAllModules()
+    public function getAllModules($onlyParents = false)
     {
         // $default = 50; // Mérida
         // $params = array('iclave_municipio' => $default);
+        $sqlParents = "SELECT DISTINCT idpadre
+                FROM usuario.modulo
+                WHERE idpadre IS NOT NULL;";
+        $parents = Db::fetchAll($sqlParents);
+
         $sql = "SELECT 
-                    id, nombre
-                FROM 
-                    usuario.modulo
-                WHERE 
-                    activo='t';
-        ";
+            id, nombre, idpadre
+        FROM 
+            usuario.modulo
+        WHERE 
+            activo='t'";
+
+        if ($onlyParents) {
+            $sql = $sql . " AND idpadre IS NULL";
+
+            // Obtener los IDs de padres
+            $parentIds = array_column($parents, 'idpadre');
+
+            // Excluir los resultados obtenidos de $parents
+            if (!empty($parentIds)) {
+                $sql = $sql . " AND id NOT IN (" . implode(",", $parentIds) . ")";
+            }
+        }
+
         $modules = Db::fetchAll($sql);
         return $modules;
     }
@@ -590,10 +607,23 @@ class ProcessController extends BaseController
         if (!$objetoInicial) {
             return ['success' => true, 'message' => 'No se ha encontrado una etapa inicial, verifique la configuración del proceso'];
         }
-        $formattedObject = $this->formatObjectForJavaScript($objetoInicial);
+        // $formattedObject = $this->formatObjectForJavaScript($objetoInicial);
+        // self::dep($objetoInicial);exit;
+
+        // $prueba = $objetoInicial;
+        $prueba = [
+            [
+                'id' => $objetoInicial->iidsubetapa,
+                'name' => $objetoInicial->txtnombre . ' (Inicio de flujo)',
+                'icon' => 'mdi-check-circle',
+                'children' => $this->formatObjectForJavaScript($objetoInicial)
+            ]
+        ];
+        // $prueba['hijos'] = $formattedObject;
+        // self::dep($prueba);exit;
         // $formateo[0]=$objetoInicial;
         // $formattedObject = $this->formatObjectForJavaScript($formateo);
-        return ['success' => true, 'message' => '', 'info' => $objetoInicial, 'info2' => $formattedObject];
+        return ['success' => true, 'message' => '', 'info' => $objetoInicial, 'info2' => $prueba];
     }
 
     public function getAllNextSubStagesEnabled()

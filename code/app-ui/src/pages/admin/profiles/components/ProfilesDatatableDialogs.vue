@@ -35,7 +35,7 @@
               <v-row dense>
                 <template v-for="(value, key, index) in profile">
                   <!-- Verifica que exista la llave en la variable chips y que el arreglo tenga datos-->
-                  <v-col v-if="chips.includes(key) && value.length > 0" class="pa-0 ma-0" cols="12" :key="index"> 
+                  <v-col v-if="chips.includes(key) && value.length > 0" class="pa-0 ma-0" cols="12" :key="index">
                     <v-list-item>
                       <v-list-item-content class="py-2">
                         <v-list-item-title class="text-capitalize text-h7">
@@ -98,7 +98,7 @@
     </v-dialog>
   </div>
 </template>
-  
+
 <script>
 import rules from "@/core/rules.forms";
 import services from "@/services";
@@ -150,9 +150,12 @@ export default {
           services.admin().getPermissionsFromProfile({ id }),
           services.admin().getEditProfileInfo({ id }),
         ]);
-        console.log('PERMISOS');
+        console.log('DESDE EL SERVICIO');
+        console.log(modules)
+        console.log(usuarios)
         console.log(permissions);
-        this.permissions = modules.map(({ nombre, id }) => (
+        console.log(perfil)
+        this.permissions = modules.data.map(({ nombre, id }) => (
           {
             nombre,
             permisos: permissions.filter(p => p.idmodulo === id),
@@ -160,12 +163,25 @@ export default {
         ));
         console.log('PERMISOS FORMATEADOS');
         console.log(this.permissions);
-        const { modulos, permisos, ...profile } = perfil;
-
-        const convToName = (objs, ids) => objs.filter(o => ids.includes(o.id)).map(o => o.nombre);
-        modules = convToName(modules, modulos);
-        usuarios = convToName(usuarios, usuarios);
-        permissions = convToName(permissions, permisos);
+        // const { modulos, permisos, ...profile } = perfil;
+        const { ...profile } = perfil;
+        console.log(profile);
+        // const convToName = (objs, ids) => objs.filter(o => ids.includes(o.id)).map(o => o.nombre);
+        const convToName = (objs, ids) => {
+          // Verificar si objs es un array
+          console.log('objs')
+          console.log(objs)
+          console.log(ids)
+          // if (!Array.isArray(objs)) {
+          //   return [];
+          // }
+          // Si es un array, aplicar el filtro y mapeo
+          return objs.filter(o => ids.includes(o.id)).map(o => o.nombre);
+        };
+        modules = convToName(modules.data, profile.modulos);
+        console.log(modules)
+        usuarios = convToName(usuarios, profile.usuarios);
+        permissions = convToName(permissions, profile.permisos);
         this.profile = { ...profile };
         if (modules.length > 0) this.profile.modulos = modules;
         if (usuarios.length > 0) this.profile.usuarios = usuarios;
@@ -200,4 +216,3 @@ export default {
   },
 };
 </script>
-  

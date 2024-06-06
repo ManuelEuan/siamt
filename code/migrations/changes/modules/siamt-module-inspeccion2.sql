@@ -11,7 +11,7 @@
 - Inspección
   |- Carga de trabajo
   |- Listas
-     |- Trabajo
+     |- Boletas
      |- Inspectores
 
 
@@ -21,7 +21,7 @@
 WITH modulo_insertado_inspeccion AS (
     INSERT INTO usuario.modulo (seccion, nombre, descripcion, siglas, icono, activo, fecha_creacion, fecha_modificacion)
     VALUES 
-        ('Inspecciones', 'Listas', 'Catalogo de inspecciones', 'ins', 'mdi-human-capacity-increase', true, NOW(), NOW())
+        ('Inspecciones', 'Listas', 'Catalogo de inspecciones', 'ins', 'mdi-format-list-text', true, NOW(), NOW())
     RETURNING id
 ),
 usuario_dominio_modulo_insertado_inspeccion AS (
@@ -40,7 +40,7 @@ usuario_dominio_modulo_insertado_inspeccion AS (
 submodulo_uno_insertado_inspeccion AS (
     INSERT INTO usuario.modulo (seccion, nombre, descripcion, siglas, icono, activo, fecha_creacion, fecha_modificacion, idpadre)
     VALUES 
-        ('Inspección', 'Inspectores', 'Inspectores', 'iin', 'mdi-human-capacity-increase', true, NOW(), NOW(), (SELECT id FROM modulo_insertado_inspeccion))
+        ('Inspección', 'Inspectores', 'Inspectores', 'iin', 'mdi-account-multiple-check', true, NOW(), NOW(), (SELECT id FROM modulo_insertado_inspeccion))
     RETURNING id
 ),
 permisos_submodulo_uno_insertado_inspeccion AS (
@@ -78,16 +78,16 @@ insert_permisos_submodulo_uno_insertado_inspeccion AS (
 submodulo_dos_insertado_inspeccion AS (
     INSERT INTO usuario.modulo (seccion, nombre, descripcion, siglas, icono, activo, fecha_creacion, fecha_modificacion, idpadre)
     VALUES 
-        ('Inspección', 'Trabajo', 'Trabajo', 'itr', 'mdi-human-capacity-increase', true, NOW(), NOW(), (SELECT id FROM modulo_insertado_inspeccion))
+        ('Inspección', 'Boleta', 'Boleta', 'itr', 'mdi-human-capacity-increase', true, NOW(), NOW(), (SELECT id FROM modulo_insertado_inspeccion))
     RETURNING id
 ),
 permisos_submodulo_dos_insertado_inspeccion AS (
     INSERT INTO usuario.permiso (nombre, descripcion, siglas, idmodulo)
     VALUES 
-        ('Ver trabajo', 'Ver información del trabajo', 'veit', (SELECT id FROM submodulo_dos_insertado_inspeccion)),
-        ('Editar trabajo', 'Editar información y configuración del trabajo', 'edit', (SELECT id FROM submodulo_dos_insertado_inspeccion)),
-        ('Borrar trabajo', 'Activar o desactivar trabajo', 'boit', (SELECT id FROM submodulo_dos_insertado_inspeccion)),
-        ('Crear trabajo', 'Crear nuevo trabajo', 'crit', (SELECT id FROM submodulo_dos_insertado_inspeccion))
+        ('Ver Boleta', 'Ver información del Boleta', 'veit', (SELECT id FROM submodulo_dos_insertado_inspeccion)),
+        ('Editar Boleta', 'Editar información y configuración del Boleta', 'edit', (SELECT id FROM submodulo_dos_insertado_inspeccion)),
+        ('Borrar Boleta', 'Activar o desactivar Boleta', 'boit', (SELECT id FROM submodulo_dos_insertado_inspeccion)),
+        ('Crear Boleta', 'Crear nuevo Boleta', 'crit', (SELECT id FROM submodulo_dos_insertado_inspeccion))
     RETURNING id
 ),
 usuario_dominio_submodulo_dos_insertado_inspeccion AS (
@@ -117,7 +117,7 @@ insert_permisos_submodulo_dos_insertado_inspeccion AS (
 submodulo_tres_insertado_inspeccion AS (
     INSERT INTO usuario.modulo (seccion, nombre, descripcion, siglas, icono, activo, fecha_creacion, fecha_modificacion, idpadre)
     VALUES 
-        ('Inspecciones', 'Carga de trabajo', 'Carga de trabajo', 'ica', 'mdi-human-capacity-increase', true, NOW(), NOW(), NULL)
+        ('Inspecciones', 'Carga de trabajo', 'Carga de trabajo', 'ica', 'mdi-upload-network-outline', true, NOW(), NOW(), NULL)
     RETURNING id
 ),
 permisos_submodulo_tres_insertado_inspeccion AS (

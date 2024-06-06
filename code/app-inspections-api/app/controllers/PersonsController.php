@@ -15,7 +15,6 @@ class PersonsController extends BaseController
     {
 
         $permissions = $this->token->getPermissions()['pel']; // Obtener permisos del token de usuario
-        // var_dump($permissions);exit;
         if (!in_array($permission, $permissions)) { // Comprobar si el permiso está presente en los permisos del usuario
             throw new HttpUnauthorizedException(401, 'Permisos insuficientes.'); // Excepción de no autorizado si no se tienen los permisos necesarios
         }
@@ -149,13 +148,6 @@ class PersonsController extends BaseController
             }
         }
 
-        // $permissions = $this->token->getPermissions()['pel'];
-        if (in_array('vegp', $permissions)) {
-        }
-        // self::dep($this->hasClientAuthorized('vetp'));
-        // exit;
-        // if($this->hasClientAuthorized('vetp');)
-        // $this->dep($personas);exit;
         // SI EXISTEN MUCHAS PERSONAS QUE COINCIDEN CON LA BÚSQUEDA SE RETORNAN TODAS
         return $personas;
         // return $persona;
@@ -227,7 +219,7 @@ class PersonsController extends BaseController
 
     public function getGeneralPersonData()
     {
-        $this->hasClientAuthorized('vegp'); // Verificar si el cliente tiene autorización
+        $this->hasClientAuthorized('vemp'); // Verificar si el cliente tiene autorización
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         $params = array('iidpersona' => $data);
         $sql = "SELECT

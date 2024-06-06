@@ -58,12 +58,12 @@
                 <v-text-field v-model="persona.txtrfc" label="RFC" hide-details="auto" clearable dense disabled
                     outlined />
             </v-col>
-            <v-col cols="6" md="2" sm="6" v-if="peopleModulePermissions.includes('vegp')">
+            <v-col cols="6" md="2" sm="6" v-if="peopleModulePermissions.includes('vemp')">
                 <v-btn depressed color="primary" @click="showDialogPerson(persona.iidpersona)">
                     Información
                 </v-btn>
             </v-col>
-            <v-col cols="6" md="2" sm="6" v-if="!request.idOfSearch">
+            <v-col cols="6" md="2" sm="6" v-if="!request.idOfSearch" ref="showSelectionPerson" :style="{ display: showSelectionPerson ? 'block' : 'none' }">
                 <v-btn depressed color="primary" @click="emitToParentComponent()">
                     Seleccionar
                 </v-btn>
@@ -311,6 +311,7 @@ export default {
     data() {
         return {
             // DATOS INFORMATIVOS
+            showSelectionPerson: true,
             tab: "generaltab",
             newRegisterPerson: false,
             typePersonFisica: true,
@@ -415,6 +416,9 @@ export default {
                 this.responseCreatePerson = await services.inspections().createPerson(allInfo);
                 console.log('responseCreatePerson create')
                 console.log(this.responseCreatePerson)
+                // this.$refs.showSelectionPerson
+                // this.$refs.showSelectionPerson.hidden = true;
+                this.showSelectionPerson = false;
                 this.showSuccess(this.responseCreatePerson.message);
                 this.personaEncontrada= true
                 this.personaDisponible= true
@@ -472,6 +476,7 @@ export default {
         async verifyCurp() {
             try {
                 let data = {};
+                this.showSelectionPerson = true;
                 if (this.search === 'CURP') {
                     console.log('seleccionó curp')
                     data = {

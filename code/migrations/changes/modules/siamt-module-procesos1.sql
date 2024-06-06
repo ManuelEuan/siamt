@@ -12,7 +12,7 @@
 
 WITH inserted_module_proceso AS (
   INSERT INTO usuario.modulo (seccion, nombre, descripcion, siglas, icono, orden, activo, idpadre)
-  VALUES (null, 'Procesos', NULL, 'pro', 'mdi-tools', NULL, 't', NULL)
+  VALUES ('Administración', 'Procesos', NULL, 'pro', 'mdi-ray-start-vertex-end', NULL, 't', NULL)
   RETURNING id
 ),
 inserted_usuario_dominio_modulo AS (

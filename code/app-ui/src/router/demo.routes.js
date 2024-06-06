@@ -6,7 +6,7 @@ export default [
         component: () => import(/* webpackChunkName: "blank" */ '@/components/demo/Index.vue'),
         meta: {
             layout: 'default',
-            code: 'itr',
+            code: 'ooo',
             // parentCode: 'ins'
         }
     },
@@ -26,7 +26,7 @@ export default [
         meta: {
             layout: 'default',
             code: 'fip',
-            parentCode: 'fir'
+            parentCode: 'ooo'
         }
     },
     {
@@ -36,7 +36,7 @@ export default [
         meta: {
             layout: 'default',
             code: 'fip',
-            parentCode: 'fir'
+            parentCode: 'ooo'
         }
     },
 

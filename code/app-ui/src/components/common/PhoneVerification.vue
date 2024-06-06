@@ -377,6 +377,7 @@ export default {
         let user = await services.app().getUserConfig();
         this.newRegisterPerson = localStorage.getItem('newPerson') === 'true';
         let getActivePermissionsFromUser = await services.admin().getActivePermissionsFromUser(user[0].id);
+        console.log(getActivePermissionsFromUser);
         this.peopleModulePermissions = getActivePermissionsFromUser.map(permission => permission.siglas);
     }
 };

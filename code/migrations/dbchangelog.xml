@@ -11,16 +11,35 @@
 		<include file="changes/aicf-3.sql"/> -->
 
 	<!-- V1.1 -->
-		<include file="changes/schemas/create-schemas.sql"/>
-	<!-- CREACIÓN DE TABLAS -->
-		<include file="changes/tables/tables-schema-usuario.sql"/>
-	<!-- CREACIÓN DE MÓDULOS -->
-	
-		<include file="changes/modules/siamt-module-usuarios.sql"/>
-		<include file="changes/modules/siamt-module-modulos.sql"/>
-		<!-- <include file="changes/modules/siamt-module-perfiles.sql"/> -->
-	<!-- INSERCIONES GENERALES -->
-		<include file="changes/inserts/inserts-schema-usuario.sql"/>
+		<include file="changes/schemas/create-base-schemas-1.sql"/>
+	<!-- CREACIÓN PRINCIPAL DE SCHEMA USUARIOS PARA CONFIGURACIONES GENERALES DE MODULOS, PERFILES Y USUARIOS -->
+		<include file="changes/tables/schema-usuario-tables--1.sql"/>
+		<include file="changes/tables/schema-comun-tables.sql"/>
+		<include file="changes/tables/schema-persona-tables.sql"/>
+		<include file="changes/tables/schema-territorio-tables.sql"/>
+		<include file="changes/tables/schema-inspeccion-tables.sql"/>
+	<!-- CREACIÓN DE MÓDULOS PARA MASTER-->
+		<include file="changes/modules/siamt-module-usuarios1.sql"/>
+		<include file="changes/modules/siamt-module-modulos1.sql"/>
+	<!-- CREACIÓN DE MÓDULOS GENERALES (SE PUEDEN CONFIHURAR MANUALMENTE EN EL PANEL ADMINISTRATIVO)-->
+		<include file="changes/modules/siamt-module-debitaciones1.sql"/>
+		<include file="changes/modules/siamt-module-demo1.sql"/>  
+		<include file="changes/modules/siamt-module-firma1.sql"/>
+		<include file="changes/modules/siamt-module-inspeccion2.sql"/>
+		<include file="changes/modules/siamt-module-mto_unidades1.sql"/>  
+		<include file="changes/modules/siamt-module-perfiles1.sql"/>
+		<include file="changes/modules/siamt-module-personas3.sql"/>
+		<include file="changes/modules/siamt-module-procesos1.sql"/>
+	<!-- INSERCIONES GENERALES NORMAL-->
+		<include file="changes/inserts/inserts-schema-usuario3.sql"/>
+		<include file="changes/inserts/inserts-schema-persona1.sql"/>
+		<include file="changes/inserts/inserts-schema-territorio2.sql"/>
+		<include file="changes/inserts/inserts-schema-inspeccion1.sql"/>
+	<!-- INSERCIONES GENERALES CTE-->
+		<include file="changes/ctes/cte-schema-comun-proceso_registro_inspector2.sql"/>
+		<include file="changes/ctes/cte-schema-comun-proceso_elaboracion_boleta1.sql"/>
+
+		
 
 
 		

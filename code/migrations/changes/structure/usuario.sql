@@ -374,7 +374,7 @@ INSERT INTO "usuario"."permiso" VALUES (30, 'Crear persona', 'Crear nuevo person
 INSERT INTO "usuario"."permiso" VALUES (32, 'Ver direcciones de persona', 'Ver información del persona', 'vedp', 2, 't', '2024-04-24 21:17:14.347612', '2024-04-24 21:17:14.347612');
 INSERT INTO "usuario"."permiso" VALUES (33, 'Ver teléfonos de persona', 'Ver información del persona', 'vetp', 2, 't', '2024-04-24 21:17:14.347612', '2024-04-24 21:17:14.347612');
 INSERT INTO "usuario"."permiso" VALUES (34, 'Ver archivos de persona', 'Ver información del persona', 'veap', 2, 't', '2024-04-24 21:17:14.347612', '2024-04-24 21:17:14.347612');
-INSERT INTO "usuario"."permiso" VALUES (25, 'Ver información general de persona', 'Ver información del persona', 'vegp', 2, 't', '2024-04-17 09:25:02.08923', '2024-04-17 09:25:02.08923');
+INSERT INTO "usuario"."permiso" VALUES (25, 'Ver información general de persona', 'Ver información del persona', 'vemp', 2, 't', '2024-04-17 09:25:02.08923', '2024-04-17 09:25:02.08923');
 INSERT INTO "usuario"."permiso" VALUES (35, 'Crear direcciones de persona', 'Crear direcciones de la persona', 'crdp', 2, 't', '2024-04-25 11:04:25.756955', '2024-04-25 11:04:25.756955');
 INSERT INTO "usuario"."permiso" VALUES (36, 'Crear teléfonos de persona', 'Crear teléfonos de la persona', 'crtp', 2, 't', '2024-04-25 11:04:25.756955', '2024-04-25 11:04:25.756955');
 INSERT INTO "usuario"."permiso" VALUES (37, 'Crear archivos de persona', 'Crear archivos de la persona', 'crap', 2, 't', '2024-04-25 11:04:25.756955', '2024-04-25 11:04:25.756955');

@@ -35,7 +35,7 @@ INSERT INTO "usuario"."usuario_dominio" ("idusuario", "iddominio") VALUES (1, 1)
 WITH modulo_usuarios AS (
     INSERT INTO usuario.modulo (seccion, nombre, descripcion, siglas, icono, activo, fecha_creacion, fecha_modificacion)
     VALUES 
-        ('Administrativo', 'Usuarios', NULL, 'usr', 'mdi-human-capacity-increase', 't', NOW(), NOW())
+        ('Administración', 'Usuarios', NULL, 'usr', 'mdi-account-group', 't', NOW(), NOW())
     RETURNING id
 ),
 permiso_usuarios AS (

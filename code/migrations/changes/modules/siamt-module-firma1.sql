@@ -20,7 +20,7 @@
 WITH modulo_insertado_firma AS (
     INSERT INTO usuario.modulo (seccion, nombre, descripcion, siglas, icono, activo, fecha_creacion, fecha_modificacion)
     VALUES 
-        ('Gestión de firmas', 'Listas', 'Gestión de firmas', 'fir', 'mdi-human-capacity-increase', true, NOW(), NOW())
+        ('Gestión de firmas', 'Listas', 'Gestión de firmas', 'fir', 'mdi-format-list-text', true, NOW(), NOW())
     RETURNING id
 ),
 usuario_dominio_modulo_insertado_firma AS (
@@ -74,7 +74,7 @@ insert_permisos_submodulo_uno_insertado AS (
 submodulo_dos_insertado AS (
     INSERT INTO usuario.modulo (seccion, nombre, descripcion, siglas, icono, activo, fecha_creacion, fecha_modificacion, idpadre)
     VALUES 
-        ('Gestión de firmas', 'Firmas', 'Firmas', 'fif', 'mdi-human-capacity-increase', true, NOW(), NOW(), (SELECT id FROM modulo_insertado_firma))
+        ('Gestión de firmas', 'Firmas', 'Firmas', 'fif', 'mdi-pencil-box-outline', true, NOW(), NOW(), (SELECT id FROM modulo_insertado_firma))
     RETURNING id
 ),
 permisos_submodulo_dos_insertado AS (
@@ -110,7 +110,7 @@ insert_permisos_submodulo_dos_insertado AS (
 submodulo_tres_insertado AS (
     INSERT INTO usuario.modulo (seccion, nombre, descripcion, siglas, icono, activo, fecha_creacion, fecha_modificacion, idpadre)
     VALUES 
-        ('Gestión de firmas', 'Tablero', 'Tablero', 'fit', 'mdi-human-capacity-increase', true, NOW(), NOW(), NULL)
+        ('Gestión de firmas', 'Tablero', 'Tablero', 'fit', 'mdi-developer-board', true, NOW(), NOW(), NULL)
     RETURNING id
 ),
 permisos_submodulo_tres_insertado AS (
