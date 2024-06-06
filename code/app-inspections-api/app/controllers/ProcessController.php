@@ -509,14 +509,19 @@ class ProcessController extends BaseController
     public function getInfoBySubStage()
     {
         $data = $this->request->getJsonRawBody();
-
+        
         $currentSubStage = $this->subStage($data->idOfSubStage);
+        
         $nextSubStage = $this->getNextSubStageFromFlow($data->idOfSubStage);
         $currentFlow = ['currentSubStage' => $currentSubStage, 'nextSubStage' => $nextSubStage];
 
         $followUp = []; // ACA SE VA A RECUPERAR EL HISTORIAL POR EL QUE PASÓ O SE ESCOGIÓ, NO ES OBLIGATORIO
+        $boletas = [];
         if ($data->idOfType) {
             $followUp = $this->getDinamycTrace($data->type, $data->idOfType);
+            $boletas = $followUp['hasBoleta'];
+            // self::dep('$boletas');
+            // self::dep($boletas);exit;
         }
         $checkSubStages = $followUp['onlySubStages'];
         $checkCurrentSubStage =  $currentFlow['currentSubStage']->iidsubetapa;
@@ -526,7 +531,7 @@ class ProcessController extends BaseController
         $getProcessBySubStage->etapas = $flowComplete;
         // self::dep($getProcessBySubStage->etapas);exit;
         $allFlow = $getProcessBySubStage;
-        $allData = ['currentFlow' => $currentFlow, 'followUp' => $followUp, 'allFlow' => $allFlow];
+        $allData = ['currentFlow' => $currentFlow, 'followUp' => $followUp, 'allFlow' => $allFlow, 'boletas' => $boletas];
         return $allData;
     }
 
@@ -828,8 +833,53 @@ class ProcessController extends BaseController
                         insp.iidinspector = :idOfSearch
                         AND insp.bactivo = 't';
             ";
+             $sqlpersona = "SELECT iidpersona FROM inspeccion.tbl_inspector WHERE iidinspector = $idOfSearch";
+             $res = Db::fetchAll($sqlpersona);
+             $iidpersona = $res[0]->iidpersona;
+            $sqlBoleta = "SELECT
+                    b.iidboleta,
+                    b.dtfecha_hora_infraccion,
+                    b.txtlugar_infraccion,
+                    b.txtdireccion,
+                    b.imonto_total,
+                    CONCAT(p_inf.txtnombre, ' ', p_inf.txtapepat, CASE WHEN p_inf.txtapemat <> '' THEN ' ' || p_inf.txtapemat ELSE '' END) AS nombre_infractor,
+                    CONCAT(p_emp.txtnombre, ' ', p_emp.txtapepat, CASE WHEN p_emp.txtapemat <> '' THEN ' ' || p_emp.txtapemat ELSE '' END) AS nombre_empleado,
+                    br.txtnombre AS nombre_rol,
+                    b.txtlicencia,
+                    b.txtunidad,
+                    b.tarjeta_circulacion_id,
+                    b.txtreporte_especial_id,
+                    b.txtinspeccion_fisica,
+                    b.bretencion_vehiculo,
+                    b.bretencion_documento,
+                    b.txtobservaciones,
+                    b.bapercibimiento,
+                    b.dapercibimiento_fecha,
+                    b.dfecha_limite_comparecencia,
+                    b.dfecha_limite_resolucion,
+                    b.dfecha_limite_notificacion,
+                    b.bno_ha_lugar,
+                    b.bsuspension,
+                    b.isuspension_dias,
+                    b.dsuspension_fecha,
+                    b.bactivo,
+                    b.dtfecha_creacion,
+                    b.dtfecha_modificacion
+                FROM
+                    boleta.tbl_boleta b
+                INNER JOIN
+                    persona.tbl_persona p_inf ON b.iidinfractor = p_inf.iidpersona
+                INNER JOIN
+                    persona.tbl_persona p_emp ON b.iidempleado = p_emp.iidpersona
+                INNER JOIN
+                    boleta.tbl_boleta_rol br ON b.iidboleta_rol_id = br.iidboleta_rol
+                WHERE 
+                    p_emp.iidpersona = $iidpersona
+                    AND b.bactivo = 't';
+            ";
         }
-
+        // $hola = Db::fetchAll($sqlBoleta);
+        // self::dep($hola);exit;
         $params = array('idOfSearch' => $idOfSearch); // Parámetros para la consulta
         $foundRequest = Db::fetchAll($sql, $params);
         $onlyStages = [];
@@ -840,6 +890,7 @@ class ProcessController extends BaseController
         }
         $foundRequest['onlyStages'] = $onlyStages;
         $foundRequest['onlySubStages'] = $onlySubStages;
+        $foundRequest['hasBoleta'] = Db::fetchAll($sqlBoleta);
         return $foundRequest; // Devolver información del inspector
     }
 

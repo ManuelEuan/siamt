@@ -1,12 +1,12 @@
 <template>
     <div>
-        EditWorkPage
+        EditTicketPage
     </div>
 </template>
 
 <script>
 export default {
-    name: 'IndexWork',
+    name: 'IndexTicket',
 }
 </script>
 <style lang="scss" scoped></style>

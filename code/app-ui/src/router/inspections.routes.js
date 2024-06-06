@@ -62,11 +62,11 @@ export default [
             parentCode: 'ica'
         }
     }, 
-    // MÓDULO EXTRA
+    // MÓDULO BOLETAS
     {
-        path: '/inspections/works',
-        name: 'works',
-        component: () => import(/* webpackChunkName: "debsons" */ '@/pages/inspections/works/IndexWorkPage.vue'),
+        path: '/inspections/tickets',
+        name: 'tickets',
+        component: () => import(/* webpackChunkName: "debsons" */ '@/pages/inspections/tickets/IndexTicketPage.vue'),
         meta: {
             layout: 'default',
             code: 'itr',
@@ -74,9 +74,9 @@ export default [
         }
     },
     {
-        path: '/inspections/works/new',
-        name: 'works-new',
-        component: () => import(/* webpackChunkName: "events-edit" */ '@/pages/inspections/works/EditWorkPage.vue'),
+        path: '/inspections/tickets/new',
+        name: 'tickets-new',
+        component: () => import(/* webpackChunkName: "events-edit" */ '@/pages/inspections/tickets/EditTicketPage.vue'),
         meta: {
             layout: 'default',
             code: 'iin',

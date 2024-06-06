@@ -1,15 +1,14 @@
 <template>
   <div class="wrapper">
-    <!-- inspectors datatable -->
-    <works-datatable-dialogs ref="dialogs" />
-      
+    <tickets-datatable-dialogs ref="dialogs" />
+      <!-- {{ tickets }} ---------- {{  ticketsTotalItems}}------{{ ticketsTotalPages }} -->
     <v-data-table
       class="elevation-1"
       loading-text="Cargando información"
       :headers="headers"
-      :items="inspectors"
-      :page-count="inspectorsTotalPages"
-      :server-items-length="inspectorsTotalItems"
+      :items="tickets"
+      :page-count="ticketsTotalPages"
+      :server-items-length="ticketsTotalItems"
       :options.sync="options"
       :loading="loadingTable"
     >
@@ -32,7 +31,7 @@
               <v-icon small> mdi-eye </v-icon>
             </v-btn>
           </template>
-          <span>Ver inspector</span>
+          <span>Ver boleta</span>
         </v-tooltip>
 
         <v-tooltip v-if="permissions.includes('edii')" bottom>
@@ -47,7 +46,7 @@
               <v-icon small> mdi-square-edit-outline </v-icon>
             </v-btn>
           </template>
-          <span>Editar inspector</span>
+          <span>Editar boleta</span>
         </v-tooltip>
 
         <v-tooltip v-if="permissions.includes('boii')" bottom>
@@ -63,7 +62,7 @@
               <v-icon small v-show="!item.activo"> mdi-check </v-icon>
             </v-btn>
           </template>
-          <span>{{ item.activo ? "Desactivar" : "Activar" }} inspector</span>
+          <span>{{ item.activo ? "Desactivar" : "Activar" }} boleta</span>
         </v-tooltip>
 
       </template>
@@ -72,23 +71,23 @@
 </template>
 
 <script>
-import WorksDatatableDialogs from "@/pages/inspections/inspectors/components/InspectorsDatatableDialogs";
+import TicketsDatatableDialogs from "@/pages/inspections/tickets/components/TicketsDatatableDialogs";
 import services from "@/services";
 import { mapActions, mapState } from "vuex";
 
 export default {
-  name: "WorksDatatable",
+  name: "TicketsDatatable",
   components: {
-    WorksDatatableDialogs,
+    TicketsDatatableDialogs,
   },
   data() {
     return {
       permissions: [],
       options: {
-        inspectors: [],
+        tickets: [],
         page: 1,
         itemsPerPage: 10,
-        sortBy: ['txtnombre'],//nombre
+        sortBy: ['nombre_infractor'],//nombre
         sortDesc: [false],
         multiSort: true,
         mustSort: false,
@@ -96,35 +95,35 @@ export default {
       loadingTable: true,
       headers: [
         {
-          text: "Nombre",
-          value: "txtnombre",
+          text: "Infractor",
+          value: "nombre_infractor",
           align: "center",
           class: "font-weight-bold",
         },
         {
-          text: "Folio",
-          value: "txtfolio_inspector",
+          text: "Fecha/Hora Infracción",
+          value: "dtfecha_hora_infraccion",
           align: "center",
           class: "font-weight-bold",
         },
-        {
-          text: "Etapa",
-          value: "txtinspector_etapa",
-          align: "center",
-          class: "font-weight-bold",
-        },
-        {
-          text: "Turno",
-          value: "txtinspector_turno",
-          align: "center",
-          class: "font-weight-bold",
-        },
-        {
-          text: "Categoría",
-          value: "txtinspector_categoria",
-          align: "center",
-          class: "font-weight-bold",
-        },
+        // {
+        //   text: "Etapa",
+        //   value: "txtboleta_etapa",
+        //   align: "center",
+        //   class: "font-weight-bold",
+        // },
+        // {
+        //   text: "Turno",
+        //   value: "txtboleta_turno",
+        //   align: "center",
+        //   class: "font-weight-bold",
+        // },
+        // {
+        //   text: "Categoría",
+        //   value: "txtboleta_categoria",
+        //   align: "center",
+        //   class: "font-weight-bold",
+        // },
         {
           text: "Activo",
           value: "activo",
@@ -142,25 +141,27 @@ export default {
     };
   },
   computed: {
-    ...mapState('app', ['inspectors', 'inspectorsTotalPages', 'inspectorsTotalItems']),
+    ...mapState('app', ['tickets', 'ticketsTotalPages', 'ticketsTotalItems']),
   },
   methods: {
-    ...mapActions('app', ['getInspectors']),
-    async loadInspectorsTable() {
-      console.log(this.inspectors);
+    ...mapActions('app', ['getTickets']),
+    async loadTicketsTable() {
+      console.log(this.tickets);
       const { page, itemsPerPage, sortBy, sortDesc } = this.options;
       const data = { page, itemsPerPage, sortBy, sortDesc }; 
-      this.getInspectors({ data });
+      this.getTickets({ data });
+      console.log('front')
+      console.log(data)
       this.loadingTable = false;
     },
-    actionsHandler(inspector, action) {
+    actionsHandler(boleta, action) {
       console.log('actionsHandler')
-      console.log(inspector)
+      console.log(boleta)
       console.log(action)
-      this.$refs.dialogs.inspector = inspector;
+      this.$refs.dialogs.boleta = boleta;
 
       switch (action) {
-        case 'edit': this.$router.push(`/inspectors/${inspector.iidinspector}/edit`); break;
+        case 'edit': this.$router.push(`/tickets/${boleta.iidboleta}/edit`); break;
         case 'view': this.$refs.dialogs.viewInspector(); break;
         default: this.$refs.dialogs.show[action] = true;
       }
@@ -169,7 +170,7 @@ export default {
   watch: {
     options: {
       handler() {
-        this.loadInspectorsTable();
+        this.loadTicketsTable();
       },
       deep: true,
     },

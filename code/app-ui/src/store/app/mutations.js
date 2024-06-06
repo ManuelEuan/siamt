@@ -140,4 +140,28 @@ export default {
   setDinamycRegisterInProcessTotalItems: (state, totalItems) => {
     state.dinamycRegisterInProcessTotalItems = totalItems
   },
+
+
+    /**
+  * Tickets Filters and Pagination
+  */
+    setTickets: (state, tickets) => {
+      console.log('tickets******************')
+      console.log(tickets)
+      state.tickets = tickets
+    },
+    setTicketsData: (state, data) => {
+      state.ticketsData = { ...data };
+    },
+    setTicketsFilters: (state, filters) => {
+      console.log('mutation')
+      console.log(filters)
+      state.ticketsFilters = { ...filters };
+    },
+    setTicketsTotalPages: (state, totalPages) => {
+      state.ticketsTotalPages = totalPages
+    },
+    setTicketsTotalItems: (state, totalItems) => {
+      state.ticketsTotalItems = totalItems
+    },
 }

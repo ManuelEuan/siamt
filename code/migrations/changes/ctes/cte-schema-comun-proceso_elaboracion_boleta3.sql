@@ -42,8 +42,6 @@ INSERT INTO "comun"."cat_subetapa" ("iidetapa", "txtnombre", "txtsigla", "txtdes
 SELECT iidetapa, txtnombre, txtsigla, txtdescripcion,
     CASE 
         WHEN txtnombre = 'Ingreso de información' THEN true
-        WHEN txtnombre = 'Selección de método de pago' THEN true
-        WHEN txtnombre = 'Convocatoria a comparecencia' THEN true
         ELSE false
     END AS binicial
 FROM (
@@ -53,10 +51,10 @@ FROM (
         ((SELECT iidetapa FROM Etapa WHERE txtnombre = 'Creación de boleta'), 'Revisión de datos', 'REV', 'Revisar los datos ingresados en la boleta antes de su emisión.', false),
         ((SELECT iidetapa FROM Etapa WHERE txtnombre = 'Creación de boleta'), 'Emisión de boleta', 'EMIT', 'Emitir la boleta después de su creación y revisión.', false),
         -- Subetapas de la etapa "Pago de boleta"
-        ((SELECT iidetapa FROM Etapa WHERE txtnombre = 'Pago de boleta'), 'Selección de método de pago', 'METP', 'Seleccionar el método de pago preferido.', true),
+        ((SELECT iidetapa FROM Etapa WHERE txtnombre = 'Pago de boleta'), 'Selección de método de pago', 'METP', 'Seleccionar el método de pago preferido.', false),
         ((SELECT iidetapa FROM Etapa WHERE txtnombre = 'Pago de boleta'), 'Realización del pago', 'REAL', 'Realizar el pago correspondiente de la boleta.', false),
         -- Subetapas de la etapa "Comparecencia"
-        ((SELECT iidetapa FROM Etapa WHERE txtnombre = 'Comparecencia'), 'Convocatoria a comparecencia', 'CONV', 'Convocar a la parte interesada a una comparecencia si es necesario.', true),
+        ((SELECT iidetapa FROM Etapa WHERE txtnombre = 'Comparecencia'), 'Convocatoria a comparecencia', 'CONV', 'Convocar a la parte interesada a una comparecencia si es necesario.', false),
         ((SELECT iidetapa FROM Etapa WHERE txtnombre = 'Comparecencia'), 'Desarrollo de comparecencia', 'DES', 'Llevar a cabo la comparecencia con todas las partes involucradas.', false),
         ((SELECT iidetapa FROM Etapa WHERE txtnombre = 'Comparecencia'), 'Resolución de comparecencia', 'RES', 'Resolver las cuestiones planteadas durante la comparecencia.', false)
 ) AS data(iidetapa, txtnombre, txtsigla, txtdescripcion, binicial);

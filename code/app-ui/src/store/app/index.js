@@ -60,6 +60,13 @@ const state = {
     dinamycRegisterInProcessFilters: {},
     dinamycRegisterInProcessTotalPages: 0,
     dinamycRegisterInProcessTotalItems: 0,
+
+      // inspectores filters and pagination
+  tickets: [],
+  ticketsData: {},
+  ticketsFilters: {},
+  ticketsTotalPages: 0,
+  ticketsTotalItems: 0,
 }
 
 export default {

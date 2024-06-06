@@ -225,6 +225,15 @@ export default class InspectionsService extends ApiService {
     return await this.post("/process/dinamycRegisterInProcess", JSON.stringify(data));
   }
 
+  async getTickets(data) {
+    return await this.post("/tickets/getTickets", JSON.stringify(data));
+  }
+
+  async downloadTickets(data) {
+    return await this.post("/tickets/downloadTickets", JSON.stringify(data));
+  }
+
+   
   
   
 }

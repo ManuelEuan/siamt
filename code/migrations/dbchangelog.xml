@@ -18,6 +18,7 @@
 		<include file="changes/tables/schema-persona-tables.sql"/>
 		<include file="changes/tables/schema-territorio-tables.sql"/>
 		<include file="changes/tables/schema-inspeccion-tables.sql"/>
+		<include file="changes/tables/schema-boleta-tables1.sql"/>
 	<!-- CREACIÓN DE MÓDULOS PARA MASTER-->
 		<include file="changes/modules/siamt-module-usuarios1.sql"/>
 		<include file="changes/modules/siamt-module-modulos1.sql"/>
@@ -35,9 +36,10 @@
 		<include file="changes/inserts/inserts-schema-persona1.sql"/>
 		<include file="changes/inserts/inserts-schema-territorio2.sql"/>
 		<include file="changes/inserts/inserts-schema-inspeccion1.sql"/>
+		<include file="changes/inserts/inserts-schema-boleta1.sql"/>
 	<!-- INSERCIONES GENERALES CTE-->
-		<include file="changes/ctes/cte-schema-comun-proceso_registro_inspector2.sql"/>
-		<include file="changes/ctes/cte-schema-comun-proceso_elaboracion_boleta1.sql"/>
+		<include file="changes/ctes/cte-schema-comun-proceso_registro_inspector9.sql"/>
+		<include file="changes/ctes/cte-schema-comun-proceso_elaboracion_boleta3.sql"/>
 
 		
 

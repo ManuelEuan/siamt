@@ -78,7 +78,7 @@ insert_permisos_submodulo_uno_insertado_inspeccion AS (
 submodulo_dos_insertado_inspeccion AS (
     INSERT INTO usuario.modulo (seccion, nombre, descripcion, siglas, icono, activo, fecha_creacion, fecha_modificacion, idpadre)
     VALUES 
-        ('Inspección', 'Boleta', 'Boleta', 'itr', 'mdi-human-capacity-increase', true, NOW(), NOW(), (SELECT id FROM modulo_insertado_inspeccion))
+        ('Inspección', 'Boletas', 'Boletas', 'itr', 'mdi-human-capacity-increase', true, NOW(), NOW(), (SELECT id FROM modulo_insertado_inspeccion))
     RETURNING id
 ),
 permisos_submodulo_dos_insertado_inspeccion AS (

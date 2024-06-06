@@ -11,8 +11,8 @@
                     @click="dialogRequestTrace = true">Seguimiento</v-btn>
             </div>
             <div class="col-md-3 d-md-flex  py-1">
-                <v-btn class="mx-auto" v-if="request.idOfType && currentFlow.currentSubStage.txtsigla === 'BOLE'"
-                    style="max-width: 200px" color="primary" @click="dialogShowBoletas = true">Boletas</v-btn>
+                <v-btn class="mx-auto" v-if="request.idOfType && currentFlow.currentSubStage.txtsigla === 'EBIN'"
+                    style="max-width: 200px" color="primary" @click="dialogShowBoletas = true">Boleta</v-btn>
             </div>
         </div>
         <template>
@@ -51,7 +51,7 @@
                             <!-- <div :style="'background-color: ' + (currentFlow.nextSubStage[0].txtcolor !== '' ? currentFlow.nextSubStage[0].txtcolor : 'gray')" -->
                             <div :style="'background-color: gray'" class="mb-6 d-flex align-center justify-center py-2"
                                 style="color: white; font-weight: bold; font-size: 16px;margin-bottom: 1rem !important;">
-                                Descripcións: {{ currentFlow.nextSubStage[0].txtdescripcion }}
+                                Descripción: {{ currentFlow.nextSubStage[0].txtdescripcion }}
                             </div>
                         </div>
                         <div>
@@ -61,12 +61,12 @@
                     </v-stepper-content>
                 </div>
                 <div v-if="currentFlow.nextSubStage.length > 1">
-                    <v-stepper-step step="2" >
+                    <v-stepper-step step="2">
                         Bifurcación de proceso
                     </v-stepper-step>
 
                     <v-stepper-content step="2" class="step_two" style="">
-                        <div  height="100px" style="">
+                        <div height="100px" style="">
                             <div :style="'background-color: gray;'" class="mb-6 d-flex align-center justify-center py-2"
                                 style="color: white; font-weight: bold; font-size: 16px;margin-bottom: 1rem !important;">
                                 Debe seleccionar la opción siguiente para ver los flujos disponibles
@@ -96,6 +96,24 @@
             </template>
         </generic-dialog>
 
+        <!-- DIALOG INFO BOLETA -->
+        <generic-dialog :dialogVisible="dialogShowTicket" dialogTitle="Visualizar boleta"
+            @update:dialogVisible="dialogShowTicket = $event" @confirm="dialogShowTicket = false">
+            <template v-slot:default>
+                Fecha: {{ ticket.dtfecha_hora_infraccion }}
+                Nombre de infractor: {{ ticket.nombre_infractor }}
+                Nombre de empleado: {{ ticket.nombre_empleado }}
+                <!-- <template>
+                    <v-treeview :items="treeData" :expanded.sync="expandedItems" activatable color="primary" transition
+                        open-all open-on-click>
+                        <template v-slot:prepend="{ item }">
+                            <v-icon v-if="item.icon" color="primary">{{ item.icon }}</v-icon>
+                        </template>
+                    </v-treeview>
+                </template> -->
+            </template>
+        </generic-dialog>
+
         <generic-dialog :dialogVisible="dialogDemoProcess" dialogTitle="Parámetros faltantes"
             @update:dialogVisible="dialogDemoProcess = $event" @confirm="dialogDemoProcess = false">
             <template v-slot:default>
@@ -112,30 +130,63 @@
         </generic-dialog>
 
 
-        <generic-dialog :dialogVisible="dialogShowBoletas" dialogTitle="Boletas generadas"
+        <generic-dialog :dialogVisible="dialogShowBoletas" dialogTitle="Boletas" :maxWidth=700
             @update:dialogVisible="dialogShowBoletas = $event">
             <template v-slot:default>
-                En el proceso de esta sub etapa existen diferentes flujos, favor de seleccionar uno
-                <!-- TABLA DE BOLETAS -->
-                <v-data-table :headers="headers" :items="currentFlow.nextSubStage" loading-text="Cargando... Espere un momento." no-data-text="No hay registros disponibles.">
-                    <template v-slot:item.bactual="{ item }">
-                        <v-icon v-show="item.bactual" size="medium" color="green">mdi-check</v-icon>
-                        <v-icon v-show="!item.bactual" size="medium" color="red">mdi-close</v-icon>
-                    </template>
-                    <template v-slot:item.actions="{ item }">
-                        <div style="min-width: 85px;">
-                            <v-tooltip bottom>
-                                <template v-slot:activator="{ on, attrs }">
-                                    <v-btn v-bind="attrs" v-on="on" icon small
-                                        @click="confirmNextSubStageOfBifurcation(item.iidetapa, item.iidsubetapa)">
-                                        <v-icon small>mdi-check</v-icon>
-                                    </v-btn>
-                                </template>
-                                <span>Seleccionar</span>
-                            </v-tooltip>
-                        </div>
-                    </template>
-                </v-data-table>
+                <v-tabs vertical>
+                    <v-tab >
+                        <v-icon left>
+                            mdi-account
+                        </v-icon>
+                        <div v-if="!isSmallScreen">Crear</div>
+                    </v-tab>
+                    <v-tab >
+                        <v-icon left>
+                            mdi-lock
+                        </v-icon>
+                        <div v-if="!isSmallScreen">Generadas</div>
+                    </v-tab>
+                    <v-tab-item>
+                        <v-card flat>
+                            <v-card-text>
+                                <div>Aca sería el formulario</div>
+                            </v-card-text>
+                        </v-card>
+                    </v-tab-item>
+                    <v-tab-item>
+                        <v-card flat>
+                            <v-card-text>
+                                Boletas generadas por inspector
+                                <!-- TABLA DE BOLETAS -->
+                                <v-data-table :headers="headersTblBoleta" :items="itemsDemo">
+                                    <template v-slot:item.bactual="{ item }">
+                                        <v-icon v-show="item.bactual" size="medium" color="green">mdi-check</v-icon>
+                                        <v-icon v-show="!item.bactual" size="medium" color="red">mdi-close</v-icon>
+                                    </template>
+                                    <template v-slot:item.actions="{ item }">
+                                        <div style="min-width: 85px;">
+                                            <v-tooltip bottom>
+                                                <template v-slot:activator="{ on, attrs }">
+                                                    <v-btn v-bind="attrs" v-on="on" icon small
+                                                        @click="showTicket(item)">
+                                                        <v-icon small>mdi-eye</v-icon>
+                                                    </v-btn>
+                                                </template>
+                                                <span>Seleccionar</span>
+                                            </v-tooltip>
+                                        </div>
+                                    </template>
+                                </v-data-table>
+
+
+                            </v-card-text>
+                        </v-card>
+                    </v-tab-item>
+
+                </v-tabs>
+
+
+
             </template>
         </generic-dialog>
 
@@ -190,9 +241,9 @@
 
 .step_two .v-stepper__wrapper {
     height: 120px !important;
-    max-width: 90%; margin: 0 auto;
+    max-width: 90%;
+    margin: 0 auto;
 }
-
 </style>
 
 <script>
@@ -205,12 +256,14 @@ export default {
     },
     data() {
         return {
+            tab: 'crear',
             activeStep: 0,
             // activeStep: -1,
             // activeStep: null,
             steepSubStage: 1,
             traceOfRequest: 2,
             switch1: false,
+            ticket: [],
             requestDinamyc: {
                 type: '', //type-dinamyc
                 idOfType: 0, //iid-dinamyc
@@ -225,6 +278,16 @@ export default {
                 { text: 'Descripción', value: 'txtdescripcion' },
                 { text: 'Acciones', value: 'actions' }
             ],
+            headersTblBoleta: [
+                // { text: 'ID', value: 'id' },
+                { text: 'Infractor', value: 'nombre_infractor' },
+                { text: 'Acciones', value: 'actions' }
+            ],
+            itemsDemo: [
+                // { nombre_completo: 'Ejemplo 1', bactual: true },
+                // { nombre_completo: 'Ejemplo 2', bactual: false },
+            ],
+            isSmallScreen: false,
             // iidProperties: {
             //     'Inspector': 'iidinspector',
             //     'Boleta': 'iidboleta',
@@ -232,6 +295,7 @@ export default {
             dialogVerifyNextSubStage: false,
             dialogBifurcation: false,
             dialogShowBoletas: false,
+            dialogShowTicket: false,
             // ARRAYS
             allFlow: [],
             currentFlow: { // EJEMPLO DE RESPUESTA
@@ -300,6 +364,11 @@ export default {
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
+        showTicket(ticket){
+            this.ticket = ticket
+            this.dialogShowTicket = true
+            console.log(ticket)
+        },
         verifyNextSubStage() {
             console.log(this.currentFlow.nextSubStage)
             if (this.currentFlow.nextSubStage.length === 1) {
@@ -315,6 +384,7 @@ export default {
                 let allInfo = await services.inspections().getInfoBySubStage(this.requestDinamyc);
                 console.log('*******************allInfo*******');
                 console.log(allInfo);
+                this.itemsDemo = allInfo.boletas
                 this.allFlow = allInfo.allFlow
                 this.currentFlow = allInfo.currentFlow
                 this.followUp = allInfo.followUp
@@ -430,6 +500,12 @@ export default {
                 };
             });
         },
+        checkScreenSize() {
+            this.isSmallScreen = window.innerWidth < 600; // Definir el ancho de la pantalla que consideras como "pequeño"
+        },
+    },
+    beforeDestroy() {
+        window.removeEventListener('resize', this.checkScreenSize);
     },
     watch: {
         'request': async function () {
@@ -440,10 +516,20 @@ export default {
                 await this.loadFlowData();
                 this.demo = false
             }
-        }
+        },
+        'dialogShowTicket': async function () {
+            if (this.dialogShowTicket) {
+                this.dialogShowBoletas = false
+
+            }else{
+                this.dialogShowBoletas = true
+            }
+        },
     },
     async mounted() {
         console.log('cargando')
+        window.addEventListener('resize', this.checkScreenSize);
+        this.checkScreenSize();
         this.requestDinamyc = this.request
         await this.loadFlowData();
 

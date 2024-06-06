@@ -9,6 +9,7 @@ use App\Controllers\WorkloadsController;
 use App\Controllers\PersonsController;
 use App\Controllers\ProcessController;
 use App\Controllers\TerritoryController;
+use App\Controllers\TicketsController;
 
 $app->mount(
     (new Collection())
@@ -72,6 +73,14 @@ $app->mount(
     ->post("/territory/getMunicipalityAndEntityByPostalCode", "getMunicipalityAndEntityByPostalCode")
     ->post("/territory/getColoniesByPostalCode", "getColoniesByPostalCode")
 );
+
+$app->mount(
+    (new Collection())
+    ->setHandler(TicketsController::class, true)
+    ->post("/tickets/getTickets", "getTickets")
+    ->post("/tickets/downloadTickets", "downloadTickets")
+);
+
 
 $app->mount(
     (new Collection())

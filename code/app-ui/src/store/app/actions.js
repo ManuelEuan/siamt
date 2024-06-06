@@ -92,6 +92,22 @@ const getDinamycRegisterInProcess = async ({ state, commit }, { data, filters })
   commit('setDinamycRegisterInProcessTotalItems', totalItems)
 }
 
+const getTickets = async ({ state, commit }, { data, filters }) => {
+  
+  if (data) commit('setTicketsData', data)
+  if (filters) commit('setTicketsFilters', filters)
+  const { tickets, totalPages, totalItems } = await services.inspections().getTickets({
+...state.ticketsData,
+filters: state.ticketsFilters
+})
+console.log('tickets actions************************************')
+console.log(tickets)
+
+  commit('setTickets', tickets)
+  commit('setTicketsTotalPages', totalPages)
+  commit('setTicketsTotalItems', totalItems)
+}
+
 export default {
   showToast,
   showError,
@@ -100,4 +116,5 @@ export default {
   getProfiles,
   getInspectors,
   getDinamycRegisterInProcess,
+  getTickets,
 }
