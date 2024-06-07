@@ -7,7 +7,7 @@
 		<include file="changes/imjcu-0.sql"/>
 
 	<!-- CREACIÓN DE MÓDULOS -->
-		<!-- <include file="changes/imjcu-1.sql"/>
+		<include file="changes/imjcu-1.sql"/>
 		<include file="changes/imjcu-2.sql"/>
 		<include file="changes/imjcu-3.sql"/>
 		<include file="changes/imjcu-4.sql"/>
@@ -15,11 +15,11 @@
 		<include file="changes/imjcu-6.sql"/>
 		<include file="changes/imjcu-7.sql"/>
 		<include file="changes/imjcu-8.sql"/>
-		<include file="changes/imjcu-9.sql"/> -->
+		<include file="changes/imjcu-9.sql"/>
 
 
 	<!-- INSERCIONES GENERALES -->
-		<!-- <include file="changes/imjcu-10.sql"/> -->
+		<include file="changes/imjcu-10.sql"/>
 	
 
 </databaseChangeLog>

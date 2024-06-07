@@ -1,4 +1,4 @@
--- liquibase formatted sql
+
 -- changeset imjcu-7.sql
 -- Generación de módulo de Perfiles con sus permisos correspondientes
 

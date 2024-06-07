@@ -1,4 +1,4 @@
--- liquibase formatted sql
+
 -- changeset imjcu-1.sql
 -- Generación de módulo de debitaciones con sus permisos correspondientes, se asegura que el usuario master se asigne al perfil Admin así como sus dominios correspondientes
 

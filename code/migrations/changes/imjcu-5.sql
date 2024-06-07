@@ -1,4 +1,4 @@
--- liquibase formatted sql
+
 -- changeset imjcu-5sql
 -- Generación de módulo de Inspección con sus permisos correspondientes
 
