@@ -23,8 +23,8 @@
                             <v-autocomplete v-else :rules="getFieldRules(field)" :class="field.inputClass"
                                 :style="field.inputStyle" v-model="field.model" :label="field.label"
                                 :items="field.array.info" clearable dense outlined :item-text="field.array.item_text"
-                                :item-value="field.array.item_value"
-                                :disabled="dinamycDisabledFields.includes(index)" />
+                                :item-value="field.array.item_value" :disabled="dinamycDisabledFields.includes(index)"
+                                @change="handleAutocompleteChange(field.model, field.array.info, index, field.array.item_text)" />
                         </template>
                         <template v-else-if="field.type === 'textarea'">
                             <v-textarea v-model="field.model" :label="field.label" hide-details="auto" clearable dense
@@ -75,11 +75,11 @@
                             <v-datetime-picker v-model="field.model" :label="field.label" :rules="getFieldRules(field)"
                                 :disabled="dinamycDisabledFields.includes(index)" @input="handleDateTime(field)"
                                 :textFieldProps="{
-                                    prependIcon: 'mdi-calendar-clock-outline ',
-                                    clearable: true,
-                                    dense: true,
-                                    outlined: true,
-                                }">
+            prependIcon: 'mdi-calendar-clock-outline ',
+            clearable: true,
+            dense: true,
+            outlined: true,
+        }">
                                 <template slot="dateIcon">
                                     <v-icon>mdi-calendar-range</v-icon>
                                 </template>
@@ -184,6 +184,17 @@ export default {
             console.log('Valor formateado:', format);
 
             field.model = format
+        },
+        handleAutocompleteChange(item_value, items, key, item_text) {
+            // Busca el objeto seleccionado en la lista de items
+            const selectedObject = items.find(item => item[key] === item_value);
+            console.log('selectedObject')
+            console.log(item_value)
+            console.log(selectedObject[item_text])
+         
+            // Emite tanto el id como el name del objeto seleccionado
+            this.$emit('new-value', key, [{ id: item_value, name: selectedObject[item_text] }]);
+            // this.$emit('autocomplete-selected', { id: selectedObject.id, name: selectedObject.name });
         },
         formatDateTime(value) {
             const date = new Date(value);

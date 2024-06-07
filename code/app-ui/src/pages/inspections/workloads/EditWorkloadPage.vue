@@ -53,6 +53,7 @@
                                 :dinamycDisabledFields="dinamycDisabledFields" -->
                                 <generic-form-validation :formFields="formFieldsGeneralTab"
                                     :formFieldsWithValues="sendFieldsGeneralTab"
+                                    :dinamycDisabledFields="dinamycDisabledGeneralTab"
                                     @form-valid="handleValidationGeneralTab" @new-value="handleValuesGeneralTab">
                                 </generic-form-validation>
                             </v-card-text>
@@ -92,29 +93,7 @@
                                         </v-data-table>
                                     </v-col>
                                 </v-row>
-                                <!-- <v-col cols="12" md="12">
-                                    <v-simple-table>
-                                        <template v-slot:default>
-                                            <thead>
-                                                <tr>
-                                                    <th class="text-left">
-                                                        Turno
-                                                    </th>
-                                                    <th class="text-left">
-                                                        Coordinador
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr v-for="item in tbl_carga_trabajo_turno" :key="item.name">
-                                                    <td>{{ item.name }}</td>
-                                                    <td>{{ item.coordinator }}</td>
-                                                </tr>
-                                            </tbody>
-                                        </template>
-                                    </v-simple-table>
-                                </v-col> -->
-
+                            
                             </v-card-text>
                         </v-tab-item>
                         <v-tab-item :key="3" value="inspectorestab" class="py-1">
@@ -122,52 +101,7 @@
                                 <generic-form-validation :formFields="formFieldsInspectorsTab"
                                     :formFieldsWithValues="sendFieldsInspectorsTab"
                                     @form-valid="handleValidationInspectorsTab" @new-value="handleValuesInspectorsTab">
-                                </generic-form-validation> <!-- <v-form v-model="valid">
-                                    <v-row>
-                                        <v-col cols="12" md="6">
-                                            <v-select v-model="workload.iidturno" label="Turno*"
-                                                :rules="[rules.required]" :items="shifts" item-text="txtnombre"
-                                                item-value="iidturno" hide-details="auto" small-chips clearable dense
-                                                outlined />
-                                        </v-col>
-
-                                        <v-col cols="12" md="6">
-                                            <v-select v-model="workload.iidturno" label="Inspector*"
-                                                :rules="[rules.required]" :items="shifts" item-text="txtnombre"
-                                                item-value="iidturno" hide-details="auto" small-chips clearable dense
-                                                outlined />
-                                        </v-col>
-
-                                        <v-col cols="12" md="12">
-                                            <v-btn depressed color="primary">
-                                                Agregar inspector a carga de trabajo
-                                            </v-btn>
-                                        </v-col>
-                                        <v-col cols="12" md="12">
-
-                                            <v-simple-table>
-                                                <template v-slot:default>
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="text-left">
-                                                                Turno
-                                                            </th>
-                                                            <th class="text-left">
-                                                                Coordinador
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr v-for="item in desserts" :key="item.name">
-                                                            <td>{{ item.name }}</td>
-                                                            <td>{{ item.coordinator }}</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </template>
-                                            </v-simple-table>
-                                        </v-col>
-                                    </v-row>
-                                </v-form> -->
+                                </generic-form-validation> 
                             </v-card-text>
                         </v-tab-item>
                         <v-tab-item :key="4" value="trabajostab" class="py-1">
@@ -237,6 +171,7 @@ export default {
             // validGeneralTab: false,
             formFieldsGeneralTab: {},
             sendFieldsGeneralTab: {},
+            dinamycDisabledGeneralTab: ['dfecha_final'],
             // validTurnsTab: false,
             formFieldsTurnsTab: {},
             sendFieldsTurnsTab: {},
@@ -274,17 +209,44 @@ export default {
             valid: false,
             tab: "generaltab",
 
-            workload: {
-                iidcarga_trabajo: 0,
+            iidcarga_trabajo: 0,
+            sendFormGeneralTab: {
                 txtnombre: "",
-                txtdescripcion: "",
                 iidzona: 0,
-                dfecha_inicio: '',
-                dfecha_fin: '',
+                dfecha_inicial: '',
+                dfecha_final: '',
+                txtdescripcion: "",
                 activo: null,
                 fecha_creacion: null,
                 fecha_modificacion: null
             },
+            sendFormTurnTab: {
+                iidturno: 0,
+                iidinspector: 0,
+                activo: null,
+                fecha_creacion: null,
+                fecha_modificacion: null
+            },
+            sendFormInspectorTab: {
+                iidturno: 0,
+                iidinspector: 0,
+                activo: null,
+                fecha_creacion: null,
+                fecha_modificacion: null
+            },
+            sendFormWorkTab: {
+                iidcarga_trabajo_tipo: 0,
+                txtdescripcion: '',
+                txtlatitud: '',
+                txtlongitud: '',
+                dtfecha_hora_inicio: "",
+                dtfecha_hora_fin: "",
+                activo: null,
+                fecha_creacion: null,
+                fecha_modificacion: null
+            },
+
+            
         };
     },
     computed: {
@@ -302,35 +264,47 @@ export default {
         handleValuesGeneralTab(key, value) {
             console.log('Retorno de generic-form-validation key-values ')
             console.log(key, value)
+            if(key == 'dfecha_inicial'){
+                if(value){
+                    this.dinamycDisabledGeneralTab = this.dinamycDisabledGeneralTab.filter(item => item !== 'dfecha_final');
+                    this.formFieldsGeneralTab.dfecha_final.min = value
+                }else{
+                    this.dinamycDisabledGeneralTab = ['dfecha_final']
+                }
+            }
+            this.sendFormGeneralTab[key] = value
+            console.log('this.sendFormGeneralTab')
+            console.log(this.sendFormGeneralTab)
+            // this.sendFormGeneralTab = 
         },
 
         handleValidationTurnsTab(valid) {
-            console.log('Retorno de generic-form-validation valid-form ')
+            console.log('Retorno de generic-turn-validation valid-form ')
             this.receivedTabTurnsData.valid = valid
             console.log(valid)
         },
         handleValuesTurnsTab(key, value) {
-            console.log('Retorno de generic-form-validation key-values ')
+            console.log('Retorno de generic-turn-validation key-values ')
             console.log(key, value)
         },
 
         handleValidationInspectorsTab(valid) {
-            console.log('Retorno de generic-form-validation valid-form ')
+            console.log('Retorno de generic-inspector-validation valid-form ')
             this.receivedTabInspectorsData.valid = valid
             console.log(valid)
         },
         handleValuesInspectorsTab(key, value) {
-            console.log('Retorno de generic-form-validation key-values ')
+            console.log('Retorno de generic-inspector-validation key-values ')
             console.log(key, value)
         },
 
         handleValidationWorksTab(valid) {
-            console.log('Retorno de generic-form-validation valid-form ')
+            console.log('Retorno de generic-work-validation valid-form ')
             this.receivedTabWorksData.valid = valid
             console.log(valid)
         },
         handleValuesWorksTab(key, value) {
-            console.log('Retorno de generic-form-validation key-values ')
+            console.log('Retorno de generic-work-validation key-values ')
             console.log(key, value)
         },
         // APLICACIÓN DE REGLAS EXTRA EN FORMULARIO GENÉRICO (LÓGICA DE FORMULARIO)
@@ -424,6 +398,8 @@ export default {
                 this.formFieldsTurnsTab = formularios.inputsTurnsForm
                 this.formFieldsInspectorsTab = formularios.inputsInspectorsForm
                 this.formFieldsWorksTab = formularios.inputsWorksForm
+
+                
                 // this.formFields = formulario
             } catch (error) {
                 const message = 'Error al precuperar los formulario ';
@@ -432,10 +408,6 @@ export default {
         },
     },
     watch: {
-        'workload.dfecha_inicio': function () {
-            console.log('this.workload.dfecha_inicio')
-            console.log(this.workload.dfecha_inicio)
-        }
     },
 
     async mounted() {

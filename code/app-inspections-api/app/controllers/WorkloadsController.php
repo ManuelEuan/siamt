@@ -63,7 +63,8 @@ class WorkloadsController extends BaseController
                 'model' => 'dfecha_final',
                 'rules' => null,
                 'cols' => 12,
-                'md' => 6
+                'md' => 6,
+                'min' => date("Y-m-d")
             ),
             'txtdescripcion' => [
                 'label' => 'Descripción',
