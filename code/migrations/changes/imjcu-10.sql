@@ -1,5 +1,5 @@
---liquibase formatted sql
---changeset imjcu-DEMO--10.sql
+-- liquibase formatted sql
+-- changeset imjcu-10.sql
 -- Crear los catálogos de los schemas boleta, comun, inspeccion, persona, territorio, usuario 
 
 -- **************************************************************** CATÁLOGOS ***********************************************************

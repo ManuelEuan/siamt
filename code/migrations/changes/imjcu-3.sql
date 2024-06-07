@@ -1,5 +1,5 @@
---liquibase formatted sql
---changeset imjcu-DEMO--3.sql
+-- liquibase formatted sql
+-- changeset imjcu-3.sql
 -- Generación de módulo de debitaciones con sus permisos correspondientes
 
 /*

@@ -1,6 +1,6 @@
 
---liquibase formatted sql
---changeset imjcu-DEMO--6.sql
+-- liquibase formatted sql
+-- changeset imjcu-6.sql
 -- Generación de módulo de mantenimiento de unidades con sus permisos correspondientes
 
 /*

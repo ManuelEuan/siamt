@@ -1,5 +1,5 @@
---liquibase formatted sql
---changeset imjcu-DEMO--0.sql
+-- liquibase formatted sql
+-- changeset imjcu-0.sql
 -- Crear las extensiones necesarias así como los schemas boleta, comun, inspeccion, persona, territorio, usuario con su estructura correspondiente
 
 -- **************************************************************** EXTENSIONES NECESARIAS ***********************************************************
