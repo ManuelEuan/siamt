@@ -1,74 +1,25 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-
-
-	<!-- V1 -->
-		<!-- <include file="changes/javp-1.sql"/>
-		<include file="changes/javp-2.sql"/>
-		<include file="changes/aicf-1.sql"/>
-		<include file="changes/aicf-2.sql"/>
-		<include file="changes/aicf-3.sql"/> -->
-
 	<!-- V1.1 -->
-		<include file="changes/schemas/create-base-schemas-1.sql"/>
-	<!-- CREACIÓN PRINCIPAL DE SCHEMA USUARIOS PARA CONFIGURACIONES GENERALES DE MODULOS, PERFILES Y USUARIOS -->
-		<include file="changes/tables/schema-usuario-tables--1.sql"/>
-		<include file="changes/tables/schema-comun-tables.sql"/>
-		<include file="changes/tables/schema-persona-tables.sql"/>
-		<include file="changes/tables/schema-territorio-tables.sql"/>
-		<include file="changes/tables/schema-inspeccion-tables.sql"/>
-		<include file="changes/tables/schema-boleta-tables1.sql"/>
-	<!-- CREACIÓN DE MÓDULOS PARA MASTER-->
-		<include file="changes/modules/siamt-module-usuarios1.sql"/>
-		<include file="changes/modules/siamt-module-modulos1.sql"/>
-	<!-- CREACIÓN DE MÓDULOS GENERALES (SE PUEDEN CONFIHURAR MANUALMENTE EN EL PANEL ADMINISTRATIVO)-->
-		<include file="changes/modules/siamt-module-debitaciones1.sql"/>
-		<include file="changes/modules/siamt-module-demo1.sql"/>  
-		<include file="changes/modules/siamt-module-firma1.sql"/>
-		<include file="changes/modules/siamt-module-inspeccion2.sql"/>
-		<include file="changes/modules/siamt-module-mto_unidades1.sql"/>  
-		<include file="changes/modules/siamt-module-perfiles1.sql"/>
-		<include file="changes/modules/siamt-module-personas3.sql"/>
-		<include file="changes/modules/siamt-module-procesos1.sql"/>
-	<!-- INSERCIONES GENERALES NORMAL-->
-		<include file="changes/inserts/inserts-schema-usuario3.sql"/>
-		<include file="changes/inserts/inserts-schema-persona1.sql"/>
-		<include file="changes/inserts/inserts-schema-territorio2.sql"/>
-		<include file="changes/inserts/inserts-schema-inspeccion1.sql"/>
-		<include file="changes/inserts/inserts-schema-boleta1.sql"/>
-	<!-- INSERCIONES GENERALES CTE-->
-		<include file="changes/ctes/cte-schema-comun-proceso_registro_inspector9.sql"/>
-		<include file="changes/ctes/cte-schema-comun-proceso_elaboracion_boleta3.sql"/>
+		<!-- <include file="changes/schemas/create-base-schemas-1.sql"/> -->
+	<!-- CREACIÓN DE ESTRUCTURA PRINCIPAL -->
+		<include file="changes/imjcu-0.sql"/>
 
-		
+	<!-- CREACIÓN DE MÓDULOS -->
+		<include file="changes/imjcu-1.sql"/>
+		<include file="changes/imjcu-2.sql"/>
+		<include file="changes/imjcu-3.sql"/>
+		<include file="changes/imjcu-4.sql"/>
+		<include file="changes/imjcu-5.sql"/>
+		<include file="changes/imjcu-6.sql"/>
+		<include file="changes/imjcu-7.sql"/>
+		<include file="changes/imjcu-8.sql"/>
+		<include file="changes/imjcu-9.sql"/>
 
 
-		
+	<!-- INSERCIONES GENERALES -->
+		<include file="changes/imjcu-10.sql"/>
 	
-	<!-- ****************************************MODULES AND PERMISSIONS****************************** -->
-		
-		<!-- <include file="changes/modules/siamt-module-personas.sql"/>
-		<include file="changes/modules/siamt-module-procesos.sql"/>
-		<include file="changes/modules/siamt-module-firma.sql"/>
-		<include file="changes/modules/siamt-module-inspeccion.sql"/>
-		<include file="changes/modules/siamt-module-mto_unidades.sql"/>  
-
-		<include file="changes/mjcu-1.sql"/> -->
-	
-	
-	<!-- V2 -->
-	<!-- ****************************************SCHEMAS AND EXTENSIONS****************************** -->
-		
-		<!-- <include file="changes/schemas/create-schemas.sql"/> -->
-
-		<!-- ****************************************ESTRUCTURE AND DATA****************************** -->
-	
-		<!-- <include file="changes/structure/usuario.sql"/>
-		<include file="changes/structure/comun.sql"/>
-		<include file="changes/structure/territorio.sql"/>
-		<include file="changes/structure/persona.sql"/>
-		<include file="changes/structure/inspeccion.sql"/>  -->
-
 
 </databaseChangeLog>

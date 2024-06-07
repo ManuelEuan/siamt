@@ -24,7 +24,6 @@
                     item-value="iidfirma_plantilla" />
             </v-col>
         </v-row>
-        {{ template.iidfirma_plantilla }}
         <v-row  class="row px-4 mt-5 pt-3"  style="background:#fff; border-radius:20px;">
             <generic-form-validation :formFields="formFields" @form-valid="handleGenericFormValidationConfirm"
                 :formFieldsWithValues="sendFieldsWithValues"

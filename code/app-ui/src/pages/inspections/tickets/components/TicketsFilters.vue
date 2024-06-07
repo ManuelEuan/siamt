@@ -1,6 +1,5 @@
 <template>
     <v-card flat>
-        filters {{ permissions }} --
         <v-toolbar>
             <v-toolbar-title>Boletas</v-toolbar-title>
             <v-spacer></v-spacer>

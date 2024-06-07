@@ -1,6 +1,10 @@
+--liquibase formatted sql
+--changeset imjcu-DEMO--3.sql
+-- Generación de módulo de debitaciones con sus permisos correspondientes
+
 /*
-~~~~~~~~~~~~~~~~~~~~~~~ ESTRUCTURA DEL MÓDULO                               ~~~~~~~~~~~~~~~~~~~~~~~
-- 
+~~~~~~~~~~~~~~~~~~~~~~~ ESTRUCTURA DEL MÓDULO EN EL PANEL ADMINISTRATIVO  ~~~~~~~~~~~~~~~~~~~~~~~
+- Administración
   |- Debitaciones
 
 */

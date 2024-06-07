@@ -1,7 +1,9 @@
+--liquibase formatted sql
+--changeset imjcu-DEMO--4.sql
+-- Generación de módulo de Gestión de firmas con sus permisos correspondientes
+
 /*
-
-
-~~~~~~~~~~~~~~~~~~~~~~~ TODOS LOS PERMISOS EN MÓDULO DE INSPECTORES (fir)   ~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~ TODOS LOS PERMISOS EN MÓDULO DE FIRMAS ~~~~~~~~~~~~~~~~~~~~~~~
 - Ver tablero                               (veta)
 - Crear plantilla                           (vepl)
 - Crear firma                               (vefi)
@@ -10,10 +12,8 @@
 - Gestión de firmas
   |- Tablero
   |- Listas
-     |- Plantillas
      |- Firmas
-
-
+     |- Plantillas
 */
 
 -- MÓDULO PADRE

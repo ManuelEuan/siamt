@@ -1,14 +1,13 @@
+--liquibase formatted sql
+--changeset imjcu-DEMO--9.sql
+-- Generación de módulo de procesos con sus permisos correspondientes
+
 /*
-
-~~~~~~~~~~~~~~~~~~~~~~~ ESTRUCTURA DEL MÓDULO                               ~~~~~~~~~~~~~~~~~~~~~~~
-- Procesos
-
+~~~~~~~~~~~~~~~~~~~~~~~ ESTRUCTURA DEL MÓDULO EN EL PANEL ADMINISTRATIVO  ~~~~~~~~~~~~~~~~~~~~~~~
+- Administración
+  |- Procesos
 
 */
--- SELECT pg_terminate_backend(pid)
--- FROM pg_stat_activity
--- WHERE datname = 'siamt';
-
 
 WITH inserted_module_proceso AS (
   INSERT INTO usuario.modulo (seccion, nombre, descripcion, siglas, icono, orden, activo, idpadre)

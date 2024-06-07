@@ -1,37 +1,37 @@
--- ----------------------------
--- Records of usuario
--- ----------------------------
+--liquibase formatted sql
+--changeset imjcu-DEMO--1.sql
+-- Generación de módulo de debitaciones con sus permisos correspondientes, se asegura que el usuario master se asigne al perfil Admin así como sus dominios correspondientes
 
--- Desactivar restricciones de clave externa temporalmente
--- ALTER TABLE perfil_usuario DROP CONSTRAINT fk_usuario_id;
-
--- Truncar las tablas con la opción CASCADE
 TRUNCATE TABLE usuario.usuario CASCADE;
 TRUNCATE TABLE usuario.perfil CASCADE;
 TRUNCATE TABLE usuario.perfil_usuario CASCADE;
 TRUNCATE TABLE usuario.usuario_dominio CASCADE;
 
--- Reactivar la restricción de clave externa
--- ALTER TABLE perfil_usuario ADD CONSTRAINT fk_usuario_id FOREIGN KEY (id_usuario) REFERENCES usuario.usuario(id) ON DELETE CASCADE;
-
-
 INSERT INTO "usuario"."usuario" VALUES (1, 'master', 'fc613b4dfd6736a7bd268c8a0e74ed0d1c04a959f59dd74ef2874983fd443fc9', 'El', 'Administrador', NULL, NULL, 't', 't', NOW(), NOW());
 INSERT INTO "usuario"."perfil" VALUES (1, 'Admin', 'Todos los permisos', 't', '2020-12-16 06:39:39.218785', '2020-12-16 06:39:39.218785');
 
--- ----------------------------
--- Records of dominio
--- ----------------------------
 INSERT INTO "usuario"."dominio" VALUES (1, 'localhost', 'Inicial', 'a4e270a1-9689-4507-8988-749a0a919b21', 't', '2020-12-10 05:39:04.293219', '2020-12-10 05:39:04.293219');
 INSERT INTO "usuario"."dominio" VALUES (2, 'egit.transporteyucatan.org.mx', 'Inicial', 'a4e270a1-9689-4507-8988-749a0a919b21', 't', '2020-12-10 05:39:04.293219', '2020-12-10 05:39:04.293219');
-
 
 INSERT INTO "usuario"."perfil_usuario" ("idusuario", "idperfil") VALUES (1, 1);
 INSERT INTO "usuario"."usuario_dominio" ("idusuario", "iddominio") VALUES (1, 1);
 
 
--- ----------------------------
--- Records of modulo
--- ----------------------------
+/*
+~~~~~~~~~~~~~~~~~~~~~~~ TODOS LOS PERMISOS EN MÓDULO DE FIRMAS ~~~~~~~~~~~~~~~~~~~~~~~
+- Ver usuario                                   (veus)
+- Editar usuario                                (edus)
+- Borrar usuario                                (bous)
+- Crear usuario                                 (crus)
+- Restablece contraseña                         (reco)
+- Cambiar contraseña                            (caco)
+
+~~~~~~~~~~~~~~~~~~~~~~~ ESTRUCTURA DEL MÓDULO EN EL PANEL ADMINISTRATIVO  ~~~~~~~~~~~~~~~~~~~~~~~
+- Administración
+  |- Usuarios
+
+*/
+
 WITH modulo_usuarios AS (
     INSERT INTO usuario.modulo (seccion, nombre, descripcion, siglas, icono, activo, fecha_creacion, fecha_modificacion)
     VALUES 

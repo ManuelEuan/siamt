@@ -1,3 +1,8 @@
+
+--liquibase formatted sql
+--changeset imjcu-DEMO--6.sql
+-- Generación de módulo de mantenimiento de unidades con sus permisos correspondientes
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~ ESTRUCTURA DEL MÓDULO                               ~~~~~~~~~~~~~~~~~~~~~~~
 - Mantenimiento
@@ -8,7 +13,7 @@
 -- MÓDULO PADRE
 WITH inserted_module_mto_unidades AS (
   INSERT INTO usuario.modulo (seccion, nombre, descripcion, siglas, icono, orden, activo, idpadre)
-  VALUES ('Ejemplo', 'Demo', NULL, 'ooo', 'mdi-ev-plug-chademo', NULL, 'f', NULL)
+  VALUES ('Mantenimiento', 'Unidades', NULL, 'mto', 'mdi-tools', NULL, 't', NULL)
   RETURNING id
 )
 INSERT INTO usuario.usuario_dominio_modulo (idusuario, iddominio, idmodulo)

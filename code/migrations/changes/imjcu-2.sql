@@ -1,3 +1,19 @@
+--liquibase formatted sql
+--changeset imjcu-DEMO--2.sql
+-- Generación de módulo de módulos con sus permisos correspondientes
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~ TODOS LOS PERMISOS EN MÓDULO DE FIRMAS ~~~~~~~~~~~~~~~~~~~~~~~
+- Ver módulo                                (vemo)
+- Editar módulo                             (edmo)
+- Borrar módulo                             (bomo)
+- Crear nuevo módulo                        (crmo)
+
+~~~~~~~~~~~~~~~~~~~~~~~ ESTRUCTURA DEL MÓDULO EN EL PANEL ADMINISTRATIVO  ~~~~~~~~~~~~~~~~~~~~~~~
+- Administración
+  |- Módulos
+
+*/
 WITH modulo_modulos AS (
     INSERT INTO usuario.modulo (seccion, nombre, descripcion, siglas, icono, activo, fecha_creacion, fecha_modificacion)
     VALUES 

@@ -1,11 +1,28 @@
+--liquibase formatted sql
+--changeset imjcu-DEMO--5sql
+-- Generación de módulo de Inspección con sus permisos correspondientes
+
 /*
-
-
 ~~~~~~~~~~~~~~~~~~~~~~~ TODOS LOS PERMISOS EN MÓDULO DE INSPECTORES (ins)   ~~~~~~~~~~~~~~~~~~~~~~~
-- VER INSPECTOR                                (veii)
-- EDITAR INSPECTOR                             (edii)
-- BORRAR INSPECTOR                             (boii)
-- CREAR INSPECTOR                              (crii)
+
+****** SUBMÓDULO CARGA DE TRABAJO
+- VER CARGA DE TRABAJO                                  (veic)
+- EDITAR CARGA DE TRABAJO                               (edic)
+- BORRAR CARGA DE TRABAJO                               (boic)
+- CREAR CARGA DE TRABAJO                                (cric)
+
+****** SUBMÓDULO BOLETA
+- VER BOLETA                                            (veit)
+- EDITAR BOLETA                                         (edit)
+- BORRAR BOLETA                                         (boit)
+- CREAR BOLETA                                          (crit)
+
+****** SUBMÓDULO INSPECTORES
+- VER INSPECTOR                                         (veii)
+- EDITAR INSPECTOR                                      (edii)
+- BORRAR INSPECTOR                                      (boii)
+- CREAR INSPECTOR                                       (crii)
+
 
 ~~~~~~~~~~~~~~~~~~~~~~~ ESTRUCTURA DEL MÓDULO                               ~~~~~~~~~~~~~~~~~~~~~~~
 - Inspección
@@ -13,8 +30,6 @@
   |- Listas
      |- Boletas
      |- Inspectores
-
-
 */
 
 -- MÓDULO PADRE

@@ -1,5 +1,11 @@
+--liquibase formatted sql
+--changeset imjcu-DEMO--8.sql
+-- Generación de módulo de Persona con sus permisos correspondientes
+
 /*
-~~~~~~~~~~~~~~~~~~~~~~~ TODOS LOS PERMISOS EN MÓDULO DE INSPECTORES (ins)   ~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~ TODOS LOS PERMISOS EN MÓDULO DE PERFILES (ins)   ~~~~~~~~~~~~~~~~~~~~~~~
+
+****** SUBMÓDULO CARGA DE TRABAJO
 - CREAR PERSONA                                (crmp)
 - VER INFORMACIÓN GENERAL DE PERSONA           (vemp)
 - EDITAR INFORMACIÓN GENERAL DE PERSONA        (edgp)
@@ -14,8 +20,8 @@
 - EDITAR ARCHIVOS DE PERSONA                   (edap)
 
 ~~~~~~~~~~~~~~~~~~~~~~~ ESTRUCTURA DEL MÓDULO                               ~~~~~~~~~~~~~~~~~~~~~~~
-- Personas
-
+- Administración
+  |- Personas
 */
 
 WITH modulo_usuarios AS (

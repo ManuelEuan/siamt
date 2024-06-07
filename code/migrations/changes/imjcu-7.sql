@@ -1,3 +1,21 @@
+--liquibase formatted sql
+--changeset imjcu-DEMO--7.sql
+-- Generación de módulo de Perfiles con sus permisos correspondientes
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~ TODOS LOS PERMISOS EN MÓDULO DE PERFILES (ins)   ~~~~~~~~~~~~~~~~~~~~~~~
+
+****** SUBMÓDULO CARGA DE TRABAJO
+- VER PERFIL                                 (vepe)
+- EDITAR PERFIL                              (edpe)
+- BORRAR PERFIL                              (bope)
+- CREAR PERFIL                               (crpe)
+
+~~~~~~~~~~~~~~~~~~~~~~~ ESTRUCTURA DEL MÓDULO                               ~~~~~~~~~~~~~~~~~~~~~~~
+- Administración
+  |- Perfiles
+*/
+
 WITH modulo_perfiles AS (
     INSERT INTO usuario.modulo (seccion, nombre, descripcion, siglas, icono, activo, fecha_creacion, fecha_modificacion)
     VALUES 
