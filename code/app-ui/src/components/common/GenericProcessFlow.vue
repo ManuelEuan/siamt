@@ -1,5 +1,6 @@
 <template>
     <div style="width: 100%">
+        <tickets-datatable-dialogs ref="dialogs" />
         <div class="row mx-2 my-3">
             <p class="col-md-12 primary--text text-h6 text-md-center  mb-3 py-1">PROCESO: <span class="text-h10"
                     style="color: #000;">{{ allFlow.txtnombre }}</span></p>
@@ -249,10 +250,12 @@
 <script>
 import services from "@/services";
 import GenericDialog from '@/components/common/GenericDialog.vue';
+import TicketsDatatableDialogs from "@/pages/inspections/tickets/components/TicketsDatatableDialogs";
 import { mapActions } from "vuex";
 export default {
     components: {
         GenericDialog,
+        TicketsDatatableDialogs,
     },
     data() {
         return {
@@ -366,7 +369,10 @@ export default {
         ...mapActions('app', ['showError', 'showSuccess']),
         showTicket(ticket){
             this.ticket = ticket
-            this.dialogShowTicket = true
+            // this.dialogShowTicket = true
+            this.$refs.dialogs.ticket = ticket;
+            this.$refs.dialogs.viewTicket();
+            this.$refs.dialogs.show['view'] = true;
             console.log(ticket)
         },
         verifyNextSubStage() {

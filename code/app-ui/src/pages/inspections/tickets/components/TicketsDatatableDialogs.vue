@@ -2,13 +2,13 @@
   <div class="wrapper">
     <v-dialog transition="dialog-top-transition" max-width="600" v-model="show.view">
       <v-card>
-        <v-card-title class="text-uppercase primary--text text-h6 py-2"> ver inspector </v-card-title>
+        <v-card-title class="text-uppercase primary--text text-h6 py-2"> ver boleta </v-card-title>
         <v-divider></v-divider>
         <v-card-text class="py-0 my-0">
           <v-list class="pa-0 ma-0">
             <v-container class="pa-0 ma-0">
               <v-row dense>
-                <template v-for="(value, key, index) in inspector">
+                <template v-for="(value, key, index) in ticket">
                   <v-col v-if="!chips.includes(key) && value !== null" class="pa-0 ma-0" cols="6" :key="index">
                     <v-list-item>
                       <v-list-item-content class="py-2">
@@ -41,19 +41,19 @@
     <v-dialog transition="dialog-top-transition" max-width="600" v-model="show.delete">
       <v-card>
         <v-card-title class="text-uppercase primary--text text-h6 py-2">
-          {{ inspector.activo ? "desactivar" : "activar" }} inspector
+          {{ ticket.activo ? "desactivar" : "activar" }} ticket
         </v-card-title>
         <v-divider></v-divider>
         <v-card-text class="text-lowercase text-body-1 py-2">
-          ¿est&aacute;s seguro de que deseas {{ inspector.activo ? "desactivar" : "activar" }} este
-          inspector?
+          ¿est&aacute;s seguro de que deseas {{ ticket.activo ? "desactivar" : "activar" }} este
+          ticket?
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions class="py-2">
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="show.delete = false"> Cerrar </v-btn>
-          <v-btn color="primary" text @click="deleteInspector">
-            {{ inspector.activo ? "Desactivar" : "Activar" }}
+          <v-btn color="primary" text @click="deleteTicket">
+            {{ ticket.activo ? "Desactivar" : "Activar" }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -67,28 +67,37 @@ import services from "@/services";
 import { mapActions } from "vuex";
 
 export default {
-  name: "InspectorsDatatableDialogs",
+  name: "TicketsDatatableDialogs",
   data() {
     return {
-      chips: ["iidpersona", "iidetapa", "iidturno", "iidinspector_categoria", "total_inspectores"],
+      chips: ["total_tickets"],
       headers: {
-        iidinspector: "no. inspector",
-        txtinspector_etapa: "Etapa",
-        txttarjeton: "Tarjetón",
-        txtinspector_turno: "Turno",
-        txtnombre: "Nombre",
-        txtapepat: "Apellido paterno",
-        txtapemat: "Apellido materno",
-        txtrfc: "RFC",
-        txtcurp: "CURP",
-        txtine: "INE",
-        txtcomentarios: "Comentarios",
-        txtinspector_categoria: "Categoría",
-        dvigencia: "Vigencia tarjetón",
-        dfecha_alta: "Fecha de alta",
-        dfecha_baja: "Fecha de baja",
-        fecha_creacion: "Fecha creacion",
-        fecha_modificacion: "Fecha modificación",
+        iidboleta: "no. Boleta",
+        dtfecha_hora_infraccion: "Fecha/Hora infracción",
+        txtlugar_infraccion: "Lugar infracción",
+        txtdireccion: "Dirección",
+        imonto_total: "Monto Total",
+        nombre_infractor: "Infractor",
+        nombre_empleado: "Empleado",
+        nombre_rol: "Infractor rol",
+        txtlicencia: "Licencia",
+        txtunidad: "Unidad",
+        tarjeta_circulacion_id: "Tarjeta de circulación",
+        txtreporte_especial_id: "Reporte especial",
+        txtinspeccion_fisica: "Inspección Física",
+        bretencion_vehiculo: "Retención de vehículo",
+        bretencion_documento: "Retención de documentos",
+        txtobservaciones: "Onservaciones",
+        bapercibimiento: "Apercibimiento",
+        dfecha_limite_comparecencia: "Fecha Límite Comparecencia",
+        dfecha_limite_resolucion: "Fecha Límite resolución",
+        dfecha_limite_notificacion: "Fecha Límite notificación",
+        bno_ha_lugar: "Visto bueno lugar",
+        bsuspension: "Suspensión",
+        isuspension_dias: "Días de suspensión",
+        dsuspension_fecha: "Fecha de suspensión",
+        dtfecha_creacion: "Fecha creacion",
+        dtfecha_modificacion: "Fecha modificación",
       },
       show: {
         view: false,
@@ -96,7 +105,7 @@ export default {
         change: false,
       },
       permissions: [],
-      inspector: {},
+      ticket: {},
       form: {
         valid: false,
       },
@@ -114,9 +123,9 @@ export default {
   },
   methods: {
     ...mapActions('app', ['showError', 'showSuccess']),
-    async viewInspector() {
+    async viewTicket() {
       try {
-        console.log(this.inspector)
+        console.log(this.ticket)
         this.show.view = true;
       }
       catch (error) {
@@ -124,13 +133,13 @@ export default {
         this.showError({ message, error });
       }
     },
-    async deleteInspector() {
+    async deleteTicket() {
       try {
-        const { message } = await services.inspections().deleteInspector(this.inspector.iidinspector);
-        this.$parent.loadInspectorsTable();
+        const { message } = await services.inspections().deleteTicket(this.ticket.iidticket);
+        this.$parent.loadTicketsTable();
         this.showSuccess(message);
       } catch (error) {
-        const message = 'Error al activar/desactivar inspector.';
+        const message = 'Error al activar/desactivar ticket.';
         this.showError({ message, error });
       }
 

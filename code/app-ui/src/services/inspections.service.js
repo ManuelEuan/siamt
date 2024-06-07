@@ -229,10 +229,14 @@ export default class InspectionsService extends ApiService {
     return await this.post("/tickets/getTickets", JSON.stringify(data));
   }
 
-  async downloadTickets(data) {
-    return await this.post("/tickets/downloadTickets", JSON.stringify(data));
-  }
+  // async downloadTickets(data) {
+  //   return await this.post("/tickets/downloadTickets", JSON.stringify(data));
+  // }
 
+  async downloadTickets(params = {}) {
+    return await this.get("/tickets/downloadTickets", params);
+  }
+  
    
   
   

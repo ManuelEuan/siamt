@@ -78,7 +78,10 @@ $app->mount(
     (new Collection())
     ->setHandler(TicketsController::class, true)
     ->post("/tickets/getTickets", "getTickets")
-    ->post("/tickets/downloadTickets", "downloadTickets")
+    // ->post("/tickets/downloadTickets", "downloadTickets")
+    ->get("/tickets/downloadTickets", "downloadTickets")
+    // ->get("/tickets/downloadXLSX", "downloadXLSX")
+    
 );
 
 

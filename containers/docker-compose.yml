@@ -13,6 +13,7 @@ services:
         mode: host
     volumes:
       - "./gateway/conf:/etc/nginx"
+      - "app-inspections-files:/srv/app-inspections-files"
     env_file:
       - dv.env
     networks:
@@ -105,6 +106,8 @@ services:
       - "./app-inspections-api/config.json:/docker-entrypoint.d/config.json"
       - "../code/app-inspections-api:/srv/siamt/code/app-inspections-api"
       - "../code/common-php:/srv/siamt/code/common-php"
+      - "app-inspections-files:/srv/app-inspections-files"
+      - "./app-inspections-api/init.sh:/docker-entrypoint.d/local/init.sh"
     env_file:
       - dv.env
     networks:
@@ -148,9 +151,11 @@ services:
       - internal-services-siamt
     extra_hosts:
       - "host.docker.internal:host-gateway"
+volumes:
+  app-inspections-files:
 networks:
   internal-services-siamt:
     ipam:
       driver: default
       config:
-        - subnet: "172.31.248.0/21"
+        - subnet: "172.23.16.0/21"

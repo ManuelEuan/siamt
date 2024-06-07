@@ -7,6 +7,16 @@ use App\Library\Http\Controllers\BaseController;
 use App\Library\Db\Db;
 use App\Library\Http\Exceptions\HttpUnauthorizedException;
 use App\Library\Http\Exceptions\ValidatorBoomException;
+// use PhpOffice\PhpSpreadsheet\Spreadsheet;
+// use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+// use PhpOffice\PhpWord\IOFactory;
+use Fpdf\Fpdf;
+
+
+//Librerías requeridas
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class TicketsController extends BaseController
 {
@@ -30,9 +40,16 @@ class TicketsController extends BaseController
         return $format;
     }
 
-    public function getTickets()
+    public function getTickets($download = [])
     {
-        $data =  $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        if ($download) {
+            $data =  $download['data']; // Obtener datos de la solicitud HTTP
+            // self::dep('$data');
+            // self::dep($data['data']);exit;
+        } else {
+            $data =  $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+            // self::dep($data);exit;
+        }
         $itemsPerPage = $data->itemsPerPage; // Obtener número de ítems por página
         $offset = ($data->page - 1) * $itemsPerPage; // Calcular offset
         $sql = "WITH tickets AS (
@@ -75,7 +92,7 @@ class TicketsController extends BaseController
                 boleta.tbl_boleta_rol br ON b.iidboleta_rol_id = br.iidboleta_rol
         )";
         $params = array();
-       
+
         if ($data->filters) { // Aplicar filtros si están presentes en la solicitud
             list($sql2, $params2) = $this->filterTickets($data->filters); // Aplicar filtros
             $sql .= $sql2; // Agregar filtros a la consulta principal
@@ -83,26 +100,32 @@ class TicketsController extends BaseController
         } else {
             $sql .= 'SELECT *, COUNT(tickets.iidboleta) OVER() AS total_tickets FROM tickets '; // Obtener perfiles sin filtros
         }
-        $sql .= $this->sortInspectors($data->sortBy, $data->sortDesc); // Ordenar inspectores
-        // self::dep($itemsPerPage);
-        // exit;
-        if ($itemsPerPage > 0) { // Si se especifica un número de ítems por página
-            $sql .= ' LIMIT :items OFFSET :offset'; // Limitar resultados por página
-            $params['items'] = $itemsPerPage; // Añadir parámetro de ítems por página
-            $params['offset'] = $offset; // Añadir parámetro de offset
+        if ($download) {
+            return Db::fetchAll($sql, $params);
+        } else {
+            $sql .= $this->sortTickets($data->sortBy, $data->sortDesc); // Ordenar inspectores
+            // self::dep($itemsPerPage);
+            // exit;
+            if ($itemsPerPage > 0) { // Si se especifica un número de ítems por página
+                $sql .= ' LIMIT :items OFFSET :offset'; // Limitar resultados por página
+                $params['items'] = $itemsPerPage; // Añadir parámetro de ítems por página
+                $params['offset'] = $offset; // Añadir parámetro de offset
+            }
+            $tickets = Db::fetchAll($sql, $params); // Ejecutar consulta para obtener inspectores      
+            $totalItems = count($tickets) ?? 0; // Obtener total de inspectores
+            $totalPages = ceil($totalItems / $itemsPerPage); // Calcular total de páginas
+            //    self::dep($sql);
+            //         self::dep($totalPages);
+            //         exit;
+            return array(
+                'tickets' => $tickets, // Devolver inspectores
+                'totalPages' => $totalPages, // Devolver total de páginas
+                'totalItems' => $totalItems, // Devolver total de ítems
+            );
         }
-        $tickets = Db::fetchAll($sql, $params); // Ejecutar consulta para obtener inspectores      
-        $totalItems = count($tickets) ?? 0; // Obtener total de inspectores
-        $totalPages = ceil($totalItems / $itemsPerPage); // Calcular total de páginas
-        //    self::dep($sql);
-        //         self::dep($totalPages);
-        //         exit;
-        return array(
-            'tickets' => $tickets, // Devolver inspectores
-            'totalPages' => $totalPages, // Devolver total de páginas
-            'totalItems' => $totalItems, // Devolver total de ítems
-        );
     }
+
+
 
     // Método para filtrar inspectores
     private function filterTickets($filters)
@@ -111,7 +134,7 @@ class TicketsController extends BaseController
         $sql = "SELECT *, COUNT(tickets.iidboleta) OVER() AS total_tickets FROM tickets ";
         $sql2 = 'WHERE '; // Inicializar fragmento de consulta para filtros
         foreach ($filters as $filter => $value) { // Para cada filtro
-            if (empty($value)) continue; // Si el valor del filtro está vacío o es para roles, continuar al siguiente filtro
+            if (empty($value) || $filter == 'type') continue; // Si el valor del filtro está vacío o es para roles, continuar al siguiente filtro
             if ($sql2 !== 'WHERE ') $sql2 .= 'AND '; // Si no es el primer filtro, añadir "AND"
 
             switch ($filter) { // Según el filtro
@@ -125,11 +148,12 @@ class TicketsController extends BaseController
                     break;
             }
         }
+
         if ($sql2 !== 'WHERE ') $sql .= $sql2; // Si se agregaron filtros, añadirlos a la consulta principal
         return array($sql, $params); // Devolver consulta y parámetros
     }
 
-    private function sortInspectors($sortBy, $sortDesc)
+    private function sortTickets($sortBy, $sortDesc)
     {
         $sortCount = count($sortBy); // Contar cantidad de criterios de ordenamiento
         if ($sortCount === 0) return 'ORDER BY tickets.iidboleta '; // Si no hay criterios, ordenar por ID por defecto
@@ -159,10 +183,203 @@ class TicketsController extends BaseController
         return $sql; // Devolver fragmento de consulta para ordenamiento
     }
 
-    public function downloadTickets(){
-        $data =  $this->request->getJsonRawBody();
-        self::dep('data download');
-        self::dep($data);
-        exit;
+    // Método para descargar tickets en formato XLSX
+    public function downloadTickets()
+    {
+
+        $filters = $this->request->get('filters');
+        $filtersObj = json_decode($filters);
+        $active = $filtersObj->active;
+        $type = $filtersObj->type;
+
+        $sortBy = $this->request->getQuery('sortBy', null, 'y');
+        $sortDesc = $this->request->getQuery('sortDesc', null, 'y');
+        $data = [
+            "data" => (object)[
+                "filters" => (object)[
+                    "active" => $active,
+                    "nombre_infractor" => "",
+                    "nombre_empleado" => "",
+                    "type" => $type
+                ],
+                "sortBy" => (object)["nombre_infractor"],
+                "sortDesc" => (object)[false]
+            ]
+        ];
+        $tickets = $this->getTickets($data);
+
+        // Crear el diccionario de nombres de columnas
+        $headers = $this->getHeaders('Boleta');
+
+        switch ($type) { // Según el filtro
+            case 'xlsx':
+                return $this->downloadXLSX($tickets, $headers);
+                break;
+            case 'word':
+                return $this->downloadWORD($tickets, $headers);
+                break;
+            case 'pdf':
+                return $this->downloadPDF($tickets, $headers);
+                break;
+            default:
+                $message = "Tipo de dato no capturado, contacte al administrador.";
+                throw new ValidatorBoomException(422, $message);
+                break;
+        }
+    }
+
+    // Obtener encabezados para los tickets
+    private function getHeaders($section)
+    {
+        if ($section == 'Boleta') {
+            $headers  = [
+                'dtfecha_hora_infraccion' => 'Fecha/Hora de Infracción',
+                'txtlugar_infraccion' => 'Lugar de Infracción',
+                'txtdireccion' => 'Dirección',
+                'imonto_total' => 'Monto Total',
+                'nombre_infractor' => 'Nombre del Infractor',
+                // Agrega más claves y encabezados según sea necesario
+            ];
+        }
+        return $headers;
+    }
+
+
+    public function downloadXLSX($tickets, $columnNames)
+    {
+        // Crear el archivo Excel
+        $spreadsheet = new Spreadsheet();
+        $spreadsheet->setActiveSheetIndex(0);
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Citas');
+
+        // Agregar encabezados de columnas al archivo Excel
+        $columnIndex = 1;
+        foreach ($columnNames as $columnName) {
+            $sheet->setCellValueByColumnAndRow($columnIndex, 2, $columnName);
+            $columnIndex++;
+        }
+
+        // Agregar datos de los tickets al archivo Excel
+        $rowIndex = 3;
+        foreach ($tickets as $ticket) {
+            $columnIndex = 1;
+            foreach ($columnNames as $columnName => $columnDisplayName) {
+                $cellValue = $ticket->$columnName ?? ''; // Obtener el valor de la columna del ticket
+                $sheet->setCellValueByColumnAndRow($columnIndex, $rowIndex, $cellValue);
+                $columnIndex++;
+            }
+            $rowIndex++;
+        }
+
+
+        $filename = '7.xlsx'; // Agregué la extensión del archivo
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        $objWriter = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $filesDir = $this->config->app->appInspectionsFilesDir;
+        $fullPath = $filesDir . $filename; // Ruta completa del archivo
+        $fileSaved = $objWriter->save($fullPath);
+        if ($fileSaved === false) {
+            $message = "Lo sentimos, no se pudo procesar el archivo.";
+            throw new ValidatorBoomException(422, $message);
+        }
+        return [
+            'lError' => false,
+            'filename' => $filename,
+            'ruta' => '/app-inspections/static/files/' . $filename // Retornar la ruta completa del archivo guardado
+        ];
+    }
+
+    // Método para descargar tickets en formato PDF
+    public function downloadPDF($tickets, $columnNames)
+    {
+        $pdf = new \FPDF('P', 'mm', 'A4', true); // Establecer el parámetro $isUTF8 en true
+
+        // Agregar una nueva página
+        $pdf->AddPage();
+
+        // Configurar fuente y tamaño
+        $pdf->SetFont('Arial', 'B', 12);
+
+        // Agregar título
+        $pdf->Cell(0, 10, 'Tickets', 0, 1, 'C');
+        $pdf->Ln(10); // Espacio adicional
+
+        // Agregar encabezados de columnas
+        foreach ($columnNames as $columnName) {
+            $pdf->Cell(40, 10, utf8_decode($columnName), 1); // Utilizar utf8_decode para los encabezados si es necesario
+        }
+
+        // Agregar datos de los tickets
+        foreach ($tickets as $ticket) {
+            $pdf->Ln(); // Nueva línea
+            foreach ($columnNames as $columnName => $columnDisplayName) {
+                $cellValue = utf8_decode($ticket->{$columnName} ?? ''); // Utilizar utf8_decode para los datos si es necesario
+                $pdf->Cell(40, 10, $cellValue, 1);
+            }
+        }
+
+        // Guardar el PDF localmente en el servidor
+        $filename = 'ejemplo.pdf';
+        $filesDir = $this->config->app->appInspectionsFilesDir;
+        $fullPath = $filesDir . $filename; // Ruta completa donde deseas guardar el archivo
+        $pdf->Output($fullPath, 'F'); // Guardar el PDF en el servidor
+
+        // Verificar si el archivo se ha guardado correctamente
+        if (!file_exists($fullPath)) {
+            $message = "Lo sentimos, no se pudo procesar el archivo.";
+            throw new ValidatorBoomException(422, $message);
+        }
+        return [
+            'lError' => false,
+            'filename' => $filename,
+            'ruta' => '/app-inspections/static/files/' . $filename // Retornar la ruta completa del archivo guardado
+        ];
+    }
+
+    // Método para descargar tickets en formato Word
+    public function downloadWORD($tickets, $columnNames)
+    {
+        // Crear una instancia de PHPWord
+        $phpWord = new \PhpOffice\PhpWord\PhpWord();
+        $section = $phpWord->addSection();
+
+        // Agregar encabezados
+        $headers = $this->getHeaders('Boleta');
+
+        // Agregar datos
+        foreach ($tickets as $ticket) {
+            foreach ($ticket as $key => $value) {
+                if(isset($headers[$key])){
+
+                    $section->addText($headers[$key] . ': ' . $value);
+                }
+            }
+            $section->addText('----------------');
+        }
+
+        // Nombre y ruta del archivo
+        $filename = 'tickets.docx';
+        $filesDir = $this->config->app->appInspectionsFilesDir;
+        $fullPath = $filesDir . $filename;
+
+        // Guardar el archivo en el servidor
+        $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
+        $objWriter->save($fullPath);
+
+        // Verificar si el archivo se ha guardado correctamente
+        if (!file_exists($fullPath)) {
+            $message = "Lo sentimos, no se pudo procesar el archivo.";
+            throw new ValidatorBoomException(422, $message);
+        }
+
+        // Retornar la información del archivo generado
+        return [
+            'lError' => false,
+            'filename' => $filename,
+            'ruta' => '/app-inspections/static/files/' . $filename
+        ];
     }
 }

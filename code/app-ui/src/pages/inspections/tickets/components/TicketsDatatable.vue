@@ -106,24 +106,6 @@ export default {
           align: "center",
           class: "font-weight-bold",
         },
-        // {
-        //   text: "Etapa",
-        //   value: "txtboleta_etapa",
-        //   align: "center",
-        //   class: "font-weight-bold",
-        // },
-        // {
-        //   text: "Turno",
-        //   value: "txtboleta_turno",
-        //   align: "center",
-        //   class: "font-weight-bold",
-        // },
-        // {
-        //   text: "Categoría",
-        //   value: "txtboleta_categoria",
-        //   align: "center",
-        //   class: "font-weight-bold",
-        // },
         {
           text: "Activo",
           value: "activo",
@@ -154,15 +136,15 @@ export default {
       console.log(data)
       this.loadingTable = false;
     },
-    actionsHandler(boleta, action) {
+    actionsHandler(ticket, action) {
       console.log('actionsHandler')
-      console.log(boleta)
+      console.log(ticket)
       console.log(action)
-      this.$refs.dialogs.boleta = boleta;
+      this.$refs.dialogs.ticket = ticket;
 
       switch (action) {
-        case 'edit': this.$router.push(`/tickets/${boleta.iidboleta}/edit`); break;
-        case 'view': this.$refs.dialogs.viewInspector(); break;
+        case 'edit': this.$router.push(`/tickets/${ticket.iidboleta}/edit`); break;
+        case 'view': this.$refs.dialogs.viewTicket(); break;
         default: this.$refs.dialogs.show[action] = true;
       }
     },
