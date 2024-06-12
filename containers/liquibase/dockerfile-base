@@ -29,6 +29,8 @@ RUN lpm add postgresql --global && ls -alh /liquibase/lib
 RUN mkdir /docker-entrypoint.d && mkfifo .pause
 
 COPY docker-entrypoint.sh /
+CMD chmod +x /docker-entrypoint.sh
+CMD chmod +x init.sh
 COPY init.sh /docker-entrypoint.d/
 
 STOPSIGNAL SIGKILL
