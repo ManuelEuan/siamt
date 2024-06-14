@@ -16,6 +16,9 @@
 		<include file="changes/imjcu-7.sql"/>
 		<include file="changes/imjcu-8.sql"/>
 		<include file="changes/imjcu-9.sql"/>
+		<include file="changes/imjcu-10.sql"/>
+		<include file="changes/imjcu-11.sql"/>
+		<include file="changes/imjcu-12.sql"/>
 
 
 	<!-- INSERCIONES GENERALES -->

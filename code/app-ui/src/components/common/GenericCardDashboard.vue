@@ -12,12 +12,6 @@
                     <v-list-item-subtitle class="mt-1 text-center">{{ subtitle }}</v-list-item-subtitle>
                 </v-list-item-content>
             </v-list-item>
-            <!-- <v-divider></v-divider> -->
-            <!-- <v-card-actions class="d-flex justify-end">
-                <v-btn class="px-2" @click="openUrl">
-                    <v-icon small class="mr-1">mdi-eye</v-icon> Visualizar
-                </v-btn>
-            </v-card-actions> -->
         </v-card>
     </v-col>
 </template>

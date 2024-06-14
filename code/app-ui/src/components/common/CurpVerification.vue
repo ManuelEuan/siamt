@@ -577,18 +577,6 @@ export default {
             }
             console.log(this.receivedTabPhone)
         },
-        // Método para manejar el evento keydown
-        // handleEnterKey: function (event) {
-        //     if (event.keyCode === 13) {
-        //         event.preventDefault();
-        //         // this.$refs.verificarCurpBtn.click();
-        //         const button = document.querySelector('.search-btn');
-        //         if (button) {
-        //             button.click();
-        //         }
-        //     }
-        // },
-
         async getGeneralPersonData(iidpersona) {
             try {
                 this.persona = await services.inspections().getGeneralPersonData(iidpersona);
