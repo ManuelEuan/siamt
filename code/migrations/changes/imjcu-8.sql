@@ -1,4 +1,3 @@
--- liquibase formatted sql
 -- changeset imjcu-8.sql
 -- Generación de módulo de Persona con sus permisos correspondientes
 

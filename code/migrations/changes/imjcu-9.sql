@@ -1,4 +1,3 @@
--- liquibase formatted sql
 -- changeset imjcu-9.sql
 -- Generación de módulo de procesos con sus permisos correspondientes
 

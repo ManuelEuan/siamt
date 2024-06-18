@@ -498,20 +498,29 @@ export default {
                 this.formFields.typeRegister.model = this.filters.typeRegister;
                 await this.getDinamycRegisterInProcess({ filters: this.filters });
 
-                this.headersDatatable = this.filters.typeRegister === 'Flujo' ?
-                    [
+                // this.headersDatatable = 
+                if(this.filters.typeRegister === 'Flujo'){
+                    this.headersDatatable =  [
                         { text: "Etapa actual", value: "txtnombre", align: "center", class: "font-weight-bold" },
                         { text: "Etapa siguiente", value: "txtnombre_siguiente", align: "center", class: "font-weight-bold" },
                         { text: "Activo", value: "bactivo", align: "center", class: "font-weight-bold" },
                         { text: "Acciones", value: "acciones", align: "center", sortable: false, width: "196px" }
-                    ] :
-                    [
+                    ]
+                }else if(this.filters.typeRegister === 'Proceso'){
+                    this.headersDatatable =[
+                        { text: "Nombre", value: "txtnombre", align: "center", class: "font-weight-bold" },
+                        { text: "Activo", value: "bactivo", align: "center", class: "font-weight-bold" },
+                        { text: "Acciones", value: "acciones", align: "center", sortable: false, width: "196px" }
+                    ];
+                }else{
+                    this.headersDatatable = [
                         { text: "Nombre", value: "txtnombre", align: "center", class: "font-weight-bold" },
                         { text: "Descripción", value: "txtdescripcion", align: "center", class: "font-weight-bold" },
                         { text: "Activo", value: "bactivo", align: "center", class: "font-weight-bold" },
                         { text: "Acciones", value: "acciones", align: "center", sortable: false, width: "196px" }
                     ];
-
+                }
+              
                 this.dialog = false;
             } catch (error) {
                 this.showError({ message: 'Error al aplicar filtros', error });

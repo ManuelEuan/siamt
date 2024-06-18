@@ -1,4 +1,3 @@
--- liquibase formatted sql
 -- changeset imjcu-4.sql
 -- Generación de módulo de Gestión de firmas con sus permisos correspondientes
 

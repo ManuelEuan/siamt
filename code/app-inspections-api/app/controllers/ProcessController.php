@@ -134,10 +134,10 @@ class ProcessController extends BaseController
                 'cols' => 12,
                 'md' => 6
             ],
-            'txtsigla' => [
+            'vclave' => [
                 'label' => 'Siglas',
                 'type' => 'text',
-                'model' => 'txtsigla',
+                'model' => 'vclave',
                 'rules' => 'required|max4chars',
                 'cols' => 12,
                 'md' => 6
@@ -238,44 +238,37 @@ class ProcessController extends BaseController
             case 'Proceso':
                 $sql = "WITH registers AS (
                         SELECT 
-                            dinamyc.iidproceso AS iidOfType,
+                            dinamyc.iid AS iidOfType,
                             dinamyc.iidmodulo,
                             dinamyc.txtnombre,
-                            dinamyc.txtdescripcion,
-                            dinamyc.txtsigla,
                             dinamyc.bactivo,
                             TO_CHAR(dinamyc.dtfecha_creacion, 'YYYY-MM-DD HH24:MI') AS dtfecha_creacion,
                             TO_CHAR(dinamyc.dtfecha_modificacion, 'YYYY-MM-DD HH24:MI') AS dtfecha_modificacion
-                        FROM comun.cat_proceso AS dinamyc)
+                        FROM comun.tbl_cat_proceso AS dinamyc)
                         ";
                 break;
             case 'Etapa':
                 $sql = "WITH registers AS (
                             SELECT 
-                                dinamyc.iidetapa AS iidOfType,
+                                dinamyc.iid AS iidOfType,
                                 dinamyc.iidproceso,
                                 dinamyc.txtnombre,
-                                dinamyc.txtsigla,
+                                dinamyc.vclave,
                                 dinamyc.txtdescripcion,
                                 dinamyc.txtcolor,
-                                dinamyc.txtpermiso,
-                                dinamyc.binicial,
-                                dinamyc.bfinal,
-                                dinamyc.bcancelacion,
-                                dinamyc.brequiere_motivo,
                                 dinamyc.bactivo,
                                 TO_CHAR(dinamyc.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS dtfecha_creacion,
                                 TO_CHAR(dinamyc.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS dtfecha_modificacion
-                            FROM comun.cat_etapa AS dinamyc)
+                            FROM comun.tbl_cat_etapa AS dinamyc)
                         ";
                 break;
             case 'Subetapa':
                 $sql = "WITH registers AS (
                             SELECT 
-                                dinamyc.iidsubetapa AS iidOfType,
+                                dinamyc.iid AS iidOfType,
                                 dinamyc.iidetapa,
                                 dinamyc.txtnombre,
-                                dinamyc.txtsigla,
+                                dinamyc.vclave,
                                 dinamyc.txtdescripcion,
                                 dinamyc.txtcolor,
                                 dinamyc.txtpermiso,
@@ -286,13 +279,13 @@ class ProcessController extends BaseController
                                 dinamyc.bactivo,
                                 TO_CHAR(dinamyc.dtfecha_creacion, 'YYYY-MM-DD HH24:MI') AS dtfecha_creacion,
                                 TO_CHAR(dinamyc.dtfecha_modificacion, 'YYYY-MM-DD HH24:MI') AS dtfecha_modificacion
-                            FROM comun.cat_subetapa dinamyc)
+                            FROM comun.tbl_cat_subetapa dinamyc)
                         ";
                 break;
             case 'Flujo':
                 $sql = "WITH registers AS (
                             SELECT 
-                                dinamyc.iidsubetapa AS iidOfType,
+                                dinamyc.iid AS iidOfType,
                                 dinamyc.iidsubetapa,
                                 dinamyc.iidsubetapa_siguiente,
                                 dinamyc.bactivo,
@@ -300,9 +293,9 @@ class ProcessController extends BaseController
                                 TO_CHAR(dinamyc.dtfecha_modificacion, 'YYYY-MM-DD HH24:MI') AS dtfecha_modificacion,
                                 subetapa.txtnombre AS txtnombre,
                                 siguiente.txtnombre AS txtnombre_siguiente
-                            FROM comun.cat_flujo dinamyc
-                            LEFT JOIN comun.cat_subetapa AS subetapa ON dinamyc.iidsubetapa = subetapa.iidsubetapa
-                            LEFT JOIN comun.cat_subetapa AS siguiente ON dinamyc.iidsubetapa_siguiente = siguiente.iidsubetapa
+                            FROM comun.tbl_flujo dinamyc
+                            LEFT JOIN comun.tbl_cat_subetapa AS subetapa ON dinamyc.iidsubetapa = subetapa.iid
+                            LEFT JOIN comun.tbl_cat_subetapa AS siguiente ON dinamyc.iidsubetapa_siguiente = siguiente.iid
                             )
                         ";
                 break;
@@ -391,8 +384,8 @@ class ProcessController extends BaseController
                     $sql .= 'registers.txtdescripcion '; // Agregar columna de usuario
                     break;
 
-                case 'txtsigla': // Ordenar por correo
-                    $sql .= 'registers.txtsigla '; // Agregar columna de correo
+                case 'vclave': // Ordenar por correo
+                    $sql .= 'registers.vclave '; // Agregar columna de correo
                     break;
                 case 'activo': // Ordenar por estado activo
                     $sql .= 'registers.bactivo '; // Agregar columna de estado activo
@@ -444,9 +437,9 @@ class ProcessController extends BaseController
     {
 
         $sql = "SELECT 
-                    iidsubetapa, txtnombre
+                    iid, txtnombre
                 FROM 
-                    comun.cat_subetapa
+                    comun.tbl_cat_subetapa
                 WHERE 
                     bactivo='t';
         ";
@@ -457,15 +450,13 @@ class ProcessController extends BaseController
     public function getAllProcess()
     {
         $sql = "SELECT 
-            iidproceso,
+            iid,
             iidmodulo,
             txtnombre,
-            txtdescripcion,
-            txtsigla,
             bactivo AS activo,
             TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
             TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-            FROM comun.cat_proceso
+            FROM comun.tbl_cat_proceso
             WHERE bactivo='t'
         ";
         $processes = Db::fetchAll($sql);
@@ -475,18 +466,13 @@ class ProcessController extends BaseController
     public function getAllStages()
     {
         $sql = "SELECT 
-                ce.iidetapa,
+                ce.iid,
                 ce.txtnombre AS txtetapa_nombre,
                 ce.txtdescripcion,
-                ce.txtsigla,
+                ce.vclave,
                 ce.iidproceso,
                 tp.txtnombre AS txtproceso_nombre,
                 ce.txtcolor,
-                ce.txtpermiso,
-                ce.binicial,
-                ce.bfinal,
-                ce.bcancelacion,
-                ce.brequiere_motivo,
                 ce.bactivo AS activo,
                 TO_CHAR(ce.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
                 TO_CHAR(ce.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion,
@@ -494,9 +480,9 @@ class ProcessController extends BaseController
                 m.nombre AS txtproceso_modulo_nombre,
                 m.descripcion AS txtproceso_modulo_descripcion
             FROM 
-                comun.cat_etapa ce
+                comun.tbl_cat_etapa ce
             JOIN 
-                comun.cat_proceso tp ON ce.iidproceso = tp.iidproceso
+                comun.tbl_cat_proceso tp ON ce.iidproceso = tp.iid
             JOIN 
                 usuario.modulo m ON tp.iidmodulo = m.id
             WHERE 
@@ -556,7 +542,7 @@ class ProcessController extends BaseController
     //     "iidsubetapa"=> 1,
     //     "iidetapa"=> 1,
     //     "txtnombre"=> "Entrevista",
-    //     "txtsigla"=> "MJC1",
+    //     "vclave"=> "MJC1",
     //     "txtdescripcion"=> "Ejemplo subetapa 1",
     //     "txtcolor"=> "orange",
     //     "txtpermiso"=> null,
@@ -690,7 +676,7 @@ class ProcessController extends BaseController
     public function getNextSubStageFromFlow($iidSubStage, $markers = [])
     {
         $sql = "SELECT iidsubetapa_siguiente
-                FROM comun.cat_flujo
+                FROM comun.tbl_flujo
                 WHERE iidsubetapa = :iidsubetapa
                 AND bactivo = true";
         $params = array('iidsubetapa' => $iidSubStage);
@@ -738,12 +724,12 @@ class ProcessController extends BaseController
         $sql = "SELECT
                     etapa.iidetapa, 
                     etapa.txtnombre AS nombre_etapa, 
-                    etapa.txtsigla AS sigla_etapa, 
+                    etapa.vclave AS sigla_etapa, 
                     etapa.txtdescripcion AS descripcion_etapa, 
                     etapa.txtcolor AS color_etapa, 
                     etapa.txtpermiso AS permiso_etapa
                 FROM
-                    comun.cat_etapa AS etapa
+                    comun.tbl_cat_etapa AS etapa
                 WHERE bactivo='t' AND iidproceso = :iidproceso
         ";
         $params = array('iidproceso' => $iidproceso);
@@ -756,7 +742,7 @@ class ProcessController extends BaseController
         $sql = "SELECT 
                 s.iidsubetapa,
                 s.txtnombre,
-                s.txtsigla,
+                s.vclave,
                 s.txtdescripcion,
                 s.txtcolor,
                 s.txtpermiso,
@@ -766,9 +752,9 @@ class ProcessController extends BaseController
                 s.brequiere_motivo,
                 s.iidetapa
             FROM 
-                comun.cat_subetapa s
+                comun.tbl_cat_subetapa s
             JOIN 
-                comun.cat_etapa e ON s.iidetapa = e.iidetapa
+                comun.tbl_cat_etapa e ON s.iidetapa = e.iidetapa
             WHERE 
                 s.bactivo = 't' AND e.iidetapa = :iidStage
         ";
@@ -780,19 +766,17 @@ class ProcessController extends BaseController
     public function getProcessBySubStage($iidSubStage)
     {
         $sql = "SELECT
-                    cat_proceso.iidproceso, 
-                    cat_proceso.iidmodulo, 
-                    cat_proceso.txtnombre, 
-                    cat_proceso.txtsigla, 
-                    cat_proceso.txtdescripcion, 
-                    cat_proceso.bactivo
+                    tbl_cat_proceso.iidproceso, 
+                    tbl_cat_proceso.iidmodulo, 
+                    tbl_cat_proceso.txtnombre, 
+                    tbl_cat_proceso.bactivo
                 FROM
-                    comun.cat_proceso
+                    comun.tbl_cat_proceso
                     INNER JOIN
-                    comun.cat_etapa ON cat_proceso.iidproceso = cat_etapa.iidproceso
+                    comun.tbl_cat_etapa ON tbl_cat_proceso.iidproceso = tbl_cat_etapa.iidproceso
                     INNER JOIN
-                    comun.cat_subetapa ON cat_etapa.iidetapa = cat_subetapa.iidetapa
-                WHERE cat_proceso.bactivo = 't' AND cat_subetapa.iidsubetapa = :iidsubetapa;
+                    comun.tbl_cat_subetapa ON tbl_cat_etapa.iidetapa = tbl_cat_subetapa.iidetapa
+                WHERE tbl_cat_proceso.bactivo = 't' AND tbl_cat_subetapa.iidsubetapa = :iidsubetapa;
         ";
         $params = array('iidsubetapa' => $iidSubStage);
         $process = Db::fetch($sql, $params);
@@ -822,13 +806,13 @@ class ProcessController extends BaseController
                     FROM 
                         inspeccion.tbl_inspector_seguimiento AS insp
                     JOIN 
-                        comun.cat_etapa AS etapa_anterior ON insp.iidetapa_anterior = etapa_anterior.iidetapa
+                        comun.tbl_cat_etapa AS etapa_anterior ON insp.iidetapa_anterior = etapa_anterior.iidetapa
                     JOIN 
-                        comun.cat_etapa AS etapa_actual ON insp.iidetapa_actual = etapa_actual.iidetapa
+                        comun.tbl_cat_etapa AS etapa_actual ON insp.iidetapa_actual = etapa_actual.iidetapa
                     JOIN 
-                        comun.cat_subetapa AS subetapa_anterior ON insp.iidsubetapa_anterior = subetapa_anterior.iidsubetapa
+                        comun.tbl_cat_subetapa AS subetapa_anterior ON insp.iidsubetapa_anterior = subetapa_anterior.iidsubetapa
                     JOIN 
-                        comun.cat_subetapa AS subetapa_actual ON insp.iidsubetapa_actual = subetapa_actual.iidsubetapa
+                        comun.tbl_cat_subetapa AS subetapa_actual ON insp.iidsubetapa_actual = subetapa_actual.iidsubetapa
                     WHERE 
                         insp.iidinspector = :idOfSearch
                         AND insp.bactivo = 't';
@@ -899,7 +883,7 @@ class ProcessController extends BaseController
         $sql = "SELECT 
                     s.iidsubetapa,
                     s.txtnombre AS subetapa_nombre,
-                    s.txtsigla,
+                    s.vclave,
                     s.txtdescripcion,
                     s.txtcolor,
                     s.txtpermiso,
@@ -911,9 +895,9 @@ class ProcessController extends BaseController
                     e.iidproceso,
                     e.txtnombre AS etapa_nombre
                 FROM 
-                    comun.cat_subetapa s
+                    comun.tbl_cat_subetapa s
                 JOIN 
-                    comun.cat_etapa e ON s.iidetapa = e.iidetapa
+                    comun.tbl_cat_etapa e ON s.iidetapa = e.iidetapa
                 WHERE 
                     s.bactivo = 't' AND s.iidsubetapa = :iidsubetapa
         ";
@@ -1044,22 +1028,20 @@ class ProcessController extends BaseController
 
             switch ($data->typeRegister) {
                 case 'Proceso':
-                    $table = 'comun.cat_proceso';
+                    $table = 'comun.tbl_cat_proceso';
                     $params = array(
                         'iidmodulo'  => $data->iidmodulo,
                         'txtnombre' => $data->txtnombre,
-                        'txtdescripcion' => $data->txtdescripcion,
-                        'txtsigla' => $data->txtsigla,
                         'dtfecha_creacion' => date('Y-m-d H:i:s'),
                     );
                     break;
                 case 'Etapa':
-                    $table = 'comun.cat_etapa';
+                    $table = 'comun.tbl_cat_etapa';
                     $params = array(
                         'iidproceso'  => $data->iidproceso,
                         'txtnombre' => $data->txtnombre,
                         'txtdescripcion' => $data->txtdescripcion,
-                        'txtsigla' => $data->txtsigla,
+                        'vclave' => $data->vclave,
                         'txtcolor' => $data->txtcolor,
                         'txtpermiso' => $data->txtpermiso,
                         'binicial' => !empty($data->binicial) ? $data->binicial : 'f',
@@ -1070,12 +1052,12 @@ class ProcessController extends BaseController
                     );
                     break;
                 case 'Subetapa':
-                    $table = 'comun.cat_subetapa';
+                    $table = 'comun.tbl_cat_subetapa';
                     $params = array(
                         'iidetapa'  => $data->iidetapa,
                         'txtnombre' => $data->txtnombre,
                         'txtdescripcion' => $data->txtdescripcion,
-                        'txtsigla' => $data->txtsigla,
+                        'vclave' => $data->vclave,
                         'txtcolor' => $data->txtcolor,
                         'txtpermiso' => $data->txtpermiso,
                         'binicial' => !empty($data->binicial) ? $data->binicial : 'f',
@@ -1086,7 +1068,7 @@ class ProcessController extends BaseController
                     );
                     break;
                 case 'Flujo':
-                    $table = 'comun.cat_flujo';
+                    $table = 'comun.tbl_flujo';
                     $params = array(
                         'iidsubetapa'  => $data->iidsubetapa,
                         'iidsubetapa_siguiente' => $data->iidsubetapa_siguiente,
@@ -1126,11 +1108,11 @@ class ProcessController extends BaseController
             Db::begin();
             switch ($data->typeRegister) {
                 case 'Proceso':
-                    $sql = 'UPDATE comun.cat_proceso SET 
+                    $sql = 'UPDATE comun.tbl_cat_proceso SET 
                                 iidmodulo=:iidmodulo,
                                 txtnombre=:txtnombre,
                                 txtdescripcion=:txtdescripcion,
-                                txtsigla=:txtsigla,
+                                vclave=:vclave,
                                 bactivo=:bactivo,
                                 dtfecha_modificacion=:dtfecha_modificacion
                             WHERE iidproceso=:iidproceso
@@ -1139,18 +1121,18 @@ class ProcessController extends BaseController
                         'iidmodulo'  => $data->iidmodulo,
                         'txtnombre' => $data->txtnombre,
                         'txtdescripcion' => $data->txtdescripcion,
-                        'txtsigla' => $data->txtsigla,
+                        'vclave' => $data->vclave,
                         'bactivo' => $data->bactivo ? 't' : 'f',
                         'dtfecha_modificacion' => date('Y-m-d H:i:s'), // Formato de fecha correcto
                         'iidproceso'      => $data->iidoftype,
                     );
                     break;
                 case 'Etapa':
-                    $sql = 'UPDATE comun.cat_etapa SET 
+                    $sql = 'UPDATE comun.tbl_cat_etapa SET 
                                     iidproceso=:iidproceso,
                                     txtnombre=:txtnombre,
                                     txtdescripcion=:txtdescripcion,
-                                    txtsigla=:txtsigla,
+                                    vclave=:vclave,
                                     txtcolor=:txtcolor,
                                     txtpermiso=:txtpermiso,
                                     binicial=:binicial,
@@ -1165,7 +1147,7 @@ class ProcessController extends BaseController
                         'iidproceso'  => $data->iidproceso,
                         'txtnombre' => $data->txtnombre,
                         'txtdescripcion' => $data->txtdescripcion,
-                        'txtsigla' => $data->txtsigla,
+                        'vclave' => $data->vclave,
                         'txtcolor' => $data->txtcolor,
                         'txtpermiso' => $data->txtpermiso,
                         'binicial' => $data->binicial ? 't' : 'f',
@@ -1178,11 +1160,11 @@ class ProcessController extends BaseController
                     );
                     break;
                 case 'Subetapa':
-                    $sql = 'UPDATE comun.cat_subetapa SET 
+                    $sql = 'UPDATE comun.tbl_cat_subetapa SET 
                                         iidetapa=:iidetapa,
                                         txtnombre=:txtnombre,
                                         txtdescripcion=:txtdescripcion,
-                                        txtsigla=:txtsigla,
+                                        vclave=:vclave,
                                         txtcolor=:txtcolor,
                                         txtpermiso=:txtpermiso,
                                         binicial=:binicial,
@@ -1197,7 +1179,7 @@ class ProcessController extends BaseController
                         'iidetapa'  => $data->iidetapa,
                         'txtnombre' => $data->txtnombre,
                         'txtdescripcion' => $data->txtdescripcion,
-                        'txtsigla' => $data->txtsigla,
+                        'vclave' => $data->vclave,
                         'txtcolor' => $data->txtcolor,
                         'txtpermiso' => $data->txtpermiso,
                         'binicial' => $data->binicial ? 't' : 'f',
@@ -1231,13 +1213,13 @@ class ProcessController extends BaseController
     {
         switch ($typeRegister) {
             case 'Proceso':
-                $requiredKeys = array('iidmodulo', 'txtnombre', 'txtsigla'); // Claves requeridas
+                $requiredKeys = array('iidmodulo', 'txtnombre', 'vclave'); // Claves requeridas
                 break;
             case 'Etapa':
-                $requiredKeys = array('iidproceso', 'txtnombre', 'txtsigla'); // Claves requeridas
+                $requiredKeys = array('iidproceso', 'txtnombre', 'vclave'); // Claves requeridas
                 break;
             case 'Subetapa':
-                $requiredKeys = array('iidetapa', 'txtnombre', 'txtsigla'); // Claves requeridas
+                $requiredKeys = array('iidetapa', 'txtnombre', 'vclave'); // Claves requeridas
                 break;
             case 'Flujo':
                 $requiredKeys = array('iidsubetapa', 'iidsubetapa_siguiente'); // Claves requeridas

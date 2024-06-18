@@ -5,7 +5,7 @@ export default [
         component: () => import(/* webpackChunkName: "persons" */ '@/pages/admin/modules/ModulesPage.vue'),
         meta: {
             layout: 'default',
-            code: 'mod'
+            code: 'mdl'
         }
     },
     {
@@ -15,7 +15,7 @@ export default [
         meta: {
             layout: 'default',
             code: 'nus',
-            parentCode: 'mod'
+            parentCode: 'mdl'
         }
     },
     {
@@ -25,7 +25,7 @@ export default [
         meta: {
             layout: 'default',
             code: 'tus',
-            parentCode: 'mod'
+            parentCode: 'mdl'
         }
     }
 ]
