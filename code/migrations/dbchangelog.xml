@@ -13,17 +13,17 @@
 
 	<!-- V1.1 -->
 		<!-- <include file="changes/schemas/create-base-schemas-1.sql"/> -->
-	<!-- CREACIÓN DE ESTRUCTURA PRINCIPAL -->
-		<include file="changes/imjcu-0.sql"/>
 
+	<!-- CREACIÓN DE ESTRUCTURA PRINCIPAL -->
+		<include file="changes/imjcu-1.sql"/>
 	<!-- CREACIÓN DE MÓDULOS -->
+		<include file="changes/imjcu-2.sql"/>
+		<include file="changes/imjcu-3.sql"/>
 		<include file="changes/imjcu-4.sql"/>
 		<include file="changes/imjcu-5.sql"/>
 		<include file="changes/imjcu-6.sql"/>
+		<include file="changes/imjcu-7.sql"/>
 		<include file="changes/imjcu-8.sql"/>
 		<include file="changes/imjcu-9.sql"/>
-		<include file="changes/imjcu-10.sql"/>
-		<include file="changes/imjcu-11.sql"/>
-		<include file="changes/imjcu-12.sql"/>
 
 </databaseChangeLog>

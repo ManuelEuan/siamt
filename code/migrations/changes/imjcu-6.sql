@@ -1,19 +1,21 @@
-
--- changeset imjcu-6.sql
--- Generación de módulo de mantenimiento de unidades con sus permisos correspondientes
+-- changeset imjcu-9.sql
+-- Generación de módulo de procesos con sus permisos correspondientes
 
 /*
-~~~~~~~~~~~~~~~~~~~~~~~ ESTRUCTURA DEL MÓDULO                               ~~~~~~~~~~~~~~~~~~~~~~~
-- Mantenimiento
-  |- Unidades
+~~~~~~~~~~~~~~~~~~~~~~~ ESTRUCTURA DEL MÓDULO EN EL PANEL ADMINISTRATIVO  ~~~~~~~~~~~~~~~~~~~~~~~
+- Administración
+  |- Procesos
 
 */
 
--- MÓDULO PADRE
-WITH inserted_module_mto_unidades AS (
+WITH inserted_module_proceso AS (
   INSERT INTO usuario.modulo (seccion, nombre, descripcion, siglas, icono, orden, activo, idpadre)
-  VALUES ('Mantenimiento', 'Unidades', NULL, 'mto', 'mdi-tools', NULL, 't', NULL)
+  VALUES ('Administración', 'Procesos', NULL, 'pro', 'mdi-ray-start-vertex-end', NULL, 't', NULL)
   RETURNING id
+),
+inserted_usuario_dominio_modulo AS (
+  INSERT INTO usuario.usuario_dominio_modulo (idusuario, iddominio, idmodulo)
+  SELECT 1, 1, id FROM inserted_module_proceso
+  RETURNING *
 )
-INSERT INTO usuario.usuario_dominio_modulo (idusuario, iddominio, idmodulo)
-VALUES (1, 1, (SELECT id FROM inserted_module_mto_unidades));
+SELECT * FROM inserted_module_proceso;
