@@ -7,54 +7,49 @@ CREATE EXTENSION IF NOT EXISTS "pg_trgm";
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS postgis;
 
+-- SELECT pg_terminate_backend(pg_stat_activity.pid)
+-- FROM pg_stat_activity
+-- WHERE pg_stat_activity.datname = 'siamt_unstable_jair'
+-- AND pid <> pg_backend_pid();
 -- **************************************************************** CREACÓN DE SCHEMAS ***********************************************************
 
 CREATE SCHEMA "inspeccion";
 CREATE SCHEMA "boleta";
 
 -- **************************************************************** INFORMACIÓN SCHEMA USUARIO ***********************************************************
--- -------------------- SEQUENCIAS
-DO $$ 
-BEGIN 
-  IF EXISTS(SELECT 1 FROM information_schema.sequences WHERE sequence_schema = 'usuario' AND sequence_name = 'tbl_cat_firma_plantilla_iid_firma_plantilla_seq') THEN 
-    DROP SEQUENCE "usuario"."tbl_cat_firma_plantilla_iid_firma_plantilla_seq" CASCADE; 
-  END IF; 
-
-  IF EXISTS(SELECT 1 FROM information_schema.sequences WHERE sequence_schema = 'usuario' AND sequence_name = 'tbl_firma_registro_iidfirma_registro_seq') THEN 
-    DROP SEQUENCE "usuario"."tbl_firma_registro_iidfirma_registro_seq" CASCADE; 
-  END IF; 
-
-  IF EXISTS(SELECT 1 FROM information_schema.sequences WHERE sequence_schema = 'usuario' AND sequence_name = 'tbl_firma_registro_usuario_iidfirma_registro_usuario_seq') THEN 
-    DROP SEQUENCE "usuario"."tbl_firma_registro_usuario_iidfirma_registro_usuario_seq" CASCADE; 
-  END IF; 
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.sequences WHERE sequence_schema = 'usuario' AND sequence_name = 'tbl_cat_firma_plantilla_iid_seq') THEN
+        CREATE SEQUENCE "usuario"."tbl_cat_firma_plantilla_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 CACHE 1;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.sequences WHERE sequence_schema = 'usuario' AND sequence_name = 'tbl_firma_registro_iid_seq') THEN
+        CREATE SEQUENCE "usuario"."tbl_firma_registro_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 CACHE 1;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.sequences WHERE sequence_schema = 'usuario' AND sequence_name = 'tbl_firma_registro_usuario_iid_seq') THEN
+        CREATE SEQUENCE "usuario"."tbl_firma_registro_usuario_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 CACHE 1;
+    END IF;
 END $$;
 
-CREATE SEQUENCE "usuario"."tbl_cat_firma_plantilla_iid_firma_plantilla_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 CACHE 1; 
--- CREATE SEQUENCE "usuario"."dominio_id_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1; 
--- CREATE SEQUENCE "usuario"."modulo_id_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1; 
--- CREATE SEQUENCE "usuario"."perfil_id_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1; 
--- CREATE SEQUENCE "usuario"."permiso_id_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1; 
--- CREATE SEQUENCE "usuario"."usuario_id_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1; 
-CREATE SEQUENCE "usuario"."tbl_firma_registro_iidfirma_registro_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 CACHE 1; 
-CREATE SEQUENCE "usuario"."tbl_firma_registro_usuario_iidfirma_registro_usuario_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 CACHE 1; 
-
 -- -------------------- TABLAS
-
-CREATE TABLE IF NOT EXISTS "usuario"."tbl_cat_firma_plantilla" (
-  "iid" int4 NOT NULL DEFAULT nextval('"usuario"."tbl_cat_firma_plantilla_iid_firma_plantilla_seq"'::regclass),
+CREATE TABLE "usuario"."tbl_cat_firma_plantilla" (
+  "iid" int4 NOT NULL DEFAULT nextval('"usuario"."tbl_cat_firma_plantilla_iid_seq"'::regclass),
   "txtnombre" text COLLATE "pg_catalog"."default" NOT NULL,
   "txtplantilla" text COLLATE "pg_catalog"."default" NOT NULL,
   "bactivo" bool NOT NULL DEFAULT true,
   "dtfecha_creacion" timestamp(6),
   "dtfecha_modificacion" timestamp(6),
-  CONSTRAINT "unique_iid" UNIQUE ("iid")
+  CONSTRAINT "pk_tbl_cat_firma_plantilla" PRIMARY KEY ("iid")
 );
 
-CREATE TABLE IF NOT EXISTS "usuario"."tbl_firma_registro" (
+CREATE TABLE "usuario"."tbl_firma_registro" (
   "iid" int4 NOT NULL DEFAULT nextval('"usuario"."tbl_firma_registro_iid_seq"'::regclass),
+  "iidfirma_plantilla" int4 NOT NULL,
+  "txttitulo" text COLLATE "pg_catalog"."default",
   "txtnombre" text COLLATE "pg_catalog"."default" NOT NULL,
-  "txtapepat" text COLLATE "pg_catalog"."default" NOT NULL,
-  "txtapemat" text COLLATE "pg_catalog"."default",
+  "txtapellido_paterno" text COLLATE "pg_catalog"."default" NOT NULL,
+  "txtapellido_materno" text COLLATE "pg_catalog"."default",
   "txtpuesto" text COLLATE "pg_catalog"."default" NOT NULL,
   "txtoficina" text COLLATE "pg_catalog"."default" NOT NULL,
   "txtdepartamento" text COLLATE "pg_catalog"."default",
@@ -64,67 +59,37 @@ CREATE TABLE IF NOT EXISTS "usuario"."tbl_firma_registro" (
   "bactivo" bool NOT NULL DEFAULT true,
   "dtfecha_creacion" timestamp(0),
   "dtfecha_modificacion" timestamp(0) DEFAULT now(),
-  "txttitulo" text COLLATE "pg_catalog"."default",
-  "iidfirma_plantilla" int4 NOT NULL,
-  CONSTRAINT "unique_iid" UNIQUE ("iid"),
-  CONSTRAINT "fk_tbl_firma_registro_iidfirma_plantilla" FOREIGN KEY ("iidfirma_plantilla") REFERENCES "usuario"."tbl_cat_firma_plantilla"("iidfirma_plantilla") ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT "pk_tbl_firma_registro" PRIMARY KEY ("iid"),
+  CONSTRAINT "fk_tbl_firma_registro_iidfirma_plantilla" FOREIGN KEY ("iidfirma_plantilla") REFERENCES "usuario"."tbl_cat_firma_plantilla"("iid") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS "usuario"."tbl_firma_registro_usuario" (
+
+CREATE TABLE "usuario"."tbl_firma_registro_usuario" (
   "iid" int4 NOT NULL DEFAULT nextval('"usuario"."tbl_firma_registro_usuario_iid_seq"'::regclass),
   "iidfirma_registro" int4 NOT NULL,
   "iidusuario" int4 NOT NULL,
   "bactivo" bool NOT NULL DEFAULT true,
   "dtfecha_creacion" timestamp(6),
   "dtfecha_modificacion" timestamp(6),
-  PRIMARY KEY ("iid"),
-  CONSTRAINT "fk_tbl_firma_registro_usuario_iidfirma_registro" FOREIGN KEY ("iidfirma_registro") REFERENCES "usuario"."tbl_firma_registro"("iidfirma_registro") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "fk_tbl_firma_registro_usuario_iidfirma_registro" FOREIGN KEY ("iidfirma_registro") REFERENCES "usuario"."tbl_firma_registro"("iid") ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT "fk_tbl_firma_registro_usuario_iidusuario" FOREIGN KEY ("iidusuario") REFERENCES "usuario"."usuario"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- **************************************************************** INFORMACIÓN SCHEMA PERSONA ***********************************************************
--- -------------------- SEQUENCIAS
+
+DROP TABLE IF EXISTS persona.tblcat_tipo_telefono CASCADE;
+DROP TABLE IF EXISTS "persona"."tbl_cat_lada";
+DROP TABLE IF EXISTS "persona"."tbl_telefono";
+
 DO $$
 BEGIN
-    
-    IF NOT EXISTS (SELECT 1 FROM pg_sequences WHERE schemaname = 'persona' AND sequencename = 'tbl_cat_lada_iid_seq') THEN
-        CREATE SEQUENCE "persona"."tbl_cat_lada_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1;
-    END IF;
+    CREATE SEQUENCE IF NOT EXISTS "persona"."tbl_cat_lada_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 CACHE 1;
+    CREATE SEQUENCE IF NOT EXISTS "persona"."tbl_cat_tipo_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 CACHE 1;
+    CREATE SEQUENCE IF NOT EXISTS "persona"."tbl_cat_tipo_telefono_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 CACHE 1;
+    CREATE SEQUENCE IF NOT EXISTS "persona"."tbl_telefono_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 CACHE 1;
+END $$;
 
-    IF NOT EXISTS (SELECT 1 FROM pg_sequences WHERE schemaname = 'persona' AND sequencename = 'tbl_cat_telefono_tipo_iid_seq') THEN
-        CREATE SEQUENCE "persona"."tbl_cat_telefono_tipo_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1;
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_sequences WHERE schemaname = 'persona' AND sequencename = 'tbl_cat_tipo_iid_seq') THEN
-        CREATE SEQUENCE "persona"."tbl_cat_tipo_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1;
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_sequences WHERE schemaname = 'persona' AND sequencename = 'tbl_direccion_iid_seq') THEN
-        CREATE SEQUENCE "persona"."tbl_direccion_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1;
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_sequences WHERE schemaname = 'persona' AND sequencename = 'tbl_persona_direccion_iid_seq') THEN
-        CREATE SEQUENCE "persona"."tbl_persona_direccion_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1;
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_sequences WHERE schemaname = 'persona' AND sequencename = 'tbl_persona_iid_seq') THEN
-        CREATE SEQUENCE "persona"."tbl_persona_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1;
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_sequences WHERE schemaname = 'persona' AND sequencename = 'tbl_persona_telefono_iid_seq') THEN
-        CREATE SEQUENCE "persona"."tbl_persona_telefono_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1;
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_sequences WHERE schemaname = 'persona' AND sequencename = 'tbl_persona_tipo_iid_seq') THEN
-        CREATE SEQUENCE "persona"."tbl_persona_tipo_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1;
-    END IF;
-
-    IF NOT EXISTS (SELECT 1 FROM pg_sequences WHERE schemaname = 'persona' AND sequencename = 'tbl_telefono_iid_seq') THEN
-        CREATE SEQUENCE "persona"."tbl_telefono_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1;
-    END IF;
-END$$;
-
-CREATE TABLE IF NOT EXISTS "persona"."tbl_cat_lada" (
+CREATE TABLE "persona"."tbl_cat_lada" (
     "iid" int4 NOT NULL DEFAULT nextval('"persona".tbl_cat_lada_iid_seq'::regclass),
     "txtnombre" text COLLATE "pg_catalog"."default",
     "txtdescripcion" text COLLATE "pg_catalog"."default",
@@ -135,17 +100,7 @@ CREATE TABLE IF NOT EXISTS "persona"."tbl_cat_lada" (
     CONSTRAINT "tbl_cat_lada_pkey" PRIMARY KEY ("iid")
 );
 
-CREATE TABLE IF NOT EXISTS "persona"."tbl_cat_telefono_tipo" (
-    "iid" int4 NOT NULL DEFAULT nextval('"persona".tbl_cat_telefono_tipo_iid_seq'::regclass),
-    "txtnombre" text COLLATE "pg_catalog"."default" NOT NULL,
-    "txtdescripcion" text COLLATE "pg_catalog"."default",
-    "bactivo" bool NOT NULL DEFAULT true,
-    "dtfecha_creacion" timestamp(6) NOT NULL DEFAULT now(),
-    "dtfecha_modificacion" timestamp(6) NOT NULL DEFAULT now(),
-    CONSTRAINT "tbl_cat_telefono_tipo_pkey" PRIMARY KEY ("iid")
-);
-
-CREATE TABLE IF NOT EXISTS "persona"."tbl_cat_tipo" (
+CREATE TABLE "persona"."tbl_cat_tipo" (
     "iid" int4 NOT NULL DEFAULT nextval('"persona".tbl_cat_tipo_iid_seq'::regclass),
     "txtnombre" text COLLATE "pg_catalog"."default" NOT NULL,
     "txtdescripcion" text COLLATE "pg_catalog"."default",
@@ -155,47 +110,10 @@ CREATE TABLE IF NOT EXISTS "persona"."tbl_cat_tipo" (
     CONSTRAINT "tbl_cat_tipo_pkey" PRIMARY KEY ("iid")
 );
 
-CREATE TABLE IF NOT EXISTS "persona"."tbl_direccion" (
-    "iid" int4 NOT NULL DEFAULT nextval('"persona".tbl_direccion_iid_seq'::regclass),
-    "iidcolonia" int4 NOT NULL,
-    "txtcalle" text COLLATE "pg_catalog"."default",
-    "txtcalle_letra" text COLLATE "pg_catalog"."default",
-    "inumero_exterior" int4,
-    "txtnumero_exterior_letra" text COLLATE "pg_catalog"."default",
-    "inumero_interior" int4,
-    "txtnumero_interior_letra" text COLLATE "pg_catalog"."default",
-    "txtcruzamiento_uno" text COLLATE "pg_catalog"."default",
-    "txtcruzamiento_uno_letra" text COLLATE "pg_catalog"."default",
-    "txtcruzamiento_dos" text COLLATE "pg_catalog"."default",
-    "txtcruzamiento_dos_letra" text COLLATE "pg_catalog"."default",
-    "txtreferencia" text COLLATE "pg_catalog"."default",
-    "flatitud" float8,
-    "flongitud" float8,
-    "bactivo" bool NOT NULL DEFAULT true,
-    "dtfecha_creacion" timestamp(6) NOT NULL DEFAULT now(),
-    "dtfecha_modificacion" timestamp(6) NOT NULL DEFAULT now(),
-    "itipo_direccion" int4 DEFAULT 1,
-    "itipo_vialidad" int4,
-    "txtavenida_kilometro" text COLLATE "pg_catalog"."default",
-    "txttablaje" text COLLATE "pg_catalog"."default",
-    "txtdescripcion_direccion" text COLLATE "pg_catalog"."default",
-    CONSTRAINT "tbl_direccion_pkey" PRIMARY KEY ("iid")
-);
-
-CREATE TABLE IF NOT EXISTS "persona"."tbl_persona_tipo" (
-    "iid" int4 NOT NULL DEFAULT nextval('"persona".tbl_persona_tipo_iid_seq'::regclass),
-    "iidpersona" int4 NOT NULL,
-    "iidtipo" int4 NOT NULL,
-    "bactivo" bool NOT NULL DEFAULT true,
-    "dtfecha_creacion" timestamp(6) NOT NULL DEFAULT now(),
-    "dtfecha_modificacion" timestamp(6) NOT NULL DEFAULT now(),
-    CONSTRAINT "tbl_persona_tipo_pkey" PRIMARY KEY ("iid")
-);
-
-CREATE TABLE IF NOT EXISTS "persona"."tbl_telefono" (
+CREATE TABLE "persona"."tbl_telefono" (
     "iid" int4 NOT NULL DEFAULT nextval('"persona".tbl_telefono_iid_seq'::regclass),
     "inumero" int8 NOT NULL,
-    "iidtelefono_tipo" int4 NOT NULL,
+    "iidtipo_telefono" int4 NOT NULL,
     "bactivo" bool NOT NULL DEFAULT true,
     "dtfecha_creacion" timestamp(6) NOT NULL DEFAULT now(),
     "dtfecha_modificacion" timestamp(6) NOT NULL DEFAULT now(),
@@ -203,20 +121,29 @@ CREATE TABLE IF NOT EXISTS "persona"."tbl_telefono" (
     CONSTRAINT "tbl_telefono_pkey" PRIMARY KEY ("iid")
 );
 
+CREATE TABLE "persona"."tbl_cat_tipo_telefono" (
+    "iid" int4 NOT NULL DEFAULT nextval('"persona".tbl_cat_tipo_telefono_iid_seq'::regclass),
+    "txtnombre" text COLLATE "pg_catalog"."default" NOT NULL,
+    "txtdescripcion" text COLLATE "pg_catalog"."default",
+    "bactivo" bool NOT NULL DEFAULT true,
+    "dtfecha_creacion" timestamp(6) NOT NULL DEFAULT now(),
+    "dtfecha_modificacion" timestamp(6) NOT NULL DEFAULT now(),
+    CONSTRAINT "tbl_cat_tipo_telefono_pkey" PRIMARY KEY ("iid")
+);
+
 
 -- **************************************************************** INFORMACIÓN SCHEMA TERRITORIO ***********************************************************
 -- -------------------- SEQUENCIAS
 DO $$
 BEGIN
-
     IF NOT EXISTS (SELECT 1 FROM pg_sequences WHERE schemaname = 'territorio' AND sequencename = 'tbl_cat_zona_iid_seq') THEN
-        CREATE SEQUENCE "territorio"."tbl_cat_zona_iidzona_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1;
+        CREATE SEQUENCE "territorio"."tbl_cat_zona_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1;
     END IF;
 END$$;
 
 -- -------------------- TABLAS
 
-CREATE TABLE IF NOT EXISTS "territorio"."tbl_cat_zona" (
+CREATE TABLE "territorio"."tbl_cat_zona" (
     "iid" int4 NOT NULL DEFAULT nextval('"territorio".tbl_cat_zona_iid_seq'::regclass),
     "txtnombre" text COLLATE "pg_catalog"."default" NOT NULL,
     "txtdescripcion" text COLLATE "pg_catalog"."default",
@@ -278,7 +205,7 @@ BEGIN
 END$$;
 
 -- -------------------- TABLAS
-CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_cat_carga_trabajo_tipo" (
+CREATE TABLE "inspeccion"."tbl_cat_carga_trabajo_tipo" (
     "iid" int4 NOT NULL DEFAULT nextval('"inspeccion".tbl_cat_carga_trabajo_tipo_iid_seq'::regclass),
     "txtnombre" text COLLATE "pg_catalog"."default" NOT NULL,
     "txtdescripcion" text COLLATE "pg_catalog"."default",
@@ -289,7 +216,7 @@ CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_cat_carga_trabajo_tipo" (
     CONSTRAINT "tbl_cat_carga_trabajo_tipo_pkey" PRIMARY KEY ("iid")
 );
 
-CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_cat_inspector_categoria" (
+CREATE TABLE "inspeccion"."tbl_cat_inspector_categoria" (
     "iid" int4 NOT NULL DEFAULT nextval('"inspeccion".tbl_cat_inspector_categoria_iid_seq'::regclass),
     "txtnombre" text COLLATE "pg_catalog"."default" NOT NULL,
     "txtdescripcion" text COLLATE "pg_catalog"."default",
@@ -301,7 +228,7 @@ CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_cat_inspector_categoria" (
     CONSTRAINT "tbl_cat_inspector_categoria_pkey" PRIMARY KEY ("iid")
 );
 
-CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_cat_turno" (
+CREATE TABLE "inspeccion"."tbl_cat_turno" (
     "iid" int4 NOT NULL DEFAULT nextval('"inspeccion".tbl_cat_turno_iid_seq'::regclass),
     "txtnombre" text COLLATE "pg_catalog"."default" NOT NULL,
     "txtdescripcion" text COLLATE "pg_catalog"."default",
@@ -314,7 +241,7 @@ CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_cat_turno" (
     CONSTRAINT "tbl_cat_turno_pkey" PRIMARY KEY ("iid")
 );
 
-CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_carga_trabajo" (
+CREATE TABLE "inspeccion"."tbl_carga_trabajo" (
     "iid" int4 NOT NULL DEFAULT nextval('"inspeccion".tbl_carga_trabajo_iid_seq'::regclass),
     "iidzona" int4 NOT NULL,
     "dfecha_inicio" date NOT NULL DEFAULT now(),
@@ -327,7 +254,7 @@ CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_carga_trabajo" (
     CONSTRAINT "tbl_carga_trabajo_pkey" PRIMARY KEY ("iid")
 );
 
-CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_carga_trabajo_detalle" (
+CREATE TABLE "inspeccion"."tbl_carga_trabajo_detalle" (
     "iid" int4 NOT NULL DEFAULT nextval('"inspeccion".tbl_carga_trabajo_detalle_iid_seq'::regclass),
     "iidcarga_trabajo" int4 NOT NULL,
     "iidcarga_trabajo_tipo" int4 NOT NULL,
@@ -335,7 +262,7 @@ CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_carga_trabajo_detalle" (
     "txtdescripcion" text COLLATE "pg_catalog"."default",
     "thora_inicio" time(6),
     "thora_fin" time(6),
-    "flatitud" float8,
+    "nlatitud" float8,
     "flongitud" float8,
     "bactivo" bool NOT NULL DEFAULT true,
     "dtfecha_creacion" timestamp(6) NOT NULL DEFAULT now(),
@@ -343,7 +270,7 @@ CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_carga_trabajo_detalle" (
     CONSTRAINT "tbl_carga_trabajo_detalle_pkey" PRIMARY KEY ("iid")
 );
 
-CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_carga_trabajo_detalle_inspector" (
+CREATE TABLE "inspeccion"."tbl_carga_trabajo_detalle_inspector" (
     "iid" int4 NOT NULL DEFAULT nextval('"inspeccion".tbl_carga_trabajo_detalle_ins_iid_seq'::regclass),
     "iidcarga_trabajo_detalle" int4 NOT NULL,
     "iidcarga_trabajo_turno_inspector" int4 NOT NULL,
@@ -353,7 +280,7 @@ CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_carga_trabajo_detalle_inspector" (
     CONSTRAINT "tbl_carga_trabajo_detalle_inspector_pkey" PRIMARY KEY ("iid")
 );
 
-CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_carga_trabajo_detalle_inspector_seguimiento" (
+CREATE TABLE "inspeccion"."tbl_carga_trabajo_detalle_inspector_seguimiento" (
     "iid" int4 NOT NULL DEFAULT nextval('"inspeccion".tbl_carga_trabajo_detalle_ins_iid_seq1'::regclass),
     "iidcarga_trabajo_detalle_inspector" int4 NOT NULL,
     "dtfecha_hora_inico" timestamp(6),
@@ -364,7 +291,7 @@ CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_carga_trabajo_detalle_inspector_seg
     CONSTRAINT "tbl_carga_trabajo_detalle_inspector_seguimiento_pkey" PRIMARY KEY ("iid")
 );
 
-CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_carga_trabajo_turno" (
+CREATE TABLE "inspeccion"."tbl_carga_trabajo_turno" (
     "iid" int4 NOT NULL DEFAULT nextval('"inspeccion".tbl_carga_trabajo_turno_iid_seq'::regclass),
     "iidcarga_trabajo" int4 NOT NULL,
     "iidturno" int4 NOT NULL,
@@ -375,7 +302,7 @@ CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_carga_trabajo_turno" (
     CONSTRAINT "tbl_carga_trabajo_turno_pkey" PRIMARY KEY ("iid")
 );
 
-CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_carga_trabajo_turno_inspector" (
+CREATE TABLE "inspeccion"."tbl_carga_trabajo_turno_inspector" (
     "iid" int4 NOT NULL DEFAULT nextval('"inspeccion".tbl_carga_trabajo_turno_inspe_iid_seq'::regclass),
     "iidcarga_trabajo_turno" int4 NOT NULL,
     "iidinspector" int4 NOT NULL,
@@ -385,7 +312,7 @@ CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_carga_trabajo_turno_inspector" (
     CONSTRAINT "tbl_carga_trabajo_turno_inspector_pkey" PRIMARY KEY ("iid")
 );
 
-CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_inspector" (
+CREATE TABLE "inspeccion"."tbl_inspector" (
     "iid" int4 NOT NULL DEFAULT nextval('"inspeccion".tbl_inspector_iid_seq'::regclass),
     "iidpersona" int4 NOT NULL,
     "iidturno" int4 NOT NULL,
@@ -403,7 +330,7 @@ CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_inspector" (
     CONSTRAINT "tbl_inspector_pkey" PRIMARY KEY ("iid")
 );
 
-CREATE TABLE IF NOT EXISTS "inspeccion"."tbl_inspector_seguimiento" (
+CREATE TABLE "inspeccion"."tbl_inspector_seguimiento" (
     "iid" int4 NOT NULL DEFAULT nextval('"inspeccion".tbl_inspector_seguimiento_iid_seq'::regclass),
     "iidinspector" int4 NOT NULL,
     "iidetapa_anterior" int4 NOT NULL,
@@ -444,16 +371,16 @@ BEGIN
 END$$;
 
 -- -------------------- TABLAS
-CREATE TABLE IF NOT EXISTS boleta.tbl_boleta_rol (
-    iidboleta_rol SERIAL PRIMARY KEY,
+CREATE TABLE boleta.tbl_boleta_rol (
+    iid SERIAL PRIMARY KEY,
     txtnombre TEXT NOT NULL,
     bactivo BOOLEAN DEFAULT true,
     dtfecha_creacion TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
     dtfecha_modificacion TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS boleta.tbl_boleta (
-    iidboleta INTEGER PRIMARY KEY DEFAULT nextval('boleta.tbl_boleta_iid_seq'),
+CREATE TABLE boleta.tbl_boleta (
+    iid INTEGER PRIMARY KEY DEFAULT nextval('boleta.tbl_boleta_iid_seq'),
     dtfecha_hora_infraccion TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     txtlugar_infraccion TEXT NOT NULL,
     txtdireccion TEXT NOT NULL,

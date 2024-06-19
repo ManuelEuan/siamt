@@ -77,7 +77,7 @@ class FirmsController extends BaseController
     public function getFirmById()
     {
         $data = $this->request->getJsonRawBody();
-        $sql = 'SELECT iidfirma_registro, txtnombre, txtapepat, txtapemat, txtpuesto, txtoficina, txtdepartamento, txtemail, txttelefono, txtextension, txttitulo, iidfirma_plantilla FROM usuario.tbl_firma_registro WHERE iidfirma_registro=:iidfirma_registro';
+        $sql = 'SELECT iidfirma_registro, txtnombre, txtapellido_paterno, txtapellido_materno, txtpuesto, txtoficina, txtdepartamento, txtemail, txttelefono, txtextension, txttitulo, iidfirma_plantilla FROM usuario.tbl_firma_registro WHERE iidfirma_registro=:iidfirma_registro';
         $params = array('iidfirma_registro' => $data->iidfirma_registro);
         $firm = Db::fetch($sql, $params);
         return $firm;
@@ -118,8 +118,8 @@ class FirmsController extends BaseController
             'iidfirma_plantilla'  => $firm->iidfirma_plantilla,
             'txttitulo'  => $firm->txttitulo,
             'txtnombre' => $firm->txtnombre,
-            'txtapepat'  => $firm->txtapepat,
-            'txtapemat'  => $firm->txtapemat,
+            'txtapellido_paterno'  => $firm->txtapellido_paterno,
+            'txtapellido_materno'  => $firm->txtapellido_materno,
             'txtpuesto'  => $firm->txtpuesto,
             'txtoficina'  => $firm->txtoficina,
             'txtdepartamento'  => $firm->txtdepartamento,
@@ -186,8 +186,8 @@ class FirmsController extends BaseController
         $sql = 'UPDATE usuario.tbl_firma_registro
                 SET 
                     txtnombre=:txtnombre, 
-                    txtapepat=:txtapepat, 
-                    txtapemat=:txtapemat, 
+                    txtapellido_paterno=:txtapellido_paterno, 
+                    txtapellido_materno=:txtapellido_materno, 
                     txtpuesto=:txtpuesto, 
                     txtoficina=:txtoficina, 
                     txtdepartamento=:txtdepartamento, 
@@ -202,8 +202,8 @@ class FirmsController extends BaseController
 
         $params = array(
             'txtnombre' => $firm->txtnombre,
-            'txtapepat'  => $firm->txtapepat,
-            'txtapemat'  => $firm->txtapemat,
+            'txtapellido_paterno'  => $firm->txtapellido_paterno,
+            'txtapellido_materno'  => $firm->txtapellido_materno,
             'txtpuesto'  => $firm->txtpuesto,
             'txtoficina'  => $firm->txtoficina,
             'txtdepartamento'  => $firm->txtdepartamento,

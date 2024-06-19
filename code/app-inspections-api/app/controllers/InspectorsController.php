@@ -52,14 +52,14 @@ class InspectorsController extends BaseController
         $sql = "
             WITH inspectores AS (
                         SELECT
-                            i.iidinspector,
+                            i.iid AS iidinspector,
                             i.iidpersona,
                             i.iidetapa,
                             CASE 
-                                WHEN p.txtapemat != '' THEN 
-                                    CONCAT(p.txtnombre, ' ', p.txtapepat, ' ', p.txtapemat)
+                                WHEN p.txtapellido_materno != '' THEN 
+                                    CONCAT(p.txtnombre, ' ', p.txtapellido_paterno, ' ', p.txtapellido_materno)
                                 ELSE 
-                                    CONCAT(p.txtnombre, ' ', p.txtapepat) 
+                                    CONCAT(p.txtnombre, ' ', p.txtapellido_paterno) 
                             END AS txtnombre_completo,
                             ca.txtnombre as txtinspector_etapa,
                             cas.txtnombre as txtinspector_subetapa,
@@ -80,11 +80,11 @@ class InspectorsController extends BaseController
                             TO_CHAR(i.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
                             TO_CHAR(i.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
                         FROM inspeccion.tbl_inspector i
-                        JOIN persona.tbl_persona p ON i.iidpersona = p.iidpersona
-                        JOIN inspeccion.cat_turno it ON it.iidturno = i.iidturno
-                        JOIN comun.cat_etapa ca ON ca.iidetapa = i.iidetapa
-                        JOIN comun.cat_subetapa cas ON cas.iidsubetapa = i.iidsubetapa
-                        JOIN inspeccion.cat_inspector_categoria ic ON ic.iidinspector_categoria = i.iidinspector_categoria
+                        JOIN persona.tbl_persona p ON i.iidpersona = p.iid
+                        JOIN inspeccion.tbl_cat_turno it ON i.iidturno = it.iid
+                        JOIN comun.tbl_cat_etapa ca ON i.iidetapa = ca.iid
+                        JOIN comun.tbl_cat_subetapa cas ON i.iidsubetapa = cas.iid
+                        JOIN inspeccion.tbl_cat_inspector_categoria ic ON i.iidinspector_categoria = ic.iid
                     )
             ";
         $params = array();
@@ -201,13 +201,13 @@ class InspectorsController extends BaseController
     public function getAllCategoriesInspector()
     {
         $sql = "SELECT 
-            iidinspector_categoria,
+            iid AS iidinspector_categoria,
             txtnombre,
             bgenera_boleta,
             bactivo AS activo,
             TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
             TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-            FROM inspeccion.cat_inspector_categoria
+            FROM inspeccion.tbl_cat_inspector_categoria
             WHERE bactivo='t'
         ";
         $categories = Db::fetchAll($sql);
@@ -235,7 +235,7 @@ class InspectorsController extends BaseController
                 cs.txtpermiso AS permiso_subetapa_actual, cs.binicial AS inicial_subetapa_actual, 
                 cs.bfinal AS final_subetapa_actual, cs.bcancelacion AS cancelacion_subetapa_actual, 
                 cs.brequiere_motivo AS requiere_motivo_subetapa_actual, cs.iidetapa
-            FROM comun.cat_subetapa cs
+            FROM comun.tbl_cat_subetapa cs
         ),
         cte_etapa AS (
             SELECT 
@@ -244,7 +244,7 @@ class InspectorsController extends BaseController
                 e.txtpermiso AS permiso_etapa, e.binicial AS inicial_etapa, 
                 e.bfinal AS final_etapa, e.bcancelacion AS cancelacion_etapa, 
                 e.brequiere_motivo AS requiere_motivo_etapa
-            FROM comun.cat_etapa e
+            FROM comun.tbl_cat_etapa e
         )
         SELECT 
             f.iidsubetapa AS iidsubetapa_actual, f.iidsubetapa_siguiente, 
@@ -265,7 +265,7 @@ class InspectorsController extends BaseController
             cte_flujo f
             JOIN cte_subetapa_actual currentSubStage ON f.iidsubetapa = currentSubStage.iidsubetapa_actual
             JOIN cte_etapa etapa ON currentSubStage.iidetapa = etapa.iidetapa
-            JOIN comun.cat_subetapa nextSubStage ON f.iidsubetapa_siguiente = nextSubStage.iidsubetapa;
+            JOIN comun.tbl_cat_subetapa nextSubStage ON f.iidsubetapa_siguiente = nextSubStage.iidsubetapa;
         
         ";
         $params = array('iidsubetapa' => $iidSubStage);
@@ -317,13 +317,13 @@ class InspectorsController extends BaseController
             FROM 
                 inspeccion.tbl_inspector_seguimiento AS iseg
             JOIN 
-                comun.cat_subetapa AS sub_ant ON iseg.iidsubetapa_anterior = sub_ant.iidsubetapa
+                comun.tbl_cat_subetapa AS sub_ant ON iseg.iidsubetapa_anterior = sub_ant.iidsubetapa
             JOIN 
-                comun.cat_subetapa AS sub_act ON iseg.iidsubetapa_actual = sub_act.iidsubetapa
+                comun.tbl_cat_subetapa AS sub_act ON iseg.iidsubetapa_actual = sub_act.iidsubetapa
             JOIN 
-                comun.cat_etapa AS etapa_ant ON iseg.iidetapa_anterior = etapa_ant.iidetapa
+                comun.tbl_cat_etapa AS etapa_ant ON iseg.iidetapa_anterior = etapa_ant.iidetapa
             JOIN 
-                comun.cat_etapa AS etapa_act ON iseg.iidetapa_actual = etapa_act.iidetapa
+                comun.tbl_cat_etapa AS etapa_act ON iseg.iidetapa_actual = etapa_act.iidetapa
             WHERE  
                 -- iseg.iidinspector = 3
                 iseg.bactivo = 't' AND iseg.iidinspector = :iidinspector
@@ -354,8 +354,8 @@ class InspectorsController extends BaseController
                 i.txtcomentarios,
                 it.txtnombre as txtinspector_turno,
                 p.txtnombre,
-                p.txtapepat,
-                p.txtapemat,
+                p.txtapellido_paterno,
+                p.txtapellido_materno,
                 p.txtrfc,
                 p.txtcurp,
                 p.txtine,
@@ -368,10 +368,10 @@ class InspectorsController extends BaseController
                 TO_CHAR(i.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
                 TO_CHAR(i.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
             FROM inspeccion.tbl_inspector i
-            JOIN persona.tbl_persona p ON i.iidpersona = p.iidpersona
-            JOIN inspeccion.cat_turno it ON it.iidturno = i.iidturno
-            JOIN comun.cat_etapa ca ON ca.iidetapa = i.iidetapa
-            JOIN inspeccion.cat_inspector_categoria ic ON ic.iidinspector_categoria = i.iidinspector_categoria
+            JOIN persona.tbl_persona p ON i.iidpersona = p.iid
+            JOIN inspeccion.tbl_cat_turno it ON i.iidturno = it.iid
+            JOIN comun.tbl_cat_etapa ca ON i.iidetapa = ca.iid
+            JOIN inspeccion.tbl_cat_inspector_categoria ic ON i.iidinspector_categoria = ic.iid
             WHERE iidinspector=:id
         ";
         $inspector = Db::fetchOne($sql, $params);
@@ -381,14 +381,14 @@ class InspectorsController extends BaseController
     public function getAllShiftsInspector()
     {
         $sql = "SELECT 
-                iidturno,
+                iid AS iidturno,
                 txtnombre,
                 thora_inicio,
                 thora_fin,
                 bactivo AS activo,
                 TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
                 TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-                FROM inspeccion.cat_turno
+                FROM inspeccion.tbl_cat_turno
                 WHERE bactivo='t'
         ";
         $shifts = Db::fetchAll($sql);
@@ -403,7 +403,7 @@ class InspectorsController extends BaseController
         $params = array('id' => $data->id); // Parámetros para la consulta
         $sql = "
             SELECT
-                i.iidinspector,
+                i.iid AS iidinspector,
                 i.iidpersona,
                 i.iidturno,
                 i.iidetapa,

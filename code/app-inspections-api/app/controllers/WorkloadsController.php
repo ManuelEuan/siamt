@@ -167,63 +167,63 @@ class WorkloadsController extends BaseController
             ],
            
         ];
-        // $inputsAforoForm = [
-        //     'iidcarga_trabajo_tipo' => [
-        //         'label' => 'Seleccione la zona*',
-        //         'type' => 'autocomplete',
-        //         'model' => 'iidcarga_trabajo_tipo',
-        //         'rules' => 'required',
-        //         'cols' => 12,
-        //         'md' => 6,
-        //         'array' => ['type' => 'object', 'info' => self::getAllTypesWorkload(), 'item_text' => 'txtnombre', 'item_value' => 'iidcarga_trabajo_tipo']
-        //     ],
-        //     'txtdescripcion' => [
-        //         'label' => 'Descripción',
-        //         'type' => 'textarea',
-        //         'model' => 'txtdescripcion',
-        //         'rules' => 'required',
-        //         'cols' => 12,
-        //         'md' => 12
-        //     ],
-        //     'txtlatitud' => [
-        //         'label' => 'Latitud',
-        //         'type' => 'text',
-        //         'model' => 'txtlatitud',
-        //         'rules' => 'required',
-        //         'cols' => 12,
-        //         'md' => 6
-        //     ],
-        //     'txtlongitud' => [
-        //         'label' => 'Longitud',
-        //         'type' => 'text',
-        //         'model' => 'txtlongitud',
-        //         'rules' => 'required',
-        //         'cols' => 12,
-        //         'md' => 6
-        //     ],
-        //     'dtfecha_hora_inicio' => [
-        //         'label' => 'Fecha hora inicio',
-        //         'type' => 'datetime',
-        //         'model' => 'dtfecha_hora_inicio',
-        //         'rules' => null,
-        //         'cols' => 12,
-        //         'md' => 6
-        //     ],
-        //     'dtfecha_hora_fin' => [
-        //         'label' => 'Fecha hora fin',
-        //         'type' => 'datetime',
-        //         'model' => 'dtfecha_hora_fin',
-        //         'rules' => null,
-        //         'cols' => 12,
-        //         'md' => 6
-        //     ],
-           
-        // ];
+        $inputsAforoForm = [
+            'iidcarga_trabajo_tipo' => [
+                'label' => 'Seleccione la zona*',
+                'type' => 'autocomplete',
+                'model' => 'iidcarga_trabajo_tipo',
+                'rules' => 'required',
+                'cols' => 12,
+                'md' => 6,
+                'array' => ['type' => 'object', 'info' => self::getAllTypesWorkload(), 'item_text' => 'txtnombre', 'item_value' => 'iidcarga_trabajo_tipo']
+            ],
+            'txtdescripcion' => [
+                'label' => 'Descripción',
+                'type' => 'textarea',
+                'model' => 'txtdescripcion',
+                'rules' => 'required',
+                'cols' => 12,
+                'md' => 12
+            ],
+            'txtlatitud' => [
+                'label' => 'Latitud',
+                'type' => 'text',
+                'model' => 'txtlatitud',
+                'rules' => 'required',
+                'cols' => 12,
+                'md' => 6
+            ],
+            'txtlongitud' => [
+                'label' => 'Longitud',
+                'type' => 'text',
+                'model' => 'txtlongitud',
+                'rules' => 'required',
+                'cols' => 12,
+                'md' => 6
+            ],
+            'dtfecha_hora_inicio' => [
+                'label' => 'Fecha hora inicio',
+                'type' => 'datetime',
+                'model' => 'dtfecha_hora_inicio',
+                'rules' => null,
+                'cols' => 12,
+                'md' => 6
+            ],
+            'dtfecha_hora_fin' => [
+                'label' => 'Fecha hora fin',
+                'type' => 'datetime',
+                'model' => 'dtfecha_hora_fin',
+                'rules' => null,
+                'cols' => 12,
+                'md' => 6
+            ], 
+        ];
         $allForms = [
             'inputsGeneralForm'=>$inputsGeneralForm, 
             'inputsTurnsForm'=>$inputsTurnsForm, 
             'inputsInspectorsForm'=>$inputsInspectorsForm,
-            'inputsWorksForm'=>$inputsWorksForm
+            'inputsWorksForm'=>$inputsWorksForm,
+            'inputsAforosForm'=>$inputsAforosForm
         ];
         return $allForms;
     }
@@ -231,12 +231,12 @@ class WorkloadsController extends BaseController
     public function getAllZones()
     {
         $sql = "SELECT 
-            iidzona,
+            iid AS iidzona,
             txtnombre,
             bactivo AS activo,
             TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
             TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-            FROM territorio.cat_zona
+            FROM territorio.tbl_cat_zona
             WHERE bactivo='t'
         ";
         $zones = Db::fetchAll($sql);
@@ -246,14 +246,14 @@ class WorkloadsController extends BaseController
     public function getAllShifts()
     {
         $sql = "SELECT 
-                iidturno,
+                iid AS iidturno,
                 txtnombre,
                 thora_inicio,
                 thora_fin,
                 bactivo AS activo,
                 TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
                 TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-                FROM inspeccion.cat_turno
+                FROM inspeccion.tbl_cat_turno
                 WHERE bactivo='t'
         ";
         $shifts = Db::fetchAll($sql);
@@ -263,14 +263,14 @@ class WorkloadsController extends BaseController
     public function getAllTypesWorkload()
     {
         $sql = "SELECT 
-                iidcarga_trabajo_tipo,
+                iid AS iidcarga_trabajo_tipo,
                 txtnombre,
                 txtdescripcion,
                 breten,
                 bactivo AS activo,
                 TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
                 TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-                FROM inspeccion.cat_carga_trabajo_tipo
+                FROM inspeccion.tbl_cat_carga_trabajo_tipo
                 WHERE bactivo='t'
         ";
         $typesWorkload = Db::fetchAll($sql);
@@ -282,14 +282,14 @@ class WorkloadsController extends BaseController
     public function getAllInspector($type = '')
     {
         $sql = "SELECT
-                    i.iidinspector,
+                    i.iid AS iidinspector,
                     i.iidpersona,
                     i.iidetapa,
                     CASE 
-                        WHEN p.txtapemat != '' THEN 
-                            CONCAT(p.txtnombre, ' ', p.txtapepat, ' ', p.txtapemat)
+                        WHEN p.txtapellido_materno != '' THEN 
+                            CONCAT(p.txtnombre, ' ', p.txtapellido_paterno, ' ', p.txtapellido_materno)
                         ELSE 
-                            CONCAT(p.txtnombre, ' ', p.txtapepat) 
+                            CONCAT(p.txtnombre, ' ', p.txtapellido_paterno) 
                     END AS txtnombre_completo,
                     ca.txtnombre as txtinspector_etapa,
                     cas.txtnombre as txtinspector_subetapa,
@@ -304,11 +304,11 @@ class WorkloadsController extends BaseController
                     TO_CHAR(i.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
                     TO_CHAR(i.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
                 FROM inspeccion.tbl_inspector i
-                JOIN persona.tbl_persona p ON i.iidpersona = p.iidpersona
-                JOIN inspeccion.cat_turno it ON it.iidturno = i.iidturno
-                JOIN comun.cat_etapa ca ON ca.iidetapa = i.iidetapa
-                JOIN comun.cat_subetapa cas ON cas.iidsubetapa = i.iidsubetapa
-                JOIN inspeccion.cat_inspector_categoria ic ON ic.iidinspector_categoria = i.iidinspector_categoria
+                JOIN persona.tbl_persona p ON i.iidpersona = p.iid
+                JOIN inspeccion.tbl_cat_turno it ON i.iidturno = it.iid
+                JOIN comun.tbl_cat_etapa ca ON i.iidetapa = ca.iid
+                JOIN comun.tbl_cat_subetapa cas ON i.iidsubetapa = cas.iid
+                JOIN inspeccion.tbl_cat_inspector_categoria ic ON i.iidinspector_categoria = ic.iid
                 WHERE i.bactivo='t'
         ";
         if($type){

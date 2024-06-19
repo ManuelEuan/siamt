@@ -40,7 +40,6 @@
                                 :label="field.label + ':' + (field.model ? '✔️' : '❌')"></v-switch>
                         </template>
                         <template v-else-if="field.type === 'date'">
-                            {{ field }}
                             <v-menu v-model="field[index]" :close-on-content-click="false" :nudge-right="40"
                                 transition="scale-transition" offset-y min-width="auto">
                                 <template v-slot:activator="{ on, attrs }">

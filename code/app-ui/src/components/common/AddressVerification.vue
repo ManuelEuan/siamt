@@ -165,14 +165,14 @@
                         outlined />
                 </v-col>
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="address.flatitud" label="Latitud" hide-details="auto" clearable dense
+                    <v-text-field v-model="address.nlatitud" label="Latitud" hide-details="auto" clearable dense
                         maxlength="15" outlined :rules="[rules.latitud]" />
                 </v-col>
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="address.flongitud" label="Longitud" hide-details="auto" clearable dense
+                    <v-text-field v-model="address.nlongitud" label="Longitud" hide-details="auto" clearable dense
                         maxlength="15" outlined :rules="[rules.longitud]" />
                 </v-col>
-                <v-col cols="12" md="6" v-if="address.flatitud && address.flongitud">
+                <v-col cols="12" md="6" v-if="address.nlatitud && address.nlongitud">
                     <v-btn color="primary" text @click="verifyAddress()"> Verificar </v-btn>
 
                 </v-col>
@@ -282,8 +282,8 @@ export default {
                 txtcruzamiento_dos: '',
                 txtcruzamiento_dos_letra: '',
                 txtreferencia: '',
-                flatitud: null,
-                flongitud: null,
+                nlatitud: null,
+                nlongitud: null,
                 bactivo: null,
                 dtfecha_creacion: null,
                 dtfecha_modificacion: null,
@@ -423,8 +423,8 @@ export default {
                 txtcruzamiento_dos: '',
                 txtcruzamiento_dos_letra: '',
                 txtreferencia: '',
-                flatitud: null,
-                flongitud: null,
+                nlatitud: null,
+                nlongitud: null,
                 bactivo: null,
                 dtfecha_creacion: null,
                 dtfecha_modificacion: null,
@@ -466,7 +466,7 @@ export default {
 
         // ACA SE PUEDE PONER LA GEOLOCALIZACIÓN
         verifyAddress() {
-            const url = `https://www.google.com/maps?q=${this.address.flatitud},${this.address.flongitud}`;
+            const url = `https://www.google.com/maps?q=${this.address.nlatitud},${this.address.nlongitud}`;
             window.open(url);
         },
 

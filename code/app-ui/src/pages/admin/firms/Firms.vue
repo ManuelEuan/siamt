@@ -116,8 +116,8 @@ export default {
                 iidfirma_plantilla: null,
                 txttitulo: '',
                 txtnombre: '',
-                txtapepat: '',
-                txtapemat: '',
+                txtapellido_paterno: '',
+                txtapellido_materno: '',
                 txtpuesto: '',
                 // iiddependencia: '',
                 // iidoficina: '',
@@ -151,8 +151,8 @@ export default {
     computed: {
         dynTemplate() {
             var replaceMarks = function (template) {
-                template = template.split("{%%NOMBRE_COMPLETO%%}").join("{{ $parent.firm.txttitulo ? $parent.firm.txttitulo + '. ' + $parent.firm.txtnombre + ' ' + $parent.firm.txtapepat : $parent.firm.txtnombre + ' ' + $parent.firm.txtapepat }}");
-                // template = template.split("{%%NOMBRE_COMPLETO%%}").join("{{ $parent.firm.txtnombre ? $parent.firm.txtnombre + ' ' + $parent.firm.txtapepat : $parent.firm.txtnombre + ' ' + $parent.firm.txtapepat }}");
+                template = template.split("{%%NOMBRE_COMPLETO%%}").join("{{ $parent.firm.txttitulo ? $parent.firm.txttitulo + '. ' + $parent.firm.txtnombre + ' ' + $parent.firm.txtapellido_paterno : $parent.firm.txtnombre + ' ' + $parent.firm.txtapellido_paterno }}");
+                // template = template.split("{%%NOMBRE_COMPLETO%%}").join("{{ $parent.firm.txtnombre ? $parent.firm.txtnombre + ' ' + $parent.firm.txtapellido_paterno : $parent.firm.txtnombre + ' ' + $parent.firm.txtapellido_paterno }}");
                 template = template.split("{%%DEPENDENCIA%%}").join("Agencia de Transporte de Yucatán");
                 template = template.split("{%%PUESTO%%}").join("{{ $parent.firm.txtpuesto || '___________' }}");
                 template = template.split("{%%DEPARTAMENTO%%}").join("{{ $parent.firm.txtdepartamento || '___________' }}");
@@ -175,8 +175,8 @@ export default {
                 // iplantilla: { label: 'Plantilla*', type: 'autocomplete', model: 'iplantilla', rules: 'required', cols: 12, md: 6, array: this.dependencias },
                 txttitulo: { label: 'Título', type: 'text', model: 'txttitulo', rules: null, cols: 12, md: 6 },
                 txtnombre: { label: 'Nombre/s*', type: 'text', model: 'txtnombre', rules: 'required', cols: 12, md: 6 },
-                txtapepat: { label: 'Apellido paterno*', type: 'text', model: 'txtapepat', rules: 'required', cols: 12, md: 6 },
-                txtapemat: { label: 'Apellido materno', type: 'text', model: 'txtapemat', rules: null, cols: 12, md: 6 },
+                txtapellido_paterno: { label: 'Apellido paterno*', type: 'text', model: 'txtapellido_paterno', rules: 'required', cols: 12, md: 6 },
+                txtapellido_materno: { label: 'Apellido materno', type: 'text', model: 'txtapellido_materno', rules: null, cols: 12, md: 6 },
                 txtpuesto: { label: 'Puesto', type: 'text', model: 'txtpuesto', rules: 'required', cols: 12, md: 6 },
                 // iiddependencia: { label: 'Dependencia*', type: 'autocomplete', model: 'iiddependencia', rules: 'required', cols: 12, md: 6 },
                 txtoficina: { label: 'Oficina*', type: 'text', model: 'txtoficina', rules: 'required', cols: 12, md: 6, array: this.oficinas },
@@ -193,8 +193,8 @@ export default {
                 iidfirma_plantilla: null,
                 txttitulo: '',
                 txtnombre: '',
-                txtapepat: '',
-                txtapemat: '',
+                txtapellido_paterno: '',
+                txtapellido_materno: '',
                 txtpuesto: '',
                 // iiddependencia: '',
                 // iidoficina: '',

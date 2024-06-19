@@ -74,8 +74,8 @@
         <v-form v-model="phoneValidation" v-if="newPhone || newRegisterPerson || editPhone">
             <v-row>
                 <v-col cols="12" md="6">
-                    <v-select v-model="phone.iidtelefono_tipo" label="Tipo*" :items="typesPhone" item-text="txtnombre"
-                        item-value="iidtelefono_tipo" hide-details="auto" small-chips clearable dense outlined
+                    <v-select v-model="phone.iidtipo_telefono" label="Tipo*" :items="typesPhone" item-text="txtnombre"
+                        item-value="iidtipo_telefono" hide-details="auto" small-chips clearable dense outlined
                         :rules="[rules.required]" />
                 </v-col>
 
@@ -163,7 +163,7 @@ export default {
                 iidtelefono: 0,
                 txtlada: '',
                 inumero: null,
-                iidtelefono_tipo: null,
+                iidtipo_telefono: null,
             },
 
             // REGLAS
@@ -287,7 +287,7 @@ export default {
                 iidtelefono: 0,
                 txtlada: '',
                 inumero: '',
-                iidtelefono_tipo: null,
+                iidtipo_telefono: null,
             }
         },
 

@@ -37,11 +37,11 @@ class PersonsController extends BaseController
         $typeOfRequest = $data->data->typeOfRequest;
 
         $sql = "SELECT 
-                    p.iidpersona,
+                    p.iid AS iidpersona,
                     p.bfisica,
                     p.txtnombre,
-                    p.txtapepat,
-                    p.txtapemat,
+                    p.txtapellido_paterno,
+                    p.txtapellido_materno,
                     p.txtrfc,
                     p.txtine,
                     p.txtcurp,
@@ -53,19 +53,19 @@ class PersonsController extends BaseController
                     s.txtnombre AS txtsexo,
                     p.bactivo AS activo,
                     CASE 
-                        WHEN p.txtapemat != '' THEN 
-                            CONCAT(p.txtnombre, ' ', p.txtapepat, ' ', p.txtapemat)
+                        WHEN p.txtapellido_materno != '' THEN 
+                            CONCAT(p.txtnombre, ' ', p.txtapellido_paterno, ' ', p.txtapellido_materno)
                         ELSE 
-                            CONCAT(p.txtnombre, ' ', p.txtapepat) 
+                            CONCAT(p.txtnombre, ' ', p.txtapellido_paterno) 
                     END AS txtnombre_completo,
                     TO_CHAR(p.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
                     TO_CHAR(p.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
                 FROM 
                     persona.tbl_persona p 
                 LEFT JOIN 
-                    persona.cat_estado_civil ec ON p.iidestado_civil = ec.iidestado_civil
+                    persona.tbl_cat_estado_civil ec ON p.iidestado_civil = ec.iid
                 LEFT JOIN 
-                    persona.cat_sexo s ON p.iidsexo = s.iidsexo
+                    persona.tbl_cat_sexo s ON p.iidsexo = s.iid
         ";
 
         switch ($typeSearch) {
@@ -83,8 +83,8 @@ class PersonsController extends BaseController
                         $dataSearch = '%' . $term . '%';
                         // Se agregan las condiciones para cada columna relevante
                         $conditions[] = '(UPPER(p.txtnombre) ILIKE UPPER(:dataSearch) 
-                                     OR UPPER(p.txtapepat) ILIKE UPPER(:dataSearch) 
-                                     OR UPPER(p.txtapemat) ILIKE UPPER(:dataSearch))';
+                                     OR UPPER(p.txtapellido_paterno) ILIKE UPPER(:dataSearch) 
+                                     OR UPPER(p.txtapellido_materno) ILIKE UPPER(:dataSearch))';
                         $where = ' WHERE ' . implode(' OR ', $conditions);
                     }
                 }
@@ -156,13 +156,13 @@ class PersonsController extends BaseController
     public function getAllSexes()
     {
         $sql = "SELECT 
-            iidsexo,
+            iid AS iidsexo,
             txtnombre,
             txtdescripcion,
             bactivo AS activo,
             TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
             TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-            FROM persona.cat_sexo
+            FROM persona.tbl_cat_sexo
             WHERE bactivo='t'
         ";
         $zones = Db::fetchAll($sql);
@@ -172,7 +172,7 @@ class PersonsController extends BaseController
     public function getAllLadaIdentifiers()
     {
         $sql = "SELECT 
-            iidlada,
+            iid AS iidlada,
             txtnombre,
             txtdescripcion,
             bactivo AS activo,
@@ -188,13 +188,13 @@ class PersonsController extends BaseController
     public function getAllCivilStatus()
     {
         $sql = "SELECT 
-            iidestado_civil,
+            iid AS iidestado_civil,
             txtnombre,
             txtdescripcion,
             bactivo AS activo,
             TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
             TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-            FROM persona.cat_estado_civil
+            FROM persona.tbl_cat_estado_civil
             WHERE bactivo='t'
         ";
         $civilStatus = Db::fetchAll($sql);
@@ -204,13 +204,13 @@ class PersonsController extends BaseController
     public function getAllTypesPhone()
     {
         $sql = "SELECT 
-            iidtelefono_tipo,
+            iid AS iidtipo_telefono,
             txtnombre,
             txtdescripcion,
             bactivo AS activo,
             TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
             TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-            FROM persona.cat_telefono_tipo
+            FROM persona.tbl_cat_tipo_telefono
             WHERE bactivo='t'
         ";
         $typesPhone = Db::fetchAll($sql);
@@ -223,11 +223,11 @@ class PersonsController extends BaseController
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         $params = array('iidpersona' => $data);
         $sql = "SELECT
-                    iidpersona, 
+                    iid, 
                     bfisica, 
                     txtnombre, 
-                    txtapepat, 
-                    txtapemat, 
+                    txtapellido_paterno, 
+                    txtapellido_materno, 
                     dfecha_nacimiento, 
                     iidestado_nacimiento, 
                     txtrfc, 
@@ -238,10 +238,10 @@ class PersonsController extends BaseController
                     txtcorreo, 
                     bactivo,
                     CASE 
-                        WHEN txtapemat != '' THEN 
-                            CONCAT(txtnombre, ' ', txtapepat, ' ', txtapemat)
+                        WHEN txtapellido_materno != '' THEN 
+                            CONCAT(txtnombre, ' ', txtapellido_paterno, ' ', txtapellido_materno)
                         ELSE 
-                            CONCAT(txtnombre, ' ', txtapepat) 
+                            CONCAT(txtnombre, ' ', txtapellido_paterno) 
                     END AS txtnombre_completo
                 FROM
                     persona.tbl_persona
@@ -266,8 +266,7 @@ class PersonsController extends BaseController
         // $data = 84;
         $params = array('iidpersona' => $data);
         $sql = "SELECT 
-                -- 
-                    pd.iiddireccion, 
+                    pd.iid AS iiddireccion, 
                     c.txtnombre as colony,
                     CONCAT(
                         CASE
@@ -357,8 +356,8 @@ class PersonsController extends BaseController
                     d.inumero_exterior,
                     d.txtcruzamiento_uno,
                     d.txtcruzamiento_uno_letra,
-                    d.flatitud,
-                    d.flongitud,
+                    d.nlatitud,
+                    d.nlongitud,
                     d.itipo_direccion,
                     d.itipo_vialidad,
                     d.txtavenida_kilometro,
@@ -372,20 +371,20 @@ class PersonsController extends BaseController
                 FROM 
                     persona.tbl_persona_direccion pd
                 JOIN 
-                    persona.tbl_direccion d ON pd.iiddireccion = d.iiddireccion
+                    persona.tbl_direccion d ON d.iid = pd.iiddireccion
                 JOIN 
-                    territorio.cat_colonia c ON d.iidcolonia = c.iidcolonia
+                    territorio.tbl_cat_colonia c ON d.iidcolonia = c.iid
                 JOIN (
                     SELECT DISTINCT ON (c.icodigo_postal)
                         e.txtnombre AS entity,
                         m.txtnombre AS municipality,
                         c.icodigo_postal
                     FROM
-                        territorio.cat_colonia AS c
+                        territorio.tbl_cat_colonia AS c
                     JOIN
-                        territorio.cat_municipio AS m ON c.iclave_municipio = m.iclave_municipio
+                        territorio.tbl_cat_municipio AS m ON c.iclave_municipio = m.iclave_municipio
                     JOIN
-                        territorio.cat_estado AS e ON m.iclave_estado = e.iclave_estado
+                        territorio.tbl_cat_estado AS e ON m.iclave_estado = e.iclave_estado
                 ) AS m ON c.icodigo_postal = m.icodigo_postal
                 WHERE pd.bactivo='t' AND pd.iidpersona=:iidpersona
         ";
@@ -403,37 +402,32 @@ class PersonsController extends BaseController
         }
         $params = array('iidpersona' => $data);
         $sql = "SELECT
-                    tbl_persona_telefono.iidpersona_telefono,
-                    tbl_persona_telefono.iidpersona,
-                    cat_telefono_tipo.txtnombre AS txttelefono_tipo, 
-                    cat_telefono_tipo.txtdescripcion,
-                    tbl_telefono.txtlada, 
-                    -- tbl_telefono.inumero, 
-                    CONCAT('(', SUBSTRING(CAST(tbl_telefono.inumero AS VARCHAR), 1, 3), ') ',
-                    SUBSTRING(CAST(tbl_telefono.inumero AS VARCHAR), 4, 3), '-',
-                    SUBSTRING(CAST(tbl_telefono.inumero AS VARCHAR), 7, 4)) AS inumero, -- Formatear el número de teléfono
-                    tbl_telefono.iidtelefono, 
-                    tbl_telefono.iidtelefono_tipo, 	
-                    tbl_persona_telefono.bactual,
-                    tbl_telefono.bactivo, 
-                    tbl_persona_telefono.bactivo, 
-                    tbl_persona_telefono.dtfecha_creacion, 
-                    tbl_persona_telefono.dtfecha_modificacion
+                    pt.iid AS iidpersona_telefono,
+                    pt.iidpersona,
+                    tt.txtnombre AS txttelefono_tipo, 
+                    tt.txtdescripcion,
+                    t.txtlada, 
+                    CONCAT('(', SUBSTRING(CAST(t.inumero AS VARCHAR), 1, 3), ') ',
+                        SUBSTRING(CAST(t.inumero AS VARCHAR), 4, 3), '-',
+                        SUBSTRING(CAST(t.inumero AS VARCHAR), 7, 4)) AS inumero_formatted,
+                    t.iid AS iidtelefono, 
+                    t.iidtipo_telefono, 	
+                    pt.bactual,
+                    t.bactivo AS telefono_activo, 
+                    pt.bactivo AS persona_telefono_activo, 
+                    pt.dtfecha_creacion, 
+                    pt.dtfecha_modificacion
                 FROM
-                    persona.tbl_persona_telefono
+                    persona.tbl_persona_telefono AS pt
                 INNER JOIN
-                    persona.tbl_telefono
-                ON 
-                    tbl_persona_telefono.iidtelefono = tbl_telefono.iidtelefono
+                    persona.tbl_telefono AS t ON pt.iidtelefono = t.iid
                 INNER JOIN
-                    persona.tbl_persona
-                ON 
-                    tbl_persona_telefono.iidpersona = tbl_persona.iidpersona
+                    persona.tbl_persona AS p ON pt.iidpersona = p.iid
                 INNER JOIN
-                    persona.cat_telefono_tipo
-                ON 
-                    tbl_telefono.iidtelefono_tipo = cat_telefono_tipo.iidtelefono_tipo
-                WHERE tbl_persona_telefono.iidpersona = :iidpersona AND tbl_persona_telefono.bactivo = true
+                    persona.tbl_cat_tipo_telefono AS tt ON t.iidtipo_telefono = tt.iid
+                WHERE 
+                    pt.iidpersona = :iidpersona 
+                    AND pt.bactivo = true
         ";
         $phones = Db::fetchAll($sql, $params);
         return $phones;
@@ -459,8 +453,8 @@ class PersonsController extends BaseController
         $params = array(
             'bfisica' => $data->bfisica ? 't' : 'f',
             'txtnombre' => $data->txtnombre,
-            'txtapepat' => $data->txtapepat,
-            'txtapemat' => $data->txtapemat,
+            'txtapellido_paterno' => $data->txtapellido_paterno,
+            'txtapellido_materno' => $data->txtapellido_materno,
             'dfecha_nacimiento' => $data->dfecha_nacimiento !== '' ? $data->dfecha_nacimiento : null,
             'txtrfc' => $data->txtrfc,
             'txtcurp' => $data->txtcurp,
@@ -473,13 +467,12 @@ class PersonsController extends BaseController
 
         $iidpersona = $this->insert('tbl_persona', $params);
         $iidpersona = intval($iidpersona);
-        $nombreCompleto = $data->txtnombre . ' ' . $data->txtapepat;
-        if (!empty($data->txtapemat)) {
-            $nombreCompleto .= ' ' . $data->txtapemat;
+        $nombreCompleto = $data->txtnombre . ' ' . $data->txtapellido_paterno;
+        if (!empty($data->txtapellido_materno)) {
+            $nombreCompleto .= ' ' . $data->txtapellido_materno;
         }
         $data->iidpersona = $iidpersona;
         $data->txtnombre_completo = $nombreCompleto;
-        // $this->dep($phone);exit;
         if (isset($phone)) {
             $phone->iidpersona = $iidpersona;
             $this->createPhone($phone);
@@ -501,13 +494,13 @@ class PersonsController extends BaseController
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         $this->validRequiredData($data, 'person'); // Validar datos requeridos
         Db::begin(); // Iniciar transacción en la base de datos
-        // $this->dep(gettype($data->txtapepat));exit;
+        // $this->dep(gettype($data->txtapellido_paterno));exit;
         // Actualización de persona
         $sql = 'UPDATE persona.tbl_persona SET 
                     bfisica=:bfisica,
                     txtnombre=:txtnombre,
-                    txtapepat=:txtapepat,
-                    txtapemat=:txtapemat,
+                    txtapellido_paterno=:txtapellido_paterno,
+                    txtapellido_materno=:txtapellido_materno,
                     dfecha_nacimiento=:dfecha_nacimiento,
                     iidestado_nacimiento=:iidestado_nacimiento,
                     txtrfc=:txtrfc,
@@ -523,8 +516,8 @@ class PersonsController extends BaseController
         $params = array(
             'bfisica'  => $data->bfisica,
             'txtnombre' => $data->txtnombre,
-            'txtapepat' => $data->txtapepat,
-            'txtapemat' => $data->txtapemat,
+            'txtapellido_paterno' => $data->txtapellido_paterno,
+            'txtapellido_materno' => $data->txtapellido_materno,
             'dfecha_nacimiento' => $data->dfecha_nacimiento,
             'iidestado_nacimiento' => $data->iidestado_nacimiento,
             'txtrfc' => $data->txtrfc,
@@ -563,7 +556,6 @@ class PersonsController extends BaseController
         if (empty($data->iidpersona)) {
             throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona para asignar dirección');
         }
-        // self::dep($data);exit;
         $iidpersona = $data->iidpersona;
         // if (empty($data->iidpersona)) throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona');
         $this->validRequiredData($data->address, 'address'); // Validar datos requeridos
@@ -575,7 +567,7 @@ class PersonsController extends BaseController
             'iidcolonia' => $data->address->iidcolonia,
             'txtcalle' => $data->address->txtcalle,
             'txtcalle_letra' => $data->address->txtcalle_letra,
-            'itipo_vialidad' => $data->address->itipo_vialidad,
+            // 'itipo_vialidad' => $data->address->itipo_vialidad,
             'itipo_direccion' => $data->address->itipo_direccion,
             'txtavenida_kilometro' => $data->address->txtavenida_kilometro,
             'txttablaje' => $data->address->txttablaje,
@@ -589,8 +581,8 @@ class PersonsController extends BaseController
             'txtcruzamiento_dos' => $data->address->txtcruzamiento_dos,
             'txtcruzamiento_dos_letra' => $data->address->txtcruzamiento_dos_letra,
             'txtreferencia' => $data->address->txtreferencia,
-            'flatitud' => $data->address->flatitud,
-            'flongitud' => $data->address->flongitud,
+            'nlatitud' => $data->address->nlatitud,
+            'nlongitud' => $data->address->nlongitud,
         );
 
         $iiddireccion = $this->insert('tbl_direccion', $params);
@@ -654,11 +646,10 @@ class PersonsController extends BaseController
         $this->validRequiredData($data->phone, 'phone'); // Validar datos requeridos
 
         Db::begin(); // Iniciar transacción en la base de datos
-
         $params = array(
             'txtlada' => $data->phone->txtlada,
             'inumero' => $data->phone->inumero,
-            'iidtelefono_tipo' => $data->phone->iidtelefono_tipo,
+            'iidtipo_telefono' => $data->phone->iidtipo_telefono,
             'inumero' => $data->phone->inumero,
         );
 
@@ -683,8 +674,9 @@ class PersonsController extends BaseController
             Db::execute($sql, $paramsVerifyCurrently);
         }
 
-        $paramsPersonAddress = array('iidpersona' => $iidpersona, 'iidtelefono' => $iidtelefono);
+        $paramsPersonAddress = array('iidpersona' => $iidpersona, 'iidtelefono' => $iidtelefono, 'iidtipo_telefono' => $data->phone->iidtipo_telefono);
         $this->insert('tbl_persona_telefono', $paramsPersonAddress);
+        // self::dep($data);exit;
         Db::commit(); // Confirmar transacción en la base de datos
         $data->phone->iidtelefono = $iidtelefono;
 
@@ -704,14 +696,14 @@ class PersonsController extends BaseController
         $sql = 'UPDATE persona.tbl_telefono SET 
                     txtlada=:txtlada,
                     inumero=:inumero,
-                    iidtelefono_tipo=:iidtelefono_tipo,
+                    iidtipo_telefono=:iidtipo_telefono,
                     dtfecha_modificacion=:dtfecha_modificacion
                 WHERE iidtelefono=:iidtelefono
             ';
         $params = array(
             'txtlada'  => $data->phone->txtlada,
             'inumero' => $data->phone->inumero,
-            'iidtelefono_tipo' => $data->phone->iidtelefono_tipo,
+            'iidtipo_telefono' => $data->phone->iidtipo_telefono,
             'dtfecha_modificacion' => date('Y-m-d H:i:s'), // Formato de fecha correcto
             'iidtelefono'      => $data->phone->iidtelefono,
         );
@@ -821,7 +813,7 @@ class PersonsController extends BaseController
                 $requiredKeys = array('iidcolonia'); // Claves requeridas
                 break;
             case 'phone':
-                $requiredKeys = array('inumero', 'iidtelefono_tipo'); // Claves requeridas
+                $requiredKeys = array('inumero', 'iidtipo_telefono'); // Claves requeridas
                 break;
             default:
                 $message = "No se seleccionó un tipo de validación";
@@ -846,7 +838,7 @@ class PersonsController extends BaseController
                     $message = "Tipo de valor incorrecto en $key.";
                     if (!is_int($value)) throw new ValidatorBoomException(422, $message);
                     break;
-                case 'iidtelefono_tipo':
+                case 'iidtipo_telefono':
                     $message = "Tipo de valor incorrectos en $key.";
                     if (!is_int($value)) throw new ValidatorBoomException(422, $message);
                     break;
@@ -886,8 +878,8 @@ class PersonsController extends BaseController
                 txtcruzamiento_dos=:txtcruzamiento_dos,
                 txtcruzamiento_dos_letra=:txtcruzamiento_dos_letra,
                 txtreferencia=:txtreferencia,
-                flatitud=:flatitud,
-                flongitud=:flongitud,
+                nlatitud=:nlatitud,
+                nlongitud=:nlongitud,
                 dtfecha_modificacion=:dtfecha_modificacion,
                 itipo_direccion=:itipo_direccion,
                 itipo_vialidad=:itipo_vialidad,
@@ -909,8 +901,8 @@ class PersonsController extends BaseController
             'txtcruzamiento_dos' => $data->address->txtcruzamiento_dos,
             'txtcruzamiento_dos_letra' => $data->address->txtcruzamiento_dos_letra,
             'txtreferencia' => $data->address->txtreferencia,
-            'flatitud' => $data->address->flatitud !== '' ? $data->address->flatitud : null,
-            'flongitud' => $data->address->flongitud !== '' ? $data->address->flongitud : null,
+            'nlatitud' => $data->address->nlatitud !== '' ? $data->address->nlatitud : null,
+            'nlongitud' => $data->address->nlongitud !== '' ? $data->address->nlongitud : null,
             'dtfecha_modificacion' => date('Y-m-d H:i:s'),
             'itipo_direccion' => $data->address->itipo_direccion !== '' ? $data->address->itipo_direccion : null,
             'itipo_vialidad' => $data->address->itipo_vialidad !== '' ? $data->address->itipo_vialidad : null,

@@ -37,8 +37,8 @@
                             <v-icon> mdi-clipboard-text </v-icon>
                         </v-badge>
                     </v-tab>
-                    <v-tab href="#programadatab">
-                        Programadas
+                    <v-tab href="#aforotab">
+                        Aforos
                         <v-badge class="badge_change" :color="receivedTabWorksData.valid ? 'success' : 'warning'">
                             <v-icon> mdi-clipboard-text </v-icon>
                         </v-badge>
@@ -111,12 +111,12 @@
                                     @new-value="handleValuesWorksTab">
                                 </generic-form-validation> </v-card-text>
                         </v-tab-item>
-                        <v-tab-item :key="4" value="programadatab" class="py-1">
+                        <v-tab-item :key="4" value="aforotab" class="py-1">
                             <v-card-text>
-                                <!-- <generic-form-validation :formFields="formFieldsWorksTab"
+                                <generic-form-validation :formFields="formFieldsWorksTab"
                                     :formFieldsWithValues="sendFieldsWorksTab" @form-valid="handleValidationWorksTab"
                                     @new-value="handleValuesWorksTab">
-                                </generic-form-validation> -->
+                                </generic-form-validation>
                              </v-card-text>
                         </v-tab-item>
                         
@@ -181,6 +181,9 @@ export default {
             // validWorksTab: false,
             formFieldsWorksTab: {},
             sendFieldsWorksTab: {},
+
+            formFieldsAforosTab: {},
+            sendFieldsAforosTab: {},
             // HANDLERS
             receivedTabGeneralData: {
                 newOrEdit: false,
@@ -198,6 +201,11 @@ export default {
                 valid: false,
             },
             receivedTabWorksData: {
+                newOrEdit: false,
+                data: {},
+                valid: false,
+            },
+            receivedTabAforosData: {
                 newOrEdit: false,
                 data: {},
                 valid: false,
@@ -235,6 +243,17 @@ export default {
                 fecha_modificacion: null
             },
             sendFormWorkTab: {
+                iidcarga_trabajo_tipo: 0,
+                txtdescripcion: '',
+                txtlatitud: '',
+                txtlongitud: '',
+                dtfecha_hora_inicio: "",
+                dtfecha_hora_fin: "",
+                activo: null,
+                fecha_creacion: null,
+                fecha_modificacion: null
+            },
+            sendFormAforoTab: {
                 iidcarga_trabajo_tipo: 0,
                 txtdescripcion: '',
                 txtlatitud: '',
@@ -304,6 +323,10 @@ export default {
             console.log(valid)
         },
         handleValuesWorksTab(key, value) {
+            console.log('Retorno de generic-work-validation key-values ')
+            console.log(key, value)
+        },
+        handleValuesAforoTab(key, value) {
             console.log('Retorno de generic-work-validation key-values ')
             console.log(key, value)
         },
@@ -398,6 +421,7 @@ export default {
                 this.formFieldsTurnsTab = formularios.inputsTurnsForm
                 this.formFieldsInspectorsTab = formularios.inputsInspectorsForm
                 this.formFieldsWorksTab = formularios.inputsWorksForm
+                this.formFieldsAforosTab = formularios.inputsAforosForm
 
                 
                 // this.formFields = formulario

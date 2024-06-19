@@ -64,7 +64,7 @@ WHERE NOT EXISTS (
     WHERE txtnombre = data.value
 );
 
-INSERT INTO "persona"."tbl_cat_telefono_tipo" (txtnombre, txtdescripcion)
+INSERT INTO "persona"."tbl_cat_tipo_telefono" (txtnombre, txtdescripcion)
 SELECT txtnombre, txtdescripcion
 FROM (VALUES 
     ('Celular', 'Teléfono celular'),
@@ -72,7 +72,7 @@ FROM (VALUES
 ) AS data(txtnombre, txtdescripcion)
 WHERE NOT EXISTS (
     SELECT 1 
-    FROM "persona"."tbl_cat_telefono_tipo" 
+    FROM "persona"."tbl_cat_tipo_telefono" 
     WHERE txtnombre = data.txtnombre
 );
 

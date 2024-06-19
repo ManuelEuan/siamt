@@ -54,13 +54,13 @@ class TicketsController extends BaseController
         $offset = ($data->page - 1) * $itemsPerPage; // Calcular offset
         $sql = "WITH tickets AS (
                 SELECT
-                b.iidboleta,
+                b.iid AS iidboleta,
                 b.dtfecha_hora_infraccion,
                 b.txtlugar_infraccion,
                 b.txtdireccion,
                 b.imonto_total,
-                CONCAT(p_inf.txtnombre, ' ', p_inf.txtapepat, CASE WHEN p_inf.txtapemat <> '' THEN ' ' || p_inf.txtapemat ELSE '' END) AS nombre_infractor,
-                CONCAT(p_emp.txtnombre, ' ', p_emp.txtapepat, CASE WHEN p_emp.txtapemat <> '' THEN ' ' || p_emp.txtapemat ELSE '' END) AS nombre_empleado,
+                CONCAT(p_inf.txtnombre, ' ', p_inf.txtapellido_paterno, CASE WHEN p_inf.txtapellido_materno <> '' THEN ' ' || p_inf.txtapellido_materno ELSE '' END) AS nombre_infractor,
+                CONCAT(p_emp.txtnombre, ' ', p_emp.txtapellido_paterno, CASE WHEN p_emp.txtapellido_materno <> '' THEN ' ' || p_emp.txtapellido_materno ELSE '' END) AS nombre_empleado,
                 br.txtnombre AS nombre_rol,
                 b.txtlicencia,
                 b.txtunidad,
@@ -85,11 +85,11 @@ class TicketsController extends BaseController
             FROM
                 boleta.tbl_boleta b
             INNER JOIN
-                persona.tbl_persona p_inf ON b.iidinfractor = p_inf.iidpersona
+                persona.tbl_persona p_inf ON b.iidinfractor = p_inf.iid
             INNER JOIN
-                persona.tbl_persona p_emp ON b.iidempleado = p_emp.iidpersona
+                persona.tbl_persona p_emp ON b.iidempleado = p_emp.iid
             INNER JOIN
-                boleta.tbl_boleta_rol br ON b.iidboleta_rol_id = br.iidboleta_rol
+                boleta.tbl_boleta_rol br ON b.iidboleta_rol_id = br.iid
         )";
         $params = array();
 

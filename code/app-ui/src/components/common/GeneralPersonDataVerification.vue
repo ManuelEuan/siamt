@@ -25,11 +25,11 @@
                             clearable dense outlined :rules="[rules.required]" />
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="generalPersonData.txtapepat" label="Apellido paterno*"
+                        <v-text-field v-model="generalPersonData.txtapellido_paterno" label="Apellido paterno*"
                             :rules="[rules.required]" hide-details="auto" clearable dense outlined />
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="generalPersonData.txtapemat" label="Apellido materno" hide-details="auto"
+                        <v-text-field v-model="generalPersonData.txtapellido_materno" label="Apellido materno" hide-details="auto"
                             clearable dense outlined />
                     </v-col>
                     <v-col cols="12" md="6">
@@ -107,8 +107,8 @@ export default {
                 iidpersona: 0,
                 bfisica: true,
                 txtnombre: '',
-                txtapepat: '',
-                txtapemat: '',
+                txtapellido_paterno: '',
+                txtapellido_materno: '',
                 dfecha_nacimiento: '',
                 txtrfc: '',
                 txtcurp: '',
@@ -166,8 +166,8 @@ export default {
                 iidpersona: 0,
                 bfisica: true,
                 txtnombre: '',
-                txtapepat: '',
-                txtapemat: '',
+                txtapellido_paterno: '',
+                txtapellido_materno: '',
                 dfecha_nacimiento: '',
                 txtrfc: '',
                 txtcurp: '',

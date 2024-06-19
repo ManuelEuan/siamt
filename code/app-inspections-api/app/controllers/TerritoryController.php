@@ -37,7 +37,7 @@ class TerritoryController extends BaseController
         $sql = "SELECT 
                     icodigo_postal
                 FROM 
-                    territorio.cat_colonia
+                    territorio.tbl_cat_colonia
                 WHERE 
                     bactivo='t' AND iclave_municipio = :iclave_municipio
                 GROUP BY 
@@ -55,11 +55,11 @@ class TerritoryController extends BaseController
                     m.txtnombre AS entity,
                     e.txtnombre AS municipality
                 FROM
-                    territorio.cat_colonia AS c
+                    territorio.tbl_cat_colonia AS c
                 JOIN
-                    territorio.cat_municipio AS m ON c.iclave_municipio = m.iclave_municipio
+                    territorio.tbl_cat_municipio AS m ON c.iclave_municipio = m.iclave_municipio
                 JOIN
-                    territorio.cat_estado AS e ON m.iclave_estado = e.iclave_estado
+                    territorio.tbl_cat_estado AS e ON m.iclave_estado = e.iclave_estado
                 WHERE
                     c.icodigo_postal = :icodigo_postal";
         $municipalityAndEntity = Db::fetchOne($sql, $params);
@@ -71,14 +71,14 @@ class TerritoryController extends BaseController
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         $params = array('icodigo_postal' => $data);
         $sql = "SELECT 
-                    iidcolonia,
+                    iid AS iidcolonia,
                     txtnombre,
                     icodigo_postal,
                     bactivo AS activo,
                     TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
                     TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
                 FROM 
-                    territorio.cat_colonia
+                    territorio.tbl_cat_colonia
                 WHERE 
                     bactivo='t' AND icodigo_postal = :icodigo_postal";
 
