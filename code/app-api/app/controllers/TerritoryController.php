@@ -15,7 +15,7 @@ use Vokuro\GenericSQL\GenericSQL;
 
 class TerritoryController extends BaseController {
 	public function getDL(){
-        $isAsig = $this->request->getQuery('asig', null, 'y');
+        $isAsig = $this->request->getQuery('asig', null, 'y'); 
         $where = "";
         if($isAsig == 'y'){
             $token = $this->di->getShared('token');
