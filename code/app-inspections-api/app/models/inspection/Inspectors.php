@@ -9,177 +9,20 @@ class Inspectors extends Model
 {
     public function initialize()
     {
-        $this->setSchema("inspeccion");
-        $this->setSource("tbl_inspector");
+        // $this->setConne
+        // $this->setConnectionService('db_inspecciones');
+        $this->setSchema("persona");
+        // $this->setSource("tbl_persona");
 
-        // Definir relaciones
-        // $this->belongsTo(
-        //     'iidpersona',
-        //     'App\Models\Person\Person',
-        //     'iid',
-        //     [
-        //         'alias' => 'persona',
-        //         'reusable' => true
-        //     ]
-        // );
-
-        // $this->belongsTo(
-        //     'iidturno',
-        //     'App\Models\Inspection\CatTurno',
-        //     'iid',
-        //     [
-        //         'alias' => 'turno',
-        //         'reusable' => true
-        //     ]
-        // );
-
-        // $this->belongsTo(
-        //     'iidetapa',
-        //     'App\Models\Comun\CatEtapa',
-        //     'iid',
-        //     [
-        //         'alias' => 'etapa',
-        //         'reusable' => true
-        //     ]
-        // );
-
-        // $this->belongsTo(
-        //     'iidsubetapa',
-        //     'App\Models\Comun\CatSubetapa',
-        //     'iid',
-        //     [
-        //         'alias' => 'subetapa',
-        //         'reusable' => true
-        //     ]
-        // );
-
-        // $this->belongsTo(
-        //     'iidinspector_categoria',
-        //     'App\Models\Inspection\CatInspectorCategoria',
-        //     'iid',
-        //     [
-        //         'alias' => 'categoria',
-        //         'reusable' => true
-        //     ]
-        // );
     }
 
-    // public function getInspectors($data)
-    // {
-    //     $itemsPerPage = $data->itemsPerPage ?? 10; // Valor por defecto para ítems por página
-    //     $page = $data->page ?? 1; // Página por defecto
-    //     $offset = ($page - 1) * $itemsPerPage;
-
-    //     $builder = $this->modelsManager->createBuilder()
-    //         ->from(['i' => 'App\Models\Inspection\Inspectors'])
-    //         ->columns([
-    //             'i.iid AS iidinspector',
-    //             'i.iidpersona',
-    //             'i.iidetapa',
-    //             'CASE 
-    //                 WHEN p.txtapellido_materno != \'\' THEN 
-    //                     CONCAT(p.txtnombre, \' \', p.txtapellido_paterno, \' \', p.txtapellido_materno)
-    //                 ELSE 
-    //                     CONCAT(p.txtnombre, \' \', p.txtapellido_paterno) 
-    //             END AS txtnombre_completo',
-    //             'etapa.txtnombre as txtinspector_etapa',
-    //             'subetapa.txtnombre as txtinspector_subetapa',
-    //             'i.txtfolio_inspector',
-    //             'i.iidturno',
-    //             'turno.txtnombre as txtinspector_turno',
-    //             'p.txtrfc',
-    //             'p.txtcurp',
-    //             'p.txtine',
-    //             'i.iidinspector_categoria',
-    //             'categoria.txtnombre as txtinspector_categoria',
-    //             'i.txtcomentarios',
-    //             'i.dvigencia',
-    //             'i.dfecha_alta',
-    //             'i.dfecha_baja',
-    //             'i.bactivo as activo',
-    //             "TO_CHAR(i.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion",
-    //             "TO_CHAR(i.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion"
-    //         ]);
-
-    //     if (!empty($data->filters)) {
-    //         $this->applyFilters($builder, $data->filters);
-    //     }
-
-    //     if (!empty($data->sortBy) && !empty($data->sortDesc)) {
-    //         $this->applySorting($builder, $data->sortBy, $data->sortDesc);
-    //     }
-
-
-    //     $builder->limit($itemsPerPage, $offset);
-
-    //     $query = $builder->getQuery();
-    //     $inspectors = $query->execute();
-
-    //     $totalItems = $inspectors->count() > 0 ? $inspectors->getFirst()->total_inspectors : 0;
-    //     $totalPages = ceil($totalItems / $itemsPerPage);
-
-    //     return [
-    //         'inspectors' => $inspectors,
-    //         'totalPages' => $totalPages,
-    //         'totalItems' => $totalItems
-    //     ];
-    // }
-
-    // private function applyFilters($builder, $filters)
-    // {
-    //     foreach ($filters as $filter => $value) {
-    //         switch ($filter) {
-    //             case 'name':
-    //                 $builder->andWhere("p.txtnombre LIKE :name:", ['name' => "%{$value}%"]);
-    //                 break;
-    //             case 'tarjeton':
-    //                 $builder->andWhere("i.txtfolio_inspector LIKE :tarjeton:", ['tarjeton' => "%{$value}%"]);
-    //                 break;
-    //             case 'etapa':
-    //                 $builder->andWhere("etapa.txtnombre LIKE :etapa:", ['etapa' => "%{$value}%"]);
-    //                 break;
-    //             case 'turno':
-    //                 $builder->andWhere("turno.txtnombre LIKE :turno:", ['turno' => "%{$value}%"]);
-    //                 break;
-    //             case 'categoria':
-    //                 $builder->andWhere("categoria.txtnombre LIKE :categoria:", ['categoria' => "%{$value}%"]);
-    //                 break;
-    //             case 'active':
-    //                 $builder->andWhere("i.bactivo = :activo:", ['activo' => $value]);
-    //                 break;
-    //         }
-    //     }
-    // }
-
-    // private function applySorting($builder, $sortBy, $sortDesc)
-    // {
-    //     foreach ($sortBy as $index => $column) {
-    //         $direction = $sortDesc[$index] ? 'DESC' : 'ASC';
-
-    //         switch ($column) {
-    //             case 'txtnombre':
-    //                 $builder->orderBy("txtnombre_completo {$direction}");
-    //                 break;
-    //             case 'txtfolio_inspector':
-    //                 $builder->orderBy("i.txtfolio_inspector {$direction}");
-    //                 break;
-    //             case 'txtinspector_etapa':
-    //                 $builder->orderBy("etapa.txtnombre {$direction}");
-    //                 break;
-    //             case 'txtinspector_turno':
-    //                 $builder->orderBy("turno.txtnombre {$direction}");
-    //                 break;
-    //             case 'txtinspector_categoria':
-    //                 $builder->orderBy("categoria.txtnombre {$direction}");
-    //                 break;
-    //             case 'activo':
-    //                 $builder->orderBy("i.bactivo {$direction}");
-    //                 break;
-    //             default:
-    //                 $builder->orderBy("i.iidinspector ASC");
-    //         }
-    //     }
-    // }
+    public static function getMultipleConexion(){
+        // $sql =
+        // return Inspectors::find();
+        $sql = 'SELECT * FROM persona."getPersonById";';
+		
+		return Db::fetchAll($sql);
+    }
 
     public function dep($data)
     {

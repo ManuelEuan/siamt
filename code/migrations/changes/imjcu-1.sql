@@ -23,12 +23,12 @@ BEGIN
         CREATE SEQUENCE "usuario"."tbl_cat_firma_plantilla_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 CACHE 1;
     END IF;
     
-    IF NOT EXISTS (SELECT 1 FROM information_schema.sequences WHERE sequence_schema = 'usuario' AND sequence_name = 'tbl_firma_registro_iid_seq') THEN
-        CREATE SEQUENCE "usuario"."tbl_firma_registro_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 CACHE 1;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.sequences WHERE sequence_schema = 'usuario' AND sequence_name = 'tbl_firma_iid_seq') THEN
+        CREATE SEQUENCE "usuario"."tbl_firma_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 CACHE 1;
     END IF;
     
-    IF NOT EXISTS (SELECT 1 FROM information_schema.sequences WHERE sequence_schema = 'usuario' AND sequence_name = 'tbl_firma_registro_usuario_iid_seq') THEN
-        CREATE SEQUENCE "usuario"."tbl_firma_registro_usuario_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 CACHE 1;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.sequences WHERE sequence_schema = 'usuario' AND sequence_name = 'tbl_firma_usuario_iid_seq') THEN
+        CREATE SEQUENCE "usuario"."tbl_firma_usuario_iid_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 CACHE 1;
     END IF;
 END $$;
 
@@ -43,8 +43,8 @@ CREATE TABLE "usuario"."tbl_cat_firma_plantilla" (
   CONSTRAINT "pk_tbl_cat_firma_plantilla" PRIMARY KEY ("iid")
 );
 
-CREATE TABLE "usuario"."tbl_firma_registro" (
-  "iid" int4 NOT NULL DEFAULT nextval('"usuario"."tbl_firma_registro_iid_seq"'::regclass),
+CREATE TABLE "usuario"."tbl_firma" (
+  "iid" int4 NOT NULL DEFAULT nextval('"usuario"."tbl_firma_iid_seq"'::regclass),
   "iidfirma_plantilla" int4 NOT NULL,
   "txttitulo" text COLLATE "pg_catalog"."default",
   "txtnombre" text COLLATE "pg_catalog"."default" NOT NULL,
@@ -59,20 +59,20 @@ CREATE TABLE "usuario"."tbl_firma_registro" (
   "bactivo" bool NOT NULL DEFAULT true,
   "dtfecha_creacion" timestamp(0),
   "dtfecha_modificacion" timestamp(0) DEFAULT now(),
-  CONSTRAINT "pk_tbl_firma_registro" PRIMARY KEY ("iid"),
-  CONSTRAINT "fk_tbl_firma_registro_iidfirma_plantilla" FOREIGN KEY ("iidfirma_plantilla") REFERENCES "usuario"."tbl_cat_firma_plantilla"("iid") ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT "pk_tbl_firma" PRIMARY KEY ("iid"),
+  CONSTRAINT "fk_tbl_firma_iidfirma_plantilla" FOREIGN KEY ("iidfirma_plantilla") REFERENCES "usuario"."tbl_cat_firma_plantilla"("iid") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
-CREATE TABLE "usuario"."tbl_firma_registro_usuario" (
-  "iid" int4 NOT NULL DEFAULT nextval('"usuario"."tbl_firma_registro_usuario_iid_seq"'::regclass),
+CREATE TABLE "usuario"."tbl_firma_usuario" (
+  "iid" int4 NOT NULL DEFAULT nextval('"usuario"."tbl_firma_usuario_iid_seq"'::regclass),
   "iidfirma_registro" int4 NOT NULL,
   "iidusuario" int4 NOT NULL,
   "bactivo" bool NOT NULL DEFAULT true,
   "dtfecha_creacion" timestamp(6),
   "dtfecha_modificacion" timestamp(6),
-  CONSTRAINT "fk_tbl_firma_registro_usuario_iidfirma_registro" FOREIGN KEY ("iidfirma_registro") REFERENCES "usuario"."tbl_firma_registro"("iid") ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT "fk_tbl_firma_registro_usuario_iidusuario" FOREIGN KEY ("iidusuario") REFERENCES "usuario"."usuario"("id") ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT "fk_tbl_firma_usuario_iidfirma_registro" FOREIGN KEY ("iidfirma_registro") REFERENCES "usuario"."tbl_firma"("iid") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "fk_tbl_firma_usuario_iidusuario" FOREIGN KEY ("iidusuario") REFERENCES "usuario"."usuario"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- **************************************************************** INFORMACIÓN SCHEMA PERSONA ***********************************************************

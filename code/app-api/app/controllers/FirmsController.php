@@ -7,6 +7,7 @@ use App\Library\Misc\Utils;
 use App\Library\Db\Db;
 use App\Library\Http\Exceptions\HttpUnauthorizedException;
 use App\Library\Http\Exceptions\ValidatorBoomException;
+use App\Models\User\Signature;
 
 class FirmsController extends BaseController
 {
@@ -40,7 +41,7 @@ class FirmsController extends BaseController
 
         $counts['firm_users'] = Db::fetchColumn($sql);
 
-        $tables = ["firm_registers" => "usuario.tbl_firma_registro", "firm_templates" => "usuario.tbl_cat_firma_plantilla"];
+        $tables = ["firm_registers" => "usuario.tbl_firma", "firm_templates" => "usuario.tbl_cat_firma_plantilla"];
 
         foreach ($tables as $key => $table) {
             $sql = "SELECT COUNT(*) FROM $table";
@@ -60,7 +61,7 @@ class FirmsController extends BaseController
 
     public function getAllFirms()
     {
-        $sql = "SELECT iid AS iidfirma_registro, iidfirma_plantilla, txttitulo, txtnombre, txtapellido_paterno, txtapellido_materno, txtpuesto, txtoficina, txtdepartamento, txtemail, txttelefono, txtextension FROM usuario.tbl_firma_registro WHERE bactivo = 't'";
+        $sql = "SELECT iid AS iidfirma_registro, iidfirma_plantilla, txttitulo, txtnombre, txtapellido_paterno, txtapellido_materno, txtpuesto, txtoficina, txtdepartamento, txtemail, txttelefono, txtextension FROM usuario.tbl_firma WHERE bactivo = 't'";
         $firms = Db::fetchAll($sql);
         return $firms;
     }
@@ -78,7 +79,7 @@ class FirmsController extends BaseController
     public function getFirmById()
     {
         $data = $this->request->getJsonRawBody();
-        $sql = 'SELECT iid AS iidfirma_registro, txtnombre, txtapellido_paterno, txtapellido_materno, txtpuesto, txtoficina, txtdepartamento, txtemail, txttelefono, txtextension, txttitulo, iidfirma_plantilla FROM usuario.tbl_firma_registro WHERE iid=:iidfirma_registro';
+        $sql = 'SELECT iid AS iidfirma_registro, txtnombre, txtapellido_paterno, txtapellido_materno, txtpuesto, txtoficina, txtdepartamento, txtemail, txttelefono, txtextension, txttitulo, iidfirma_plantilla FROM usuario.tbl_firma WHERE iid=:iidfirma_registro';
         $params = array('iidfirma_registro' => $data->iidfirma_registro);
         $firm = Db::fetch($sql, $params);
         return $firm;
@@ -86,11 +87,7 @@ class FirmsController extends BaseController
 
     public function createTemplate()
     {
-        // $this->hasClientAuthorized('edus');
         $data = $this->request->getJsonRawBody();
-        // self::dep($data);
-        // exit;
-        // $this->validRequiredData($data);
         if (empty($data->txtnombre) || empty($data->txtplantilla)) throw new ValidatorBoomException(422, 'Datos faltantes');
         Db::begin();
         $params = array(
@@ -131,7 +128,7 @@ class FirmsController extends BaseController
         );
         // self::dep($data);
         // exit;
-        $iidfirma_registro = $this->insert('tbl_firma_registro', $params);
+        $iidfirma_registro = $this->insert('tbl_firma', $params);
         // self::dep($iidfirma_registro);
         // exit;
         $params = array(
@@ -140,7 +137,7 @@ class FirmsController extends BaseController
             'dtfecha_creacion' => date('Y-m-d H:i:s'),
         );
 
-        $iidfirma_registro_usuario = $this->insert('tbl_firma_registro_usuario', $params);
+        $iidfirma_registro_usuario = $this->insert('tbl_firma_usuario', $params);
         Db::commit();
         return array('message' => 'La firma ha sido creada.', 'iidfirma_registro' => $iidfirma_registro, 'iidfirma_registro_usuario' => $iidfirma_registro_usuario);
     }
@@ -184,7 +181,7 @@ class FirmsController extends BaseController
         $firm = $data->firm;
         // $iidusuario = $data->iidusuario;
         Db::begin();
-        $sql = 'UPDATE usuario.tbl_firma_registro
+        $sql = 'UPDATE usuario.tbl_firma
                 SET 
                     txtnombre=:txtnombre, 
                     txtapellido_paterno=:txtapellido_paterno, 

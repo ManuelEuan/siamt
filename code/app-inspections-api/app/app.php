@@ -15,6 +15,7 @@ $app->mount(
     (new Collection())
     ->setHandler(InspectorsController::class, true)
     // INSPECTORES
+    ->get("/inspectors/demoMultipleDemo", "demoMultipleDemo")
     ->post("/inspectors", "getInspectors")
     ->post("/inspectors/getPersonByCurp", "getPersonByCurp")
     ->get("/inspectors/getAllCategoriesInspector", "getAllCategoriesInspector")

@@ -52,6 +52,10 @@ class InspectorsController extends BaseController
         return $url;
     }
 
+
+    public function demoMultipleDemo(){
+        return Inspectors::getMultipleConexion();
+    }
     // Obtener inspectores
     public function getInspectors()
     {
