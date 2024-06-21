@@ -53,6 +53,7 @@
                         </template>
                         <span>Activar teléfono</span>
                     </v-tooltip>
+                    <!-- {{ item }} -->
                     <v-tooltip bottom v-if="!item.bactual">
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn v-bind="attrs" v-on="on" icon small

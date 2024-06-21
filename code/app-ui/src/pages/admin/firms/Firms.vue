@@ -141,9 +141,9 @@ export default {
             ],
             firms: [],
             // rules: rules,
-            // formFields: {
+            formFields: {
 
-            // }
+            }
 
 
         }
@@ -256,6 +256,9 @@ export default {
         async getTemplateById() {
             try {
                 this.loadingSignature = true;
+                console.log('getTemplateById')
+                console.log(this.firm)
+                console.log(this.template)
                 this.template = await services.admin().getTemplateById({ 'iidfirma_plantilla': this.firm.iidfirma_plantilla });
                 this.template.txtplantilla = decodeURIComponent(this.template.txtplantilla)
                 console.log(this.template)
@@ -269,6 +272,7 @@ export default {
         async getFirmById() {
             try {
                 this.firm = await services.admin().getFirmById({ 'iidfirma_registro': this.selected[0].iidfirma_registro });
+                console.log('------this.firm')
                 console.log(this.firm)
                 this.sendFieldsWithValues = this.firm
                 this.dialogSearch = false

@@ -45,8 +45,8 @@
                         </v-bottom-sheet>
 
                         <v-col cols="12" md="12" class="d-flex justify-end">
-                            <!-- <v-btn color="warning" text>
-                                {{ !template.iidfirma_plantilla ? 'Nueva' : 'Editar' }} plantilla</v-btn> -->
+                            <v-btn color="warning" text v-if="template.iidfirma_plantilla" @click="resetTemplate()">
+                                Nueva plantilla</v-btn>
                             <v-btn color="primary" text :disabled="!template.txtnombre || !template.txtplantilla"
                                 @click="saveTemplate()">
                                 {{ !template.iidfirma_plantilla ? 'Guardar' : 'Actualizar' }}
@@ -86,7 +86,7 @@
                 <v-card-actions class="py-2">
                     <v-spacer></v-spacer>
                     <v-btn color="error" text @click="dialogSearch = false"> Cerrar </v-btn>
-                    <v-btn color="primary" text @click="getTemplateById">
+                    <v-btn color="primary" text @click="getTemplateById()">
                         Seleccionar
                     </v-btn>
                 </v-card-actions>
@@ -258,10 +258,17 @@ export default {
             this.codeSync = true;
             this.$refs['code-mirror'].focus()
         },
+        resetTemplate(){
+            this.template = {
+                iidfirma_plantilla: 0,
+                txtnombre: '',
+                txtplantilla: '',
+            }
+        },
         async getTemplateById() {
             try {
                 this.dialogSearch = false
-                this.template = await services.admin().getTemplateById({ 'iidfirma_plantilla': this.selected[0].iidfirma_plantilla });
+                this.template = await services.admin().getTemplateById({ 'iidfirma_plantilla': this.selected[0].iid });
                 this.template.txtplantilla = decodeURIComponent(this.template.txtplantilla)
 
             } catch (error) {
@@ -281,21 +288,24 @@ export default {
         async saveTemplate() {
             try {
                 this.template.txtplantilla = encodeURIComponent(this.template.txtplantilla)
+                console.log(this.template.iidfirma_plantilla)
                 if (!this.template.iidfirma_plantilla) {
                     // Nueva
+                    console.log('nueva')
                     // let { iidfirma_plantilla, message } = await services.admin().createTemplate(this.template);
                     let { message } = await services.admin().createTemplate(this.template);
                     this.showSuccess(message);
-                    setTimeout(() => {
-                        window.location.reload()
-                    }, 1500);
+                    // setTimeout(() => {
+                    //     window.location.reload()
+                    // }, 1500);
                 } else {
+                    console.log('Actualizar')
                     // Actualizar
                     let { message } = await services.admin().updateTemplate(this.template);
                     this.showSuccess(message);
-                    setTimeout(() => {
-                        window.location.reload()
-                    }, 1500);
+                    // setTimeout(() => {
+                    //     window.location.reload()
+                    // }, 1500);
                 }
                 this.template.txtplantilla = decodeURIComponent(this.template.txtplantilla)
                 await this.getAllTemplates();

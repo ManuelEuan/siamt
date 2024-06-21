@@ -40,7 +40,7 @@ class FirmsController extends BaseController
 
         $counts['firm_users'] = Db::fetchColumn($sql);
 
-        $tables = ["firm_registers" => "usuario.tbl_firma_registro", "firm_templates" => "usuario.cat_firma_plantilla"];
+        $tables = ["firm_registers" => "usuario.tbl_firma_registro", "firm_templates" => "usuario.tbl_cat_firma_plantilla"];
 
         foreach ($tables as $key => $table) {
             $sql = "SELECT COUNT(*) FROM $table";
@@ -53,14 +53,14 @@ class FirmsController extends BaseController
 
     public function getAllTemplates()
     {
-        $sql = "SELECT * FROM usuario.cat_firma_plantilla WHERE bactivo = 't'";
+        $sql = "SELECT iid AS iidfirma_plantilla, txtnombre, txtplantilla FROM usuario.tbl_cat_firma_plantilla WHERE bactivo = 't'";
         $templates = Db::fetchAll($sql);
         return $templates;
     }
 
     public function getAllFirms()
     {
-        $sql = "SELECT * FROM usuario.tbl_firma_registro WHERE bactivo = 't'";
+        $sql = "SELECT iid AS iidfirma_registro, iidfirma_plantilla, txttitulo, txtnombre, txtapellido_paterno, txtapellido_materno, txtpuesto, txtoficina, txtdepartamento, txtemail, txttelefono, txtextension FROM usuario.tbl_firma_registro WHERE bactivo = 't'";
         $firms = Db::fetchAll($sql);
         return $firms;
     }
@@ -68,16 +68,17 @@ class FirmsController extends BaseController
     public function getTemplateById()
     {
         $data = $this->request->getJsonRawBody();
-        $sql = 'SELECT iidfirma_plantilla, txtnombre, txtplantilla FROM usuario.cat_firma_plantilla WHERE iidfirma_plantilla=:iidfirma_plantilla';
-        $params = array('iidfirma_plantilla' => $data->iidfirma_plantilla);
+        $sql = 'SELECT iid AS iidfirma_plantilla, txtnombre, txtplantilla FROM usuario.tbl_cat_firma_plantilla WHERE iid=:iidfirma_plantilla';
+        $params = array(':iidfirma_plantilla' => $data->iidfirma_plantilla);
         $template = Db::fetch($sql, $params);
         return $template;
+
     }
 
     public function getFirmById()
     {
         $data = $this->request->getJsonRawBody();
-        $sql = 'SELECT iidfirma_registro, txtnombre, txtapellido_paterno, txtapellido_materno, txtpuesto, txtoficina, txtdepartamento, txtemail, txttelefono, txtextension, txttitulo, iidfirma_plantilla FROM usuario.tbl_firma_registro WHERE iidfirma_registro=:iidfirma_registro';
+        $sql = 'SELECT iid AS iidfirma_registro, txtnombre, txtapellido_paterno, txtapellido_materno, txtpuesto, txtoficina, txtdepartamento, txtemail, txttelefono, txtextension, txttitulo, iidfirma_plantilla FROM usuario.tbl_firma_registro WHERE iid=:iidfirma_registro';
         $params = array('iidfirma_registro' => $data->iidfirma_registro);
         $firm = Db::fetch($sql, $params);
         return $firm;
@@ -98,7 +99,7 @@ class FirmsController extends BaseController
             'dtfecha_creacion' => date('Y-m-d H:i:s'),
         );
 
-        $iidfirma_plantilla = $this->insert('cat_firma_plantilla', $params);
+        $iidfirma_plantilla = $this->insert('tbl_cat_firma_plantilla', $params);
         Db::commit();
         return array('message' => 'La plantilla ha sido creada.', 'iidfirma_plantilla' => $iidfirma_plantilla);
     }
@@ -151,14 +152,14 @@ class FirmsController extends BaseController
         // $this->hasClientAuthorized('edus');
         $data = $this->request->getJsonRawBody();
         if (empty($data->txtnombre) || empty($data->txtplantilla)) throw new ValidatorBoomException(422, 'Datos faltantes');
-
+        // self::dep($data);exit;
         Db::begin();
-        $sql = 'UPDATE usuario.cat_firma_plantilla
+        $sql = 'UPDATE usuario.tbl_cat_firma_plantilla
                 SET 
                     txtnombre=:txtnombre, 
                     txtplantilla=:txtplantilla, 
                     dtfecha_modificacion=CURRENT_TIMESTAMP
-                WHERE iidfirma_plantilla=:iidfirma_plantilla
+                WHERE iid=:iidfirma_plantilla
         ';
 
         $params = array(
@@ -197,7 +198,7 @@ class FirmsController extends BaseController
                     txttitulo=:txttitulo, 
                     iidfirma_plantilla=:iidfirma_plantilla, 
                     dtfecha_modificacion=CURRENT_TIMESTAMP
-                WHERE iidfirma_registro=:iidfirma_registro
+                WHERE iid=:iidfirma_registro
         ';
 
         $params = array(

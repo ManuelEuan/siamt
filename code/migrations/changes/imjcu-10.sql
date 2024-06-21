@@ -16,3 +16,6 @@ ADD COLUMN bactual bool DEFAULT true,
 ADD COLUMN bactivo bool DEFAULT true,
 ADD COLUMN dtfecha_creacion timestamp(6),
 ADD COLUMN dtfecha_modificacion timestamp(6);
+
+ALTER TABLE comun.tbl_flujo
+ALTER COLUMN iidetapa DROP NOT NULL;

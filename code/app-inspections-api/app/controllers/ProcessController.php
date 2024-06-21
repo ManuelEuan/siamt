@@ -118,10 +118,26 @@ class ProcessController extends BaseController
                     'item_value' => 'iidsubetapa'
                 ]
             ],
+           'vclave' => [
+                'label' => 'Clave',
+                'type' => 'text',
+                'model' => 'vclave',
+                'rules' => 'required|max4chars',
+                'cols' => 12,
+                'md' => 6
+            ],
             'txtnombre' => [
                 'label' => 'Nombre',
                 'type' => 'text',
                 'model' => 'txtnombre',
+                'rules' => 'required',
+                'cols' => 12,
+                'md' => 6
+            ],
+            'txtaccion' => [
+                'label' => 'Acción',
+                'type' => 'text',
+                'model' => 'txtaccion',
                 'rules' => 'required',
                 'cols' => 12,
                 'md' => 6
@@ -134,14 +150,7 @@ class ProcessController extends BaseController
                 'cols' => 12,
                 'md' => 6
             ],
-            'vclave' => [
-                'label' => 'Siglas',
-                'type' => 'text',
-                'model' => 'vclave',
-                'rules' => 'required|max4chars',
-                'cols' => 12,
-                'md' => 6
-            ],
+            
             'txtcolor' => [
                 'label' => 'Color',
                 'type' => 'color',
@@ -318,10 +327,10 @@ class ProcessController extends BaseController
             $params['items'] = $itemsPerPage; // Añadir parámetro de ítems por página
             $params['offset'] = $offset; // Añadir parámetro de offset
         }
+        // self::dep($sql);exit;
         $registers = Db::fetchAll($sql, $params); // Ejecutar consulta para obtener inspectores      
         $totalItems = $registers[0]->total_registers ?? 0; // Obtener total de inspectores
         $totalPages = ceil($totalItems / $itemsPerPage); // Calcular total de páginas
-
         return array(
             'dinamycRegisterInProcess' => $registers, // Devolver inspectores
             'totalPages' => $totalPages, // Devolver total de páginas
@@ -436,13 +445,7 @@ class ProcessController extends BaseController
     public function getAllSubStages()
     {
 
-        $sql = "SELECT 
-                    iid, txtnombre
-                FROM 
-                    comun.tbl_cat_subetapa
-                WHERE 
-                    bactivo='t';
-        ";
+        $sql = "SELECT iid AS iidsubetapa, txtnombre FROM comun.tbl_cat_subetapa WHERE bactivo='t'";
         $subStages = Db::fetchAll($sql);
         return $subStages;
     }
@@ -450,7 +453,7 @@ class ProcessController extends BaseController
     public function getAllProcess()
     {
         $sql = "SELECT 
-            iid,
+            iid AS iidproceso,
             iidmodulo,
             txtnombre,
             bactivo AS activo,
@@ -466,7 +469,7 @@ class ProcessController extends BaseController
     public function getAllStages()
     {
         $sql = "SELECT 
-                ce.iid,
+                ce.iid AS iidetapa,
                 ce.txtnombre AS txtetapa_nombre,
                 ce.txtdescripcion,
                 ce.vclave,
@@ -506,7 +509,6 @@ class ProcessController extends BaseController
         if ($data->idOfType) {
             $followUp = $this->getDinamycTrace($data->type, $data->idOfType);
             $boletas = $followUp['hasBoleta'];
-            // self::dep('$boletas');
             // self::dep($boletas);exit;
         }
         $checkSubStages = $followUp['onlySubStages'];
@@ -515,7 +517,6 @@ class ProcessController extends BaseController
         $getProcessBySubStage = $this->getProcessBySubStage($data->idOfSubStage);
         $flowComplete = self::getFlowByProcess($getProcessBySubStage->iidproceso, $markers);
         $getProcessBySubStage->etapas = $flowComplete;
-        // self::dep($getProcessBySubStage->etapas);exit;
         $allFlow = $getProcessBySubStage;
         $allData = ['currentFlow' => $currentFlow, 'followUp' => $followUp, 'allFlow' => $allFlow, 'boletas' => $boletas];
         return $allData;
@@ -558,9 +559,6 @@ class ProcessController extends BaseController
     // $objetoInicial = json_decode(json_encode($objetoInicial));
     public function getFlowByProcess($iidproceso = 0, $markers = [])
     {
-        // $iidproceso=1;
-
-        // exit;
         if (!$iidproceso) {
             $data = $this->request->getJsonRawBody();
             $getStagesByProcess = $this->getStagesByProcess($data->iidproceso);
@@ -571,9 +569,7 @@ class ProcessController extends BaseController
         $objetoInicial = null;
         foreach ($getStagesByProcess as $stage) {
             $subStages = $this->getSubStagesByStage($stage->iidetapa);
-            // self::dep($markers);exit;
             foreach ($subStages as $subStage) {
-                // self::dep($markers);exit;
                 if ($markers) {
                     if (in_array($subStage->iidsubetapa, $markers['checkSubStages']) && $subStage->iidsubetapa != $markers['checkCurrentSubStage']) {
                         $subStage->textIcon = 'Encontrado en flujo' . $subStage->iidsubetapa;
@@ -592,16 +588,9 @@ class ProcessController extends BaseController
                 }
             }
         }
-
-        // self::dep($objetoInicial);
-        // exit;
         if (!$objetoInicial) {
             return ['success' => true, 'message' => 'No se ha encontrado una etapa inicial, verifique la configuración del proceso'];
         }
-        // $formattedObject = $this->formatObjectForJavaScript($objetoInicial);
-        // self::dep($objetoInicial);exit;
-
-        // $prueba = $objetoInicial;
         $prueba = [
             [
                 'id' => $objetoInicial->iidsubetapa,
@@ -610,16 +599,13 @@ class ProcessController extends BaseController
                 'children' => $this->formatObjectForJavaScript($objetoInicial)
             ]
         ];
-        // $prueba['hijos'] = $formattedObject;
-        // self::dep($prueba);exit;
-        // $formateo[0]=$objetoInicial;
-        // $formattedObject = $this->formatObjectForJavaScript($formateo);
         return ['success' => true, 'message' => '', 'info' => $objetoInicial, 'info2' => $prueba];
     }
 
     public function getAllNextSubStagesEnabled()
     {
         $data = $this->request->getJsonRawBody();
+
         $process = $this->getProcessBySubStage($data->iidsubetapa);
         $getStagesByProcess = $this->getStagesByProcess($process->iidproceso);
         $onlySubStages = [];
@@ -668,7 +654,6 @@ class ProcessController extends BaseController
             }
             $formattedItems[] = $formattedChild;
         }
-        // var_dump($formattedItems);exit;
         return $formattedItems;
     }
 
@@ -693,10 +678,7 @@ class ProcessController extends BaseController
     // Función para construir el árbol
     function construirArbol($objetoInicial, $getNextSubStageFunction, $processedSubStages = array(), $markers = [])
     {
-        // self::dep($markers);exit;
         $nextSubStages = $this->getNextSubStageFromFlow($getNextSubStageFunction, $markers);
-        // self::dep($nextSubStages);
-        // Si no hay subetapas siguientes o ya hemos procesado esta subetapa, retornamos el objeto inicial
         if (empty($nextSubStages) || in_array($objetoInicial->iidsubetapa, $processedSubStages)) {
             return $objetoInicial;
         }
@@ -722,12 +704,12 @@ class ProcessController extends BaseController
     public function getStagesByProcess($iidproceso)
     {
         $sql = "SELECT
-                    etapa.iidetapa, 
+                    etapa.iid AS iidetapa, 
                     etapa.txtnombre AS nombre_etapa, 
                     etapa.vclave AS sigla_etapa, 
                     etapa.txtdescripcion AS descripcion_etapa, 
-                    etapa.txtcolor AS color_etapa, 
-                    etapa.txtpermiso AS permiso_etapa
+                    etapa.txtcolor AS color_etapa
+                    -- etapa.txtpermiso AS permiso_etapa
                 FROM
                     comun.tbl_cat_etapa AS etapa
                 WHERE bactivo='t' AND iidproceso = :iidproceso
@@ -740,7 +722,7 @@ class ProcessController extends BaseController
     public function getSubStagesByStage($iidStage)
     {
         $sql = "SELECT 
-                s.iidsubetapa,
+                s.iid AS iidsubetapa,
                 s.txtnombre,
                 s.vclave,
                 s.txtdescripcion,
@@ -754,9 +736,9 @@ class ProcessController extends BaseController
             FROM 
                 comun.tbl_cat_subetapa s
             JOIN 
-                comun.tbl_cat_etapa e ON s.iidetapa = e.iidetapa
+                comun.tbl_cat_etapa e ON s.iidetapa = e.iid
             WHERE 
-                s.bactivo = 't' AND e.iidetapa = :iidStage
+                s.bactivo = 't' AND e.iid = :iidStage
         ";
         $params = array('iidStage' => $iidStage);
         $subStage = Db::fetchAll($sql, $params);
@@ -766,19 +748,20 @@ class ProcessController extends BaseController
     public function getProcessBySubStage($iidSubStage)
     {
         $sql = "SELECT
-                    tbl_cat_proceso.iidproceso, 
+                    tbl_cat_proceso.iid AS iidproceso, 
                     tbl_cat_proceso.iidmodulo, 
                     tbl_cat_proceso.txtnombre, 
                     tbl_cat_proceso.bactivo
                 FROM
                     comun.tbl_cat_proceso
                     INNER JOIN
-                    comun.tbl_cat_etapa ON tbl_cat_proceso.iidproceso = tbl_cat_etapa.iidproceso
+                    comun.tbl_cat_etapa ON tbl_cat_proceso.iid = tbl_cat_etapa.iidproceso
                     INNER JOIN
-                    comun.tbl_cat_subetapa ON tbl_cat_etapa.iidetapa = tbl_cat_subetapa.iidetapa
-                WHERE tbl_cat_proceso.bactivo = 't' AND tbl_cat_subetapa.iidsubetapa = :iidsubetapa;
+                    comun.tbl_cat_subetapa ON tbl_cat_etapa.iid = tbl_cat_subetapa.iidetapa
+                WHERE tbl_cat_proceso.bactivo = 't' AND tbl_cat_subetapa.iid = :iidsubetapa;
         ";
         $params = array('iidsubetapa' => $iidSubStage);
+        
         $process = Db::fetch($sql, $params);
         return $process;
     }
@@ -821,7 +804,7 @@ class ProcessController extends BaseController
              $res = Db::fetchAll($sqlpersona);
              $iidpersona = $res[0]->iidpersona;
             $sqlBoleta = "SELECT
-                    b.iidboleta,
+                    b.iid AS iidboleta,
                     b.dtfecha_hora_infraccion,
                     b.txtlugar_infraccion,
                     b.txtdireccion,
@@ -863,7 +846,6 @@ class ProcessController extends BaseController
             ";
         }
         // $hola = Db::fetchAll($sqlBoleta);
-        // self::dep($hola);exit;
         $params = array('idOfSearch' => $idOfSearch); // Parámetros para la consulta
         $foundRequest = Db::fetchAll($sql, $params);
         $onlyStages = [];
@@ -881,7 +863,7 @@ class ProcessController extends BaseController
     public function subStage($iidSubStage, $markers = [])
     {
         $sql = "SELECT 
-                    s.iidsubetapa,
+                    s.iid AS iidsubetapa,
                     s.txtnombre AS subetapa_nombre,
                     s.vclave,
                     s.txtdescripcion,
@@ -897,9 +879,9 @@ class ProcessController extends BaseController
                 FROM 
                     comun.tbl_cat_subetapa s
                 JOIN 
-                    comun.tbl_cat_etapa e ON s.iidetapa = e.iidetapa
+                    comun.tbl_cat_etapa e ON s.iidetapa = e.iid
                 WHERE 
-                    s.bactivo = 't' AND s.iidsubetapa = :iidsubetapa
+                    s.bactivo = 't' AND s.iid = :iidsubetapa
         ";
         $params = array('iidsubetapa' => $iidSubStage);
         $subStage = Db::fetch($sql, $params);
@@ -915,9 +897,7 @@ class ProcessController extends BaseController
                 $subStage->textIcon = 'subStage - No encontrado en flujo' . $subStage->iidsubetapa;
                 $subStage->icon = 'mdi-checkbox-blank-circle-outline';
             }
-            // self::dep($subStage);exit;
         }
-        // self::dep($subStage);
         return $subStage;
     }
 
@@ -1043,11 +1023,11 @@ class ProcessController extends BaseController
                         'txtdescripcion' => $data->txtdescripcion,
                         'vclave' => $data->vclave,
                         'txtcolor' => $data->txtcolor,
-                        'txtpermiso' => $data->txtpermiso,
-                        'binicial' => !empty($data->binicial) ? $data->binicial : 'f',
-                        'bfinal' => !empty($data->bfinal) ? $data->bfinal : 'f',
-                        'bcancelacion' => !empty($data->bcancelacion) ? $data->bcancelacion : 'f',
-                        'brequiere_motivo' => !empty($data->brequiere_motivo) ? $data->brequiere_motivo : 'f',
+                        // 'txtpermiso' => $data->txtpermiso,
+                        // 'binicial' => !empty($data->binicial) ? $data->binicial : 'f',
+                        // 'bfinal' => !empty($data->bfinal) ? $data->bfinal : 'f',
+                        // 'bcancelacion' => !empty($data->bcancelacion) ? $data->bcancelacion : 'f',
+                        // 'brequiere_motivo' => !empty($data->brequiere_motivo) ? $data->brequiere_motivo : 'f',
                         'dtfecha_creacion' => date('Y-m-d H:i:s'),
                     );
                     break;
@@ -1173,7 +1153,7 @@ class ProcessController extends BaseController
                                         brequiere_motivo=:brequiere_motivo,
                                         bactivo=:bactivo,
                                         dtfecha_modificacion=:dtfecha_modificacion
-                                    WHERE iidsubetapa=:iidsubetapa
+                                    WHERE iid=:iidsubetapa
                             ';
                     $params = array(
                         'iidetapa'  => $data->iidetapa,
@@ -1193,7 +1173,6 @@ class ProcessController extends BaseController
                     break;
             }
             // Parámetros para la actualización del teléfono
-            // $this->dep($data);exit;
             Db::execute($sql, $params); // Ejecutar actualización del teléfono en la base de datos
             Db::commit(); // Confirmar transacción en la base de datos
 
@@ -1213,7 +1192,7 @@ class ProcessController extends BaseController
     {
         switch ($typeRegister) {
             case 'Proceso':
-                $requiredKeys = array('iidmodulo', 'txtnombre', 'vclave'); // Claves requeridas
+                $requiredKeys = array('iidmodulo', 'txtnombre'); // Claves requeridas
                 break;
             case 'Etapa':
                 $requiredKeys = array('iidproceso', 'txtnombre', 'vclave'); // Claves requeridas
@@ -1233,7 +1212,6 @@ class ProcessController extends BaseController
         $actualKeys = array_keys(get_object_vars($data)); // Claves presentes en los datos
         $missingKeys = array_diff($requiredKeys, $actualKeys); // Claves faltantes
         $message = 'Faltan valores requeridos.';
-
         if (!empty($missingKeys)) throw new ValidatorBoomException(422, $message);
 
         foreach ($data as $key => $value) {

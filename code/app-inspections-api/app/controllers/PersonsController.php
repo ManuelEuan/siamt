@@ -129,7 +129,7 @@ class PersonsController extends BaseController
             foreach ($personas as $key => $persona) {
                 if ($typeOfRequest == 'Inspector') {
                     // Consulta adicional para obtener información de inspección
-                    $sql2 = "SELECT iidinspector, iidinspector, txtfolio_inspector FROM inspeccion.tbl_inspector WHERE iidpersona=:iidpersona";
+                    $sql2 = "SELECT iid AS iidinspector, iidpersona, txtfolio_inspector FROM inspeccion.tbl_inspector WHERE iidpersona=:iidpersona";
                     $params2 = array('iidpersona' => $persona->iidpersona);
                     $inspector = Db::fetchOne($sql2, $params2);
                     if (!$inspector) {
@@ -223,13 +223,13 @@ class PersonsController extends BaseController
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         $params = array('iidpersona' => $data);
         $sql = "SELECT
-                    iid, 
+                    iid AS iidpersona, 
                     bfisica, 
                     txtnombre, 
                     txtapellido_paterno, 
                     txtapellido_materno, 
                     dfecha_nacimiento, 
-                    iidestado_nacimiento, 
+                    iidnacionalidad, 
                     txtrfc, 
                     txtcurp, 
                     txtine, 
@@ -246,7 +246,7 @@ class PersonsController extends BaseController
                 FROM
                     persona.tbl_persona
                 WHERE
-                    bactivo = true AND iidpersona = :iidpersona;
+                    bactivo = true AND iid = :iidpersona;
         ";
         // $this->dep($sql);exit;
         $generalPersonData = Db::fetch($sql, $params);
@@ -407,12 +407,17 @@ class PersonsController extends BaseController
                     tt.txtnombre AS txttelefono_tipo, 
                     tt.txtdescripcion,
                     t.txtlada, 
+                    -- CONCAT('(', SUBSTRING(CAST(t.inumero AS VARCHAR), 1, 3), ') ',
+                    --     SUBSTRING(CAST(t.inumero AS VARCHAR), 4, 3), '-',
+                    --     SUBSTRING(CAST(t.inumero AS VARCHAR), 7, 4)) AS inumero_formatted,
                     CONCAT('(', SUBSTRING(CAST(t.inumero AS VARCHAR), 1, 3), ') ',
                         SUBSTRING(CAST(t.inumero AS VARCHAR), 4, 3), '-',
-                        SUBSTRING(CAST(t.inumero AS VARCHAR), 7, 4)) AS inumero_formatted,
+                        SUBSTRING(CAST(t.inumero AS VARCHAR), 7, 4)) AS inumero,
+                    -- t.inumero, 
                     t.iid AS iidtelefono, 
                     t.iidtipo_telefono, 	
                     pt.bactual,
+                    pt.bactivo,
                     t.bactivo AS telefono_activo, 
                     pt.bactivo AS persona_telefono_activo, 
                     pt.dtfecha_creacion, 
@@ -502,7 +507,7 @@ class PersonsController extends BaseController
                     txtapellido_paterno=:txtapellido_paterno,
                     txtapellido_materno=:txtapellido_materno,
                     dfecha_nacimiento=:dfecha_nacimiento,
-                    iidestado_nacimiento=:iidestado_nacimiento,
+                    iidnacionalidad=:iidnacionalidad,
                     txtrfc=:txtrfc,
                     txtcurp=:txtcurp,
                     txtine=:txtine,
@@ -511,7 +516,7 @@ class PersonsController extends BaseController
                     txtcorreo=:txtcorreo,
                     -- bactivo=:bactivo,
                     dtfecha_modificacion=:dtfecha_modificacion
-                WHERE iidpersona=:iidpersona
+                WHERE iid=:iidpersona
             ';
         $params = array(
             'bfisica'  => $data->bfisica,
@@ -519,7 +524,7 @@ class PersonsController extends BaseController
             'txtapellido_paterno' => $data->txtapellido_paterno,
             'txtapellido_materno' => $data->txtapellido_materno,
             'dfecha_nacimiento' => $data->dfecha_nacimiento,
-            'iidestado_nacimiento' => $data->iidestado_nacimiento,
+            'iidnacionalidad' => $data->iidnacionalidad,
             'txtrfc' => $data->txtrfc,
             'txtcurp' => $data->txtcurp,
             'txtine' => $data->txtine,
@@ -567,7 +572,7 @@ class PersonsController extends BaseController
             'iidcolonia' => $data->address->iidcolonia,
             'txtcalle' => $data->address->txtcalle,
             'txtcalle_letra' => $data->address->txtcalle_letra,
-            // 'itipo_vialidad' => $data->address->itipo_vialidad,
+            'itipo_vialidad' => $data->address->itipo_vialidad,
             'itipo_direccion' => $data->address->itipo_direccion,
             'txtavenida_kilometro' => $data->address->txtavenida_kilometro,
             'txttablaje' => $data->address->txttablaje,
@@ -698,7 +703,7 @@ class PersonsController extends BaseController
                     inumero=:inumero,
                     iidtipo_telefono=:iidtipo_telefono,
                     dtfecha_modificacion=:dtfecha_modificacion
-                WHERE iidtelefono=:iidtelefono
+                WHERE iid=:iidtelefono
             ';
         $params = array(
             'txtlada'  => $data->phone->txtlada,
@@ -886,7 +891,7 @@ class PersonsController extends BaseController
                 txtavenida_kilometro=:txtavenida_kilometro,
                 txttablaje=:txttablaje,
                 txtdescripcion_direccion=:txtdescripcion_direccion
-            WHERE iiddireccion=:iiddireccion
+            WHERE iid=:iiddireccion
         ';
         $params = array(
             'iidcolonia'  => $data->address->iidcolonia,

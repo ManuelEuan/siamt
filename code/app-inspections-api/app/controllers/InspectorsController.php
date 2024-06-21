@@ -264,7 +264,7 @@ class InspectorsController extends BaseController
         FROM 
             cte_flujo f
             JOIN cte_subetapa_actual currentSubStage ON f.iidsubetapa = currentSubStage.iidsubetapa_actual
-            JOIN cte_etapa etapa ON currentSubStage.iidetapa = etapa.iidetapa
+            JOIN cte_etapa etapa ON currentSubStage.iidetapa = etapa.iid
             JOIN comun.tbl_cat_subetapa nextSubStage ON f.iidsubetapa_siguiente = nextSubStage.iidsubetapa;
         
         ";

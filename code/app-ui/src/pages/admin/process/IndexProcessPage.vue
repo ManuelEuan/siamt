@@ -296,7 +296,7 @@ export default {
                 txtnombre: "Nombre",
                 txtmodulo: "Módulo",
                 txtdescripcion: "Descripcion",
-                txtsigla: "Siglas",
+                vclave: "Siglas",
                 bactivo: "Activo",
                 dtfecha_creacion: "Fecha creacion",
                 dtfecha_modificacion: "Fecha modificación",
@@ -333,6 +333,11 @@ export default {
         async dataFirstForm() {
             try {
                 this.formFields = await services.inspections().getStructureFirstForm();
+                console.log(this.formFields)
+                console.log(!!this.formFields.typeRegister.model);
+                this.formFields.typeRegister.model = 'Proceso'
+                this.form.typeRegister = 'Proceso'
+                this.applyRulesForDinamycForm()
             } catch (error) {
                 this.showError({ message: 'Error al recuperar los formularios', error });
             }
@@ -359,19 +364,19 @@ export default {
         // APLICACIÓN DE REGLAS EXTRA EN FORMULARIO GENÉRICO (LÓGICA DE FORMULARIO)
         applyRulesForDinamycForm() {
             if (this.form.typeRegister === 'Proceso') {
-                this.dinamycRemoveFields = ['iidproceso', 'iidetapa', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'iidsubetapa', 'iidsubetapa_siguiente']
+                this.dinamycRemoveFields = ['iidproceso', 'iidetapa', 'txtcolor', 'txtdescripcion', 'vclave', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'iidsubetapa', 'iidsubetapa_siguiente']
                 this.dinamycHiddenFields = []
                 this.dinamycDisabledFields = []
             } else if (this.form.typeRegister === 'Etapa') {
-                this.dinamycRemoveFields = ['iidmodulo', 'iidetapa', 'iidsubetapa', 'iidsubetapa_siguiente']
+                this.dinamycRemoveFields = ['iidmodulo', 'iidetapa', 'iidsubetapa','txtaccion', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo', 'iidsubetapa_siguiente']
                 this.dinamycHiddenFields = []
                 this.dinamycDisabledFields = []
             } else if (this.form.typeRegister === 'Subetapa') {
-                this.dinamycRemoveFields = ['iidproceso', 'iidmodulo', 'iidsubetapa', 'iidsubetapa_siguiente']
+                this.dinamycRemoveFields = ['iidproceso', 'iidmodulo', 'iidsubetapa','txtaccion', 'iidsubetapa_siguiente']
                 this.dinamycHiddenFields = []
                 this.dinamycDisabledFields = []
             } else if (this.form.typeRegister === 'Flujo') {
-                this.dinamycRemoveFields = ['iidetapa', 'iidmodulo', 'iidproceso', 'txtnombre', 'txtdescripcion', 'txtsigla', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo']
+                this.dinamycRemoveFields = ['iidetapa', 'iidmodulo', 'iidproceso', 'txtnombre','txtaccion', 'txtdescripcion', 'vclave', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo']
                 this.dinamycDisabledFields = []
                 this.dinamycHiddenFields = []
                 // this.sendFieldsWithValues.iidsubetapa_siguiente
@@ -382,13 +387,13 @@ export default {
 
                 }
 
-            }
-            else {
+            }else {
                 this.showError({ 'message': 'Tipo de registro no configurado' })
+                this.dinamycRemoveFields = ['iidsubetapa', 'iidsubetapa_siguiente', 'iidetapa', 'iidmodulo', 'iidproceso', 'txtnombre','txtaccion', 'txtdescripcion', 'vclave', 'txtcolor', 'txtpermiso', 'binicial', 'bfinal', 'bcancelacion', 'brequiere_motivo']
             }
             if (!this.newRegister) {
                 this.dinamycHiddenFields = ['typeRegister']
-                this.dinamycDisabledFields = ['txtsigla', 'dtfecha_creacion', 'dtfecha_modificacion']
+                this.dinamycDisabledFields = ['vclave', 'dtfecha_creacion', 'dtfecha_modificacion']
             } else {
                 this.dinamycHiddenFields = ['bactivo', 'dtfecha_creacion', 'dtfecha_modificacion']
             }
@@ -401,6 +406,9 @@ export default {
                     this.dialogDinamycRegister = true
                     this.sendFieldsWithValues = {}
                     this.formFields = this.dataFirstForm()
+                    console.log('this.formFields')
+                    console.log(this.formFields.typeRegister)
+                    // this.formFields = this.dataFirstForm()
                     this.applyRulesForDinamycForm()
                     this.form.iidoftype = 0
                     break;
@@ -539,7 +547,8 @@ export default {
     },
     watch: {
         options: {
-            handler() { this.loadDinamycRegisterInProcessTable(); },
+            handler() { 
+                this.loadDinamycRegisterInProcessTable(); },
             deep: true,
         },
     },
