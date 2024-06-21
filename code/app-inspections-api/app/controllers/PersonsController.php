@@ -8,6 +8,14 @@ use App\Library\Db\Db;
 use App\Library\Http\Exceptions\HttpUnauthorizedException;
 use App\Library\Http\Exceptions\ValidatorBoomException;
 
+// MODELOS PERSONAS
+use App\Models\Person\Sexes;
+use App\Models\Person\CivilStatus;
+use App\Models\Person\TypesPhone;
+use App\Models\Person\Lada;
+// MODELOS INSPECCIONES
+use App\Models\Inspection\Inspectors;
+
 class PersonsController extends BaseController
 {
 
@@ -119,12 +127,7 @@ class PersonsController extends BaseController
 
       
         // SI EXISTE PERSONA ÚNICA SE RETORNAN LOS DATOS ESPECÍFICOS
-        // $this->dep($typeOfRequest);exit;
         $permissions = $this->token->getPermissions()['pel'];
-        // self::dep('llegando');
-        // self::dep($personas);
-
-        // exit;
         if (count($personas) > 0) {
             foreach ($personas as $key => $persona) {
                 if ($typeOfRequest == 'Inspector') {
@@ -155,66 +158,22 @@ class PersonsController extends BaseController
 
     public function getAllSexes()
     {
-        $sql = "SELECT 
-            iid AS iidsexo,
-            txtnombre,
-            txtdescripcion,
-            bactivo AS activo,
-            TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-            TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-            FROM persona.tbl_cat_sexo
-            WHERE bactivo='t'
-        ";
-        $zones = Db::fetchAll($sql);
-        return $zones;
+        return Sexes::getAllSexes();
     }
 
     public function getAllLadaIdentifiers()
     {
-        $sql = "SELECT 
-            iid AS iidlada,
-            txtnombre,
-            txtdescripcion,
-            bactivo AS activo,
-            TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-            TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-            FROM persona.cat_lada
-            WHERE bactivo='t'
-        ";
-        $ladaIdentifiers = Db::fetchAll($sql);
-        return $ladaIdentifiers;
+        return Lada::getAllLada();
     }
 
     public function getAllCivilStatus()
     {
-        $sql = "SELECT 
-            iid AS iidestado_civil,
-            txtnombre,
-            txtdescripcion,
-            bactivo AS activo,
-            TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-            TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-            FROM persona.tbl_cat_estado_civil
-            WHERE bactivo='t'
-        ";
-        $civilStatus = Db::fetchAll($sql);
-        return $civilStatus;
+        return CivilStatus::getAllCivilStatus();
     }
 
     public function getAllTypesPhone()
     {
-        $sql = "SELECT 
-            iid AS iidtipo_telefono,
-            txtnombre,
-            txtdescripcion,
-            bactivo AS activo,
-            TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-            TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-            FROM persona.tbl_cat_tipo_telefono
-            WHERE bactivo='t'
-        ";
-        $typesPhone = Db::fetchAll($sql);
-        return $typesPhone;
+        return TypesPhone::getAllTypesPhone();
     }
 
     public function getGeneralPersonData()

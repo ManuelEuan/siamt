@@ -776,7 +776,7 @@ class ProcessController extends BaseController
         }
         if ($type == 'Inspector') {
             $sql = "SELECT 
-                        insp.iidinspector_seguimiento,
+                        insp.iid AS iidinspector_seguimiento,
                         insp.iidinspector,
                         insp.iidetapa_anterior,
                         insp.iidsubetapa_anterior,
@@ -789,18 +789,18 @@ class ProcessController extends BaseController
                     FROM 
                         inspeccion.tbl_inspector_seguimiento AS insp
                     JOIN 
-                        comun.tbl_cat_etapa AS etapa_anterior ON insp.iidetapa_anterior = etapa_anterior.iidetapa
+                        comun.tbl_cat_etapa AS etapa_anterior ON insp.iidetapa_anterior = etapa_anterior.iid
                     JOIN 
-                        comun.tbl_cat_etapa AS etapa_actual ON insp.iidetapa_actual = etapa_actual.iidetapa
+                        comun.tbl_cat_etapa AS etapa_actual ON insp.iidetapa_actual = etapa_actual.iid
                     JOIN 
-                        comun.tbl_cat_subetapa AS subetapa_anterior ON insp.iidsubetapa_anterior = subetapa_anterior.iidsubetapa
+                        comun.tbl_cat_subetapa AS subetapa_anterior ON insp.iidsubetapa_anterior = subetapa_anterior.iid
                     JOIN 
-                        comun.tbl_cat_subetapa AS subetapa_actual ON insp.iidsubetapa_actual = subetapa_actual.iidsubetapa
+                        comun.tbl_cat_subetapa AS subetapa_actual ON insp.iidsubetapa_actual = subetapa_actual.iid
                     WHERE 
                         insp.iidinspector = :idOfSearch
                         AND insp.bactivo = 't';
             ";
-             $sqlpersona = "SELECT iidpersona FROM inspeccion.tbl_inspector WHERE iidinspector = $idOfSearch";
+             $sqlpersona = "SELECT iidpersona FROM inspeccion.tbl_inspector WHERE iid = $idOfSearch";
              $res = Db::fetchAll($sqlpersona);
              $iidpersona = $res[0]->iidpersona;
             $sqlBoleta = "SELECT
@@ -835,13 +835,13 @@ class ProcessController extends BaseController
                 FROM
                     boleta.tbl_boleta b
                 INNER JOIN
-                    persona.tbl_persona p_inf ON b.iidinfractor = p_inf.iidpersona
+                    persona.tbl_persona p_inf ON b.iidinfractor = p_inf.iid
                 INNER JOIN
-                    persona.tbl_persona p_emp ON b.iidempleado = p_emp.iidpersona
+                    persona.tbl_persona p_emp ON b.iidempleado = p_emp.iid
                 INNER JOIN
-                    boleta.tbl_boleta_rol br ON b.iidboleta_rol_id = br.iidboleta_rol
+                    boleta.tbl_boleta_rol br ON b.iidboleta_rol_id = br.iid
                 WHERE 
-                    p_emp.iidpersona = $iidpersona
+                    p_emp.iid = $iidpersona
                     AND b.bactivo = 't';
             ";
         }

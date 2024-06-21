@@ -411,3 +411,47 @@ CREATE TABLE boleta.tbl_boleta (
     CONSTRAINT fk_iidinfractor FOREIGN KEY (iidinfractor) REFERENCES persona.tbl_persona(iid),
     CONSTRAINT fk_iidempleado FOREIGN KEY (iidempleado) REFERENCES persona.tbl_persona(iid)
 );
+
+WITH modulos_a_eliminar AS (
+    -- Seleccionar los IDs de los módulos que cumplen con las condiciones
+    SELECT id
+    FROM usuario.modulo
+    WHERE nombre = 'Personas' AND seccion IS NULL
+)
+DELETE FROM usuario.usuario_dominio_modulo
+WHERE idmodulo IN (SELECT id FROM modulos_a_eliminar);
+
+DELETE FROM usuario.modulo
+WHERE nombre = 'Personas' AND seccion IS NULL;
+ALTER TABLE persona.persona_telefono RENAME TO tbl_persona_telefono;
+
+
+ALTER TABLE persona.tbl_direccion
+ADD COLUMN iidcolonia int4,
+ADD COLUMN itipo_direccion int4,
+ADD COLUMN itipo_vialidad int4,
+ADD COLUMN txtavenida_kilometro text,
+ADD COLUMN txttablaje text;
+ALTER TABLE persona.tbl_persona_direccion
+ADD COLUMN bactual bool DEFAULT true;
+
+ALTER TABLE persona.tbl_persona_telefono
+ADD COLUMN iidtelefono int4,
+ADD COLUMN bactual bool DEFAULT true,
+ADD COLUMN bactivo bool DEFAULT true,
+ADD COLUMN dtfecha_creacion timestamp(6),
+ADD COLUMN dtfecha_modificacion timestamp(6);
+
+ALTER TABLE comun.tbl_flujo
+ALTER COLUMN iidetapa DROP NOT NULL;
+
+UPDATE usuario.modulo
+SET seccion = CASE
+    WHEN nombre IN ('Debitaciones', 'Usuarios', 'Perfiles') THEN 'Administración'
+    ELSE seccion
+END,
+activo = CASE
+    WHEN nombre IN ('Módulos') THEN 't'
+    ELSE activo
+END
+WHERE nombre IN ('Debitaciones', 'Usuarios', 'Perfiles', 'Módulos');

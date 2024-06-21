@@ -3,12 +3,22 @@
 namespace App\Controllers;
 
 use Phalcon\Registry;
+use Vokuro\GenericSQL\GenericSQL;
 use App\Library\Misc\Utils;
 use App\Library\Http\Controllers\BaseController;
 use App\Library\Db\Db;
 use App\Library\Http\Exceptions\HttpUnauthorizedException;
 use App\Library\Http\Exceptions\ValidatorBoomException;
 
+// MODELOS TERRITORIO
+use App\Models\Territory\Zones;
+// MODELOS INSPECCIONES
+use App\Models\Inspection\Inspectors;
+use App\Models\Inspection\InspectorsCategories;
+use App\Models\Inspection\Shifts;
+
+
+// use App\Models\Users;
 class InspectorsController extends BaseController
 {
 
@@ -22,7 +32,6 @@ class InspectorsController extends BaseController
         }
     }
     
-    // Método para depurar y mostrar datos
     public function dep($data)
     {
         $format  = print_r('<pre>');
@@ -47,176 +56,13 @@ class InspectorsController extends BaseController
     public function getInspectors()
     {
         $data =  $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        $itemsPerPage = $data->itemsPerPage; // Obtener número de ítems por página
-        $offset = ($data->page - 1) * $itemsPerPage; // Calcular offset
-        $sql = "
-            WITH inspectores AS (
-                        SELECT
-                            i.iid AS iidinspector,
-                            i.iidpersona,
-                            i.iidetapa,
-                            CASE 
-                                WHEN p.txtapellido_materno != '' THEN 
-                                    CONCAT(p.txtnombre, ' ', p.txtapellido_paterno, ' ', p.txtapellido_materno)
-                                ELSE 
-                                    CONCAT(p.txtnombre, ' ', p.txtapellido_paterno) 
-                            END AS txtnombre_completo,
-                            ca.txtnombre as txtinspector_etapa,
-                            cas.txtnombre as txtinspector_subetapa,
-                            i.txtfolio_inspector,
-                            i.iidturno,
-                            it.txtnombre as txtinspector_turno,
-                            p.txtrfc,
-                            p.txtcurp,
-                            p.txtine,
-                            i.iidinspector_categoria,
-                            ic.txtnombre as txtinspector_categoria,
-                            i.txtcomentarios,
-                            i.dvigencia,
-                            i.dfecha_alta,
-                            i.dfecha_baja,
-                            i.bactivo as activo,
-                           
-                            TO_CHAR(i.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-                            TO_CHAR(i.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-                        FROM inspeccion.tbl_inspector i
-                        JOIN persona.tbl_persona p ON i.iidpersona = p.iid
-                        JOIN inspeccion.tbl_cat_turno it ON i.iidturno = it.iid
-                        JOIN comun.tbl_cat_etapa ca ON i.iidetapa = ca.iid
-                        JOIN comun.tbl_cat_subetapa cas ON i.iidsubetapa = cas.iid
-                        JOIN inspeccion.tbl_cat_inspector_categoria ic ON i.iidinspector_categoria = ic.iid
-                    )
-            ";
-        $params = array();
-        if ($data->filters) { // Aplicar filtros si están presentes en la solicitud
-            list($sql2, $params2) = $this->filterInspectors($data->filters); // Aplicar filtros
-            $sql .= $sql2; // Agregar filtros a la consulta principal
-            $params += $params2; // Agregar parámetros de los filtros
-        } else {
-            $sql .= 'SELECT *, COUNT(inspectores.iidinspector) OVER() AS total_inspectores FROM inspectores '; // Obtener perfiles sin filtros
-        }
-        $sql .= $this->sortInspectors($data->sortBy, $data->sortDesc); // Ordenar inspectores
-
-        if ($itemsPerPage > 0) { // Si se especifica un número de ítems por página
-            $sql .= 'LIMIT :items OFFSET :offset'; // Limitar resultados por página
-            $params['items'] = $itemsPerPage; // Añadir parámetro de ítems por página
-            $params['offset'] = $offset; // Añadir parámetro de offset
-        }
-        $inspectors = Db::fetchAll($sql, $params); // Ejecutar consulta para obtener inspectores      
-        $totalItems = $inspectors[0]->total_inspectores ?? 0; // Obtener total de inspectores
-        $totalPages = ceil($totalItems / $itemsPerPage); // Calcular total de páginas
-
-        return array(
-            'inspectors' => $inspectors, // Devolver inspectores
-            'totalPages' => $totalPages, // Devolver total de páginas
-            'totalItems' => $totalItems, // Devolver total de ítems
-        );
-    }
-
-    // Método para filtrar inspectores
-    private function filterInspectors($filters)
-    {
-        $params = [];
-        $sql = "SELECT *, COUNT(inspectores.iidinspector) OVER() AS total_inspectores FROM inspectores ";
-        $sql2 = 'WHERE '; // Inicializar fragmento de consulta para filtros
-        foreach ($filters as $filter => $value) { // Para cada filtro
-            if (empty($value)) continue; // Si el valor del filtro está vacío o es para roles, continuar al siguiente filtro
-            if ($sql2 !== 'WHERE ') $sql2 .= 'AND '; // Si no es el primer filtro, añadir "AND"
-
-            switch ($filter) { // Según el filtro
-                case 'name': // Filtro por nombre
-                    $sql2 .= "inspectores.txtnombre ILIKE :name "; // Condición para nombre (ignorando mayúsculas y minúsculas)
-                    $params['name'] = '%' . $filters->name . '%'; // Parámetro para nombre
-                    break;
-                case 'tarjeton': // Filtro por tarjeton
-                    $sql2 .= "inspectores.txtfolio_inspector ILIKE :tarjeton "; // Condición para nombre (ignorando mayúsculas y minúsculas)
-                    $params['tarjeton'] = '%' . $filters->tarjeton . '%'; // Parámetro para nombre
-                    break;
-                case 'etapa': // Filtro por etapa
-                    $sql2 .= "inspectores.txtinspector_etapa ILIKE :etapa "; // Condición para nombre (ignorando mayúsculas y minúsculas)
-                    $params['etapa'] = '%' . $filters->etapa . '%'; // Parámetro para nombre
-                    break;
-                case 'turno': // Filtro por turno
-                    $sql2 .= "inspectores.txtinspector_turno ILIKE :turno "; // Condición para nombre (ignorando mayúsculas y minúsculas)
-                    $params['turno'] = '%' . $filters->turno . '%'; // Parámetro para nombre
-                    break;
-                case 'categoria': // Filtro por categoria
-                    $sql2 .= "inspectores.txtinspector_categoria ILIKE :categoria "; // Condición para nombre (ignorando mayúsculas y minúsculas)
-                    $params['categoria'] = '%' . $filters->categoria . '%'; // Parámetro para nombre
-                    break;
-                case 'active': // Filtro por estado activo
-                    $sql2 .= 'inspectores.activo = :active '; // Condición para estado activo
-                    $params['active'] = $filters->active; // Parámetro para estado activo
-                    break;
-            }
-        }
-        if ($sql2 !== 'WHERE ') $sql .= $sql2; // Si se agregaron filtros, añadirlos a la consulta principal
-        return array($sql, $params); // Devolver consulta y parámetros
-    }
-
-    // // Método para ordenar inspectores
-    private function sortInspectors($sortBy, $sortDesc)
-    {
-        $sortCount = count($sortBy); // Contar cantidad de criterios de ordenamiento
-        if ($sortCount === 0) return 'ORDER BY inspectores.iidinspector '; // Si no hay criterios, ordenar por ID por defecto
-
-        $sql = 'ORDER BY '; // Inicializar fragmento de consulta para ordenamiento
-        $comma = $sortCount - 1; // Último índice para agregar coma
-
-        for ($i = 0; $i < $sortCount; $i++) { // Para cada criterio de ordenamiento
-            $order = $sortDesc[$i] ? 'DESC ' : 'ASC '; // Determinar orden ascendente o descendente
-            $column = $sortBy[$i]; // Obtener columna para ordenamiento
-
-            switch ($column) { // Según la columna
-                case 'txtnombre': // Ordenar por nombre completo
-                    $sql .= 'inspectores.txtnombre '; // Agregar columna de nombre completo
-                    break;
-                case 'txtfolio_inspector': // Ordenar por usuario
-                    $sql .= 'inspectores.txtfolio_inspector '; // Agregar columna de usuario
-                    break;
-
-                case 'txtinspector_etapa': // Ordenar por correo
-                    $sql .= 'inspectores.txtinspector_etapa '; // Agregar columna de correo
-                    break;
-                case 'txtinspector_turno': // Ordenar por correo
-                    $sql .= 'inspectores.txtinspector_turno '; // Agregar columna de correo
-                    break;
-                case 'txtinspector_categoria': // Ordenar por correo
-                    $sql .= 'inspectores.txtinspector_categoria '; // Agregar columna de correo
-                    break;
-                case 'activo': // Ordenar por estado activo
-                    $sql .= 'inspectores.activo '; // Agregar columna de estado activo
-                    break;
-                default: // Si no se reconoce la columna
-                    $sql .= 'inspectores.iidinspector '; // Ordenar por ID
-            }
-
-            $sql .= "$order NULLS LAST"; // Añadir orden y manejo de nulos
-            $sql .= $i < $comma ? ', ' : ' '; // Agregar coma si no es el último criterio
-        }
-
-        return $sql; // Devolver fragmento de consulta para ordenamiento
+        return Inspectors::getAllFilteredAndPaginatedInspectors($data);
     }
 
     public function getAllCategoriesInspector()
     {
-        $sql = "SELECT 
-            iid AS iidinspector_categoria,
-            txtnombre,
-            bgenera_boleta,
-            bactivo AS activo,
-            TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-            TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-            FROM inspeccion.tbl_cat_inspector_categoria
-            WHERE bactivo='t'
-        ";
-        $categories = Db::fetchAll($sql);
-        return $categories;
+        return InspectorsCategories::getAllInspectorsCategories();
     }
-
-
-
-
 
     public function getAllFlowBySubStage($iidSubStage)
     {
@@ -372,7 +218,7 @@ class InspectorsController extends BaseController
             JOIN inspeccion.tbl_cat_turno it ON i.iidturno = it.iid
             JOIN comun.tbl_cat_etapa ca ON i.iidetapa = ca.iid
             JOIN inspeccion.tbl_cat_inspector_categoria ic ON i.iidinspector_categoria = ic.iid
-            WHERE iidinspector=:id
+            WHERE iid=:id
         ";
         $inspector = Db::fetchOne($sql, $params);
         return $inspector; // Devolver información del inspector
@@ -380,48 +226,14 @@ class InspectorsController extends BaseController
 
     public function getAllShiftsInspector()
     {
-        $sql = "SELECT 
-                iid AS iidturno,
-                txtnombre,
-                thora_inicio,
-                thora_fin,
-                bactivo AS activo,
-                TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-                TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-                FROM inspeccion.tbl_cat_turno
-                WHERE bactivo='t'
-        ";
-        $shifts = Db::fetchAll($sql);
-        return $shifts;
+        return Shifts::getAllShifts();
     }
     // Obtener información de un inspector
     public function getInspectorInfo()
     {
         $this->hasClientAuthorized('veii'); // Verificar si el cliente tiene autorización
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        if (empty($data->id)) throw new ValidatorBoomException(422, 'Id requerido.'); // Lanzar excepción si el ID está vacío
-        $params = array('id' => $data->id); // Parámetros para la consulta
-        $sql = "
-            SELECT
-                i.iid AS iidinspector,
-                i.iidpersona,
-                i.iidturno,
-                i.iidetapa,
-                i.iidsubetapa,
-                i.txtfolio_inspector,
-                i.txtcomentarios,
-                i.iidinspector_categoria,
-                i.dvigencia,
-                i.dfecha_alta,
-                i.dfecha_baja,
-                i.bactivo as activo,
-                TO_CHAR(i.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-                TO_CHAR(i.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-            FROM inspeccion.tbl_inspector i
-            WHERE iidinspector=:id
-        ";
-        $inspector = Db::fetchOne($sql, $params);
-        return $inspector; // Devolver información del inspector
+        return Inspectors::getInspectorInfo($data->id);
     }
 
     // // Método para crear un inspector
@@ -507,7 +319,7 @@ class InspectorsController extends BaseController
                 bactivo=:bactivo,
                 dfecha_alta=:dfecha_alta,
                 dtfecha_modificacion=:dtfecha_modificacion
-            WHERE iidinspector=:iidinspector
+            WHERE iid=:iidinspector
         ';
         $params = array(
             'iidturno'  => $data->iidturno,

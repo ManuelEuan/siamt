@@ -39,6 +39,37 @@ $di->setShared('db', function () {
     return new Phalcon\Db\Adapter\Pdo\Postgresql($params);
 });
 
+$di->setShared('db_inspections', function () {
+    $config = $this->getConfig();
+
+    $params = [
+        'host' => $config->database_inspections->host,
+        'port' => $config->database_inspections->port,
+        'username' => $config->database_inspections->username,
+        'password' => $config->database_inspections->password,
+        'dbname' => $config->database_inspections->dbname,
+        'options' => [\PDO::ATTR_PERSISTENT => intval($config->database_inspections->persistent)]
+    ];
+
+    return new Phalcon\Db\Adapter\Pdo\Postgresql($params);
+});
+
+$di->setShared('db_mantounidades', function () {
+    $config = $this->getConfig();
+
+    $params = [
+        'host' => $config->database_mantounidades->host,
+        'port' => $config->database_mantounidades->port,
+        'username' => $config->database_mantounidades->username,
+        'password' => $config->database_mantounidades->password,
+        'dbname' => $config->database_mantounidades->dbname,
+        'options' => [\PDO::ATTR_PERSISTENT => intval($config->database_mantounidades->persistent)]
+    ];
+
+    return new Phalcon\Db\Adapter\Pdo\Postgresql($params);
+});
+
+
 $di->setShared('redis', function () {
     $config = $this->getConfig();
 

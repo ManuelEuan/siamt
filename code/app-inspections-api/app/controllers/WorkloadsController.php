@@ -8,6 +8,13 @@ use App\Library\Db\Db;
 use App\Library\Http\Exceptions\HttpUnauthorizedException;
 use App\Library\Http\Exceptions\ValidatorBoomException;
 
+// MODELOS TERRITORIO
+use App\Models\Territory\Zones;
+// MODELOS INSPECCIONES
+use App\Models\Inspection\Shifts;
+use App\Models\Inspection\TypesWorkload;
+use App\Models\Inspection\Inspectors;
+
 class WorkloadsController extends BaseController
 {
 
@@ -92,7 +99,7 @@ class WorkloadsController extends BaseController
                 'rules' => 'required',
                 'cols' => 12,
                 'md' => 6,
-                'array' => ['type' => 'object', 'info' => self::getAllInspector('Coordinador'), 'item_text' => 'txtnombre_completo', 'item_value' => 'iidinspector']
+                'array' => ['type' => 'object', 'info' => self::getAllInspectorByType('Coordinador'), 'item_text' => 'txtnombre_completo', 'item_value' => 'iidinspector']
             ],
         ];
         $inputsInspectorsForm = [
@@ -112,7 +119,7 @@ class WorkloadsController extends BaseController
                 'rules' => 'required',
                 'cols' => 12,
                 'md' => 6,
-                'array' => ['type' => 'object', 'info' => self::getAllInspector('Inspector'), 'item_text' => 'txtnombre_completo', 'item_value' => 'iidinspector']
+                'array' => ['type' => 'object', 'info' => self::getAllInspectorByType('Inspector'), 'item_text' => 'txtnombre_completo', 'item_value' => 'iidinspector']
             ],
         ];
         $inputsWorksForm = [
@@ -167,7 +174,7 @@ class WorkloadsController extends BaseController
             ],
            
         ];
-        $inputsAforoForm = [
+        $inputsAforosForm = [
             'iidcarga_trabajo_tipo' => [
                 'label' => 'Seleccione la zona*',
                 'type' => 'autocomplete',
@@ -230,92 +237,27 @@ class WorkloadsController extends BaseController
 
     public function getAllZones()
     {
-        $sql = "SELECT 
-            iid AS iidzona,
-            txtnombre,
-            bactivo AS activo,
-            TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-            TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-            FROM territorio.tbl_cat_zona
-            WHERE bactivo='t'
-        ";
-        $zones = Db::fetchAll($sql);
-        return $zones;
+        //  $sequenceName = Zones::getSequenceName();
+        //  $nextValue = Db::fetchOne("SELECT nextval(:sequence)", ['sequence' => $sequenceName]);
+        //  self::dep($nextValue);exit;
+        return Zones::getAllZones();
     }
 
     public function getAllShifts()
     {
-        $sql = "SELECT 
-                iid AS iidturno,
-                txtnombre,
-                thora_inicio,
-                thora_fin,
-                bactivo AS activo,
-                TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-                TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-                FROM inspeccion.tbl_cat_turno
-                WHERE bactivo='t'
-        ";
-        $shifts = Db::fetchAll($sql);
-        return $shifts;
+        return Shifts::getAllShifts();
     }
 
     public function getAllTypesWorkload()
     {
-        $sql = "SELECT 
-                iid AS iidcarga_trabajo_tipo,
-                txtnombre,
-                txtdescripcion,
-                breten,
-                bactivo AS activo,
-                TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-                TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-                FROM inspeccion.tbl_cat_carga_trabajo_tipo
-                WHERE bactivo='t'
-        ";
-        $typesWorkload = Db::fetchAll($sql);
-        return $typesWorkload;
+        return TypesWorkload::getAllTypesWorkload();
     }
 
-    
-
-    public function getAllInspector($type = '')
+    public function getAllInspectorByType($type = '')
     {
-        $sql = "SELECT
-                    i.iid AS iidinspector,
-                    i.iidpersona,
-                    i.iidetapa,
-                    CASE 
-                        WHEN p.txtapellido_materno != '' THEN 
-                            CONCAT(p.txtnombre, ' ', p.txtapellido_paterno, ' ', p.txtapellido_materno)
-                        ELSE 
-                            CONCAT(p.txtnombre, ' ', p.txtapellido_paterno) 
-                    END AS txtnombre_completo,
-                    ca.txtnombre as txtinspector_etapa,
-                    cas.txtnombre as txtinspector_subetapa,
-                    i.txtfolio_inspector,
-                    i.iidturno,
-                    it.txtnombre as txtinspector_turno,
-                    p.txtrfc,
-                    p.txtcurp,
-                    p.txtine,
-                    i.iidinspector_categoria,
-                    ic.txtnombre as txtinspector_categoria,
-                    TO_CHAR(i.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-                    TO_CHAR(i.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-                FROM inspeccion.tbl_inspector i
-                JOIN persona.tbl_persona p ON i.iidpersona = p.iid
-                JOIN inspeccion.tbl_cat_turno it ON i.iidturno = it.iid
-                JOIN comun.tbl_cat_etapa ca ON i.iidetapa = ca.iid
-                JOIN comun.tbl_cat_subetapa cas ON i.iidsubetapa = cas.iid
-                JOIN inspeccion.tbl_cat_inspector_categoria ic ON i.iidinspector_categoria = ic.iid
-                WHERE i.bactivo='t'
-        ";
-        if($type){
-            $sql = $sql . " AND ic.txtnombre ='" . $type."'";
-        }
-        $inspectors = Db::fetchAll($sql);
-        return $inspectors;
+        
+        return Inspectors::getAllInspectorByType($type);
+
     }
 
 }

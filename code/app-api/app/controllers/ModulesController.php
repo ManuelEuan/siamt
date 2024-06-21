@@ -20,7 +20,6 @@ class ModulesController extends BaseController
 			->modelsManager
 			->createBuilder()
 			->from(Modules::class);
-		
 		return $this->paginated($builder);
 	}
 	
