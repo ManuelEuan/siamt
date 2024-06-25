@@ -15,7 +15,7 @@ use App\Controllers\FirmsController;
 
 
 
-$app->get('/domain/config', function () use ($app, $config) {
+$app->get('/admin/domain/config', function () use ($app, $config) {
 
     $data = App::getDomainConfigAsJson(Utils::getRequestDomain());
 

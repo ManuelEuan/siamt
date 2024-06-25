@@ -32,6 +32,14 @@ export const routes = [{
   }
 },
 {
+  path: '/demo',
+  name: 'demo',
+  component: () => import(/* webpackChunkName: "auth-signin" */ '@/pages/auth/SigninPage.vue'),
+  meta: {
+    layout: 'auth'
+  }
+},
+{
   path: '/auth/reset-password',
   name: 'reset-password',
   component: () => import(/* webpackChunkName: "auth-signin" */ '@/pages/auth/ResetPage.vue'),

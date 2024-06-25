@@ -9,7 +9,8 @@ use \App\Library\Http\Exceptions\HttpBadRequestException;
 use App\Library\Http\Controllers\BaseController;
 use App\Library\Http\Responses\Pagination;
 use App\Models\Modules;
-
+use App\Models\User;
+use App\Models\UserDomainModule;
 
 class ModulesController extends BaseController 
 {
@@ -148,4 +149,38 @@ class ModulesController extends BaseController
 
         return array('message' => 'El permiso ha sido actualizado.');
 	}
+
+	public static function getModuleUserDomainConfig($user,$module,$domainId) {
+		$request = $this->request->getJsonRawBody();
+		$user = $request->get('user');
+		$module = $request->get('module');
+		$token = $this->di->getShared('token');
+		$domainId = $token->getDomainId();
+        $users = User::findFirst([
+            "conditions"=> "usuario = :user:",
+            "bind" => [
+                "user" => $user
+            ]
+        ]);
+
+
+        $modules = Modules::findFirst([
+          "conditions"=>"siglas = :module:",
+            "bind" => [
+                "module" => $module
+            ]
+        ]);
+
+        $config = UserDomainModule::findFirst([
+            "columns"   => "config",
+            "conditions"=> "idusuario = :user: AND iddominio = :domain: AND idmodulo = :module:",
+            "bind" => [
+                "user" => $users->id,
+                "domain" => $domainId,
+                "module" => $modules->id
+            ]
+        ]);
+
+        return $config;
+    }
 }

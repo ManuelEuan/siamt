@@ -3,27 +3,19 @@
 namespace App\Models\Inspection;
 
 use Phalcon\Mvc\Model;
-// use App\Library\Db\Db;
-use App\Library\Db\InspectionsDb as Db;
-
+use App\Library\Db\Db;
 
 class Inspectors extends Model
 {
     public function initialize()
     {
-        // $this->setConne
-        // $this->setConnectionService('db_inspecciones');
         $this->setSchema("inspeccion");
         $this->setSource("tbl_inspector");
     }
 
     public static function getMultipleConexion()
     {
-        // $sql =
         return Inspectors::find();
-        // $sql = 'SELECT * FROM persona."getPersonById";';
-
-        return Db::fetchAll($sql);
     }
 
     public function dep($data)
@@ -35,16 +27,6 @@ class Inspectors extends Model
     }
     public static function getAllFilteredAndPaginatedInspectors($data)
     {
-        // self::dep($filters);exit;
-        // $sql = "SELECT *,
-        //     CONCAT(nombre,' ',apepat,' ',apemat) AS nombre_completo 
-        //     FROM usuario.usuario 
-        //     LIMIT ".$filters->itemsPerPage." 
-        //     OFFSET ".($filters->page-1)*$filters->itemsPerPage;
-        // $sqlTotales = "SELECT COUNT(*) AS total FROM usuario.usuario";
-        // $totalItems = GenericSQL::getBySQL($sqlTotales)[0]->total;
-        // $inspectors = GenericSQL::getBySQL($sql);
-        // $totalPages = ceil((integer)$totalItems/(integer)$data->itemsPerPage);
         $itemsPerPage = $data->itemsPerPage; // Obtener número de ítems por página
         $offset = ($data->page - 1) * $itemsPerPage; // Calcular offset
         $sql =     "WITH inspectores AS (
@@ -77,7 +59,7 @@ class Inspectors extends Model
                             TO_CHAR(i.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
                             TO_CHAR(i.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
                         FROM inspeccion.tbl_inspector i
-                        JOIN dblink('dbname=siamt_unstable_jair host=127.0.0.1 port=5432 user=postgres password=root'::text, 
+                        JOIN dblink('dbname=siamt_unstable_jair host=172.20.199.57 port=5432 user=postgres password=root'::text, 
                         'SELECT nombre_completo, iid FROM persona.tbl_persona'::text) 
                             p(nombre_completo text, iid integer) 
                         ON i.iidpersona = p.iid

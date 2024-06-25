@@ -24,6 +24,6 @@ return new \Phalcon\Config([
 
     'app' => [
         'auditQueue' => getenv('RD_AUDIT_QUEUE'),
-        'whitelistedApis' => array('GET:/domain/config')
+        // 'whitelistedApis' => array('GET:/domain/config')
     ]
 ]);

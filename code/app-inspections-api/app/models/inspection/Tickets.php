@@ -11,7 +11,6 @@ class Tickets extends Model
 {
     public function initialize()
     {
-        // $this->setConnectionService('db_inspecciones');
         $this->setSchema("boleta");
         $this->setSource("tbl_boleta");
     }
@@ -33,31 +32,6 @@ class Tickets extends Model
     {
         $parameters = [];
         $conditions = [];
-        // $sql = "SELECT * FROM persona.tbl_persona";
-        // $sql = "SELECT * FROM boleta.tbl_boleta";
-
-        // $sql = "SELECT p.iid,
-        //             p.bfisica,
-        //             p.txtapellido_paterno,
-        //             p.txtapellido_materno,
-        //             p.nombre_completo,
-        //             d.txtdireccion AS direccion_desde_inspecciones
-        //         FROM persona.tbl_persona p
-        //             JOIN dblink('dbname=inspecciones host=127.0.0.1 port=5432 user=postgres password=root'::text, 
-        //             'SELECT txtdireccion, iidempleado FROM boleta.tbl_boleta'::text) 
-        //                 d(txtdireccion text, iidempleado integer) 
-        //             ON p.iid = d.iidempleado";
-        // return Db::fetchAll($sql);
-
-        //    $sql = "SELECT b.iid,
-        //             b.txtlugar_infraccion,
-        //             p.nombre_completo AS txtnombre_desde_siamt
-        //         FROM boleta.tbl_boleta b
-        //             JOIN dblink('dbname=siamt_unstable_jair host=127.0.0.1 port=5432 user=postgres password=root'::text, 
-        //             'SELECT nombre_completo, iid FROM persona.tbl_persona'::text) 
-        //                 p(nombre_completo text, iid integer) 
-        //             ON b.iid = p.iid";
-        // return Db::fetchAll($sql);
         if ($bactivo === true) {
             $conditions[] = "bactivo = :activo:";
             $parameters["activo"] = 't';
@@ -104,11 +78,11 @@ class Tickets extends Model
                 b.dtfecha_modificacion
             FROM
                 boleta.tbl_boleta b
-            INNER JOIN dblink('dbname=siamt_unstable_jair host=127.0.0.1 port=5432 user=postgres password=root'::text, 
+            INNER JOIN dblink('dbname=siamt_unstable_jair host=172.20.199.57 port=5432 user=postgres password=root'::text, 
                     'SELECT nombre_completo, iid FROM persona.tbl_persona'::text) 
                         p_emp(nombre_completo text, iid integer) 
                     ON b.iidempleado = p_emp.iid
-            INNER JOIN dblink('dbname=siamt_unstable_jair host=127.0.0.1 port=5432 user=postgres password=root'::text, 
+            INNER JOIN dblink('dbname=siamt_unstable_jair host=172.20.199.57 port=5432 user=postgres password=root'::text, 
                     'SELECT nombre_completo, iid FROM persona.tbl_persona'::text) 
                         p_inf(nombre_completo text, iid integer) 
                     ON b.iidinfractor = p_inf.iid
