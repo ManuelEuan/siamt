@@ -7,6 +7,8 @@ class Shifts extends Model
 {
     public function initialize()
     {
+        // $this->setSchema("inspeccion");
+        $this->setConnectionService('db_inspecciones');
         $this->setSchema("inspeccion");
         $this->setSource("tbl_cat_turno");
     }

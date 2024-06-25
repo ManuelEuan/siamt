@@ -39,7 +39,7 @@ $di->setShared('db', function () {
     return new Phalcon\Db\Adapter\Pdo\Postgresql($params);
 });
 
-$di->setShared('db_inspections', function () {
+$di->setShared('db_inspecciones', function () {
     $config = $this->getConfig();
 
     $params = [

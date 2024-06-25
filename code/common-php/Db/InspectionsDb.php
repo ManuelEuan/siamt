@@ -10,6 +10,6 @@ class InspectionsDb extends Db
   protected static function getDb()
   {
     $di = Di::getDefault();
-    return $di->getShared("InspectionsDb");
+    return $di->getShared("db_inspecciones");
   }
 }

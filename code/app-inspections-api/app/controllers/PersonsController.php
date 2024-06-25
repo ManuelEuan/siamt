@@ -7,6 +7,8 @@ use App\Library\Http\Controllers\BaseController;
 use App\Library\Db\Db;
 use App\Library\Http\Exceptions\HttpUnauthorizedException;
 use App\Library\Http\Exceptions\ValidatorBoomException;
+use App\Library\Misc\Utils;
+use Vokuro\GenericSQL\Person as Person;
 
 // MODELOS PERSONAS
 use App\Models\Person\Sexes;
@@ -39,6 +41,8 @@ class PersonsController extends BaseController
 
     public function getPersonByDinamycSearch()
     {
+        
+        return Person::getDemoModel();
         $data =  $this->request->getJsonRawBody();
         $typeSearch = $data->data->typeSearch;
         $dataSearch = $data->data->dataSearch;

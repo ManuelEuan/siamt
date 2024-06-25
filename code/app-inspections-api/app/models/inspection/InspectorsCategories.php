@@ -7,6 +7,7 @@ class InspectorsCategories extends Model
 {
     public function initialize()
     {
+        $this->setConnectionService('db_inspecciones');
         $this->setSchema("inspeccion");
         $this->setSource("tbl_cat_inspector_categoria");
     }

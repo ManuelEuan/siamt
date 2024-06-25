@@ -3,7 +3,9 @@
 namespace App\Models\Inspection;
 
 use Phalcon\Mvc\Model;
-use App\Library\Db\Db;
+// use App\Library\Db\Db;
+use App\Library\Db\InspectionsDb as Db;
+
 
 class Inspectors extends Model
 {
@@ -11,17 +13,17 @@ class Inspectors extends Model
     {
         // $this->setConne
         // $this->setConnectionService('db_inspecciones');
-        $this->setSchema("persona");
-        // $this->setSource("tbl_persona");
-
+        $this->setSchema("inspeccion");
+        $this->setSource("tbl_inspector");
     }
 
-    public static function getMultipleConexion(){
+    public static function getMultipleConexion()
+    {
         // $sql =
-        // return Inspectors::find();
-        $sql = 'SELECT * FROM persona."getPersonById";';
-		
-		return Db::fetchAll($sql);
+        return Inspectors::find();
+        // $sql = 'SELECT * FROM persona."getPersonById";';
+
+        return Db::fetchAll($sql);
     }
 
     public function dep($data)
@@ -39,7 +41,7 @@ class Inspectors extends Model
         //     FROM usuario.usuario 
         //     LIMIT ".$filters->itemsPerPage." 
         //     OFFSET ".($filters->page-1)*$filters->itemsPerPage;
-                // $sqlTotales = "SELECT COUNT(*) AS total FROM usuario.usuario";
+        // $sqlTotales = "SELECT COUNT(*) AS total FROM usuario.usuario";
         // $totalItems = GenericSQL::getBySQL($sqlTotales)[0]->total;
         // $inspectors = GenericSQL::getBySQL($sql);
         // $totalPages = ceil((integer)$totalItems/(integer)$data->itemsPerPage);
@@ -50,35 +52,39 @@ class Inspectors extends Model
                             i.iid AS iidinspector,
                             i.iidpersona,
                             i.iidetapa,
-                            CASE 
-                                WHEN p.txtapellido_materno != '' THEN 
-                                    CONCAT(p.txtnombre, ' ', p.txtapellido_paterno, ' ', p.txtapellido_materno)
-                                ELSE 
-                                    CONCAT(p.txtnombre, ' ', p.txtapellido_paterno) 
-                            END AS txtnombre_completo,
-                            ca.txtnombre as txtinspector_etapa,
-                            cas.txtnombre as txtinspector_subetapa,
+                            -- CASE 
+                            --     WHEN p.txtapellido_materno != '' THEN 
+                            --         CONCAT(p.txtnombre, ' ', p.txtapellido_paterno, ' ', p.txtapellido_materno)
+                            --     ELSE 
+                            --         CONCAT(p.txtnombre, ' ', p.txtapellido_paterno) 
+                            -- END AS txtnombre_completo,
+                            p.nombre_completo AS txtnombre_completo,
+                            -- ca.txtnombre as txtinspector_etapa,
+                            -- cas.txtnombre as txtinspector_subetapa,
                             i.txtfolio_inspector,
                             i.iidturno,
-                            it.txtnombre as txtinspector_turno,
-                            p.txtrfc,
-                            p.txtcurp,
-                            p.txtine,
+                            -- it.txtnombre as txtinspector_turno,
+                            -- p.txtrfc,
+                            -- p.txtcurp,
+                            -- p.txtine,
                             i.iidinspector_categoria,
-                            ic.txtnombre as txtinspector_categoria,
+                            -- ic.txtnombre as txtinspector_categoria,
                             i.txtcomentarios,
                             i.dvigencia,
                             i.dfecha_alta,
                             i.dfecha_baja,
                             i.bactivo as activo,
-                           
                             TO_CHAR(i.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
                             TO_CHAR(i.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
                         FROM inspeccion.tbl_inspector i
-                        JOIN persona.tbl_persona p ON i.iidpersona = p.iid
-                        JOIN inspeccion.tbl_cat_turno it ON i.iidturno = it.iid
-                        JOIN comun.tbl_cat_etapa ca ON i.iidetapa = ca.iid
-                        JOIN comun.tbl_cat_subetapa cas ON i.iidsubetapa = cas.iid
+                        JOIN dblink('dbname=siamt_unstable_jair host=127.0.0.1 port=5432 user=postgres password=root'::text, 
+                        'SELECT nombre_completo, iid FROM persona.tbl_persona'::text) 
+                            p(nombre_completo text, iid integer) 
+                        ON i.iidpersona = p.iid
+                        -- JOIN persona.tbl_persona p ON i.iidpersona = p.iid
+                        -- JOIN inspeccion.tbl_cat_turno it ON i.iidturno = it.iid
+                        -- JOIN comun.tbl_cat_etapa ca ON i.iidetapa = ca.iid
+                        -- JOIN comun.tbl_cat_subetapa cas ON i.iidsubetapa = cas.iid
                         JOIN inspeccion.tbl_cat_inspector_categoria ic ON i.iidinspector_categoria = ic.iid
                     )";
         $params = array();

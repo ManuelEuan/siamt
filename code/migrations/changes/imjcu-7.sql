@@ -32,26 +32,6 @@ WHERE NOT EXISTS (
     WHERE txtnombre = data.value
 );
 
-INSERT INTO "persona"."tbl_cat_lada" (txtnombre, txtdescripcion, txtiso_tres)
-SELECT txtnombre, txtdescripcion, txtiso_tres
-FROM (VALUES 
-    ('+1', 'Estados Unidos y Canadá', 'USA/CAN'),
-    ('+52', 'México', 'MEX'),
-    ('+44', 'Reino Unido', 'GBR'),
-    ('+49', 'Alemania', 'DEU'),
-    ('+33', 'Francia', 'FRA'),
-    ('+34', 'España', 'ESP'),
-    ('+86', 'China', 'CHN'),
-    ('+81', 'Japón', 'JPN'),
-    ('+61', 'Australia', 'AUS'),
-    ('+55', 'Brasil', 'BRA')
-) AS data(txtnombre, txtdescripcion, txtiso_tres)
-WHERE NOT EXISTS (
-    SELECT 1 
-    FROM "persona"."tbl_cat_lada" 
-    WHERE txtnombre = data.txtnombre
-);
-
 INSERT INTO "persona"."tbl_cat_sexo" (txtnombre)
 SELECT value
 FROM (VALUES 
@@ -283,55 +263,3 @@ WHERE NOT EXISTS (
     FROM "territorio"."tbl_cat_zona" 
     WHERE txtnombre = data.nombre
 );
-
--- -------------------- CATÁLOGOS SCHEMA INSPECCIÓN
-INSERT INTO "inspeccion"."tbl_cat_carga_trabajo_tipo" (txtnombre, txtdescripcion, breten)
-SELECT txtnombre, txtdescripcion, breten
-FROM (VALUES 
-    ('Inspección urbana (aforo)', NULL, false),
-    ('Inspección foránea (retén)', NULL, true)
-) AS data(txtnombre, txtdescripcion, breten)
-WHERE NOT EXISTS (
-    SELECT 1 
-    FROM "inspeccion"."tbl_cat_carga_trabajo_tipo" 
-    WHERE txtnombre = data.txtnombre
-);
-
-INSERT INTO "inspeccion"."tbl_cat_inspector_categoria" (txtnombre, txtdescripcion, bcoordinador, bgenera_boleta)
-SELECT txtnombre, txtdescripcion, bcoordinador, bgenera_boleta
-FROM (VALUES 
-    ('Coordinador', NULL, true, false),
-    ('Inspector nombrado', NULL, false, true),
-    ('Inspector', NULL, false, false)
-) AS data(txtnombre, txtdescripcion, bcoordinador, bgenera_boleta)
-WHERE NOT EXISTS (
-    SELECT 1 
-    FROM "inspeccion"."tbl_cat_inspector_categoria" 
-    WHERE txtnombre = data.txtnombre
-);
-
--- Para tbl_cat_turno
-INSERT INTO "inspeccion"."tbl_cat_turno" (txtnombre, txtdescripcion, bruta_nocturna, thora_inicio, thora_fin)
-SELECT txtnombre, txtdescripcion, bruta_nocturna, CAST(thora_inicio AS TIME), CAST(thora_fin AS TIME)
-FROM (VALUES 
-    ('Matutino', NULL, false, '08:00:00', '14:00:00'),
-    ('Vespertino', NULL, false, '14:00:00', '20:00:00'),
-    ('Nocturno', NULL, false, '20:00:00', '02:00:00'),
-    ('Ruta nocturna', NULL, true, '02:00:00', '08:00:00')
-) AS data(txtnombre, txtdescripcion, bruta_nocturna, thora_inicio, thora_fin)
-WHERE NOT EXISTS (
-    SELECT 1 
-    FROM "inspeccion"."tbl_cat_turno" 
-    WHERE txtnombre = data.txtnombre
-);
-
--- -------------------- CATÁLOGOS SCHEMA BOLETA
-INSERT INTO boleta.tbl_boleta_rol (txtnombre)
-SELECT value
-FROM (VALUES 
-    ('operador'),
-    ('propietario'),
-    ('concesionario'),
-    ('poseedor')
-) AS data(value)
-WHERE value NOT IN (SELECT txtnombre FROM boleta.tbl_boleta_rol);

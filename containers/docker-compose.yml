@@ -144,6 +144,7 @@ services:
   liquibase:
     image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/liquibase
     volumes:
+      - "../containers/liquibase/init.sh:/docker-entrypoint.d/init.sh"
       - "../code/migrations:/liquibase/changelog"
       - "../code/migrations_inspectores:/liquibase/changelog/inspeccion"
       - "../code/migrations_manto:/liquibase/changelog/manto"

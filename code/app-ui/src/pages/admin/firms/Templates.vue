@@ -268,7 +268,7 @@ export default {
         async getTemplateById() {
             try {
                 this.dialogSearch = false
-                this.template = await services.admin().getTemplateById({ 'iidfirma_plantilla': this.selected[0].iid });
+                this.template = await services.admin().getTemplateById({ 'iidfirma_plantilla': this.selected[0].iidfirma_plantilla });
                 this.template.txtplantilla = decodeURIComponent(this.template.txtplantilla)
 
             } catch (error) {

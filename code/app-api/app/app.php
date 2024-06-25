@@ -82,6 +82,8 @@ $app->get('/admin/domains', function () {
 //     return $modules;
 // });
 
+
+
 $app->get('/admin/permissions', function () {
     $sql = "SELECT * FROM usuario.permiso WHERE activo=true";
     $permissions = \App\Library\Db\Db::fetchAll($sql);
