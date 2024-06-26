@@ -17,6 +17,6 @@ $loader->registerNamespaces(
 $loader->registerClasses(
     [
         'Vokuro\GenericSQL\GenericSQL' => BASE_PATH . '/../common-php/GenericSQL/GenericSQL.php',
-        'Vokuro\GenericSQL\Person' => BASE_PATH . '/../common-php/Db/Person/DemoModel.php'
+        // 'Vokuro\GenericSQL\Person' => BASE_PATH . '/../common-php/Db/Person/DemoModel.php'
     ]
 )->register();

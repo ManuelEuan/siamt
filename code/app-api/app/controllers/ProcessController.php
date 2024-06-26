@@ -7,6 +7,8 @@ use App\Library\Http\Controllers\BaseController;
 use App\Library\Db\Db;
 use App\Library\Http\Exceptions\HttpUnauthorizedException;
 use App\Library\Http\Exceptions\ValidatorBoomException;
+use Vokuro\GenericSQL\Common as Common;
+use Vokuro\GenericSQL\Person as Person;
 // MODELOS 
 use App\Models\Person\Inspectors;
 
@@ -26,6 +28,8 @@ class ProcessController extends BaseController
     // Método para depurar y mostrar datos
     public function getStructureFirstForm()
     {
+        $hola1 = Person::getDemoModel();
+        $hola = Common::getFormAllTypes();
         $typesRegister = [
             ["type" => 'Proceso', "name" => "Proceso"],
             ["type" => 'Etapa', "name" => "Etapa"],
