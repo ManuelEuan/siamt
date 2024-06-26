@@ -387,7 +387,7 @@ export default {
             try {
                 console.log('this.requestDinamyc');
                 console.log(this.requestDinamyc);
-                let allInfo = await services.inspections().getInfoBySubStage(this.requestDinamyc);
+                let allInfo = await services.admin().getInfoBySubStage(this.requestDinamyc);
                 console.log('*******************allInfo*******');
                 console.log(allInfo);
                 this.itemsDemo = allInfo.boletas
@@ -442,7 +442,7 @@ export default {
                 let message = ''
                 if (!this.demo) {
 
-                    let updateInspectorSubStage = await services.inspections().newDinamycSubStage(sendNewSubStage);
+                    let updateInspectorSubStage = await services.admin().newDinamycSubStage(sendNewSubStage);
                     console.log('response updateInspectorSubStage')
                     console.log(updateInspectorSubStage)
                     this.requestDinamyc.idOfSubStage = updateInspectorSubStage.info

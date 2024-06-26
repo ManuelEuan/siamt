@@ -413,7 +413,7 @@ export default {
                     phone: this.receivedTabPhone.data,
                     address: this.receivedTabAddress.data,
                 }
-                this.responseCreatePerson = await services.inspections().createPerson(allInfo);
+                this.responseCreatePerson = await services.admin().createPerson(allInfo);
                 console.log('responseCreatePerson create')
                 console.log(this.responseCreatePerson)
                 // this.$refs.showSelectionPerson
@@ -501,7 +501,7 @@ export default {
                         typeOfRequest: this.request.type
                     }
                 }
-                let response = await services.inspections().getPersonByDinamycSearch({ data });
+                let response = await services.admin().getPersonByDinamycSearch({ data });
                 // SI NO EXISTE SE AGREGA LA PERSONA
                 if (!response || !response[0]) {
                     console.log('PERSONA NO ENCONTRADA')
@@ -579,7 +579,7 @@ export default {
         },
         async getGeneralPersonData(iidpersona) {
             try {
-                this.persona = await services.inspections().getGeneralPersonData(iidpersona);
+                this.persona = await services.admin().getGeneralPersonData(iidpersona);
                 console.log('this.persona curPersonData')
                 console.log(this.persona)
             } catch (error) {

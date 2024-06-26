@@ -143,7 +143,7 @@ export default {
         // GET (BD)
         async getAllSexes() {
             try {
-                this.sexes = await services.inspections().getAllSexes();
+                this.sexes = await services.admin().getAllSexes();
             } catch (error) {
                 const message = 'Error al cargar el catálogo de sexo.';
                 this.showError({ message, error });
@@ -153,7 +153,7 @@ export default {
         // GET (BD)
         async getAllCivilStatus() {
             try {
-                this.civilStatus = await services.inspections().getAllCivilStatus();
+                this.civilStatus = await services.admin().getAllCivilStatus();
             } catch (error) {
                 const message = 'Error al cargar el catálogo de estado civil.';
                 this.showError({ message, error });
@@ -195,7 +195,7 @@ export default {
                     // }
                     console.log('this.iidpersona')
                     console.log(this.iidpersona)
-                    this.generalPersonData = await services.inspections().getGeneralPersonData(this.iidpersona);
+                    this.generalPersonData = await services.admin().getGeneralPersonData(this.iidpersona);
                     console.log('this.persona getGenera GENRAL')
                     console.log(this.generalPersonData)
                     console.log(this.generalPersonData)
@@ -220,7 +220,7 @@ export default {
         async updatePerson() {
             console.log('Actualizando persona');
             try {
-                let response = { ...await services.inspections().updatePerson(this.generalPersonData) };
+                let response = { ...await services.admin().updatePerson(this.generalPersonData) };
                 console.log('response del update person')
                 console.log(response)
                 this.showSuccess(response.message);

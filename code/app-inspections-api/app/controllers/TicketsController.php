@@ -44,6 +44,7 @@ class TicketsController extends BaseController
 
     public function getTickets($download = [])
     {
+        self::dep('ij');exit;
         if ($download) {
             $data =  $download['data']; 
             // self::dep('$data');

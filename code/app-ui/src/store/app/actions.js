@@ -83,7 +83,7 @@ const getDinamycRegisterInProcess = async ({ state, commit }, { data, filters })
   if (data) commit('setDinamycRegisterInProcessData', data)
   if (filters) commit('setDinamycRegisterInProcessFilters', filters)
 
-  const { dinamycRegisterInProcess, totalPages, totalItems } = await services.inspections().getDinamycRegisterInProcess({
+  const { dinamycRegisterInProcess, totalPages, totalItems } = await services.admin().getDinamycRegisterInProcess({
     ...state.dinamycRegisterInProcessData,
     filters: state.dinamycRegisterInProcessFilters
   })

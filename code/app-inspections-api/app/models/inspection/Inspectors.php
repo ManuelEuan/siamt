@@ -4,6 +4,7 @@ namespace App\Models\Inspection;
 
 use Phalcon\Mvc\Model;
 use App\Library\Db\Db;
+use Vokuro\GenericSQL\GenericSQL;
 
 class Inspectors extends Model
 {
@@ -27,6 +28,7 @@ class Inspectors extends Model
     }
     public static function getAllFilteredAndPaginatedInspectors($data)
     {
+        $stringConnectionSiamt = GenericSQL::getStringConnectionDbLink('db_siamt');
         $itemsPerPage = $data->itemsPerPage; // Obtener número de ítems por página
         $offset = ($data->page - 1) * $itemsPerPage; // Calcular offset
         $sql =     "WITH inspectores AS (
@@ -34,23 +36,14 @@ class Inspectors extends Model
                             i.iid AS iidinspector,
                             i.iidpersona,
                             i.iidetapa,
-                            -- CASE 
-                            --     WHEN p.txtapellido_materno != '' THEN 
-                            --         CONCAT(p.txtnombre, ' ', p.txtapellido_paterno, ' ', p.txtapellido_materno)
-                            --     ELSE 
-                            --         CONCAT(p.txtnombre, ' ', p.txtapellido_paterno) 
-                            -- END AS txtnombre_completo,
                             p.nombre_completo AS txtnombre_completo,
-                            -- ca.txtnombre as txtinspector_etapa,
-                            -- cas.txtnombre as txtinspector_subetapa,
+                            ca.txtnombre as txtinspector_etapa,
+                            cas.txtnombre as txtinspector_subetapa,
                             i.txtfolio_inspector,
                             i.iidturno,
-                            -- it.txtnombre as txtinspector_turno,
-                            -- p.txtrfc,
-                            -- p.txtcurp,
-                            -- p.txtine,
+                            it.txtnombre as txtinspector_turno,
                             i.iidinspector_categoria,
-                            -- ic.txtnombre as txtinspector_categoria,
+                            ic.txtnombre as txtinspector_categoria,
                             i.txtcomentarios,
                             i.dvigencia,
                             i.dfecha_alta,
@@ -59,16 +52,21 @@ class Inspectors extends Model
                             TO_CHAR(i.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
                             TO_CHAR(i.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
                         FROM inspeccion.tbl_inspector i
-                        JOIN dblink('dbname=siamt_unstable_jair host=172.20.199.57 port=5432 user=postgres password=root'::text, 
+                        JOIN dblink('$stringConnectionSiamt'::text, 
                         'SELECT nombre_completo, iid FROM persona.tbl_persona'::text) 
                             p(nombre_completo text, iid integer) 
                         ON i.iidpersona = p.iid
-                        -- JOIN persona.tbl_persona p ON i.iidpersona = p.iid
-                        -- JOIN inspeccion.tbl_cat_turno it ON i.iidturno = it.iid
-                        -- JOIN comun.tbl_cat_etapa ca ON i.iidetapa = ca.iid
+                        JOIN inspeccion.tbl_cat_turno it ON i.iidturno = it.iid
+                        JOIN dblink('$stringConnectionSiamt'::text, 'SELECT iid, txtnombre FROM comun.tbl_cat_etapa') 
+                        AS ca(iid integer, txtnombre text)
+                        ON i.iidetapa = ca.iid
+                        JOIN dblink('$stringConnectionSiamt'::text, 'SELECT iid, txtnombre FROM comun.tbl_cat_subetapa') 
+                        AS cas(iid integer, txtnombre text)
+                        ON i.iidsubetapa = cas.iid
                         -- JOIN comun.tbl_cat_subetapa cas ON i.iidsubetapa = cas.iid
                         JOIN inspeccion.tbl_cat_inspector_categoria ic ON i.iidinspector_categoria = ic.iid
                     )";
+                    // self::dep($sql);exit;
         $params = array();
         if ($data->filters) { // Aplicar filtros si están presentes en la solicitud
             list($sql2, $params2) = self::filterInspectors($data->filters); // Aplicar filtros

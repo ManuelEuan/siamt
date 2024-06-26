@@ -12,7 +12,8 @@ use App\Controllers\ModulesController;
 use App\Controllers\ProfilesController;
 use App\Controllers\DebitsController;
 use App\Controllers\FirmsController;
-
+use App\Controllers\ProcessController;
+use App\Controllers\PersonsController;
 
 
 $app->get('/admin/domain/config', function () use ($app, $config) {
@@ -186,4 +187,56 @@ $app->mount(
     ->put('/firms/templates', 'updateTemplate')
     ->post('/firms/saveFirmRegisterByUser', 'saveFirmRegisterByUser')
     ->put('/firms/updateFirmRegisterByUser', 'updateFirmRegisterByUser')
+);
+
+$app->mount(
+    (new Collection())
+    ->setHandler(ProcessController::class, true)
+    ->setPrefix('/admin')
+    ->post("/process/dinamycRegisterInProcess", "dinamycRegisterInProcess")
+    ->post("/process/getInfoBySubStage", "getInfoBySubStage")
+    ->post("/process/newDinamycSubStage", "newDinamycSubStage")
+    ->get("/process/getAllModules", "getAllModules")
+    ->get("/process/getAllProcess", "getAllProcess")
+    ->get("/process/getAllStages", "getAllStages")
+    ->get("/process/getAllSubStages", "getAllSubStages")
+    ->post("/process/getProcessWithStagesAndSubstages", "getProcessWithStagesAndSubstages")
+    ->post("/process/getFlowByProcess", "getFlowByProcess")
+    ->post("/process/newRegisterInProcess", "newRegisterInProcess")
+    ->post("/process/getAllNextSubStagesEnabled", "getAllNextSubStagesEnabled")
+    ->put("/process/updateRegisterInProcess", "updateRegisterInProcess")
+    ->get("/process/getStructureFirstForm", "getStructureFirstForm")
+);
+
+$app->mount(
+    (new Collection())
+    ->setHandler(PersonsController::class, true)
+    ->setPrefix('/admin')
+    ->get("/persons/getAllSexes", "getAllSexes")
+    ->get("/persons/getAllTypesPhone", "getAllTypesPhone")
+    ->get("/persons/getAllLadaIdentifiers", "getAllLadaIdentifiers")
+    ->get("/persons/getAllCivilStatus", "getAllCivilStatus")
+    ->post("/persons/new", "createPerson")
+    ->put("/persons/update", "updatePerson")
+    ->post("/persons/direction/new", "createAddress")
+    ->post("/persons/getPersonAddresses", "getPersonAddresses")
+    ->post("/persons/getPersonPhones", "getPersonPhones")
+    ->post("/persons/getGeneralPersonData", "getGeneralPersonData")
+    ->post("/persons/updateCurrentAddress", "updateCurrentAddress")
+    ->post("/persons/updateCurrentPhone", "updateCurrentPhone")
+    ->post("/persons/deleteAddress", "deleteAddress")
+    ->post("/persons/deletePhone", "deletePhone")
+    ->put("/persons/direction", "updateAddress")
+    ->post("/persons/phone/new", "createPhone")
+    ->put("/persons/phone", "updatePhone")
+    ->post("/persons/getPersonByDinamycSearch", "getPersonByDinamycSearch")
+);
+
+$app->mount(
+    (new Collection())
+    ->setHandler(TerritoryController::class, true)
+    ->setPrefix('/admin')
+    ->get("/territory/getAllPostalCodes", "getAllPostalCodes")
+    ->post("/territory/getMunicipalityAndEntityByPostalCode", "getMunicipalityAndEntityByPostalCode")
+    ->post("/territory/getColoniesByPostalCode", "getColoniesByPostalCode")
 );

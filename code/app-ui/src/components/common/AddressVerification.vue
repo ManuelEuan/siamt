@@ -309,7 +309,7 @@ export default {
         // GET (BD)
         async getCodePostals() {
             try {
-                this.postalCodes = await services.inspections().getAllPostalCodes();
+                this.postalCodes = await services.admin().getAllPostalCodes();
             } catch (error) {
                 const message = 'Error al cargar opciones de códigos postales.';
                 this.showError({ message, error });
@@ -327,7 +327,7 @@ export default {
                 } else {
                     this.newAddress = false
                 }
-                this.personAddresses = await services.inspections().getPersonAddresses(this.iidpersona);
+                this.personAddresses = await services.admin().getPersonAddresses(this.iidpersona);
             } catch (error) {
                 const message = 'Error al cargar las direcciones asociadas.';
                 this.showError({ message, error });
@@ -337,10 +337,10 @@ export default {
         // OBTENER ESTADO Y MUNICIPIO SEGÚN CÓDIGO POSTAL (BD)
         async getMunicipalityAndEntityByPostalCode() {
             try {
-                let { entity, municipality } = await services.inspections().getMunicipalityAndEntityByPostalCode(this.codePostal);
+                let { entity, municipality } = await services.admin().getMunicipalityAndEntityByPostalCode(this.codePostal);
                 this.entity = entity;
                 this.municipality = municipality;
-                this.colonies = await services.inspections().getColoniesByPostalCode(this.codePostal);
+                this.colonies = await services.admin().getColoniesByPostalCode(this.codePostal);
             } catch (error) {
                 const message = 'Error al cargar opciones para nuevo inspector.';
                 this.showError({ message, error });
@@ -357,12 +357,12 @@ export default {
                 }
                 console.log(data)
                 if (!this.address.iiddireccion) {
-                    let response = await services.inspections().createAddress(data);
+                    let response = await services.admin().createAddress(data);
                     console.log('address create')
                     this.showSuccess(response.message);
                     this.newAddress = true
                 } else {
-                    let response = await services.inspections().updateAddress(data);
+                    let response = await services.admin().updateAddress(data);
                     console.log('address update')
                     this.showSuccess(response.message);
                     this.editAddress = false
@@ -381,7 +381,7 @@ export default {
                     iidpersona: this.iidpersona,
                     selectedAddress: this.selectedAddress
                 }
-                let response = await services.inspections().updateCurrentAddress(data);
+                let response = await services.admin().updateCurrentAddress(data);
                 await this.loadAddressesTable();
                 this.dialogNewCurrentAddress = false
                 this.showSuccess(response.message);
@@ -398,7 +398,7 @@ export default {
                     iidpersona: this.iidpersona,
                     selectedAddress: this.selectedAddress
                 }
-                const { message } = await services.inspections().deleteAddress(data);
+                const { message } = await services.admin().deleteAddress(data);
                 await this.loadAddressesTable();
                 this.dialogDeleteAddress = false
                 this.showSuccess(message);

@@ -8,15 +8,16 @@ use App\Library\Db\Db;
 use App\Library\Http\Exceptions\HttpUnauthorizedException;
 use App\Library\Http\Exceptions\ValidatorBoomException;
 use App\Library\Misc\Utils;
-use Vokuro\GenericSQL\Person as Person;
+// use Vokuro\GenericSQL\Person as Person;
 
+// MODELOS 
+use App\Models\Person\Inspectors;
 // MODELOS PERSONAS
+use App\Models\Person\Persons;
 use App\Models\Person\Sexes;
 use App\Models\Person\CivilStatus;
 use App\Models\Person\TypesPhone;
 use App\Models\Person\Lada;
-// MODELOS INSPECCIONES
-use App\Models\Inspection\Inspectors;
 
 class PersonsController extends BaseController
 {
@@ -42,12 +43,11 @@ class PersonsController extends BaseController
     public function getPersonByDinamycSearch()
     {
         
-        return Person::getDemoModel();
+        // return Person::getDemoModel();
         $data =  $this->request->getJsonRawBody();
         $typeSearch = $data->data->typeSearch;
         $dataSearch = $data->data->dataSearch;
         $typeOfRequest = $data->data->typeOfRequest;
-
         $sql = "SELECT 
                     p.iid AS iidpersona,
                     p.bfisica,
@@ -129,16 +129,14 @@ class PersonsController extends BaseController
             return;
         }
 
-      
         // SI EXISTE PERSONA ÚNICA SE RETORNAN LOS DATOS ESPECÍFICOS
         $permissions = $this->token->getPermissions()['pel'];
         if (count($personas) > 0) {
             foreach ($personas as $key => $persona) {
                 if ($typeOfRequest == 'Inspector') {
                     // Consulta adicional para obtener información de inspección
-                    $sql2 = "SELECT iid AS iidinspector, iidpersona, txtfolio_inspector FROM inspeccion.tbl_inspector WHERE iidpersona=:iidpersona";
-                    $params2 = array('iidpersona' => $persona->iidpersona);
-                    $inspector = Db::fetchOne($sql2, $params2);
+                    $inspector = Inspectors::getInspector($persona->iidpersona);
+                    
                     if (!$inspector) {
                         $persona->foundRequestSearched = false;
                     } else {

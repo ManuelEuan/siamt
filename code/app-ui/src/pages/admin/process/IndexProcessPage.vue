@@ -332,7 +332,7 @@ export default {
         // FUNCIONES UTILIZADAS PARA COMPONENTES GENÉRICOS
         async dataFirstForm() {
             try {
-                this.formFields = await services.inspections().getStructureFirstForm();
+                this.formFields = await services.admin().getStructureFirstForm();
                 console.log(this.formFields)
                 console.log(!!this.formFields.typeRegister.model);
                 this.formFields.typeRegister.model = 'Proceso'
@@ -457,8 +457,8 @@ export default {
         async saveRegisterDinamyc() {
             try {
                 const saveRegister = this.form.iidoftype ?
-                    await services.inspections().updateRegisterInProcess(this.form) :
-                    await services.inspections().newRegisterInProcess(this.form);
+                    await services.admin().updateRegisterInProcess(this.form) :
+                    await services.admin().newRegisterInProcess(this.form);
 
                 this.showSuccess(saveRegister.message);
                 this.formFields.typeRegister.model = this.form.typeRegister;
@@ -470,7 +470,7 @@ export default {
         },
         async getFlowByProcess(iidproceso) {
             try {
-                const info = await services.inspections().getFlowByProcess({ iidproceso });
+                const info = await services.admin().getFlowByProcess({ iidproceso });
                 this.treeFlow = info.info2;
                 this.flowMessage = info.message;
             } catch (error) {
@@ -479,7 +479,7 @@ export default {
         },
         async getProcessWithStagesAndSubstages(iidproceso) {
             try {
-                const info = await services.inspections().getProcessWithStagesAndSubstages({ iidproceso });
+                const info = await services.admin().getProcessWithStagesAndSubstages({ iidproceso });
                 this.treeProcess = this.convertToTreeStructure(info.info);
                 this.processMessage = info.message;
                 this.showSuccess(this.processMessage);
@@ -489,7 +489,7 @@ export default {
         },
         async getAllNextSubStagesEnabled(value, valueNext = 0) {
             try {
-                const info = await services.inspections().getAllNextSubStagesEnabled({ 'iidsubetapa': value });
+                const info = await services.admin().getAllNextSubStagesEnabled({ 'iidsubetapa': value });
                 this.nextSubstagesEnabled = info.info;
                 this.formFields.iidsubetapa_siguiente.array.info = info.info;
                 if (valueNext) this.formFields.iidsubetapa_siguiente.model = valueNext;

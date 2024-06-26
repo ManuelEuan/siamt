@@ -181,7 +181,7 @@ export default {
         // GET (BD)
         async getTypesPhone() {
             try {
-                this.typesPhone = await services.inspections().getAllTypesPhone()
+                this.typesPhone = await services.admin().getAllTypesPhone()
             } catch (error) {
                 const message = 'Error al cargar opciones de tipos de teléfono.';
                 this.showError({ message, error });
@@ -191,7 +191,7 @@ export default {
         // GET (BD)
         async getLadaIdentifiers() {
             try {
-                this.ladaIdentifiers = await services.inspections().getAllLadaIdentifiers()
+                this.ladaIdentifiers = await services.admin().getAllLadaIdentifiers()
             } catch (error) {
                 const message = 'Error al cargar opciones de los identificadores lada.';
                 this.showError({ message, error });
@@ -209,7 +209,7 @@ export default {
                 } else {
                     this.newPhone = false
                 }
-                this.personPhones = await services.inspections().getPersonPhones(this.iidpersona);
+                this.personPhones = await services.admin().getPersonPhones(this.iidpersona);
             } catch (error) {
                 const message = 'Error al cargar los teléfonos asociados.';
                 this.showError({ message, error });
@@ -226,14 +226,14 @@ export default {
                 }
                 console.log(data)
                 if (!this.phone.iidtelefono) {
-                    let response = await services.inspections().createPhone(data);
+                    let response = await services.admin().createPhone(data);
                     console.log('phone create')
                     console.log(response)
                     this.showSuccess(response.message);
                     this.newPhone = true
                 } else {
                     console.log('es edicion')
-                    let response = await services.inspections().updatePhone(data);
+                    let response = await services.admin().updatePhone(data);
                     console.log('phone update')
                     console.log(response)
                     this.showSuccess(response.message);
@@ -254,7 +254,7 @@ export default {
                     iidpersona: this.iidpersona,
                     selectedPhone: this.selectedPhone
                 }
-                let response = await services.inspections().updateCurrentPhone(data);
+                let response = await services.admin().updateCurrentPhone(data);
                 await this.loadPhonesTable();
                 this.dialogNewCurrentPhone = false
                 this.showSuccess(response.message);
@@ -271,7 +271,7 @@ export default {
                     iidpersona: this.iidpersona,
                     selectedPhone: this.selectedPhone
                 }
-                const { message } = await services.inspections().deletePhone(data);
+                const { message } = await services.admin().deletePhone(data);
                 await this.loadPhonesTable();
                 this.dialogDeletePhone = false
                 this.showSuccess(message);
