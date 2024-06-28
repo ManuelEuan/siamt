@@ -17,11 +17,15 @@ class ModulesController extends BaseController
 	
 	public function getAll()
 	{
-		$builder = $this
-			->modelsManager
-			->createBuilder()
-			->from(Modules::class);
-		return $this->paginated($builder);
+		// $builder = $this
+		// 	->modelsManager
+		// 	->createBuilder()
+		// 	->from(Modules::class);
+		// return $this->paginated($builder);
+
+		
+		$builder = Modules::getAll();
+        return $this->paginated($builder);
 	}
 	
 	public function create()

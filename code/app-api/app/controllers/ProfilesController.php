@@ -133,7 +133,9 @@ class ProfilesController extends BaseController
     public function getUsersFromProfile()
     {
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        $params = array('idperfil' => $data->id); // Parámetros para la consulta
+        // self::dep($data);exit;
+        $params = array('idperfil' => 1); // Parámetros para la consulta
+        // $params = array('idperfil' => $data->id); // Parámetros para la consulta
         $sql = 'SELECT idusuario FROM usuario.perfil_usuario WHERE idperfil = :idperfil'; // Consulta para obtener usuarios asociados al perfil
         $usuarios = Db::fetchAll($sql, $params); // Ejecutar consulta para obtener usuarios
         $usuarios = array_column($usuarios, 'idusuario'); // Obtener solo los IDs de usuario

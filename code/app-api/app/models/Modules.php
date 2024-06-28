@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Phalcon\Mvc\Model;
 use App\Library\Db\Db;
+use App\Library\Http\Responses\Pagination;
+use Phalcon\Mvc\Model\Query\Builder;
 
 class Modules extends Model 
 {
@@ -17,6 +19,15 @@ class Modules extends Model
 				'busqueda'
 			]
 		);
+	}
+
+	public static function getAll($onlyParents = false){
+		{
+			$builder = new Builder();
+			$builder->from(Modules::class);
+	
+			return $builder;
+		}
 	}
 	
 	public static function remove(array $ids)
