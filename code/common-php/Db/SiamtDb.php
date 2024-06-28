@@ -5,7 +5,7 @@ namespace App\Library\Db;
 use Phalcon\Db\Enum;
 use Phalcon\Di;
 
-class DwhDb extends Db
+class SiamtDb extends Db
 {
   protected static function getDb()
   {

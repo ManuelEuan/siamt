@@ -14,26 +14,4 @@ class Zones extends Model {
     {
         return "territorio.tbl_cat_zona_iid_seq";
     }
-
-    public static function getAllZones($bactivo = null)
-    {
-        $parameters = [];
-        if ($bactivo === true) {
-            $parameters["activo"] = 't';
-        } elseif ($bactivo === false) {
-            $parameters["activo"] = 'f';
-        }
-
-        return self::find([
-            "bind" => $parameters,
-            "order" => "txtnombre",
-            "columns" => [
-                "iid AS iidzona",
-                "txtnombre",
-                "bactivo AS activo",
-                "TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion",
-                "TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion",
-            ],
-        ]);
-    }
 }

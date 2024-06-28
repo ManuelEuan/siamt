@@ -8,7 +8,6 @@ use App\Library\Db\Db;
 use App\Library\Http\Exceptions\HttpUnauthorizedException;
 use App\Library\Http\Exceptions\ValidatorBoomException;
 use App\Library\Misc\Utils;
-// use Vokuro\GenericSQL\Person as Person;
 
 // MODELOS 
 use App\Models\Person\Inspectors;

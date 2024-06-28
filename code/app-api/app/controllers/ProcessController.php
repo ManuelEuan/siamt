@@ -7,9 +7,12 @@ use App\Library\Http\Controllers\BaseController;
 use App\Library\Db\Db;
 use App\Library\Http\Exceptions\HttpUnauthorizedException;
 use App\Library\Http\Exceptions\ValidatorBoomException;
-use Vokuro\GenericSQL\Common as Common;
-use Vokuro\GenericSQL\Person as Person;
-// MODELOS 
+
+// MODELOS COMUNES - COMMON
+use Vokuro\GenericSQL\Common\Process;
+use Vokuro\GenericSQL\Common\Stages;
+use Vokuro\GenericSQL\Common\SubStages;
+use Vokuro\GenericSQL\User\Modules;
 use App\Models\Person\Inspectors;
 
 class ProcessController extends BaseController
@@ -26,10 +29,11 @@ class ProcessController extends BaseController
     // }
 
     // Método para depurar y mostrar datos
-    public function getStructureFirstForm()
+    public function getStructureFormDinamycProcess()
     {
-        $hola1 = Person::getDemoModel();
-        $hola = Common::getFormAllTypes();
+        // $hola1 = SubStages::get(1);
+        // self::dep($hola1);exit;
+        // $hola = Common::getFormAllTypes();
         $typesRegister = [
             ["type" => 'Proceso', "name" => "Proceso"],
             ["type" => 'Etapa', "name" => "Etapa"],
@@ -63,7 +67,7 @@ class ProcessController extends BaseController
                 'md' => 6,
                 'array' => [
                     'type' => 'object',
-                    'info' => self::getAllModules(true),
+                    'info' => Modules::getAllModules(true),
                     'item_text' => 'nombre',
                     'item_value' => 'id'
                 ]
@@ -77,7 +81,7 @@ class ProcessController extends BaseController
                 'md' => 6,
                 'array' => [
                     'type' => 'object',
-                    'info' => self::getAllProcess(),
+                    'info' => Process::getAllProcess(),
                     'item_text' => 'txtnombre',
                     'item_value' => 'iidproceso'
                 ]
@@ -91,7 +95,7 @@ class ProcessController extends BaseController
                 'md' => 6,
                 'array' => [
                     'type' => 'object',
-                    'info' => self::getAllStages(),
+                    'info' => Stages::getAllStages(),
                     'item_text' => 'txtetapa_nombre',
                     'item_value' => 'iidetapa'
                 ]
@@ -105,7 +109,7 @@ class ProcessController extends BaseController
                 'md' => 6,
                 'array' => [
                     'type' => 'object',
-                    'info' => self::getAllSubStages(),
+                    'info' => Substages::getAll(),
                     'item_text' => 'txtnombre',
                     'item_value' => 'iidsubetapa'
                 ]
@@ -128,7 +132,7 @@ class ProcessController extends BaseController
                 'label' => 'Clave',
                 'type' => 'text',
                 'model' => 'vclave',
-                'rules' => 'required|max4chars',
+                'rules' => 'required|max5chars',
                 'cols' => 12,
                 'md' => 6
             ],
@@ -256,6 +260,7 @@ class ProcessController extends BaseController
                             dinamyc.iid AS iidOfType,
                             dinamyc.iidmodulo,
                             dinamyc.txtnombre,
+                            dinamyc.txtaccion,
                             dinamyc.bactivo,
                             TO_CHAR(dinamyc.dtfecha_creacion, 'YYYY-MM-DD HH24:MI') AS dtfecha_creacion,
                             TO_CHAR(dinamyc.dtfecha_modificacion, 'YYYY-MM-DD HH24:MI') AS dtfecha_modificacion
@@ -416,96 +421,15 @@ class ProcessController extends BaseController
         return $sql; // Devolver fragmento de consulta para ordenamiento
     }
 
-    public function getAllModules($onlyParents = false)
-    {
-        // $default = 50; // Mérida
-        // $params = array('iclave_municipio' => $default);
-        $sqlParents = "SELECT DISTINCT idpadre
-                FROM usuario.modulo
-                WHERE idpadre IS NOT NULL;";
-        $parents = Db::fetchAll($sqlParents);
+   
 
-        $sql = "SELECT 
-            id, nombre, idpadre
-        FROM 
-            usuario.modulo
-        WHERE 
-            activo='t'";
-
-        if ($onlyParents) {
-            $sql = $sql . " AND idpadre IS NULL";
-
-            // Obtener los IDs de padres
-            $parentIds = array_column($parents, 'idpadre');
-
-            // Excluir los resultados obtenidos de $parents
-            if (!empty($parentIds)) {
-                $sql = $sql . " AND id NOT IN (" . implode(",", $parentIds) . ")";
-            }
-        }
-
-        $modules = Db::fetchAll($sql);
-        return $modules;
-    }
-
-    public function getAllSubStages()
-    {
-
-        $sql = "SELECT iid AS iidsubetapa, txtnombre FROM comun.tbl_cat_subetapa WHERE bactivo='t'";
-        $subStages = Db::fetchAll($sql);
-        return $subStages;
-    }
-
-    public function getAllProcess()
-    {
-        $sql = "SELECT 
-            iid AS iidproceso,
-            iidmodulo,
-            txtnombre,
-            bactivo AS activo,
-            TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-            TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
-            FROM comun.tbl_cat_proceso
-            WHERE bactivo='t'
-        ";
-        $processes = Db::fetchAll($sql);
-        return $processes;
-    }
-
-    public function getAllStages()
-    {
-        $sql = "SELECT 
-                ce.iid AS iidetapa,
-                ce.txtnombre AS txtetapa_nombre,
-                ce.txtdescripcion,
-                ce.vclave,
-                ce.iidproceso,
-                tp.txtnombre AS txtproceso_nombre,
-                ce.txtcolor,
-                ce.bactivo AS activo,
-                TO_CHAR(ce.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
-                TO_CHAR(ce.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion,
-                tp.iidmodulo,
-                m.nombre AS txtproceso_modulo_nombre,
-                m.descripcion AS txtproceso_modulo_descripcion
-            FROM 
-                comun.tbl_cat_etapa ce
-            JOIN 
-                comun.tbl_cat_proceso tp ON ce.iidproceso = tp.iid
-            JOIN 
-                usuario.modulo m ON tp.iidmodulo = m.id
-            WHERE 
-                ce.bactivo = 't';
-        ";
-        $stages = Db::fetchAll($sql);
-        return $stages;
-    }
+   
 
     public function getInfoBySubStage()
     {
         $data = $this->request->getJsonRawBody();
         
-        $currentSubStage = $this->subStage($data->idOfSubStage);
+        $currentSubStage = SubStages::get($data->idOfSubStage);
         
         $nextSubStage = $this->getNextSubStageFromFlow($data->idOfSubStage);
         $currentFlow = ['currentSubStage' => $currentSubStage, 'nextSubStage' => $nextSubStage];
@@ -544,25 +468,6 @@ class ProcessController extends BaseController
         }
     }
 
-
-    // $objetoInicial= [
-    //     "iidsubetapa"=> 1,
-    //     "iidetapa"=> 1,
-    //     "txtnombre"=> "Entrevista",
-    //     "vclave"=> "MJC1",
-    //     "txtdescripcion"=> "Ejemplo subetapa 1",
-    //     "txtcolor"=> "orange",
-    //     "txtpermiso"=> null,
-    //     "binicial"=> true,
-    //     "bfinal"=> false,
-    //     "bcancelacion"=> false,
-    //     "brequiere_motivo"=> false,
-    //     "bactivo"=> true,
-    //     "dtfecha_creacion"=> "2024-03-28 11=>25",
-    //     "dtfecha_modificacion"=> "2024-03-28 11=>25",
-    //     "total_registers"=> 12
-    // ];
-    // $objetoInicial = json_decode(json_encode($objetoInicial));
     public function getFlowByProcess($iidproceso = 0, $markers = [])
     {
         if (!$iidproceso) {
@@ -675,7 +580,7 @@ class ProcessController extends BaseController
 
         $nextSubStages = array();
         foreach ($currentFlow as $row) {
-            $nextSubStages[] = $this->subStage($row->iidsubetapa_siguiente, $markers);
+            $nextSubStages[] = SubStages::get($row->iidsubetapa_siguiente, $markers);
         }
 
         return $nextSubStages;
@@ -786,51 +691,6 @@ class ProcessController extends BaseController
 
         return $foundRequest; // Devolver información del inspector
     }
-
-    public function subStage($iidSubStage, $markers = [])
-    {
-        $sql = "SELECT 
-                    s.iid AS iidsubetapa,
-                    s.txtnombre AS subetapa_nombre,
-                    s.vclave,
-                    s.txtdescripcion,
-                    s.txtcolor,
-                    s.txtpermiso,
-                    s.binicial,
-                    s.bfinal,
-                    s.bcancelacion,
-                    s.brequiere_motivo,
-                    s.iidetapa,
-                    e.iidproceso,
-                    e.txtnombre AS etapa_nombre
-                FROM 
-                    comun.tbl_cat_subetapa s
-                JOIN 
-                    comun.tbl_cat_etapa e ON s.iidetapa = e.iid
-                WHERE 
-                    s.bactivo = 't' AND s.iid = :iidsubetapa
-        ";
-        $params = array('iidsubetapa' => $iidSubStage);
-        $subStage = Db::fetch($sql, $params);
-
-        if ($markers) {
-            if (in_array($subStage->iidsubetapa, $markers['checkSubStages']) && $subStage->iidsubetapa != $markers['checkCurrentSubStage']) {
-                $subStage->textIcon = 'subStage - Encontrado en flujo' . $subStage->iidsubetapa;
-                $subStage->icon = 'mdi-checkbox-blank-circle';
-            } elseif ($subStage->iidsubetapa == $markers['checkCurrentSubStage']) {
-                $subStage->textIcon = 'subStage - Encontrado en flujo actual' . $subStage->iidsubetapa;
-                $subStage->icon = 'mdi-check-circle';
-            } else {
-                $subStage->textIcon = 'subStage - No encontrado en flujo' . $subStage->iidsubetapa;
-                $subStage->icon = 'mdi-checkbox-blank-circle-outline';
-            }
-        }
-        return $subStage;
-    }
-
-
-
-
 
     public function newDinamycSubStage()
     {
@@ -1018,17 +878,15 @@ class ProcessController extends BaseController
                     $sql = 'UPDATE comun.tbl_cat_proceso SET 
                                 iidmodulo=:iidmodulo,
                                 txtnombre=:txtnombre,
-                                txtdescripcion=:txtdescripcion,
-                                vclave=:vclave,
+                                txtaccion=:txtaccion,
                                 bactivo=:bactivo,
                                 dtfecha_modificacion=:dtfecha_modificacion
-                            WHERE iidproceso=:iidproceso
+                            WHERE iid=:iidproceso
                     ';
                     $params = array(
                         'iidmodulo'  => $data->iidmodulo,
                         'txtnombre' => $data->txtnombre,
-                        'txtdescripcion' => $data->txtdescripcion,
-                        'vclave' => $data->vclave,
+                        'txtaccion' => $data->txtaccion,
                         'bactivo' => $data->bactivo ? 't' : 'f',
                         'dtfecha_modificacion' => date('Y-m-d H:i:s'), // Formato de fecha correcto
                         'iidproceso'      => $data->iidoftype,
@@ -1041,14 +899,9 @@ class ProcessController extends BaseController
                                     txtdescripcion=:txtdescripcion,
                                     vclave=:vclave,
                                     txtcolor=:txtcolor,
-                                    txtpermiso=:txtpermiso,
-                                    binicial=:binicial,
-                                    bfinal=:bfinal,
-                                    bcancelacion=:bcancelacion,
-                                    brequiere_motivo=:brequiere_motivo,
                                     bactivo=:bactivo,
                                     dtfecha_modificacion=:dtfecha_modificacion
-                                WHERE iidetapa=:iidetapa
+                                WHERE iid=:iidetapa
                         ';
                     $params = array(
                         'iidproceso'  => $data->iidproceso,
@@ -1056,11 +909,6 @@ class ProcessController extends BaseController
                         'txtdescripcion' => $data->txtdescripcion,
                         'vclave' => $data->vclave,
                         'txtcolor' => $data->txtcolor,
-                        'txtpermiso' => $data->txtpermiso,
-                        'binicial' => $data->binicial ? 't' : 'f',
-                        'bfinal' => $data->bfinal ? 't' : 'f',
-                        'bcancelacion' => $data->bcancelacion ? 't' : 'f',
-                        'brequiere_motivo' => $data->brequiere_motivo ? 't' : 'f',
                         'bactivo' => $data->bactivo ? 't' : 'f',
                         'dtfecha_modificacion' => date('Y-m-d H:i:s'), // Formato de fecha correcto
                         'iidetapa'      => $data->iidoftype,

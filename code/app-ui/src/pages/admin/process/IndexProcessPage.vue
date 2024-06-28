@@ -138,6 +138,7 @@
             </v-col>
         </v-row>
         <!-- DIALOG (NEW - EDIT) REGISTER -->
+         
         <generic-dialog :dialogVisible="dialogDinamycRegister"
             :dialogTitle="newRegister ? `Nuevo registro (${dinamycName})` : `Editar registro (${dinamycName})`"
             :maxWidth="800" :disabledButtonConfirm="validForm" @update:dialogVisible="dialogDinamycRegister = $event"
@@ -332,7 +333,7 @@ export default {
         // FUNCIONES UTILIZADAS PARA COMPONENTES GENÉRICOS
         async dataFirstForm() {
             try {
-                this.formFields = await services.admin().getStructureFirstForm();
+                this.formFields = await services.admin().getStructureFormDinamycProcess();
                 console.log(this.formFields)
                 console.log(!!this.formFields.typeRegister.model);
                 this.formFields.typeRegister.model = 'Proceso'
@@ -413,6 +414,8 @@ export default {
                     this.form.iidoftype = 0
                     break;
                 case 'edit':
+                    console.log('register---');
+                    console.log(register);
                     this.newRegister = false
                     this.dialogDinamycRegister = true
                     this.sendFieldsWithValues = register

@@ -1,80 +1,22 @@
 <?php
-namespace  Vokuro\GenericSQL;
-
-use Phalcon\Db\Enum;
-use Phalcon\Di;
+namespace Vokuro\GenericSQL\Common;
+use App\Library\Db\SiamtDb as Db;
 
 class Process
 {
-    
-    public static function getDemoModel()
+    public static function getAllProcess()
     {
-        $sql = "SELECT * FROM usuario.modulo";
-        $demo = self::getBySQL($sql);
-        return $demo;
+        $sql = "SELECT 
+            iid AS iidproceso,
+            iidmodulo,
+            txtnombre,
+            bactivo AS activo,
+            TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
+            TO_CHAR(dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
+            FROM comun.tbl_cat_proceso
+            WHERE bactivo='t'
+        ";
+        $processes = Db::fetchAll($sql);
+        return $processes;
     }
-
-    public static function getFormAllTypes()
-    {
-        $sql = "SELECT * FROM usuario.modulo";
-        $demo = self::getBySQL($sql);
-        return $demo;
-    }
-
-    public static function getAllFilteredAndPaginatedInspectors($data)
-    {
-       
-        $sql = "SELECT p.iid,
-                    p.bfisica,
-                    p.txtapellido_paterno,
-                    p.txtapellido_materno,
-                    p.nombre_completo,
-                    d.txtdireccion AS nombre_inspector
-                FROM persona.tbl_persona p
-                    JOIN dblink('dbname=inspecciones host=127.0.0.1 port=5432 user=postgres password=root'::text, 
-                    'SELECT txtdireccion, iidempleado FROM boleta.tbl_boleta'::text) 
-                        d(txtdireccion text, iidempleado integer) 
-                    ON p.iid = d.iidempleado";
-        return Db::fetchAll($sql);
-
-    }
-    
-    public static function fetch(string $sql, ?array $params = null)
-    {
-        return self::commonFetch($sql,$params);
-    }
-
-    private static function commonFetch(string $sql, ?array $params = null)
-    {
-        $db = self::getDb();
-        $pdo = $db->query($sql, $params);
-        $pdo->setFetchMode(Enum::FETCH_CLASS, \stdClass::class);
-        return $pdo->fetch();
-    }
-    private static function getDb()
-    {
-        $di = Di::getDefault();
-        return $di->getShared("db");
-    }
-
-    public static function getBySQL($sql)
-    {
-        $connection = self::getDb();
-        $resp = $connection->fetchAll(
-            $sql,
-            Enum::FETCH_OBJ
-        );
-        return $resp;
-    }
-    
-    public static function getBySQL2($sql)
-    {
-        $connection = self::getDb();
-        $resp = $connection->fetchAll(
-            $sql,
-            Enum::FETCH_ASSOC
-        );
-        return $resp;
-    }
-
 }

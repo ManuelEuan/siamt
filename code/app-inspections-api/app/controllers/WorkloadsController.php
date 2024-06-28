@@ -8,8 +8,9 @@ use App\Library\Db\Db;
 use App\Library\Http\Exceptions\HttpUnauthorizedException;
 use App\Library\Http\Exceptions\ValidatorBoomException;
 
-// MODELOS TERRITORIO
-use App\Models\Territory\Zones;
+// MODELOS COMUNES - TERRITORIO
+use Vokuro\GenericSQL\Territory\Zones;
+
 // MODELOS INSPECCIONES
 use App\Models\Inspection\Shifts;
 use App\Models\Inspection\TypesWorkload;
@@ -240,7 +241,7 @@ class WorkloadsController extends BaseController
         //  $sequenceName = Zones::getSequenceName();
         //  $nextValue = Db::fetchOne("SELECT nextval(:sequence)", ['sequence' => $sequenceName]);
         //  self::dep($nextValue);exit;
-        return Zones::getAllZones();
+        return Zones::getDemoModel();
     }
 
     public function getAllShifts()

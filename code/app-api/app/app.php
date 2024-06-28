@@ -205,7 +205,7 @@ $app->mount(
     ->post("/process/newRegisterInProcess", "newRegisterInProcess")
     ->post("/process/getAllNextSubStagesEnabled", "getAllNextSubStagesEnabled")
     ->put("/process/updateRegisterInProcess", "updateRegisterInProcess")
-    ->get("/process/getStructureFirstForm", "getStructureFirstForm")
+    ->get("/process/getStructureFormDinamycProcess", "getStructureFormDinamycProcess")
 );
 
 $app->mount(

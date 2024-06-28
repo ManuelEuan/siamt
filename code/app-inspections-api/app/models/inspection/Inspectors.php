@@ -55,15 +55,14 @@ class Inspectors extends Model
                         JOIN dblink('$stringConnectionSiamt'::text, 
                         'SELECT nombre_completo, iid FROM persona.tbl_persona'::text) 
                             p(nombre_completo text, iid integer) 
-                        ON i.iidpersona = p.iid
+                            ON i.iidpersona = p.iid
                         JOIN inspeccion.tbl_cat_turno it ON i.iidturno = it.iid
                         JOIN dblink('$stringConnectionSiamt'::text, 'SELECT iid, txtnombre FROM comun.tbl_cat_etapa') 
-                        AS ca(iid integer, txtnombre text)
-                        ON i.iidetapa = ca.iid
+                            AS ca(iid integer, txtnombre text)
+                            ON i.iidetapa = ca.iid
                         JOIN dblink('$stringConnectionSiamt'::text, 'SELECT iid, txtnombre FROM comun.tbl_cat_subetapa') 
-                        AS cas(iid integer, txtnombre text)
-                        ON i.iidsubetapa = cas.iid
-                        -- JOIN comun.tbl_cat_subetapa cas ON i.iidsubetapa = cas.iid
+                            AS cas(iid integer, txtnombre text)
+                            ON i.iidsubetapa = cas.iid
                         JOIN inspeccion.tbl_cat_inspector_categoria ic ON i.iidinspector_categoria = ic.iid
                     )";
                     // self::dep($sql);exit;
@@ -179,18 +178,20 @@ class Inspectors extends Model
 
     public static function getAllInspectorByType($type = '')
     {
+        $stringConnectionSiamt = GenericSQL::getStringConnectionDbLink('db_siamt');
         $sql = "SELECT
                     i.iid AS iidinspector,
                     i.iidpersona,
                     i.iidetapa,
-                    CASE 
-                        WHEN p.txtapellido_materno != '' THEN 
-                            CONCAT(p.txtnombre, ' ', p.txtapellido_paterno, ' ', p.txtapellido_materno)
-                        ELSE 
-                            CONCAT(p.txtnombre, ' ', p.txtapellido_paterno) 
-                    END AS txtnombre_completo,
-                    ca.txtnombre as txtinspector_etapa,
-                    cas.txtnombre as txtinspector_subetapa,
+                    -- CASE 
+                    --     WHEN p.txtapellido_materno != '' THEN 
+                    --         CONCAT(p.txtnombre, ' ', p.txtapellido_paterno, ' ', p.txtapellido_materno)
+                    --     ELSE 
+                    --         CONCAT(p.txtnombre, ' ', p.txtapellido_paterno) 
+                    -- END AS txtnombre_completo,
+                    p.nombre_completo AS txtnombre_completo,
+                    -- ca.txtnombre as txtinspector_etapa,
+                    -- cas.txtnombre as txtinspector_subetapa,
                     i.txtfolio_inspector,
                     i.iidturno,
                     it.txtnombre as txtinspector_turno,
@@ -202,10 +203,20 @@ class Inspectors extends Model
                     TO_CHAR(i.dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
                     TO_CHAR(i.dtfecha_modificacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_modificacion
                 FROM inspeccion.tbl_inspector i
-                JOIN persona.tbl_persona p ON i.iidpersona = p.iid
+                -- JOIN persona.tbl_persona p ON i.iidpersona = p.iid
+                JOIN dblink('$stringConnectionSiamt'::text, 
+                    'SELECT nombre_completo, txtrfc, txtcurp, txtine, iid FROM persona.tbl_persona'::text) 
+                    p(nombre_completo text, txtrfc text, txtcurp text, txtine text, iid integer)
+                ON i.iidpersona = p.iid
                 JOIN inspeccion.tbl_cat_turno it ON i.iidturno = it.iid
-                JOIN comun.tbl_cat_etapa ca ON i.iidetapa = ca.iid
-                JOIN comun.tbl_cat_subetapa cas ON i.iidsubetapa = cas.iid
+                JOIN dblink('$stringConnectionSiamt'::text, 'SELECT iid, txtnombre FROM comun.tbl_cat_etapa') 
+                        AS ca(iid integer, txtnombre text)
+                        ON i.iidetapa = ca.iid
+                JOIN dblink('$stringConnectionSiamt'::text, 'SELECT iid, txtnombre FROM comun.tbl_cat_subetapa') 
+                    AS cas(iid integer, txtnombre text)
+                    ON i.iidsubetapa = cas.iid
+                -- JOIN comun.tbl_cat_etapa ca ON i.iidetapa = ca.iid
+                -- JOIN comun.tbl_cat_subetapa cas ON i.iidsubetapa = cas.iid
                 JOIN inspeccion.tbl_cat_inspector_categoria ic ON i.iidinspector_categoria = ic.iid
                 WHERE i.bactivo='t'
         ";

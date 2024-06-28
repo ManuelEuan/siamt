@@ -10,6 +10,7 @@ $loader->registerNamespaces(
         'App\Models\Inspection'    => APP_PATH . '/models/inspection',
         'App\Models\Person'    => APP_PATH . '/models/person',
         'App\Models\Layers'    => APP_PATH . '/models/layers',
+        'Vokuro\GenericSQL\Territory' => BASE_PATH . '/../common-php/Db/Territory',
         'App\Db'        => APP_PATH . '/db/',
     ]
 )->register();
@@ -17,6 +18,5 @@ $loader->registerNamespaces(
 $loader->registerClasses(
     [
         'Vokuro\GenericSQL\GenericSQL' => BASE_PATH . '/../common-php/GenericSQL/GenericSQL.php',
-        // 'Vokuro\GenericSQL\Person' => BASE_PATH . '/../common-php/Db/Person/DemoModel.php'
     ]
 )->register();

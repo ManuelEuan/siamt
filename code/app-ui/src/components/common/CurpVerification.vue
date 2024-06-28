@@ -521,7 +521,7 @@ export default {
                     if (this.persona.foundRequestSearched) {  // Si la persona buscada es econtrada significa que no esta disponible
                         if (this.request.type == 'Inspector') {
                             console.log('entrandoo')
-                            this.routeTypeOfRequest = `/inspectors/${this.persona.iidOfSearchedRequest}/edit`;
+                            this.routeTypeOfRequest = `/inspections/inspectors/${this.persona.iidOfSearchedRequest}/edit`;
                             this.personaDisponible = false
                             this.messageDialogOfRequest = "La clave ingresada pertenece a un " + this.request.type
                             this.dialogRedirectFoundRequest = true

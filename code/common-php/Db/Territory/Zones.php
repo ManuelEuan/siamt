@@ -1,15 +1,12 @@
 <?php
-namespace  Vokuro\GenericSQL;
+namespace Vokuro\GenericSQL\Territory;
 use App\Library\Db\SiamtDb as Db;
-use Phalcon\Db\Enum;
-use Phalcon\Di;
 
-class Person
+class Zones
 {
-    
     public static function getDemoModel()
     {
-        $sql = "SELECT * FROM persona.tbl_persona";
+        $sql = "SELECT * FROM comun.tbl_flujo";
         $demo = Db::fetchAll($sql);
         return $demo;
     }

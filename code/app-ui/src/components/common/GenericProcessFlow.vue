@@ -50,14 +50,14 @@
                     <v-stepper-content step="2" class="step_two">
                         <div>
                             <!-- <div :style="'background-color: ' + (currentFlow.nextSubStage[0].txtcolor !== '' ? currentFlow.nextSubStage[0].txtcolor : 'gray')" -->
-                            <div :style="'background-color: gray'" class="mb-6 d-flex align-center justify-center py-2"
+                            <div :style="'background-color: gray'" class="mb-6 d-flex align-center justify-center py-2 px-1"
                                 style="color: white; font-weight: bold; font-size: 16px;margin-bottom: 1rem !important;">
                                 Descripción: {{ currentFlow.nextSubStage[0].txtdescripcion }}
                             </div>
                         </div>
                         <div>
                             <!-- <v-btn color="primary" @click="showAlertFinalize()">Ya no existe flujo posterior</v-btn> -->
-                            Sin acciones por el momento1
+                            Sin acciones por el momento | contacte al administrador)
                         </div>
                     </v-stepper-content>
                 </div>

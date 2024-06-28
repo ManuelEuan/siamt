@@ -280,8 +280,8 @@ export default class AdminService extends ApiService {
     return await this.post("/process/newDinamycSubStage", JSON.stringify(data));
   }
 
-  async getStructureFirstForm() {
-    return await this.get("/process/getStructureFirstForm");
+  async getStructureFormDinamycProcess() {
+    return await this.get("/process/getStructureFormDinamycProcess");
   }
 
   async getProcessWithStagesAndSubstages(data) {
