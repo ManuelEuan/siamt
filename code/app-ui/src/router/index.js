@@ -11,7 +11,7 @@ import ProfilesRoutes from "@/router/profiles.routes";
 import mtoUnidades from "@/router/mtoUnidades.routes";
 import InspectionsRoutes from "@/router/inspections.routes";
 import PersonsRoutes from "@/router/persons.routes";
-import FirmsRoutes from "@/router/firms.routes";
+import FirmsRoutes from "@/router/signature.routes";
 import ProcessRoutes from "@/router/process.routes";
 import DemoRoutes from "@/router/demo.routes";
 

@@ -1,19 +1,18 @@
 <?php
 
-use App\Models\Territory\LocalDistricts;
-use Phalcon\Mvc\Micro\Collection;
+use App\Controllers\DebitsController;
+use App\Controllers\ModulesController;
+use App\Controllers\PersonsController;
+use App\Controllers\ProcessController;
+use App\Controllers\ProfilesController;
+use App\Controllers\SurveyController;
+use App\Controllers\TerritoryController;
+use App\Controllers\UsersController;
 use App\Db\App;
 use App\Library\Misc\Utils;
-use App\Controllers\TerritoryController;
-use App\Controllers\LayersController;
-use App\Controllers\SurveyController;
-use App\Controllers\UsersController;
-use App\Controllers\ModulesController;
-use App\Controllers\ProfilesController;
-use App\Controllers\DebitsController;
-use App\Controllers\FirmsController;
-use App\Controllers\ProcessController;
-use App\Controllers\PersonsController;
+use App\Models\Territory\LocalDistricts;
+use controllers\FirmsController;
+use Phalcon\Mvc\Micro\Collection;
 
 
 $app->get('/admin/domain/config', function () use ($app, $config) {
@@ -172,21 +171,6 @@ $app->mount(
     ->setHandler(DebitsController::class, true)
     ->setPrefix('/admin')
     ->get("/debits/getServiceVindenUrlDebitaciones", "getServiceVindenUrlDebitaciones")
-);
-
-$app->mount(
-    (new Collection())
-    ->setHandler(FirmsController::class, true)
-    ->setPrefix('/admin')
-    ->get("/firms/getDinamycCount", "getDinamycCount")
-    ->post("/firms/getTemplateById", "getTemplateById")
-    ->post("/firms/getFirmById", "getFirmById")
-    ->get("/firms/getAllTemplates", "getAllTemplates")
-    ->get("/firms/getAllFirms", "getAllFirms")
-    ->post('/firms/templates/new', 'createTemplate')
-    ->put('/firms/templates', 'updateTemplate')
-    ->post('/firms/saveFirmRegisterByUser', 'saveFirmRegisterByUser')
-    ->put('/firms/updateFirmRegisterByUser', 'updateFirmRegisterByUser')
 );
 
 $app->mount(

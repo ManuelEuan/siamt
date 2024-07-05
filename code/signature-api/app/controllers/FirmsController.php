@@ -1,13 +1,11 @@
 <?php
 
-namespace App\Controllers;
+namespace app\controllers;
 
-use App\Library\Http\Controllers\BaseController;
-use App\Library\Misc\Utils;
 use App\Library\Db\Db;
+use App\Library\Http\Controllers\BaseController;
 use App\Library\Http\Exceptions\HttpUnauthorizedException;
 use App\Library\Http\Exceptions\ValidatorBoomException;
-use App\Models\User\Signature;
 
 class FirmsController extends BaseController
 {
@@ -39,9 +37,9 @@ class FirmsController extends BaseController
                 WHERE 
                     up.siglas = 'vefi';";
 
-        $counts['firm_users'] = Db::fetchColumn($sql);
+        //$counts['firm_users'] = Db::fetchColumn($sql);
 
-        $tables = ["firm_registers" => "usuario.tbl_firma", "firm_templates" => "usuario.tbl_cat_firma_plantilla"];
+        $tables = ["firm_registers" => "comun.tbl_firma", "firm_templates" => "comun.tbl_cat_firma_plantilla"];
 
         foreach ($tables as $key => $table) {
             $sql = "SELECT COUNT(*) FROM $table";
@@ -54,14 +52,14 @@ class FirmsController extends BaseController
 
     public function getAllTemplates()
     {
-        $sql = "SELECT iid AS iidfirma_plantilla, txtnombre, txtplantilla FROM usuario.tbl_cat_firma_plantilla WHERE bactivo = 't'";
+        $sql = "SELECT iid AS iidfirma_plantilla, txtnombre, txtplantilla FROM comun.tbl_cat_firma_plantilla WHERE bactivo = 't'";
         $templates = Db::fetchAll($sql);
         return $templates;
     }
 
     public function getAllFirms()
     {
-        $sql = "SELECT iid AS iidfirma_registro, iidfirma_plantilla, txttitulo, txtnombre, txtapellido_paterno, txtapellido_materno, txtpuesto, txtoficina, txtdepartamento, txtemail, txttelefono, txtextension FROM usuario.tbl_firma WHERE bactivo = 't'";
+        $sql = "SELECT iid AS iidfirma_registro, iidfirma_plantilla, txttitulo, txtnombre, txtapellido_paterno, txtapellido_materno, txtpuesto, txtoficina, txtdepartamento, txtemail, txttelefono, txtextension FROM comun.tbl_firma WHERE bactivo = 't'";
         $firms = Db::fetchAll($sql);
         return $firms;
     }
@@ -69,7 +67,7 @@ class FirmsController extends BaseController
     public function getTemplateById()
     {
         $data = $this->request->getJsonRawBody();
-        $sql = 'SELECT iid AS iidfirma_plantilla, txtnombre, txtplantilla FROM usuario.tbl_cat_firma_plantilla WHERE iid=:iidfirma_plantilla';
+        $sql = 'SELECT iid AS iidfirma_plantilla, txtnombre, txtplantilla FROM comun.tbl_cat_firma_plantilla WHERE iid=:iidfirma_plantilla';
         $params = array(':iidfirma_plantilla' => $data->iidfirma_plantilla);
         $template = Db::fetch($sql, $params);
         return $template;
@@ -79,7 +77,7 @@ class FirmsController extends BaseController
     public function getFirmById()
     {
         $data = $this->request->getJsonRawBody();
-        $sql = 'SELECT iid AS iidfirma_registro, txtnombre, txtapellido_paterno, txtapellido_materno, txtpuesto, txtoficina, txtdepartamento, txtemail, txttelefono, txtextension, txttitulo, iidfirma_plantilla FROM usuario.tbl_firma WHERE iid=:iidfirma_registro';
+        $sql = 'SELECT iid AS iidfirma_registro, txtnombre, txtapellido_paterno, txtapellido_materno, txtpuesto, txtoficina, txtdepartamento, txtemail, txttelefono, txtextension, txttitulo, iidfirma_plantilla FROM comun.tbl_firma WHERE iid=:iidfirma_registro';
         $params = array('iidfirma_registro' => $data->iidfirma_registro);
         $firm = Db::fetch($sql, $params);
         return $firm;
@@ -151,7 +149,7 @@ class FirmsController extends BaseController
         if (empty($data->txtnombre) || empty($data->txtplantilla)) throw new ValidatorBoomException(422, 'Datos faltantes');
         // self::dep($data);exit;
         Db::begin();
-        $sql = 'UPDATE usuario.tbl_cat_firma_plantilla
+        $sql = 'UPDATE comun.tbl_cat_firma_plantilla
                 SET 
                     txtnombre=:txtnombre, 
                     txtplantilla=:txtplantilla, 
@@ -224,7 +222,7 @@ class FirmsController extends BaseController
         $cols = implode(', ', array_keys($params));
         $phs = ':' . str_replace(', ', ', :', $cols);
 
-        $sql = "INSERT INTO usuario.$table ($cols) VALUES ($phs)";
+        $sql = "INSERT INTO comun.$table ($cols) VALUES ($phs)";
         return Db::execute($sql, $params);
     }
 }

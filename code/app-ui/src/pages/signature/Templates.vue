@@ -106,7 +106,7 @@ import 'codemirror/lib/codemirror.css'
 import 'codemirror/theme/eclipse.css'
 import 'codemirror/theme/monokai.css'
 
-import '../../../plugins/tinymce-lang-es_MX';
+import '../../plugins/tinymce-lang-es_MX';
 import 'tinymce/themes/silver/theme'
 import 'tinymce/icons/default/icons'
 import 'tinymce/plugins/paste';
@@ -267,21 +267,20 @@ export default {
         },
         async getTemplateById() {
             try {
-                this.dialogSearch = false
-                this.template = await services.admin().getTemplateById({ 'iidfirma_plantilla': this.selected[0].iidfirma_plantilla });
-                this.template.txtplantilla = decodeURIComponent(this.template.txtplantilla)
-
+                this.dialogSearch = false;
+                this.template = await services.signature().getTemplateById({ 'iidfirma_plantilla': this.selected[0].iidfirma_plantilla });
+                this.template.txtplantilla = decodeURIComponent(this.template.txtplantilla);
             } catch (error) {
-                const message = 'Error al cargar servicio de plantilla.';
+                const message = 'Error al cargar servicio de plantilla 1.';
                 alert(message);
             }
         },
         async getAllTemplates() {
             try {
-                let templates = await services.admin().getAllTemplates();
+                let templates = await services.signature().getAllTemplates();
                 this.templates = templates;
             } catch (error) {
-                const message = 'Error al cargar servicio de plantilla.';
+                const message = 'Error al cargar servicio de plantilla 2.';
                 alert(message);
             }
         },
@@ -293,7 +292,7 @@ export default {
                     // Nueva
                     console.log('nueva')
                     // let { iidfirma_plantilla, message } = await services.admin().createTemplate(this.template);
-                    let { message } = await services.admin().createTemplate(this.template);
+                    let { message } = await services.signature().createTemplate(this.template);
                     this.showSuccess(message);
                     // setTimeout(() => {
                     //     window.location.reload()
@@ -301,7 +300,7 @@ export default {
                 } else {
                     console.log('Actualizar')
                     // Actualizar
-                    let { message } = await services.admin().updateTemplate(this.template);
+                    let { message } = await services.signature().updateTemplate(this.template);
                     this.showSuccess(message);
                     // setTimeout(() => {
                     //     window.location.reload()
@@ -310,7 +309,7 @@ export default {
                 this.template.txtplantilla = decodeURIComponent(this.template.txtplantilla)
                 await this.getAllTemplates();
             } catch (error) {
-                const message = 'Error al cargar servicio de plantilla.';
+                const message = 'Error al cargar servicio de plantilla 3.';
                 alert(message);
             }
         }

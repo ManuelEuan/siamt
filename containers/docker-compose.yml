@@ -100,6 +100,21 @@ services:
     depends_on:
       - "liquibase"
       - "redis"
+  signature-api:
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
+    volumes:
+      - "./signature-api/config.json:/docker-entrypoint.d/config.json"
+      - "../code/signature-api:/srv/siamt/code/signature-api"
+      - "../code/common-php:/srv/siamt/code/common-php"
+    env_file:
+      - dv.env
+    networks:
+      - internal-services-siamt
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
   app-inspections-api:
     image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
     volumes:
@@ -148,6 +163,7 @@ services:
       - "../code/migrations:/liquibase/changelog"
       - "../code/migrations_inspectores:/liquibase/changelog/inspeccion"
       - "../code/migrations_manto:/liquibase/changelog/manto"
+      - "../code/migrations_firma:/liquibase/changelog/firma"
     env_file:
       - dv.env
     networks:

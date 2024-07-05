@@ -2,9 +2,9 @@
     <v-container fluid>
         <v-row justify="center">
             <generic-card-dashboard title="Firmas generadas" subtitle="En totalidad de uso" :cant="counts.firm_registers" columnSize=4
-                avatarSize="80px" url="/firms/firms" :openInNewTab=false />
+                avatarSize="80px" url="/signature/firms" :openInNewTab=false />
             <generic-card-dashboard title="Plantillas generadas" subtitle="Hasta la fecha" :cant="counts.firm_templates" columnSize=4
-                avatarSize="80px" url="/firms/templates" :openInNewTab=false />
+                avatarSize="80px" url="/signature/templates" :openInNewTab=false />
             <generic-card-dashboard title="Total de usuarios" subtitle="En el sistema" :cant="counts.firm_users" columnSize=4 avatarSize="80px"
                 url="https://ejemplo.com" :openInNewTab=false />
         </v-row>
@@ -30,7 +30,7 @@ export default {
         // GET (BD)
         async getDinamycCount() {
             try {
-                this.counts = {...await services.admin().getDinamycCount()};
+                this.counts = {...await services.signature().getDinamycCount()};
                 console.log(this.counts)
                 //this.$refs.urlFrame.href = url;
                 // this.$refs.serviceFrame.src = url;

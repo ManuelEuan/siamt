@@ -1,5 +1,5 @@
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
 	<!-- V1.0 -->
 	<include file="changes/javp-1.sql"/>
@@ -12,15 +12,7 @@
 	<include file="changes/aicf-6.sql"/>
 	<include file="changes/vbbm-1.sql"/>
 	<include file="changes/vbbm-2.sql"/>
-	<include file="changes/imjcu-1.sql"/>
-	<include file="changes/imjcu-2.sql"/>
-	<include file="changes/imjcu-3.sql"/>
-	<include file="changes/imjcu-4.sql"/>
-	<include file="changes/imjcu-5.sql"/>
-	<include file="changes/imjcu-6.sql"/>
-	<!-- <include file="changes/imjcu-7.sql"/> -->
-	<include file="changes/imjcu-8.sql"/>
-	<include file="changes/imjcu-9.sql"/>
-	<include file="changes/imjcu-10.sql"/>
+	<include file="changes/aicf-7.sql"/>
+
 
 </databaseChangeLog>

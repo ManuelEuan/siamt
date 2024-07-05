@@ -22,4 +22,5 @@ export default {
   trackerUrl : BASE_URL + "/tracker",
   comitesUrl : BASE_URL + "/comites",
   finderUrl : BASE_URL + "/finder",
+  signatureUrl : BASE_URL + "/signature",
 }

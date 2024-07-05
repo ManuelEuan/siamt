@@ -209,7 +209,7 @@ export default {
         },
         async getAllFirms() {
             try {
-                let firms = await services.admin().getAllFirms();
+                let firms = await services.signature().getAllFirms();
                 this.firms = firms;
             } catch (error) {
                 const message = 'Error al cargar servicio de firmas2.';
@@ -226,14 +226,14 @@ export default {
                 }
                 if (!onlyImpresion) {
                     if (!this.firm.iidfirma_registro) {
-                        let { message } = await services.admin().saveFirmRegisterByUser(data);
+                        let { message } = await services.signature().saveFirmRegisterByUser(data);
                         this.showSuccess(message);
                         // await this.getAllFirms();
                         setTimeout(() => {
                             window.location.reload()
                         }, 3000);
                     } else {
-                        let { message } = await services.admin().updateFirmRegisterByUser(data);
+                        let { message } = await services.signature().updateFirmRegisterByUser(data);
                         this.showSuccess(message);
                         // await this.getAllFirms();
                         setTimeout(() => {
@@ -259,7 +259,7 @@ export default {
                 console.log('getTemplateById')
                 console.log(this.firm)
                 console.log(this.template)
-                this.template = await services.admin().getTemplateById({ 'iidfirma_plantilla': this.firm.iidfirma_plantilla });
+                this.template = await services.signature().getTemplateById({ 'iidfirma_plantilla': this.firm.iidfirma_plantilla });
                 this.template.txtplantilla = decodeURIComponent(this.template.txtplantilla)
                 console.log(this.template)
                 this.loadingSignature = false
@@ -271,7 +271,7 @@ export default {
         },
         async getFirmById() {
             try {
-                this.firm = await services.admin().getFirmById({ 'iidfirma_registro': this.selected[0].iidfirma_registro });
+                this.firm = await services.signature().getFirmById({ 'iidfirma_registro': this.selected[0].iidfirma_registro });
                 console.log('------this.firm')
                 console.log(this.firm)
                 this.sendFieldsWithValues = this.firm
@@ -284,7 +284,7 @@ export default {
         },
         async getAllTemplates() {
             try {
-                let templates = await services.admin().getAllTemplates();
+                let templates = await services.signature().getAllTemplates();
                 this.templates = templates;
             } catch (error) {
                 const message = 'Error al cargar servicio de plantilla.';

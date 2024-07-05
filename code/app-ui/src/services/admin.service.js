@@ -161,46 +161,6 @@ export default class AdminService extends ApiService {
   async getServiceVindenUrlDebitaciones() {
     return await this.get("/debits/getServiceVindenUrlDebitaciones");
   }
-
-  // Firmas
-
-  async getDinamycCount() {
-    return await this.get("/firms/getDinamycCount");
-  }
-
-  async getTemplateById(data) {
-    return await this.post("/firms/getTemplateById", JSON.stringify(data));
-  }
-
-  
-  async getFirmById(data) {
-    return await this.post("/firms/getFirmById", JSON.stringify(data));
-  }
-
-  async getAllTemplates() {
-    return await this.get("/firms/getAllTemplates");
-  }
-
-  async getAllFirms() {
-    return await this.get("/firms/getAllFirms");
-  }
-
-  async createTemplate(data) {
-    return await this.post("/firms/templates/new", JSON.stringify(data));
-  }
-
-  async updateTemplate(data) {
-    return await this.put("/firms/templates", JSON.stringify(data));
-  }
-
-  async saveFirmRegisterByUser(data) {
-    return await this.post("/firms/saveFirmRegisterByUser", JSON.stringify(data));
-  }
-
-  async updateFirmRegisterByUser(data) {
-    return await this.put("/firms/updateFirmRegisterByUser", JSON.stringify(data));
-  }
-
   // Personas
 
   async getAllSexes() {
