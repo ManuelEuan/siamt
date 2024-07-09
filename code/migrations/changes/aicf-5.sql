@@ -93,6 +93,7 @@ CREATE TABLE "persona"."tbl_persona" (
 
 CREATE TABLE "persona"."tbl_cat_tipo_direccion" (
     iid serial not null PRIMARY key,
+    vclave varchar(4) not null,
     "txtnombre" text COLLATE "pg_catalog"."default" NOT NULL,
     "txtdescripcion" text COLLATE "pg_catalog"."default",
     "bactivo" bool NOT NULL DEFAULT true,
@@ -100,27 +101,11 @@ CREATE TABLE "persona"."tbl_cat_tipo_direccion" (
     "dtfecha_modificacion" timestamp(6) NOT NULL DEFAULT now()
 );
 
-CREATE TABLE "persona"."tbl_direccion2" (
+CREATE TABLE "persona"."tbl_cat_tipo_vialidad" (
     iid serial not null PRIMARY key,
-    "txtcalle" text COLLATE "pg_catalog"."default",
-    "txtcalle_letra" text COLLATE "pg_catalog"."default",
-    "inumero_exterior" int4,
-    "txtnumero_exterior_letra" text COLLATE "pg_catalog"."default",
-    "inumero_interior" int4,
-    "txtnumero_interior_letra" text COLLATE "pg_catalog"."default",
-    "txtcruzamiento_uno" text COLLATE "pg_catalog"."default",
-    "txtcruzamiento_uno_letra" text COLLATE "pg_catalog"."default",
-    "txtcruzamiento_dos" text COLLATE "pg_catalog"."default",
-    "txtcruzamiento_dos_letra" text COLLATE "pg_catalog"."default",
-    "txtreferencia" text COLLATE "pg_catalog"."default",
-    "txtcolonia" text,
-    "nlatitud" numeric,
-    "nlongitud" numeric,
-    iclave_estado integer,
-    iclave_municipio integer,
-    "iidtipo_direccion" integer references persona.tbl_cat_tipo_direccion(iid),
-    "txtdescripcion_direccion" text COLLATE "pg_catalog"."default",
-    txtdireccion_completa text GENERATED ALWAYS AS (txtcruzamiento_uno) STORED,
+    vclave varchar(4) not null,
+    "txtnombre" text COLLATE "pg_catalog"."default" NOT NULL,
+    "txtdescripcion" text COLLATE "pg_catalog"."default",
     "bactivo" bool NOT NULL DEFAULT true,
     "dtfecha_creacion" timestamp(6) NOT NULL DEFAULT now(),
     "dtfecha_modificacion" timestamp(6) NOT NULL DEFAULT now()
@@ -128,6 +113,8 @@ CREATE TABLE "persona"."tbl_direccion2" (
 
 CREATE TABLE "persona"."tbl_direccion" (
    iid serial not null PRIMARY key,
+   "iidtipo_direccion" integer references persona.tbl_cat_tipo_direccion(iid),
+   "iidtipo_vialidad" integer references persona.tbl_cat_tipo_vialidad(iid),
    "txtcalle" text COLLATE "pg_catalog"."default",
    "txtcalle_letra" text COLLATE "pg_catalog"."default",
    "inumero_exterior" int4,
@@ -140,8 +127,7 @@ CREATE TABLE "persona"."tbl_direccion" (
    "txtcruzamiento_dos_letra" text COLLATE "pg_catalog"."default",
    "txtreferencia" text COLLATE "pg_catalog"."default",
    "txtcolonia" text,
-   "nlatitud" numeric,
-   "nlongitud" numeric,
+   "the_geom" geometry,
    iclave_estado integer,
    iclave_municipio integer,
    "txtdescripcion_direccion" text COLLATE "pg_catalog"."default",
@@ -162,12 +148,13 @@ CREATE TABLE "persona"."tbl_persona_direccion" (
    "iidpersona" int4 NOT NULL  references persona.tbl_persona(iid),
    "iiddireccion" int4 NOT NULL  references persona.tbl_direccion(iid),
    "iidtipo_direccion" integer references persona.tbl_cat_tipo_direccion(iid),
+   "bactual" bool NOT NULL DEFAULT true,
    "bactivo" bool NOT NULL DEFAULT true,
    "dtfecha_creacion" timestamp(6) NOT NULL DEFAULT now(),
    "dtfecha_modificacion" timestamp(6) NOT NULL DEFAULT now()
 );
 
-CREATE TABLE "persona"."tblcat_tipo_telefono" (
+CREATE TABLE "persona"."tbl_cat_tipo_telefono" (
   iid serial not null PRIMARY key,
   "txtnombre" text COLLATE "pg_catalog"."default" NOT NULL,
   "txtdescripcion" text COLLATE "pg_catalog"."default",
@@ -178,14 +165,13 @@ CREATE TABLE "persona"."tblcat_tipo_telefono" (
 
 
 
-CREATE TABLE "persona"."persona_telefono" (
+CREATE TABLE "persona"."tbl_persona_telefono" (
   iid serial not null PRIMARY key,
   "iidpersona" int4 NOT NULL  references persona.tbl_persona(iid),
   "iidtipo_telefono" int4 NOT NULL references persona.tblcat_tipo_telefono(iid),
   "vtelefono" varchar(10) COLLATE "pg_catalog"."default",
-  "vdescripcion" varchar COLLATE "pg_catalog"."default",
-  "propio" bool DEFAULT true,
-  "telegram" bool DEFAULT false,
-  "whatsapp" bool DEFAULT false,
-  "actual" bool DEFAULT false
+  "bpropio" bool DEFAULT true,
+  "btelegram" bool DEFAULT false,
+  "bwhatsapp" bool DEFAULT false,
+  "bactual" bool DEFAULT false
 );
