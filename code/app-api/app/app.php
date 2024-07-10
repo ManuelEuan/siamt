@@ -197,6 +197,8 @@ $app->mount(
     ->setHandler(PersonsController::class, true)
     ->setPrefix('/admin')
     ->get("/persons/getAllSexes", "getAllSexes")
+    ->get("/persons/getAllTypesOfAddress", "getAllTypesOfAddress")
+    ->get("/persons/getAllTypesOfRoad", "getAllTypesOfRoad")
     ->get("/persons/getAllTypesPhone", "getAllTypesPhone")
     ->get("/persons/getAllLadaIdentifiers", "getAllLadaIdentifiers")
     ->get("/persons/getAllCivilStatus", "getAllCivilStatus")

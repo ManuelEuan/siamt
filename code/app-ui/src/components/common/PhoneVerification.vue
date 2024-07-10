@@ -43,7 +43,7 @@
                         </template>
                         <span>Editar teléfono</span>
                     </v-tooltip>
-                    <v-tooltip bottom v-if="!item.bactual">
+                    <!-- <v-tooltip bottom v-if="!item.bactual">
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn v-bind="attrs" v-on="on" icon small
                                 @click="actionsHandlerOfTable(item, 'newCurrentPhone')">
@@ -53,7 +53,6 @@
                         </template>
                         <span>Activar teléfono</span>
                     </v-tooltip>
-                    <!-- {{ item }} -->
                     <v-tooltip bottom v-if="!item.bactual">
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn v-bind="attrs" v-on="on" icon small
@@ -63,7 +62,7 @@
                             </v-btn>
                         </template>
                         <span>Eliminar teléfono</span>
-                    </v-tooltip>
+                    </v-tooltip> -->
                 </div>
                 <div v-else>
                     Sin permisos
@@ -86,11 +85,11 @@
                         :rules="[rules.required]" />
                 </v-col>
                 <!-- <v-col cols="12" md="6">
-                    <v-text-field v-model="phone.inumero" label="Número*" hide-details="auto" clearable dense
+                    <v-text-field v-model="phone.vtelefono" label="Número*" hide-details="auto" clearable dense
                         :rules="[rules.telefono]" outlined maxlength="10" />
                 </v-col> -->
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="phone.inumero" label="Número*" hide-details="auto" clearable dense outlined
+                    <v-text-field v-model="phone.vtelefono" label="Número*" hide-details="auto" clearable dense outlined
                         maxlength="14" @input="formatPhoneNumber" :rules="[rules.telefono]"></v-text-field>
                 </v-col>
             </v-row>
@@ -149,7 +148,7 @@ export default {
             headers: [
                 // { text: 'ID', value: 'id' },
                 { text: 'Tipo', value: 'txttelefono_tipo' },
-                { text: 'Teléfono', value: 'inumero' },
+                { text: 'Teléfono', value: 'vtelefono' },
                 { text: 'Actual', value: 'bactual' },
                 { text: 'Acciones', value: 'actions' }
             ],
@@ -163,7 +162,7 @@ export default {
             phone: {
                 iidtelefono: 0,
                 txtlada: '',
-                inumero: null,
+                vtelefono: null,
                 iidtipo_telefono: null,
             },
 
@@ -287,7 +286,7 @@ export default {
             this.phone = {
                 iidtelefono: 0,
                 txtlada: '',
-                inumero: '',
+                vtelefono: '',
                 iidtipo_telefono: null,
             }
         },
@@ -301,7 +300,7 @@ export default {
         },
         formatPhoneNumber() {
             // Aplicar la máscara al número de teléfono
-            this.phone.inumero = this.phone.inumero
+            this.phone.vtelefono = this.phone.vtelefono
                 .replace(/\D/g, '') // Eliminar todos los caracteres no numéricos
                 .replace(/(\d{3})(\d{1,3})?(\d{1,4})?/, '($1) $2-$3') // Aplicar la máscara '(###) ###-####'
                 .substring(0, 14); // Limitar la longitud a 14 caracteres (incluyendo paréntesis y guiones)
@@ -365,7 +364,7 @@ export default {
             console.log('watch phoneValidation')
             this.emitToParentComponent()
         },
-        'phone.inumero'() {
+        'phone.vtelefono'() {
             this.formatPhoneNumber();
         }
     },

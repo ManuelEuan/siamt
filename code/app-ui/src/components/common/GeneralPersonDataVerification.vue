@@ -24,13 +24,13 @@
                         <v-text-field v-model="generalPersonData.txtnombre" label="Nombre/s*" hide-details="auto"
                             clearable dense outlined :rules="[rules.required]" />
                     </v-col>
-                    <v-col cols="12" md="6">
+                    <v-col cols="12" md="6" v-if="generalPersonData.bfisica">
                         <v-text-field v-model="generalPersonData.txtapellido_paterno" label="Apellido paterno*"
                             :rules="[rules.required]" hide-details="auto" clearable dense outlined />
                     </v-col>
-                    <v-col cols="12" md="6">
-                        <v-text-field v-model="generalPersonData.txtapellido_materno" label="Apellido materno" hide-details="auto"
-                            clearable dense outlined />
+                    <v-col cols="12" md="6" v-if="generalPersonData.bfisica">
+                        <v-text-field v-model="generalPersonData.txtapellido_materno" label="Apellido materno"
+                            hide-details="auto" clearable dense outlined />
                     </v-col>
                     <v-col cols="12" md="6">
                         <v-text-field v-model="generalPersonData.dfecha_nacimiento" clearable dense outlined
@@ -41,7 +41,7 @@
                         <v-text-field v-model="generalPersonData.txtrfc" label="RFC" hide-details="auto" clearable dense
                             outlined maxlength="13" :rules="[rfcValido]" :disabled="!generalPersonData.bfisica" />
                     </v-col>
-                    <v-col cols="12" md="6">
+                    <v-col cols="12" md="6" v-if="generalPersonData.bfisica">
                         <v-text-field v-model="generalPersonData.txtcurp" label="CURP" :rules="[curpValido]"
                             maxlength="18" hide-details="auto" clearable dense outlined
                             :disabled="generalPersonData.bfisica" />
@@ -51,12 +51,12 @@
                             outlined maxlength="19" />
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-select v-model="generalPersonData.iidestado_civil" label="Estado civil" :items="civilStatus"
-                            item-text="txtnombre" item-value="iidestado_civil" hide-details="auto" small-chips clearable
-                            dense outlined />
+                        <v-autocomplete v-model="generalPersonData.iidestado_civil" label="Estado civil"
+                            :items="civilStatus" item-text="txtnombre" item-value="iidestado_civil" hide-details="auto"
+                            small-chips clearable dense outlined />
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-select v-model="generalPersonData.iidsexo" label="Género" :items="sexes"
+                        <v-autocomplete v-model="generalPersonData.iidsexo" label="Género" :items="sexes"
                             item-text="txtnombre" item-value="iidsexo" hide-details="auto" small-chips clearable dense
                             outlined />
                     </v-col>
@@ -117,8 +117,8 @@ export default {
                 iidsexo: null,
                 txtcorreo: '',
                 bactivo: true,
-                fecha_creacion: '',
-                fecha_modificacion: ''
+                dtfecha_creacion: '',
+                dtfecha_modificacion: ''
             },
             peopleModulePermissions: [],
 
@@ -176,8 +176,8 @@ export default {
                 iidsexo: null,
                 txtcorreo: '',
                 bactivo: true,
-                fecha_creacion: '',
-                fecha_modificacion: ''
+                dtfecha_creacion: '',
+                dtfecha_modificacion: ''
             }
         },
 
@@ -185,14 +185,8 @@ export default {
             try {
                 if (this.iidpersona) {
                     console.log('LOAD GENERAL DATA PERSON')
-                    // localStorage.setItem('newPerson', false);
                     this.newRegisterPerson = localStorage.getItem('newPerson');
                     this.newRegisterPerson = this.newRegisterPerson === 'true';
-                    // if (this.newRegisterPerson) {
-                    // this.newGeneralPersonData = true
-                    // } else {
-                    // this.newGeneralPersonData = false
-                    // }
                     console.log('this.iidpersona')
                     console.log(this.iidpersona)
                     this.generalPersonData = await services.admin().getGeneralPersonData(this.iidpersona);
@@ -265,14 +259,6 @@ export default {
             console.log('watch generalPersonDataValidation')
             this.emitToParentComponent()
         },
-        // WATCHERS DATA
-        // 'newRegisterPerson': function () {
-        //     console.log('watch newRegisterPerson')
-        //     if (this.newRegisterPerson) {
-        //         this.resetGeneralPersonData()
-        //         this.newGeneralPersonData = true
-        //     }
-        // },
     },
     async mounted() {
         await this.getAllSexes();

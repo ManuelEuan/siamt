@@ -5,7 +5,9 @@ namespace App\Controllers;
 use App\Library\Db\Db;
 use App\Library\Http\Controllers\BaseController;
 use App\Library\Http\Exceptions\HttpBadRequestException;
+use App\Library\Http\Exceptions\ValidatorBoomException;
 use App\Models\Territory\Colonies;
+use App\Models\Territory\PostalCodes;
 use Phalcon\Mvc\Controller;
 use App\Models\Territory\LocalDistricts;
 use App\Models\Territory\Townships;
@@ -174,31 +176,25 @@ class TerritoryController extends BaseController
 
     public function getAllPostalCodes()
     {
-        return Colonies::getAllPostalCodes();
+        try {
+            // return Colonies::getAllPostalCodes();
+            return PostalCodes::getAllPostalCodes();
+        } catch (\Exception $e) {
+            $message = 'Error en cp: ' . $e->getMessage();
+            throw new ValidatorBoomException(422, $message);
+        }
+        
     }
 
     public function getMunicipalityAndEntityByPostalCode()
     {
-        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        $params = array('icodigo_postal' => $data);
-        $sql = "SELECT DISTINCT ON (m.txtnombre)
-                    m.txtnombre AS entity,
-                    e.txtnombre AS municipality
-                FROM
-                    territorio.tbl_cat_colonia AS c
-                JOIN
-                    territorio.tbl_cat_municipio AS m ON c.iclave_municipio = m.iclave_municipio
-                JOIN
-                    territorio.tbl_cat_estado AS e ON m.iclave_estado = e.iclave_estado
-                WHERE
-                    c.icodigo_postal = :icodigo_postal";
-        $municipalityAndEntity = Db::fetchOne($sql, $params);
-        return $municipalityAndEntity;
+        $postalCode = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        return PostalCodes::getMunicipalityAndEntityByPostalCode($postalCode);
     }
 
     public function getColoniesByPostalCode()
     {
         $postalCode = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        return Colonies::getColoniesByPostalCode($postalCode);
+        return PostalCodes::getColoniesByPostalCode($postalCode);
     }
 }
