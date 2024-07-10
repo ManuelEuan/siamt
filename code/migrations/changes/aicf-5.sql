@@ -2,6 +2,8 @@
 --changeset aicf:5
 --Se crea el schema personba y las tablas necesarias
 
+create extension postgis;
+
 create schema IF NOT EXISTS persona;
 
 create table persona.tbl_cat_nacionalidad(
@@ -168,7 +170,7 @@ CREATE TABLE "persona"."tbl_cat_tipo_telefono" (
 CREATE TABLE "persona"."tbl_persona_telefono" (
   iid serial not null PRIMARY key,
   "iidpersona" int4 NOT NULL  references persona.tbl_persona(iid),
-  "iidtipo_telefono" int4 NOT NULL references persona.tblcat_tipo_telefono(iid),
+  "iidtipo_telefono" int4 NOT NULL references persona.tbl_cat_tipo_telefono(iid),
   "vtelefono" varchar(10) COLLATE "pg_catalog"."default",
   "bpropio" bool DEFAULT true,
   "btelegram" bool DEFAULT false,
