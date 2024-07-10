@@ -75,7 +75,7 @@
         <v-form v-model="addressValidation" v-if="newAddress || newRegisterPerson || editAddress">
             <v-row>
                 <v-col cols="12" md="4">
-                    <v-select v-model="codePostal" label="Código postal*" :items="postalCodes"
+                   <v-autocomplete v-model="codePostal" label="Código postal*" :items="postalCodes"
                         item-text="icodigo_postal" item-value="icodigo_postal" hide-details="auto" small-chips clearable
                         dense :rules="[rules.required]" outlined />
                 </v-col>
@@ -88,43 +88,55 @@
                         disabled />
                 </v-col>
                 <v-col cols="12" md="12" class="text-center" v-if="codePostal">
-                    <v-radio-group v-model="address.itipo_direccion" row class="p-radio" :rules="[rules.required]">
+                    <v-radio-group v-model="address.iidtipo_direccion" row class="p-radio" :rules="[rules.required]">
                         <v-radio v-for="(addressOption, index) in typesAddress" :key="index"
-                            :label="addressOption.txtnombre" :value="addressOption.itipo_direccion"></v-radio>
+                            :label="addressOption.txtnombre" :value="addressOption.iidtipo_direccion"></v-radio>
                     </v-radio-group>
                 </v-col>
             </v-row>
 
             <v-row v-if="codePostal">
                 <v-col cols="12" md="6">
-                    <v-select v-model="address.iidcolonia" label="Colonia*" :items="colonies" item-text="txtnombre"
-                        item-value="iidcolonia" hide-details="auto" small-chips clearable dense
-                        :rules="[rules.required]" outlined :disabled="!codePostal" />
+                    <v-autocomplete v-model="address.iidcolonia" :items="colonies" item-text="txtasentamiento"
+                        item-value="iidcolonia" label="Colonia*" hide-details="auto" small-chips clearable dense
+                        :rules="[rules.required]" outlined :disabled="!codePostal"></v-autocomplete>
                 </v-col>
-                <v-col cols="12" md="6" v-if="codePostal && address.itipo_direccion === 1">
-                    <v-select v-model="address.itipo_vialidad" label="Tipo vialidad*" :items="vialidadTypes"
-                        item-text="txtnombre" item-value="itipo_vialidad" hide-details="auto" small-chips clearable
+                <v-col cols="12" md="6" v-if="codePostal && address.iidtipo_direccion === 1">
+                    <v-autocomplete v-model="address.iidtipo_vialidad" label="Tipo vialidad*" :items="typesRoads"
+                        item-text="txtnombre" item-value="iidtipo_vialidad" hide-details="auto" small-chips clearable
                         dense :rules="[rules.required]" outlined :disabled="!codePostal" />
                 </v-col>
-                <v-col cols="12" md="6" v-if="codePostal && address.itipo_direccion === 2">
+                <!-- <v-col cols="12" md="6" v-if="address.iidtipo_vialidad === 1">
+                    <v-text-field v-model="address.txtcalle" label="Calle principal/s*" hide-details="auto" clearable
+                        dense outlined :rules="[rules.required]" />
+                </v-col> -->
+                 <!-- <v-col cols="12" md="6" v-if="codePostal && address.iidtipo_direccion === 2">
                     <v-text-field v-model="address.txttablaje" label="Tablaje*" hide-details="auto" clearable dense
                         outlined :rules="[rules.required]" />
-                </v-col>
-                <v-col cols="12" md="6" v-if="codePostal && address.itipo_direccion === 3">
+                </v-col> -->
+                <!-- <v-col cols="12" md="6" v-if="codePostal && address.iidtipo_direccion === 3">
                     <v-text-field v-model="address.txtdescripcion_direccion" label="Descripción dirección*"
+                        hide-details="auto" clearable dense outlined :rules="[rules.required]" />
+                </v-col> -->
+                 <v-col cols="12" md="6" v-if="codePostal && address.iidtipo_direccion === 2">
+                    <v-text-field v-model="address.txtcalle" label="Tablaje*" hide-details="auto" clearable dense
+                        outlined :rules="[rules.required]" />
+                </v-col>
+                <v-col cols="12" md="6" v-if="codePostal && address.iidtipo_direccion === 3">
+                    <v-text-field v-model="address.txtcalle" label="Descripción dirección*"
                         hide-details="auto" clearable dense outlined :rules="[rules.required]" />
                 </v-col>
             </v-row>
-            <v-row v-if="codePostal && address.itipo_direccion === 1">
-                <v-col cols="12" md="6" v-if="address.itipo_vialidad === 1">
+            <v-row v-if="codePostal && address.iidtipo_direccion === 1">
+                <v-col cols="12" md="6" v-if="address.iidtipo_vialidad === 1">
                     <v-text-field v-model="address.txtcalle" label="Calle principal/s*" hide-details="auto" clearable
                         dense outlined :rules="[rules.required]" />
                 </v-col>
-                <v-col cols="12" md="6" v-if="address.itipo_vialidad === 1">
+                <v-col cols="12" md="6" v-if="address.iidtipo_vialidad === 1">
                     <v-text-field v-model="address.txtcalle_letra" label="Calle letra" hide-details="auto" clearable
                         dense outlined />
                 </v-col>
-                <v-col cols="12" md="6" v-if="address.itipo_vialidad === 2">
+                <v-col cols="12" md="6" v-if="address.iidtipo_vialidad === 2">
                     <v-text-field v-model="address.txtavenida_kilometro" label="Avenida o Km*" hide-details="auto"
                         clearable dense outlined />
                 </v-col>
@@ -247,28 +259,28 @@ export default {
 
             // ARREGLOS
             typesAddress: [
-                {
-                    "itipo_direccion": 1,
-                    "txtnombre": "Predio",
-                },
-                {
-                    "itipo_direccion": 2,
-                    "txtnombre": "Tablaje"
-                },
-                {
-                    "itipo_direccion": 3,
-                    "txtnombre": "Domicilio Conocido"
-                }
+                // {
+                //     "iidtipo_direccion": 1,
+                //     "txtnombre": "Predio",
+                // },
+                // {
+                //     "iidtipo_direccion": 2,
+                //     "txtnombre": "Tablaje"
+                // },
+                // {
+                //     "iidtipo_direccion": 3,
+                //     "txtnombre": "Domicilio Conocido"
+                // }
             ],
-            vialidadTypes: [
-                {
-                    "itipo_vialidad": 1,
-                    "txtnombre": "Calle",
-                },
-                {
-                    "itipo_vialidad": 2,
-                    "txtnombre": "Avenida o Km"
-                }
+            typesRoads: [
+                // {
+                //     "iidtipo_vialidad": 1,
+                //     "txtnombre": "Calle",
+                // },
+                // {
+                //     "iidtipo_vialidad": 2,
+                //     "txtnombre": "Avenida o Km"
+                // }
             ],
             address: {
                 iidcolonia: 0,
@@ -288,8 +300,8 @@ export default {
                 bactivo: null,
                 dtfecha_creacion: null,
                 dtfecha_modificacion: null,
-                itipo_direccion: null,
-                itipo_vialidad: 0,
+                iidtipo_direccion: null,
+                iidtipo_vialidad: 0,
                 txtavenida_kilometro: '',
                 txttablaje: '',
                 txtdescripcion_direccion: '',
@@ -307,7 +319,27 @@ export default {
 
 
         // GET (BD)
-        async getCodePostals() {
+        async getAddressTypes() {
+            try {
+                this.typesAddress = await services.admin().getAllTypesOfAddress();
+            } catch (error) {
+                const message = 'Error al cargar los tipos de dirección.';
+                this.showError({ message, error });
+            }
+        },
+
+         // GET (BD)
+         async getTypesOfRoads() {
+            try {
+                this.typesRoads = await services.admin().getAllTypesOfRoad();
+            } catch (error) {
+                const message = 'Error al cargar opciones de códigos postales.';
+                this.showError({ message, error });
+            }
+        },
+
+         // GET (BD)
+         async getCodePostals() {
             try {
                 this.postalCodes = await services.admin().getAllPostalCodes();
             } catch (error) {
@@ -429,8 +461,8 @@ export default {
                 bactivo: null,
                 dtfecha_creacion: null,
                 dtfecha_modificacion: null,
-                itipo_direccion: null,
-                itipo_vialidad: 0,
+                iidtipo_direccion: null,
+                iidtipo_vialidad: 0,
                 txtavenida_kilometro: '',
                 txttablaje: '',
                 txtdescripcion_direccion: '',
@@ -449,6 +481,8 @@ export default {
         actionsHandlerOfTable(address, action) {
             switch (action) {
                 case 'editAddress':
+                    console.log('presion')
+                    console.log(this.address)
                     this.address = { ...address }
                     this.codePostal = address.icodigo_postal
                     this.editAddress = true
@@ -504,7 +538,7 @@ export default {
             console.log('watch newAddress')
             if (this.newAddress) {
                 this.resetAddress()
-                this.address.itipo_direccion = this.typesAddress[0].itipo_direccion;
+                this.address.iidtipo_direccion = this.typesAddress[0].iidtipo_direccion;
             }
         },
         'codePostal': function () {
@@ -520,6 +554,8 @@ export default {
     },
     async mounted() {
         await this.getCodePostals();
+        await this.getAddressTypes();
+        await this.getTypesOfRoads();
         await this.loadAddressesTable();
         let user = await services.app().getUserConfig();
         this.newRegisterPerson = localStorage.getItem('newPerson') === 'true';

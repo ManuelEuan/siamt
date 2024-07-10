@@ -4,9 +4,9 @@ use App\Library\Db\SiamtDb as Db;
 
 class Zones
 {
-    public static function getDemoModel()
+    public static function getAll()
     {
-        $sql = "SELECT * FROM comun.tbl_flujo";
+        $sql = "SELECT * FROM territorio.tbl_cat_zona";
         $demo = Db::fetchAll($sql);
         return $demo;
     }

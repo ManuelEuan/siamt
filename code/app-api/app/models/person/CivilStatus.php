@@ -37,7 +37,7 @@ class CivilStatus extends Model
             "bind" => $parameters,
             "order" => "txtnombre",
             "columns" => [
-                "iid AS iidsexo",
+                "iid AS iidestado_civil",
                 "txtnombre",
                 "txtdescripcion",
                 "bactivo AS activo",

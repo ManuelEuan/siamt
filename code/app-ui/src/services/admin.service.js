@@ -285,4 +285,12 @@ export default class AdminService extends ApiService {
   async getAllPostalCodes() {
     return await this.get("/territory/getAllPostalCodes");
   }
+
+  async getAllTypesOfAddress() {
+    return await this.get("/persons/getAllTypesOfAddress");
+  }
+
+  async getAllTypesOfRoad() {
+    return await this.get("/persons/getAllTypesOfRoad");
+  }
 }

@@ -1,10 +1,11 @@
 <template>
     <div style="width: 100%">
         <!-- <v-data-table :headers="headers" :items="getAllInfoPermissionsFromUser"></v-data-table> -->
+        CAUM990224HYNRCC04
         <v-row class="d-flex align-center mx-auto mt-5" v-if="!request.idOfSearch">
             <v-col cols="12" class="text-center" style="padding: 0;">Seleccione una forma de búsqueda:</v-col>
             <v-col cols="12" class="text-center" style="padding: 0;">
-                <v-radio-group v-model="search" :row="$vuetify.breakpoint.smAndUp"  class="p-radio">
+                <v-radio-group v-model="search" :row="$vuetify.breakpoint.smAndUp" class="p-radio">
                     <v-radio label="Nombre" value="NOMBRE" class="mr-4"></v-radio>
                     <v-radio label="CURP" value="CURP" class="mr-4"></v-radio>
                     <v-radio label="RFC" value="RFC"></v-radio>
@@ -12,7 +13,8 @@
             </v-col>
         </v-row>
         <v-row class="d-flex align-center mx-auto" v-if="!request.idOfSearch">
-            <v-col cols="12" md="4" sm="6" style="margin: 0 0 0 auto; padding: 0; height: 40px;" v-if="search === 'NOMBRE'">
+            <v-col cols="12" md="4" sm="6" style="margin: 0 0 0 auto; padding: 0; height: 40px;"
+                v-if="search === 'NOMBRE'">
                 <v-text-field v-model="nombre" label="NOMBRE(S)*" :rules="[rules.required]" hide-details="auto"
                     clearable dense @input="toUpperCase" outlined />
             </v-col>
@@ -23,17 +25,20 @@
             </v-col>
         </v-row>
         <v-row class="d-flex align-center mx-auto" v-if="!request.idOfSearch">
-            <v-col cols="12" md="4"  sm="6" style="margin: 0 0 0 auto; padding: 0; height: 40px;" v-if="search === 'CURP'">
-                <v-text-field v-model="curp" label="CURP*" :rules="[rules.curp]" maxlength="18" hide-details="auto" clearable dense @input="toUpperCase" outlined />
+            <v-col cols="12" md="4" sm="6" style="margin: 0 0 0 auto; padding: 0; height: 40px;"
+                v-if="search === 'CURP'">
+                <v-text-field v-model="curp" label="CURP*" :rules="[rules.curp]" maxlength="18" hide-details="auto"
+                    clearable dense @input="toUpperCase" outlined />
             </v-col>
-            <v-col cols="12" md="4"  sm="6" class="pl-0" v-if="search === 'CURP'">
+            <v-col cols="12" md="4" sm="6" class="pl-0" v-if="search === 'CURP'">
                 <v-btn class="ml-sm-3" :disabled="!curpValida" depressed color="primary" @click="verifyCurp()">
                     Realizar búsqueda
                 </v-btn>
             </v-col>
         </v-row>
         <v-row class=" d-flex align-center mx-auto" v-if="!request.idOfSearch">
-            <v-col cols="12" md="4" sm="6" style="margin: 0 0 0 auto; padding: 0; height: 40px;" v-if="search === 'RFC'">
+            <v-col cols="12" md="4" sm="6" style="margin: 0 0 0 auto; padding: 0; height: 40px;"
+                v-if="search === 'RFC'">
                 <v-text-field v-model="rfc" label="RFC*" :rules="[rules.rfc]" maxlength="13" hide-details="auto"
                     clearable dense @input="toUpperCase" outlined />
             </v-col>
@@ -63,7 +68,8 @@
                     Información
                 </v-btn>
             </v-col>
-            <v-col cols="6" md="2" sm="6" v-if="!request.idOfSearch" ref="showSelectionPerson" :style="{ display: showSelectionPerson ? 'block' : 'none' }">
+            <v-col cols="6" md="2" sm="6" v-if="!request.idOfSearch" ref="showSelectionPerson"
+                :style="{ display: showSelectionPerson ? 'block' : 'none' }">
                 <v-btn depressed color="primary" @click="emitToParentComponent()">
                     Seleccionar
                 </v-btn>
@@ -93,8 +99,8 @@
                     <v-card-actions class="justify-end" style="margin-bottom: -1rem; margin-top: 1rem;">
                         <v-btn color="error" text @click="dialogRegisterPerson = false">Cancelar</v-btn>
                         <v-btn color="primary"
-                            :disabled="typePersonFisica && !curpValida && curpRegisterField || !typePersonFisica && !rfcValida && rfcRegisterField" text
-                            @click="showDialogPerson(0)">Aceptar</v-btn>
+                            :disabled="(typePersonFisica && (!curpValida || !curpRegisterField)) || (!typePersonFisica && (!rfcValida || !rfcRegisterField))"
+                            text @click="showDialogPerson(0)">Aceptar</v-btn>
                     </v-card-actions>
                 </div>
                 <div v-else class="mb-3">
@@ -194,7 +200,7 @@
         </generic-dialog>
 
         <!-- DIALOG MODAL PERSON -->
-        <generic-dialog :dialogVisible="dialogModalPerson" dialogTitle='' :showButtons=false
+        <generic-dialog :dialogVisible="dialogModalPerson" dialogTitle='' :showButtons=false :max-width="900"
             @update:dialogVisible="dialogModalPerson = $event">
             <template v-slot:default>
                 <v-tabs v-model="tab" centered icons-and-text>
@@ -359,8 +365,8 @@ export default {
                 iidsexo: null,
                 txtcorreo: '',
                 bactivo: true,
-                fecha_creacion: '',
-                fecha_modificacion: ''
+                dtfecha_creacion: '',
+                dtfecha_modificacion: ''
             },
 
             // MODALES
@@ -420,8 +426,8 @@ export default {
                 // this.$refs.showSelectionPerson.hidden = true;
                 this.showSelectionPerson = false;
                 this.showSuccess(this.responseCreatePerson.message);
-                this.personaEncontrada= true
-                this.personaDisponible= true
+                this.personaEncontrada = true
+                this.personaDisponible = true
                 this.persona = this.responseCreatePerson.persona
                 this.emitToParentComponent()
                 this.dialogModalPerson = false
@@ -614,7 +620,7 @@ export default {
             const curpRules = this.rules.curp;
             if (curpRules) {
                 this.curpValida = curpRules(this.curp) === true;
-                if(!this.curpValida){
+                if (!this.curpValida) {
                     this.personaDisponible = false
                     this.emitToParentComponent()
                 }
@@ -628,7 +634,7 @@ export default {
             const rfcRules = this.rules.rfc;
             if (rfcRules) {
                 this.rfcValida = rfcRules(this.rfc) === true;
-                if(!this.rfcValida){
+                if (!this.rfcValida) {
                     this.personaDisponible = false
                     this.emitToParentComponent()
                 }
@@ -675,7 +681,7 @@ export default {
     async mounted() {
         let user = await services.app().getUserConfig();
         this.newRegisterPerson = localStorage.getItem('newPerson') === 'true';
-        this.getAllInfoPermissionsFromUser = await services.admin().getActivePermissionsFromUser( user[0].id );
+        this.getAllInfoPermissionsFromUser = await services.admin().getActivePermissionsFromUser(user[0].id);
         this.peopleModulePermissions = this.getAllInfoPermissionsFromUser.map(permission => permission.siglas);
     }
 
