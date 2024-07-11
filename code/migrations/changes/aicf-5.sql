@@ -129,6 +129,7 @@ CREATE TABLE "persona"."tbl_direccion" (
    "txtcruzamiento_dos_letra" text COLLATE "pg_catalog"."default",
    "txtreferencia" text COLLATE "pg_catalog"."default",
    "txtcolonia" text,
+   icodigo_postal INT4,
    "the_geom" geometry,
    iclave_estado integer,
    iclave_municipio integer,
@@ -175,5 +176,8 @@ CREATE TABLE "persona"."tbl_persona_telefono" (
   "bpropio" bool DEFAULT true,
   "btelegram" bool DEFAULT false,
   "bwhatsapp" bool DEFAULT false,
-  "bactual" bool DEFAULT false
+  "bactual" bool DEFAULT false,
+  "bactivo" bool NOT NULL DEFAULT true,
+  "dtfecha_creacion" timestamp(6) NOT NULL DEFAULT now(),
+  "dtfecha_modificacion" timestamp(6) NOT NULL DEFAULT now()
 );
