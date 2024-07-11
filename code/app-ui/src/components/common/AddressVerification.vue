@@ -53,7 +53,6 @@
                         </template>
                         <span>Activar dirección</span>
                     </v-tooltip>
-                    <!-- {{ item }} -->
                     <v-tooltip bottom v-if="!item.bactual">
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn v-bind="attrs" v-on="on" icon small
@@ -74,7 +73,6 @@
         <!-- CAMPOS DE AGREGAR - MODIFICAR -->
         <v-form v-model="addressValidation" v-if="newAddress || newRegisterPerson || editAddress">
             <v-row>
-                {{  address }}
                 <v-col cols="12" md="4">
                    <v-autocomplete v-model="codePostal" label="Código postal*" :items="postalCodes"
                         item-text="icodigo_postal" item-value="icodigo_postal" hide-details="auto" small-chips clearable
