@@ -74,6 +74,7 @@
         <!-- CAMPOS DE AGREGAR - MODIFICAR -->
         <v-form v-model="addressValidation" v-if="newAddress || newRegisterPerson || editAddress">
             <v-row>
+                {{  address }}
                 <v-col cols="12" md="4">
                    <v-autocomplete v-model="codePostal" label="Código postal*" :items="postalCodes"
                         item-text="icodigo_postal" item-value="icodigo_postal" hide-details="auto" small-chips clearable
@@ -389,6 +390,7 @@ export default {
                 }
                 console.log(data)
                 if (!this.address.iiddireccion) {
+                    this.address.icodigo_postal = this.codePostal;
                     let response = await services.admin().createAddress(data);
                     console.log('address create')
                     this.showSuccess(response.message);
@@ -463,6 +465,7 @@ export default {
                 dtfecha_modificacion: null,
                 iidtipo_direccion: null,
                 iidtipo_vialidad: 0,
+                icodigo_postal: 0,
                 txtavenida_kilometro: '',
                 txttablaje: '',
                 txtdescripcion_direccion: '',
@@ -485,6 +488,8 @@ export default {
                     console.log(this.address)
                     this.address = { ...address }
                     this.codePostal = address.icodigo_postal
+                    console.log(this.address)
+
                     this.editAddress = true
                     break;
                 case 'newCurrentAddress':
@@ -509,8 +514,6 @@ export default {
         emitToParentComponent() {
             console.log('🚀 ~ emitToParentComponent ~ 🚀 sending editing mode, address, validation 🚀')
             let newOrEdit = false
-            console.log('newAddress' + this.newAddress)
-            console.log('editAddress' + this.editAddress)
             if (this.newAddress || this.editAddress) {
                 newOrEdit = true
             }
@@ -526,7 +529,6 @@ export default {
 
         // WATCHERS DATA
         'newRegisterPerson': function () {
-            console.log('watch newRegisterPerson')
             if (this.newRegisterPerson) {
                 this.resetAddress()
                 this.newAddress = true
@@ -535,20 +537,17 @@ export default {
             }
         },
         'newAddress': function () {
-            console.log('watch newAddress')
             if (this.newAddress) {
                 this.resetAddress()
                 this.address.iidtipo_direccion = this.typesAddress[0].iidtipo_direccion;
             }
         },
         'codePostal': function () {
-            console.log('watch codePostal')
             if (this.codePostal !== 0) {
                 this.getMunicipalityAndEntityByPostalCode()
             }
         },
         'addressValidation': function () {
-            console.log('watch addressValidation')
             this.emitToParentComponent()
         },
     },

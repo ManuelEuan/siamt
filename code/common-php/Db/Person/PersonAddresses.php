@@ -49,56 +49,39 @@ class PersonAddresses
                                 CASE
                                     WHEN d.txtcruzamiento_dos_letra <> '' THEN CONCAT(' ', d.txtcruzamiento_dos_letra)
                                     ELSE ''
-                                END
-                                -- CONCAT(' C.P. ', cp.icp),
-                                -- CASE
-                                --     WHEN c.txtnombre <> '' THEN CONCAT(' Colonia. ', c.txtnombre)
-                                --     ELSE ''
-                                -- END,
-                                -- CASE
-                                --     WHEN m.txtnombre <> '' THEN CONCAT(' Municipio. ', m.txtnombre)
-                                --     ELSE ''
-                                -- END
+                                END,
+                                ' C.P. ', d.icodigo_postal,
+                                ' Colonia. ', cp.txtasentamiento,
+                                ', ', cp.txtmunicipio,
+                                ' ', cp.txtestado
                             )
                         WHEN d.iidtipo_direccion = 2 THEN
                             CONCAT('Tablaje ', d.txtcalle,
-                                CONCAT(
-                                    CASE
-                                        WHEN d.inumero_exterior IS NOT NULL THEN CONCAT(' #', d.inumero_exterior)
-                                        ELSE ''
-                                    END
-                                    -- CONCAT(' C.P. ', cp.icp),
-                                    -- CASE
-                                    --     WHEN c.txtnombre <> '' THEN CONCAT(' Colonia. ', c.txtnombre)
-                                    --     ELSE ''
-                                    -- END,
-                                    -- CASE
-                                    --     WHEN m.txtnombre <> '' THEN CONCAT(' Municipio. ', m.txtnombre)
-                                    --     ELSE ''
-                                    -- END
-                                )
+                                CASE
+                                    WHEN d.inumero_exterior IS NOT NULL THEN CONCAT(' #', d.inumero_exterior)
+                                    ELSE ''
+                                END,
+                                 ' C.P. ', d.icodigo_postal,
+                                ' Colonia. ', cp.txtasentamiento,
+                                ', ', cp.txtmunicipio,
+                                ' ', cp.txtestado
                             )
                         WHEN d.iidtipo_direccion = 3 THEN
-                            CONCAT('Dirección conocida ', d.txtdescripcion_direccion,
-                                CONCAT(
-                                    CASE
-                                        WHEN d.inumero_exterior IS NOT NULL THEN CONCAT(' #', d.inumero_exterior)
-                                        ELSE ''
-                                    END
-                                    -- CONCAT(' C.P. ', cp.icp),
-                                    -- CASE
-                                    --     WHEN c.txtnombre <> '' THEN CONCAT(' Colonia. ', c.txtnombre)
-                                    --     ELSE ''
-                                    -- END,
-                                    -- CASE
-                                    --     WHEN m.txtnombre <> '' THEN CONCAT(' Municipio. ', m.txtnombre)
-                                    --     ELSE ''
-                                    -- END
-                                )
+                            CONCAT('Dirección conocida ', d.txtcalle,
+                                CASE
+                                    WHEN d.inumero_exterior IS NOT NULL THEN CONCAT(' #', d.inumero_exterior)
+                                    ELSE ''
+                                END,
+                                 ' C.P. ', d.icodigo_postal,
+                                ' Colonia. ', cp.txtasentamiento,
+                                ', ', cp.txtmunicipio,
+                                ' ', cp.txtestado
                             )
                         ELSE '' -- Manejo de otro tipo de dirección, si es necesario
                     END
                 ) AS direccion_completa,
+                d.icodigo_postal,
+                d.iidcolonia,
                 d.txtcalle,
                 d.txtcalle_letra,
                 d.inumero_exterior,
@@ -107,20 +90,17 @@ class PersonAddresses
                 d.txtcruzamiento_dos,
                 d.txtcruzamiento_dos_letra,
                 d.txtreferencia,
-                -- d.nlatitud,
-                -- d.nlongitud,
                 d.iidtipo_direccion,
                 d.iidtipo_vialidad,
-                -- d.txtavenida_kilometro,
-                -- d.txttablaje,
                 d.txtdescripcion_direccion,
-                -- cp.icp AS icodigo_postal,
                 pd.bactual,
                 pd.bactivo                   
             FROM 
                 persona.tbl_persona_direccion pd
             JOIN 
                 persona.tbl_direccion d ON d.iid = pd.iiddireccion
+            JOIN 
+                territorio.tbl_cp cp ON d.iidcolonia = cp.iid
             WHERE 
                 pd.bactivo = true 
                 AND pd.iidpersona = :iidpersona";
@@ -128,6 +108,7 @@ class PersonAddresses
         $addresses = Db::fetchAll($sql, $params);
         return $addresses;
     }
+
 
 
 
@@ -141,11 +122,11 @@ class PersonAddresses
         Db::execute($sql, $paramsNew);
     }
 
-    public static function delete($iid)
+    public static function delete($iidpersona, $iiddireccion)
     {
 
-        $params = array('iid' => $iid);
-        $sql = "UPDATE persona.tbl_persona_direccion SET bactivo = false WHERE iid = :iid";
+        $params = array('iidpersona' => $iidpersona,'iiddireccion' => $iiddireccion);
+        $sql = "UPDATE persona.tbl_persona_direccion SET bactivo = false WHERE iidpersona = :iidpersona AND iiddireccion = :iiddireccion";
         Db::execute($sql, $params);
     }
 

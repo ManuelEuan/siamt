@@ -1,7 +1,6 @@
 <template>
     <div style="width: 100%">
         <!-- <v-data-table :headers="headers" :items="getAllInfoPermissionsFromUser"></v-data-table> -->
-        CAUM990224HYNRCC04
         <v-row class="d-flex align-center mx-auto mt-5" v-if="!request.idOfSearch">
             <v-col cols="12" class="text-center" style="padding: 0;">Seleccione una forma de búsqueda:</v-col>
             <v-col cols="12" class="text-center" style="padding: 0;">
@@ -412,16 +411,12 @@ export default {
         async savePersonWithAddressAndPhone() {
             console.log('Guardando persona con dirección y teléfono');
             try {
-                console.log('se va a crear')
-                console.log(this.dataPerson)
                 let allInfo = {
                     person: this.receivedTabGeneralPersonData.data,
                     phone: this.receivedTabPhone.data,
                     address: this.receivedTabAddress.data,
                 }
                 this.responseCreatePerson = await services.admin().createPerson(allInfo);
-                console.log('responseCreatePerson create')
-                console.log(this.responseCreatePerson)
                 // this.$refs.showSelectionPerson
                 // this.$refs.showSelectionPerson.hidden = true;
                 this.showSelectionPerson = false;
@@ -466,8 +461,6 @@ export default {
             } else {
                 this.setPerson = iidpersona
                 localStorage.setItem('newPerson', false);
-                // console.log('****iidpersona****')
-                console.log('idipersona: ' + iidpersona)
                 this.dialogModalPerson = true
             }
         },
@@ -475,7 +468,6 @@ export default {
         emitToParentComponent() {
             console.log('🚀 ~ emitToParentComponent ~ 🚀 sending editing mode, generalPersonData, validation 🚀')
             console.log('person-info', this.personaEncontrada, this.personaDisponible); // true - true
-            console.log(this.persona);
             this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona);
         },
 
@@ -484,7 +476,6 @@ export default {
                 let data = {};
                 this.showSelectionPerson = true;
                 if (this.search === 'CURP') {
-                    console.log('seleccionó curp')
                     data = {
                         typeSearch: this.search,
                         dataSearch: this.curp,
@@ -492,7 +483,6 @@ export default {
                     }
                 }
                 if (this.search === 'RFC') {
-                    console.log('seleccionó rfc')
                     data = {
                         typeSearch: this.search,
                         dataSearch: this.rfc,
@@ -500,7 +490,6 @@ export default {
                     }
                 }
                 if (this.search === 'NOMBRE') {
-                    console.log('seleccionó nombre')
                     data = {
                         typeSearch: this.search,
                         dataSearch: this.nombre,
@@ -510,23 +499,18 @@ export default {
                 let response = await services.admin().getPersonByDinamycSearch({ data });
                 // SI NO EXISTE SE AGREGA LA PERSONA
                 if (!response || !response[0]) {
-                    console.log('PERSONA NO ENCONTRADA')
                     localStorage.setItem('newPerson', true);
                     this.setPerson = 0
                     this.peopleModulePermissions.includes('crmp') ? this.dialogRegisterPerson = true : this.dialogWithpoutPermissionsToCreatePerson = true
                 } else if (response.length > 1) {
-                    console.log('MÁS DE UN REGISTRO ENCONTRADO')
                     this.peopleFounds = response
                     this.dialogPeopleFounds = true
                 } else {
-                    console.log('BIEN, SOLO UN REGISTRO')
                     this.personaEncontrada = true
                     this.personaDisponible = true
                     this.persona = response[0]
-                    console.log(this.persona)
                     if (this.persona.foundRequestSearched) {  // Si la persona buscada es econtrada significa que no esta disponible
                         if (this.request.type == 'Inspector') {
-                            console.log('entrandoo')
                             this.routeTypeOfRequest = `/inspections/inspectors/${this.persona.iidOfSearchedRequest}/edit`;
                             this.personaDisponible = false
                             this.messageDialogOfRequest = "La clave ingresada pertenece a un " + this.request.type
@@ -561,7 +545,6 @@ export default {
                 data: generalPersonData,
                 valid: valid
             }
-            console.log(this.receivedTabGeneralPersonData)
         },
 
         handleTabAddress(newOrEdit, address, valid) {
@@ -571,7 +554,6 @@ export default {
                 data: address,
                 valid: valid
             }
-            console.log(this.receivedTabAddress)
         },
 
         handleTabPhone(newOrEdit, phone, valid) {
@@ -581,13 +563,10 @@ export default {
                 data: phone,
                 valid: valid
             }
-            console.log(this.receivedTabPhone)
         },
         async getGeneralPersonData(iidpersona) {
             try {
                 this.persona = await services.admin().getGeneralPersonData(iidpersona);
-                console.log('this.persona curPersonData')
-                console.log(this.persona)
             } catch (error) {
                 const message = 'Error al cargar los datos de la persona.';
                 this.showError({ message, error });
@@ -606,15 +585,7 @@ export default {
 
         // WATCHERS FUNCIONALIDAD
         'dialogModalPerson': function () {
-            if (this.dialogModalPerson) {
-                console.log('Se abrió el modal')
-                console.log(this.preLoadPerson)
-                console.log(this.persona)
-            } else {
-                console.log('Se cerró el modal')
-            }
             this.newRegisterPerson = localStorage.getItem('newPerson') === 'true';
-            console.log('nueva persona: ' + this.newRegisterPerson)
         },
         'curp': function () {
             const curpRules = this.rules.curp;
@@ -668,8 +639,6 @@ export default {
         'request': async function () {
             console.log('cambio en la solicitud de búsqueda de personas: ')
             if (this.request.idOfSearch && this.request.type) {
-                console.log('Leyendo: ')
-                console.log(this.request)
                 this.newRegisterPerson = localStorage.getItem('newPerson') === 'true';
                 this.personaEncontrada = true
                 this.personaDisponible = true

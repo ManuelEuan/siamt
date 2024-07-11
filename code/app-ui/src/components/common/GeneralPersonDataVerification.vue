@@ -32,7 +32,7 @@
                         <v-text-field v-model="generalPersonData.txtapellido_materno" label="Apellido materno"
                             hide-details="auto" clearable dense outlined />
                     </v-col>
-                    <v-col cols="12" md="6">
+                    <v-col cols="12" md="6" v-if="generalPersonData.bfisica">
                         <v-text-field v-model="generalPersonData.dfecha_nacimiento" clearable dense outlined
                             label="Fecha de nacimiento*" type="date" :max="getDate" :mask="'####/##/##'"
                             :rules="[rules.required]"></v-text-field>
@@ -46,16 +46,16 @@
                             maxlength="18" hide-details="auto" clearable dense outlined
                             :disabled="generalPersonData.bfisica" />
                     </v-col>
-                    <v-col cols="12" md="6">
+                    <v-col cols="12" md="6" v-if="generalPersonData.bfisica">
                         <v-text-field v-model="generalPersonData.txtine" label="INE" hide-details="auto" clearable dense
                             outlined maxlength="19" />
                     </v-col>
-                    <v-col cols="12" md="6">
+                    <v-col cols="12" md="6" v-if="generalPersonData.bfisica">
                         <v-autocomplete v-model="generalPersonData.iidestado_civil" label="Estado civil"
                             :items="civilStatus" item-text="txtnombre" item-value="iidestado_civil" hide-details="auto"
                             small-chips clearable dense outlined />
                     </v-col>
-                    <v-col cols="12" md="6">
+                    <v-col cols="12" md="6" v-if="generalPersonData.bfisica">
                         <v-autocomplete v-model="generalPersonData.iidsexo" label="Género" :items="sexes"
                             item-text="txtnombre" item-value="iidsexo" hide-details="auto" small-chips clearable dense
                             outlined />
@@ -184,15 +184,9 @@ export default {
         async loadDataPerson() {
             try {
                 if (this.iidpersona) {
-                    console.log('LOAD GENERAL DATA PERSON')
                     this.newRegisterPerson = localStorage.getItem('newPerson');
                     this.newRegisterPerson = this.newRegisterPerson === 'true';
-                    console.log('this.iidpersona')
-                    console.log(this.iidpersona)
                     this.generalPersonData = await services.admin().getGeneralPersonData(this.iidpersona);
-                    console.log('this.persona getGenera GENRAL')
-                    console.log(this.generalPersonData)
-                    console.log(this.generalPersonData)
                     // this.emitToParentComponent()
                 } else {
                     localStorage.setItem('newPerson', true);
@@ -231,8 +225,6 @@ export default {
             if (this.newGeneralPersonData || this.editGeneralPersonData) {
                 newOrEdit = true
             }
-            console.log('******************this.generalPersonData***********************')
-            console.log(this.generalPersonData)
             this.$emit('general-person-data-validation', newOrEdit, this.generalPersonData, this.generalPersonDataValidation);
         }
     },

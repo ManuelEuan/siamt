@@ -58,8 +58,8 @@ class PersonPhones
                     pt.vtelefono, 
                     pt.iid AS iidtelefono, 
                     pt.iidtipo_telefono, 	
-                    pt.bactual
-                    -- pt.bactivo,
+                    pt.bactual,
+                    pt.bactivo
                     -- t.bactivo AS telefono_activo, 
                     -- pt.bactivo AS persona_telefono_activo, 
                     -- pt.dtfecha_creacion, 
@@ -73,7 +73,7 @@ class PersonPhones
                 INNER JOIN
                     persona.tbl_cat_tipo_telefono AS tt ON pt.iidtipo_telefono = tt.iid
                 WHERE 
-                    pt.iidpersona = :iidpersona 
+                    pt.iidpersona = :iidpersona AND pt.bactivo = true
                     -- AND pt.bactivo = true
         ";
         $phones = Db::fetchAll($sql, $params);
@@ -106,13 +106,13 @@ class PersonPhones
         $sql = "UPDATE persona.tbl_persona_telefono SET bactual = false WHERE iidpersona = :iidpersona";
         Db::execute($sql, $paramsOld);
         $paramsNew = array('iidpersona' => $data->iidpersona, 'iidtelefono' => $data->selectedPhone);
-        $sql = "UPDATE persona.tbl_persona_telefono SET bactual = true WHERE iidpersona = :iidpersona AND iidtelefono = :iidtelefono";
+        $sql = "UPDATE persona.tbl_persona_telefono SET bactual = true WHERE iidpersona = :iidpersona AND iid = :iidtelefono";
         Db::execute($sql, $paramsNew);
     }
 
     public static function deactivate($data){
-        $paramsNew = array('iidpersona' => $data->iidpersona, 'iidtelefono' => $data->selectedPhone);
-        $sql = "UPDATE persona.tbl_persona_telefono SET bactivo = false WHERE iidpersona = :iidpersona AND iidtelefono = :iidtelefono";
+        $paramsNew = array('iidpersona' => $data->iidpersona, 'iid' => $data->selectedPhone);
+        $sql = "UPDATE persona.tbl_persona_telefono SET bactivo = false WHERE iidpersona = :iidpersona AND iid = :iid";
         Db::execute($sql, $paramsNew);
     }
     

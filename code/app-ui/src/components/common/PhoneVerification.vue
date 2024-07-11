@@ -43,7 +43,8 @@
                         </template>
                         <span>Editar teléfono</span>
                     </v-tooltip>
-                    <!-- <v-tooltip bottom v-if="!item.bactual">
+                    
+                    <v-tooltip bottom v-if="!item.bactual">
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn v-bind="attrs" v-on="on" icon small
                                 @click="actionsHandlerOfTable(item, 'newCurrentPhone')">
@@ -62,7 +63,7 @@
                             </v-btn>
                         </template>
                         <span>Eliminar teléfono</span>
-                    </v-tooltip> -->
+                    </v-tooltip>
                 </div>
                 <div v-else>
                     Sin permisos
@@ -328,8 +329,6 @@ export default {
         emitToParentComponent() {
             console.log('🚀 ~ emitToParentComponent ~ 🚀 sending editing mode, phone, validation 🚀')
             let newOrEdit = false
-            console.log('newPhone' + this.newPhone)
-            console.log('editPhone' + this.editPhone)
             if (this.newPhone || this.editPhone) {
                 newOrEdit = true
             }
@@ -340,13 +339,11 @@ export default {
     watch: {
         // WATCHERS PROP
         'iidpersona': function () {
-            console.log('watch iidpersona')
             this.loadPhonesTable()
         },
 
         // WATCHERS DATA
         'newRegisterPerson': function () {
-            console.log('watch newRegisterPerson')
             if (this.newRegisterPerson) {
                 this.resetPhone()
                 this.newPhone = true
@@ -355,13 +352,11 @@ export default {
             }
         },
         'newPhone': function () {
-            console.log('watch newPhone')
             if (this.newPhone) {
                 this.resetPhone()
             }
         },
         'phoneValidation': function () {
-            console.log('watch phoneValidation')
             this.emitToParentComponent()
         },
         'phone.vtelefono'() {
@@ -377,7 +372,6 @@ export default {
         let user = await services.app().getUserConfig();
         this.newRegisterPerson = localStorage.getItem('newPerson') === 'true';
         let getActivePermissionsFromUser = await services.admin().getActivePermissionsFromUser(user[0].id);
-        console.log(getActivePermissionsFromUser);
         this.peopleModulePermissions = getActivePermissionsFromUser.map(permission => permission.siglas);
     }
 };

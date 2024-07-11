@@ -249,7 +249,6 @@ class PersonsController extends BaseController
         } else {
             $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         }
-
         if (empty($data->iidpersona)) {
             throw new ValidatorBoomException(422, 'No se ha podido identificar a la persona para asignar dirección');
         }
@@ -383,7 +382,7 @@ class PersonsController extends BaseController
         }
         Db::begin();
         try {
-            PersonAddresses::delete($data->selectedAddress);
+            PersonAddresses::delete($data->iidpersona, $data->selectedAddress);
             Db::commit();
             return ['message' => 'La dirección ha sido eliminada.', 'data' => $data];
         } catch (\Exception $e) {
