@@ -305,7 +305,7 @@ class PersonsController extends BaseController
             if(!isset($data->phone->iidpersona)){
                 $data->phone->iidpersona = $iidpersona;
             }
-            $iidtelefono = PersonPhones::create($data->phone->iidpersona, $data->phone->iidtipo_telefono, $data->phone->vtelefono);
+            $iidtelefono = PersonPhones::create($data);
            
             Db::commit(); // Confirmar transacción en la base de datos
             $data->phone->iidtelefono = $iidtelefono;

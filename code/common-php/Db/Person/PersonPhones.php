@@ -6,15 +6,32 @@ use App\Library\Http\Exceptions\ValidatorBoomException;
 
 class PersonPhones
 {
-    public static function create($iidpersona, $iidtipo_telefono, $vtelefono){
+    public static function create($data){
 
         try{
-            $paramsPersonAddress = [
-                'iidpersona' => $iidpersona, 
-                'iidtipo_telefono' => $iidtipo_telefono, 
-                'vtelefono' => $vtelefono
-            ];
-            return Db::insert('persona.tbl_persona_telefono', $paramsPersonAddress);
+            $params = [];
+            foreach ($data->phone as $key => $value) {
+                // $params[$key] = $value;
+                switch ($key) {
+                    case 'iidtelefono':
+                    case 'txtlada':
+                        break;
+                    case 'bpropio':
+                        $params[$key] = $value == 1 ? 't' : 'f';
+                        break;
+                    case 'btelegram':
+                        $params[$key] = $value == 1 ? 't' : 'f';
+                        break;
+                    case 'bwhatsapp':
+                        $params[$key] = $value == 1 ? 't' : 'f';
+                        break;
+                    default:
+                        $params[$key] = $value;
+                        break;
+                }
+            }
+            // Db::dep($params);exit;
+            return Db::insert('persona.tbl_persona_telefono', $params);
         } catch (\Exception $e) {
             throw new ValidatorBoomException(422, 'Error teléfono.' . $e->getMessage());
         }
@@ -34,6 +51,9 @@ class PersonPhones
                 'iidpersona' => $data->iidpersona,
                 'iidtipo_telefono' => $data->iidtipo_telefono,
                 'iid' => $data->iidpersona_telefono,
+                'bpropio' => $data->bpropio == 1 ? 't' : 'f',
+                'btelegram' => $data->btelegram == 1 ? 't' : 'f',
+                'bwhatsapp' => $data->bwhatsapp == 1 ? 't' : 'f'
             );
             $where = "iid = :iid";
             Db::update($table, $params, $where);
@@ -59,7 +79,10 @@ class PersonPhones
                     pt.iid AS iidtelefono, 
                     pt.iidtipo_telefono, 	
                     pt.bactual,
-                    pt.bactivo
+                    pt.bactivo,
+                    pt.bpropio,                   
+                    pt.btelegram,                   
+                    pt.bwhatsapp
                     -- t.bactivo AS telefono_activo, 
                     -- pt.bactivo AS persona_telefono_activo, 
                     -- pt.dtfecha_creacion, 

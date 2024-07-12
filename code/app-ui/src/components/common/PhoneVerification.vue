@@ -69,7 +69,7 @@
                     Sin permisos
                 </div>
             </template>
-        </v-data-table>
+        </v-data-table>  
 
         <!-- CAMPOS DE AGREGAR - MODIFICAR -->
         <v-form v-model="phoneValidation" v-if="newPhone || newRegisterPerson || editPhone">
@@ -92,6 +92,15 @@
                 <v-col cols="12" md="6">
                     <v-text-field v-model="phone.vtelefono" label="Número*" hide-details="auto" clearable dense outlined
                         maxlength="14" @input="formatPhoneNumber" :rules="[rules.telefono]"></v-text-field>
+                </v-col>
+                <v-col cols="12" md="4" class="d-flex justify-center">
+                    <v-checkbox v-model="phone.bpropio" label="Propio"/>
+                </v-col>
+                <v-col cols="12" md="4" class="d-flex justify-center">
+                    <v-checkbox v-model="phone.btelegram" label="Telegram"/>
+                </v-col>
+                <v-col cols="12" md="4" class="d-flex justify-center">
+                    <v-checkbox v-model="phone.bwhatsapp" label="Whatsapp"/>
                 </v-col>
             </v-row>
         </v-form>
@@ -165,6 +174,9 @@ export default {
                 txtlada: '',
                 vtelefono: null,
                 iidtipo_telefono: null,
+                bpropio: true,
+                btelegram: false,
+                bwhatsapp: false
             },
 
             // REGLAS
@@ -289,6 +301,9 @@ export default {
                 txtlada: '',
                 vtelefono: '',
                 iidtipo_telefono: null,
+                bpropio: true,
+                btelegram: false,
+                bwhatsapp: false
             }
         },
 

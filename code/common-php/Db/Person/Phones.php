@@ -26,7 +26,7 @@ class Phones
 
             return Db::insert('persona.tbl_telefono', $params);
         } catch (\Exception $e) {
-            throw new ValidatorBoomException(422, 'Error teléfono.');
+            throw new ValidatorBoomException(422, 'Error teléfono.'. $e->getMessage());
         }
     }
 

@@ -519,6 +519,7 @@ export default {
             if (this.newAddress || this.editAddress) {
                 newOrEdit = true
             }
+            this.address.icodigo_postal = this.codePostal
             this.$emit('address-validation', newOrEdit, this.address, this.addressValidation);
         }
     },
