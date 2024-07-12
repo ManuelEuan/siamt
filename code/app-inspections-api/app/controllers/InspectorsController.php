@@ -121,7 +121,6 @@ class InspectorsController extends BaseController
         $params = array('iidsubetapa' => $iidSubStage);
 
         $allFlow = Db::fetchOne($sql, $params);
-        // $this->dep($allFlow);exit;
         return $allFlow;
     }
 
@@ -180,8 +179,6 @@ class InspectorsController extends BaseController
             ";
             $params = array('iidinspector' => $idOfType);
             return Db::fetch($sql, $params);
-            // self::dep($follow);
-            // exit;
         }
     }
 
@@ -189,8 +186,6 @@ class InspectorsController extends BaseController
     {
         $this->hasClientAuthorized('veii'); // Verificar si el cliente tiene autorización
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        // $this->dep($data);
-        // exit;
         if (empty($data->stage)) throw new ValidatorBoomException(422, 'Etapa requerida.'); // Lanzar excepción si el ID está vacío
         $params = array('iidetapa' => $data->stage); // Parámetros para la consulta
         $sql = "
@@ -284,7 +279,6 @@ class InspectorsController extends BaseController
         $this->hasClientAuthorized('crii'); // Verificar si el cliente tiene autorización
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         $data = $data->dataTrace;
-        // self::dep($data);exit;
         $this->validRequiredData($data, 'insertInspectorTrace'); // Validar datos requeridos
         Db::begin(); // Iniciar transacción en la base de datos
 
@@ -308,7 +302,6 @@ class InspectorsController extends BaseController
         $this->hasClientAuthorized('edii'); // Verificar si el cliente tiene autorización
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
         $this->validRequiredData($data, 'updateInspector'); // Validar datos requeridos
-        // var_dump($data->activo);exit;
         Db::begin(); // Iniciar transacción en la base de datos
 
         // Actualización de inspector
@@ -392,8 +385,6 @@ class InspectorsController extends BaseController
 
         // $requiredKeys = array('iidpersona', 'iidturno', 'iidetapa', 'iidinspector_categoria'); // Claves requeridas
         $actualKeys = array_keys(get_object_vars($data)); // Claves presentes en los datos
-        // self::dep($from);
-        // self::dep($actualKeys);exit;
         $missingKeys = array_diff($requiredKeys, $actualKeys); // Claves faltantes
         $message = 'Faltan valores requeridos.';
 

@@ -67,7 +67,7 @@
                     Información
                 </v-btn>
             </v-col>
-            <v-col cols="6" md="2" sm="6" v-if="!request.idOfSearch" ref="showSelectionPerson"
+            <v-col cols="6" md="2" sm="6" v-if="!request.idOfSearch && request.type" ref="showSelectionPerson"
                 :style="{ display: showSelectionPerson ? 'block' : 'none' }">
                 <v-btn depressed color="primary" @click="emitToParentComponent()">
                     Seleccionar
@@ -545,6 +545,7 @@ export default {
                 data: generalPersonData,
                 valid: valid
             }
+            // console.log('aqui', this.receivedTabGeneralPersonData)
         },
 
         handleTabAddress(newOrEdit, address, valid) {

@@ -92,6 +92,7 @@ class Db
     $setClause = rtrim($setClause, ', '); 
 
     $sql = "UPDATE $table SET $setClause WHERE $where";
+
     return self::execute($sql, $params);
   }
 

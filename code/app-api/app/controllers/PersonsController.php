@@ -220,6 +220,7 @@ class PersonsController extends BaseController
         Db::begin(); // Iniciar transacción en la base de datos
         try {
             Persons::update($data);
+
             Db::commit();
             $txtnombre_completo = $data->txtnombre . ' ' . $data->txtapellido_paterno;
             if (!empty($data->txtapellido_materno)) {
@@ -395,7 +396,6 @@ class PersonsController extends BaseController
     {
         $this->hasClientAuthorized('edtp');
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        // var_dump($data);exit;
         if (empty($data->iidpersona) || empty($data->selectedPhone)) {
             throw new ValidatorBoomException(422, 'Falta de información requerida');
         }
@@ -425,7 +425,7 @@ class PersonsController extends BaseController
                 }
                 break;
             case 'address':
-                $requiredKeys = array('iidcolonia'); // Claves requeridas
+                $requiredKeys = array('txtcolonia'); // Claves requeridas
                 break;
             case 'phone':
                 $requiredKeys = array('vtelefono', 'iidtipo_telefono'); // Claves requeridas

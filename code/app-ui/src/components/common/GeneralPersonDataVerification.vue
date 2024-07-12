@@ -206,11 +206,10 @@ export default {
         },
 
         async updatePerson() {
-            console.log('Actualizando persona');
             try {
                 let response = { ...await services.admin().updatePerson(this.generalPersonData) };
-                console.log('response del update person')
-                console.log(response)
+                this.generalPersonData.txtnombre_completo = response.txtnombre_completo
+                this.emitToParentComponent()
                 this.showSuccess(response.message);
             } catch (error) {
                 const message = 'Error al actualizar la persona.';
@@ -236,8 +235,7 @@ export default {
             this.loadDataPerson()
         },
         'preLoadPerson': function () {
-            console.log('llego el preload desde curp verification')
-            console.log(this.preLoadPerson)
+            console.log('watch preLoadPerson')
             this.generalPersonData.bfisica = this.preLoadPerson.bfisica
             if (this.preLoadPerson.bfisica) {
                 this.generalPersonData.txtcurp = this.preLoadPerson.txtvariable

@@ -46,11 +46,8 @@ class TicketsController extends BaseController
     {
         if ($download) {
             $data =  $download['data']; 
-            // self::dep('$data');
-            // self::dep($data['data']);exit;
         } else {
             $data =  $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-            // self::dep($data);exit;
         }
         return Tickets::getAllTickets($data);
     }

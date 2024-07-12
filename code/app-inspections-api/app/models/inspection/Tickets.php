@@ -106,8 +106,6 @@ class Tickets extends Model
             return Db::fetchAll($sql, $params);
         } else {
             $sql .= self::sortTickets($data->sortBy, $data->sortDesc); // Ordenar inspectores
-            // self::dep($itemsPerPage);
-            // exit;
             if ($itemsPerPage > 0) { // Si se especifica un número de ítems por página
                 $sql .= ' LIMIT :items OFFSET :offset'; // Limitar resultados por página
                 $params['items'] = $itemsPerPage; // Añadir parámetro de ítems por página
@@ -116,9 +114,6 @@ class Tickets extends Model
             $tickets = Db::fetchAll($sql, $params); // Ejecutar consulta para obtener inspectores      
             $totalItems = count($tickets) ?? 0; // Obtener total de inspectores
             $totalPages = ceil($totalItems / $itemsPerPage); // Calcular total de páginas
-            //    self::dep($sql);
-            //         self::dep($totalPages);
-            //         exit;
             return array(
                 'tickets' => $tickets, // Devolver inspectores
                 'totalPages' => $totalPages, // Devolver total de páginas

@@ -50,8 +50,6 @@ class Addresses
                         break;
                 }
             }
-            // Db::dep($params);
-            // exit;
 
             $address =  Db::insert('persona.tbl_direccion', $params);
             return $address;
@@ -68,7 +66,6 @@ class Addresses
             $table = "persona.tbl_direccion";
 
             $params = array(
-                'iidcolonia'  => $data->iidcolonia,
                 'txtcalle' => $data->txtcalle,
                 'txtcalle_letra' => $data->txtcalle_letra,
                 'inumero_exterior' => $data->inumero_exterior !== '' ? $data->inumero_exterior : null,
@@ -85,6 +82,7 @@ class Addresses
                 'iidtipo_vialidad' => $data->iidtipo_vialidad !== '' ? $data->iidtipo_vialidad : null,
                 'iid' => $data->iiddireccion,
             );
+
             $where = "iid = :iid"; // Condición WHERE para la actualización
             $direccion = Db::update($table, $params, $where);
             return $direccion;

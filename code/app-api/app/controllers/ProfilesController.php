@@ -123,7 +123,6 @@ class ProfilesController extends BaseController
         $sql = 'SELECT idpermiso, activo FROM usuario.perfil_permiso WHERE idperfil=:id AND activo = true';
         // $sql = 'SELECT idpermiso FROM usuario.perfil_permiso WHERE idperfil=:id AND activo=true';
         $permissions = Db::fetchAll($sql, $params);
-        //  var_dump($permissions);exit;
         $profile['perfil']->permisos = array_column($permissions, 'idpermiso');
 
         return $profile; // Devolver información del perfil
@@ -133,7 +132,6 @@ class ProfilesController extends BaseController
     public function getUsersFromProfile()
     {
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        // self::dep($data);exit;
         $params = array('idperfil' => 1); // Parámetros para la consulta
         // $params = array('idperfil' => $data->id); // Parámetros para la consulta
         $sql = 'SELECT idusuario FROM usuario.perfil_usuario WHERE idperfil = :idperfil'; // Consulta para obtener usuarios asociados al perfil
@@ -213,16 +211,6 @@ class ProfilesController extends BaseController
             'id'      => $data->id
         ); // Parámetros para la actualización del perfil
         Db::execute($sql, $params); // Ejecutar actualización del perfil en la base de datos
-        // var_dump($data);exit;
-
-        // $sql = "SELECT activo FROM usuario.perfil  WHERE idperfil=:idperfil LIMIT 1"; // Consulta para obtener estado activo del perfil
-        // $params = array('idperfil' => $data->id); // Parámetros para la consulta
-        // // $active = Db::fetchAll($sql); // Obtener estado activo del perfil
-        // $active = Db::fetchColumn($sql, $params); // Obtener estado activo del perfil
-        // // ESTABLECE 
-        // $active = count($active) == 0 ? $active = true : $active[0]->activo;
-
-        // var_dump($data->id);exit;
 
         $sql = "SELECT activo FROM usuario.perfil WHERE id=:id"; // Consulta para obtener estado activo del perfil
         $params = array('id' => $data->id); // Parámetros para la consulta
@@ -244,8 +232,6 @@ class ProfilesController extends BaseController
               
             }
         } 
-        // var_dump($data->id);
-        // var_dump($data->permisos);exit;
 
         foreach ($data->permisos as $idpermiso) {
             $sql = "SELECT idpermiso FROM usuario.perfil_permiso WHERE idperfil=:idperfil AND idpermiso=:idpermiso"; // Consulta para obtener estado activo del perfil

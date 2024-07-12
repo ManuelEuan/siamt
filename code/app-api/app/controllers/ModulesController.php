@@ -132,7 +132,6 @@ class ModulesController extends BaseController
 
 	public function updatePermission(){
 		$data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        // var_dump($data);exit;
 		Db::begin();
        
         $sql = 'UPDATE usuario.permiso SET 

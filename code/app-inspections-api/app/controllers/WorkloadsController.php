@@ -238,9 +238,6 @@ class WorkloadsController extends BaseController
 
     public function getAllZones()
     {
-        //  $sequenceName = Zones::getSequenceName();
-        //  $nextValue = Db::fetchOne("SELECT nextval(:sequence)", ['sequence' => $sequenceName]);
-        //  self::dep($nextValue);exit;
         return Zones::getDemoModel();
     }
 

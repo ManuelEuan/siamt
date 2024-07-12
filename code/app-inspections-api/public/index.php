@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-// var_dump("ff");exit;
 use App\Library\Http\Middlewares\ResponseMiddleware;
 use App\Library\Http\Middlewares\SecurityMiddleware;
 use Phalcon\Di;

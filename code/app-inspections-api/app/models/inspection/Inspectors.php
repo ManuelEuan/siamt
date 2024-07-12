@@ -65,7 +65,6 @@ class Inspectors extends Model
                             ON i.iidsubetapa = cas.iid
                         JOIN inspeccion.tbl_cat_inspector_categoria ic ON i.iidinspector_categoria = ic.iid
                     )";
-                    // self::dep($sql);exit;
         $params = array();
         if ($data->filters) { // Aplicar filtros si están presentes en la solicitud
             list($sql2, $params2) = self::filterInspectors($data->filters); // Aplicar filtros

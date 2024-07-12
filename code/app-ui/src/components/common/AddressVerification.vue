@@ -74,7 +74,7 @@
         <v-form v-model="addressValidation" v-if="newAddress || newRegisterPerson || editAddress">
             <v-row>
                 <v-col cols="12" md="4">
-                   <v-autocomplete v-model="codePostal" label="Código postal*" :items="postalCodes"
+                    <v-autocomplete v-model="codePostal" label="Código postal*" :items="postalCodes"
                         item-text="icodigo_postal" item-value="icodigo_postal" hide-details="auto" small-chips clearable
                         dense :rules="[rules.required]" outlined />
                 </v-col>
@@ -96,9 +96,11 @@
 
             <v-row v-if="codePostal">
                 <v-col cols="12" md="6">
-                    <v-autocomplete v-model="address.iidcolonia" :items="colonies" item-text="txtasentamiento"
+                    <!-- <v-autocomplete v-model="address.iidcolonia" :items="colonies" item-text="txtasentamiento"
                         item-value="iidcolonia" label="Colonia*" hide-details="auto" small-chips clearable dense
-                        :rules="[rules.required]" outlined :disabled="!codePostal"></v-autocomplete>
+                        :rules="[rules.required]" outlined :disabled="!codePostal"></v-autocomplete> -->
+                    <v-text-field v-model="address.txtcolonia" label="Colonia*" hide-details="auto" clearable dense
+                        outlined :rules="[rules.required]" />
                 </v-col>
                 <v-col cols="12" md="6" v-if="codePostal && address.iidtipo_direccion === 1">
                     <v-autocomplete v-model="address.iidtipo_vialidad" label="Tipo vialidad*" :items="typesRoads"
@@ -109,7 +111,7 @@
                     <v-text-field v-model="address.txtcalle" label="Calle principal/s*" hide-details="auto" clearable
                         dense outlined :rules="[rules.required]" />
                 </v-col> -->
-                 <!-- <v-col cols="12" md="6" v-if="codePostal && address.iidtipo_direccion === 2">
+                <!-- <v-col cols="12" md="6" v-if="codePostal && address.iidtipo_direccion === 2">
                     <v-text-field v-model="address.txttablaje" label="Tablaje*" hide-details="auto" clearable dense
                         outlined :rules="[rules.required]" />
                 </v-col> -->
@@ -117,13 +119,13 @@
                     <v-text-field v-model="address.txtdescripcion_direccion" label="Descripción dirección*"
                         hide-details="auto" clearable dense outlined :rules="[rules.required]" />
                 </v-col> -->
-                 <v-col cols="12" md="6" v-if="codePostal && address.iidtipo_direccion === 2">
+                <v-col cols="12" md="6" v-if="codePostal && address.iidtipo_direccion === 2">
                     <v-text-field v-model="address.txtcalle" label="Tablaje*" hide-details="auto" clearable dense
                         outlined :rules="[rules.required]" />
                 </v-col>
                 <v-col cols="12" md="6" v-if="codePostal && address.iidtipo_direccion === 3">
-                    <v-text-field v-model="address.txtcalle" label="Descripción dirección*"
-                        hide-details="auto" clearable dense outlined :rules="[rules.required]" />
+                    <v-text-field v-model="address.txtcalle" label="Descripción dirección*" hide-details="auto"
+                        clearable dense outlined :rules="[rules.required]" />
                 </v-col>
             </v-row>
             <v-row v-if="codePostal && address.iidtipo_direccion === 1">
@@ -282,7 +284,8 @@ export default {
                 // }
             ],
             address: {
-                iidcolonia: 0,
+                // iidcolonia: 0,
+                txtcolonia: '',
                 txtcalle: '',
                 txtcalle_letra: '',
                 inumero_exterior: null,
@@ -327,8 +330,8 @@ export default {
             }
         },
 
-         // GET (BD)
-         async getTypesOfRoads() {
+        // GET (BD)
+        async getTypesOfRoads() {
             try {
                 this.typesRoads = await services.admin().getAllTypesOfRoad();
             } catch (error) {
@@ -337,8 +340,8 @@ export default {
             }
         },
 
-         // GET (BD)
-         async getCodePostals() {
+        // GET (BD)
+        async getCodePostals() {
             try {
                 this.postalCodes = await services.admin().getAllPostalCodes();
             } catch (error) {
@@ -444,7 +447,8 @@ export default {
         resetAddress() {
             this.codePostal = 0
             this.address = {
-                iidcolonia: 0,
+                // iidcolonia: 0,
+                txtcolonia: '',
                 txtcalle: '',
                 txtcalle_letra: '',
                 inumero_exterior: null,

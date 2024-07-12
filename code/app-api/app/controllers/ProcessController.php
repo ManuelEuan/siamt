@@ -31,9 +31,6 @@ class ProcessController extends BaseController
     // Método para depurar y mostrar datos
     public function getStructureFormDinamycProcess()
     {
-        // $hola1 = SubStages::get(1);
-        // self::dep($hola1);exit;
-        // $hola = Common::getFormAllTypes();
         $typesRegister = [
             ["type" => 'Proceso', "name" => "Proceso"],
             ["type" => 'Etapa', "name" => "Etapa"],
@@ -338,7 +335,6 @@ class ProcessController extends BaseController
             $params['items'] = $itemsPerPage; // Añadir parámetro de ítems por página
             $params['offset'] = $offset; // Añadir parámetro de offset
         }
-        // self::dep($sql);exit;
         $registers = Db::fetchAll($sql, $params); // Ejecutar consulta para obtener inspectores      
         $totalItems = $registers[0]->total_registers ?? 0; // Obtener total de inspectores
         $totalPages = ceil($totalItems / $itemsPerPage); // Calcular total de páginas
@@ -439,7 +435,6 @@ class ProcessController extends BaseController
         if ($data->idOfType) {
             $followUp = $this->getDinamycTrace($data->type, $data->idOfType);
             $boletas = $followUp['hasBoleta'];
-            // self::dep($boletas);exit;
         }
         $checkSubStages = $followUp['onlySubStages'];
         $checkCurrentSubStage =  $currentFlow['currentSubStage']->iidsubetapa;

@@ -37,20 +37,29 @@ class Persons
 
     public static function update($data)
     {
-        $table = "persona.tbl_persona";
-        $params = [];
-        foreach ($data as $key => $value) {
-            switch ($key) {
-                case 'iidinspector':
-                    // case 'iidinspector':
+        try{
+
+            $table = "persona.tbl_persona";
+            $params = [];
+            foreach ($data as $key => $value) {
+                switch ($key) {
+                    case 'txtnombre_completo':
+                        break;
+                    case 'iidpersona':
+                        $params['iid'] = $value;
                     break;
-                default:
-                    $params[$key] = $value;
-                    break;
+                    default:
+                        $params[$key] = $value;
+                        break;
+                }
             }
+
+            $where = "iid = :iid";
+            Db::update($table, $params, $where);
+        } catch (\Exception $e) {
+            // Db::rollback();
+            throw new ValidatorBoomException(422, 'Error en persona. ' . $e->getMessage());
         }
-        $where = "iid = :iid";
-        Db::update($table, $params, $where);
     }
 
     public static function getById($iid)

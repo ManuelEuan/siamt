@@ -20,9 +20,9 @@ class PostalCodes extends Model
 
     public static function getAllPostalCodes($bactivo = null, $defaultMunicipality = 50, $defaultEntity = 31)
     {
-        $params = array('icve_municipio' => $defaultMunicipality, 'iclave_estado' => $defaultEntity);
+        $params = array('iclave_municipio' => $defaultMunicipality, 'iclave_estado' => $defaultEntity);
         $sql = "SELECT DISTINCT icp as icodigo_postal FROM territorio.tbl_cp WHERE
-                icve_municipio = :icve_municipio AND iclave_estado = :iclave_estado";
+                iclave_municipio = :iclave_municipio AND iclave_estado = :iclave_estado";
 
         $postalCodes = Db::fetchAll($sql, $params);
         return $postalCodes;
