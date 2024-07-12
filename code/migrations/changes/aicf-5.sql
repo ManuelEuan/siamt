@@ -146,11 +146,21 @@ CREATE TABLE "persona"."tbl_direccion" (
    "dtfecha_modificacion" timestamp(6) NOT NULL DEFAULT now()
 );
 
+CREATE TABLE "persona"."tbl_cat_tipo_direccion_persona" (
+   iid serial not null PRIMARY key,
+   vclave varchar(4) not null,
+   "txtnombre" text COLLATE "pg_catalog"."default" NOT NULL,
+   "txtdescripcion" text COLLATE "pg_catalog"."default",
+   "bactivo" bool NOT NULL DEFAULT true,
+   "dtfecha_creacion" timestamp(6) NOT NULL DEFAULT now(),
+   "dtfecha_modificacion" timestamp(6) NOT NULL DEFAULT now()
+);
+
 CREATE TABLE "persona"."tbl_persona_direccion" (
    iid serial not null PRIMARY key,
    "iidpersona" int4 NOT NULL  references persona.tbl_persona(iid),
    "iiddireccion" int4 NOT NULL  references persona.tbl_direccion(iid),
-   "iidtipo_direccion" integer references persona.tbl_cat_tipo_direccion(iid),
+   "iidtipo_direccion_persona" integer references persona.tbl_cat_tipo_direccion_persona(iid),
    "bactual" bool NOT NULL DEFAULT true,
    "bactivo" bool NOT NULL DEFAULT true,
    "dtfecha_creacion" timestamp(6) NOT NULL DEFAULT now(),
@@ -181,3 +191,55 @@ CREATE TABLE "persona"."tbl_persona_telefono" (
   "dtfecha_creacion" timestamp(6) NOT NULL DEFAULT now(),
   "dtfecha_modificacion" timestamp(6) NOT NULL DEFAULT now()
 );
+
+INSERT INTO "persona"."tbl_cat_estado_civil" (txtnombre)
+SELECT value
+FROM (VALUES
+          ('Soltero'),
+          ('Casado'),
+          ('Divorciado'),
+          ('Viudo'),
+          ('Separado'),
+          ('Unión civil'),
+          ('Conviviente')
+     ) AS data(value)
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM "persona"."tbl_cat_estado_civil"
+    WHERE txtnombre = data.value
+);
+
+INSERT INTO "persona"."tbl_cat_sexo" (txtnombre)
+SELECT value
+FROM (VALUES
+          ('Masculino'),
+          ('Femenino')
+     ) AS data(value)
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM "persona"."tbl_cat_sexo"
+    WHERE txtnombre = data.value
+);
+
+INSERT INTO "persona"."tbl_cat_tipo_telefono" (txtnombre, txtdescripcion)
+SELECT txtnombre, txtdescripcion
+FROM (VALUES
+          ('Celular', 'Teléfono celular'),
+          ('Casa', 'Teléfono de casa')
+     ) AS data(txtnombre, txtdescripcion)
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM "persona"."tbl_cat_tipo_telefono"
+    WHERE txtnombre = data.txtnombre
+);
+
+INSERT INTO persona.tbl_cat_tipo_direccion (vclave, txtnombre)
+VALUES
+    ('PRED', 'Predio'),
+    ('TABL', 'Tablaje'),
+    ('DOMC', 'Domicilio Conocido');
+
+INSERT INTO persona.tbl_cat_tipo_vialidad (vclave, txtnombre)
+VALUES
+    ('CALL', 'Calle'),
+    ('AVEK', 'Avenida o Km');
