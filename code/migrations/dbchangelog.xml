@@ -13,6 +13,7 @@
 	<include file="changes/vbbm-1.sql"/>
 	<include file="changes/vbbm-2.sql"/>
 	<include file="changes/aicf-7.sql"/>
+	<include file="changes/aicf-8.sql"/>
 	<include file="changes/aicf-9.sql"/>
 	<include file="changes/aicf-10.sql"/>
 
