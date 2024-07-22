@@ -17,7 +17,7 @@ services:
     env_file:
       - ../../../.dv-env
     networks:
-      - internal-services
+      - internal-services-siamt
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -34,7 +34,7 @@ services:
     env_file:
       - ../../../.dv-env
     networks:
-      - internal-services
+      - internal-services-siamt
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -47,13 +47,13 @@ services:
     env_file:
       - ../../../.dv-env
     networks:
-      - internal-services
+      - internal-services-siamt
   auth-api:
     image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/auth-api-dv
     env_file:
       - ../../../.dv-env
     networks:
-      - internal-services
+      - internal-services-siamt
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -64,7 +64,7 @@ services:
     env_file:
       - ../../../.dv-env
     networks:
-      - internal-services
+      - internal-services-siamt
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -75,7 +75,7 @@ services:
     volumes:
       - "queue:/data"
     networks:
-      - internal-services
+      - internal-services-siamt
     sysctls:
       net.core.somaxconn: 1024
   liquibase:
@@ -83,14 +83,14 @@ services:
     env_file:
       - ../../../.dv-env
     networks:
-      - internal-services
+      - internal-services-siamt
     extra_hosts:
       - "host.docker.internal:host-gateway"
 volumes:
   frontend:
   queue:
 networks:
-  internal-services:
+  internal-services-siamt:
     ipam:
       driver: default
       config:

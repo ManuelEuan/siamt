@@ -11,44 +11,28 @@ import config from '@/configs';
 import SecurityService from './security.service';
 import AppService from './app.service';
 import MantoUnidadesService from './mantounidades.service';
-import EventService from './event.service';
+import InspectionsService from './inspections.service';
 import AdminService from './admin.service';
 import PersonService from './person.service';
-import StructureService from './structure.service';
-import CensusService from './census.service';
 import StatsService from './stats.service';
-import AssignmentsService from './assignments.service';
-import DwhService from './dwh.service';
 import StorageService from './storage.service';
 import DashboarsService from './dashboard.service';
-import CampaignsService from './campaigns.service';
 import DialogueService from './dialogue.service';
-import CallcenterService from  './callcenter.service'
-import TrackerService from "@/services/tracker.service";
-import ComitesService from "@/services/comites.service";
-import FinderService from  './finder.service';
-// import UsersService from "./users.service";
+import UsersService from "./users.service";
+import SignatureService from "./signature.service";
 const getInstance = (classType, arg1) => { return classType._instance? classType._instance : (classType._instance = new classType(arg1)); }
 
 export default {
 	security: () => getInstance(SecurityService, config.services.authUrl),
 	app: () => getInstance(AppService, config.services.appUrl),
-	// users: () => getInstance(UsersService, config.services.usersUrl),
-	event: () => getInstance(EventService, config.services.eventUrl),
-	callcenter: () => getInstance(CallcenterService,config.services.callcenterUrl),
+	users: () => getInstance(UsersService, config.services.usersUrl),
 	admin: () => getInstance(AdminService, config.services.adminUrl),
 	mantounidades: () => getInstance(MantoUnidadesService, config.services.mantounidadesUrl),
-	census: () => getInstance(CensusService, config.services.censusUrl),
+	inspections: () => getInstance(InspectionsService, config.services.inspectionsUrl),
 	person: () => getInstance(PersonService, config.services.personsUrl),
-	structure: () => getInstance(StructureService, config.services.structureUrl),
-	dwh: () => getInstance(DwhService, config.services.dwhUrl),
 	stats: () => getInstance(StatsService, config.services.statsUrl),
-	assignments: () => getInstance(AssignmentsService, config.services.assignmentsUrl),
 	storage: () => getInstance(StorageService),
 	dashboard : () => getInstance(DashboarsService, config.services.dashboardUrl),
-	campaigns : () => getInstance(CampaignsService, config.services.campaignsUrl),
 	dialogue : () => getInstance(DialogueService, config.services.dialogueUrl),
-	tracker : () => getInstance(TrackerService, config.services.trackerUrl),
-	comites : () => getInstance(ComitesService, config.services.comitesUrl),
-	finder : () => getInstance(FinderService, config.services.finderUrl),
+	signature : () => getInstance(SignatureService, config.services.signatureUrl)
 };

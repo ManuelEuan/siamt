@@ -20,6 +20,12 @@ class ProfilesController extends BaseController
         }
     }
 
+    public static function findProfilesByDomain() {
+        $domainId = $this->di->getShared('token');
+		$sql = "SELECT u.id, u.usuario, u.nombre, u.apepat, u.apemat, u.correo, u.activo, u.fecha_creacion, u.fecha_modificacion FROM usuario.usuario_dominio AS ud LEFT JOIN usuario.usuario AS u ON (ud.idusuario=u.id) WHERE ud.iddominio = :domainId";
+		return Db::fetchAll($sql, ['domainId' => $domainId]);
+	}
+
     // Método para depurar y mostrar datos
     public function dep($data)
     {
@@ -117,7 +123,6 @@ class ProfilesController extends BaseController
         $sql = 'SELECT idpermiso, activo FROM usuario.perfil_permiso WHERE idperfil=:id AND activo = true';
         // $sql = 'SELECT idpermiso FROM usuario.perfil_permiso WHERE idperfil=:id AND activo=true';
         $permissions = Db::fetchAll($sql, $params);
-        //  var_dump($permissions);exit;
         $profile['perfil']->permisos = array_column($permissions, 'idpermiso');
 
         return $profile; // Devolver información del perfil
@@ -127,7 +132,8 @@ class ProfilesController extends BaseController
     public function getUsersFromProfile()
     {
         $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        $params = array('idperfil' => $data->id); // Parámetros para la consulta
+        $params = array('idperfil' => 1); // Parámetros para la consulta
+        // $params = array('idperfil' => $data->id); // Parámetros para la consulta
         $sql = 'SELECT idusuario FROM usuario.perfil_usuario WHERE idperfil = :idperfil'; // Consulta para obtener usuarios asociados al perfil
         $usuarios = Db::fetchAll($sql, $params); // Ejecutar consulta para obtener usuarios
         $usuarios = array_column($usuarios, 'idusuario'); // Obtener solo los IDs de usuario
@@ -193,29 +199,18 @@ class ProfilesController extends BaseController
                 throw new ValidatorBoomException(422, 'El perfil ya se encuentra en uso.'); // Lanzar excepción si el nuevo nombre del perfil está en uso
             }
         }
-
         // Actualización de perfil
         $sql = 'UPDATE usuario.perfil SET 
-                nombre=:nombre, 
-                descripcion=:descripcion
-            WHERE id=:id
-    ';
+                    nombre=:nombre, 
+                    descripcion=:descripcion
+                WHERE id=:id
+        ';
         $params = array(
             'nombre'  => $data->nombre,
             'descripcion' => $data->descripcion,
             'id'      => $data->id
         ); // Parámetros para la actualización del perfil
         Db::execute($sql, $params); // Ejecutar actualización del perfil en la base de datos
-        // var_dump($data);exit;
-
-        // $sql = "SELECT activo FROM usuario.perfil  WHERE idperfil=:idperfil LIMIT 1"; // Consulta para obtener estado activo del perfil
-        // $params = array('idperfil' => $data->id); // Parámetros para la consulta
-        // // $active = Db::fetchAll($sql); // Obtener estado activo del perfil
-        // $active = Db::fetchColumn($sql, $params); // Obtener estado activo del perfil
-        // // ESTABLECE 
-        // $active = count($active) == 0 ? $active = true : $active[0]->activo;
-
-        // var_dump($data->id);exit;
 
         $sql = "SELECT activo FROM usuario.perfil WHERE id=:id"; // Consulta para obtener estado activo del perfil
         $params = array('id' => $data->id); // Parámetros para la consulta
@@ -243,8 +238,9 @@ class ProfilesController extends BaseController
             $params = array('idperfil' => $data->id, 'idpermiso' => $idpermiso); // Parámetros para la consulta
             $existe_permiso = Db::fetchOne($sql, $params); 
             if (!$existe_permiso) { // Si no existe el permiso lo inserta
-                $newParams = array('idperfil' => $data->id, 'idpermiso' => $idpermiso, 'activo' => $activo);
-                $this->insert('perfil_permiso', $newParams); // Insertar perfil en la base de datos
+                $sql = "INSERT INTO usuario.perfil_permiso (idperfil, idpermiso, activo) VALUES (:idperfil, :idpermiso, 't')";
+                $newParams = array('idperfil' => $data->id, 'idpermiso' => $idpermiso);
+                Db::execute($sql, $newParams, false);
             } else { // Si no existe el permiso lo actualiza
                 $sql = "UPDATE usuario.perfil_permiso SET activo='t' WHERE idperfil=:idperfil AND idpermiso=:idpermiso"; // Consulta para actualizar estado activo del perfil
                 $params = array('idperfil' => $data->id, 'idpermiso' => $idpermiso); // Si esta activo lo pone en falso, y viceversa
@@ -346,7 +342,7 @@ class ProfilesController extends BaseController
             $sql = 'SELECT p.*, COUNT(p.id) OVER() AS total_perfiles FROM perfiles p '; // Obtener perfiles sin filtros
             unset($params['roles']); // Eliminar el parámetro de roles
         }
-
+      
         $sql2 = 'WHERE '; // Inicializar fragmento de consulta para filtros
 
         foreach ($filters as $filter => $value) { // Para cada filtro

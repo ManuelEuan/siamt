@@ -8,14 +8,14 @@ import store from './store';
 import router from './router';
 
 // Para máscaras de inputs
-import VueTheMask from 'vue-the-mask'
+// import VueTheMask from 'vue-the-mask'
 // Para saber el tipo de dispositivo en que se accede
 import device from 'vue-device-detector'
 
+import { VueMaskDirective } from 'v-mask'
+Vue.directive('mask', VueMaskDirective); 
 
-
-import { vMaska } from "maska"
-Vue.directive('maska', vMaska);
+import DatetimePicker from 'vuetify-datetime-picker'
 
 // PLUGINS
 import vuetify from './plugins/vuetify';
@@ -33,8 +33,10 @@ import './plugins/vue-sweetalert2';
 import './plugins/r-common';
 import './plugins/vue-gmap';
 import './plugins/vue-highcharts';
-import  VueToastr from 'vue-toastr';
+
+import VueToastr from 'vue-toastr';
 import VModal from "vue-js-modal";
+import 'tinymce/tinymce';
 
 // FILTERS
 import './filters/capitalize';
@@ -42,6 +44,7 @@ import './filters/lowercase';
 import './filters/uppercase';
 import './filters/formatCurrency';
 import './filters/formatDate';
+import Editor from '@tinymce/tinymce-vue';
 
 // STYLES
 // Main Theme SCSS
@@ -56,8 +59,11 @@ Vue.config.productionTip = false;
 
 Vue.use(VueToastr);
 Vue.use(VModal);
-Vue.use(VueTheMask);
+// Vue.use(VueTheMask);
+// Vue.use(VuetifyMask);  
 Vue.use(device);
+Vue.use(Editor);
+Vue.use(DatetimePicker)
 
 /*
 |---------------------------------------------------------------------
@@ -69,7 +75,22 @@ Vue.use(device);
 | https://vuejs.org/v2/guide/instance.html
 |
 */
-export default new Vue({
+window.vueApp = new Vue({
+  data: {
+    bus: new Vue(),
+    confirm: {
+      sync: false,
+      title: '',
+      content: '',
+      onConfirm: () => { },
+      onCancel: () => { },
+    },
+    alert: {
+      sync: false,
+      title: '',
+      content: ''
+    },
+  },
   i18n,
   vuetify,
   router,

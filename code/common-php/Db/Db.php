@@ -47,10 +47,53 @@ class Db
     return $pdo;
   }
 
-  public static function execute(string $sql, ?array $params = null)
+  // public static function execute(string $sql, ?array $params = null)
+  // {
+  //   $db = static::getDb();
+  //   return $db->execute($sql, $params);
+  // }
+
+  public static function execute(string $sql, ?array $params = null, $returnId = true)
   {
     $db = static::getDb();
-    return $db->execute($sql, $params);
+    $result = $db->execute($sql, $params);
+
+    // Obtener el ID del último registro insertado si la operación fue una inserción
+    if (strpos($sql, 'INSERT') === 0 && $returnId) {
+      $lastInsertId = $db->lastInsertId();
+      return $lastInsertId;
+    }
+
+    return $result;
+  }
+
+  public static function insert($table, $params)
+  {
+    $cols = implode(', ', array_keys($params)); // Obtener nombres de columnas
+    $phs = ':' . str_replace(', ', ', :', $cols); // Obtener marcadores de posición para los valores
+    $sql = "INSERT INTO $table ($cols) VALUES ($phs)"; // Consulta de inserción
+    return self::execute($sql, $params); // Ejecutar inserción en la base de datos
+  }
+
+  public static function dep($data)
+  {
+      $format  = print_r('<pre>');
+      $format .= print_r($data);
+      $format .= print_r('</pre>');
+      return $format;
+  }
+
+  public static function update($table, $params, $where)
+  {
+    $setClause = '';
+    foreach ($params as $key => $value) {
+      $setClause .= "$key = :$key, ";
+    }
+    $setClause = rtrim($setClause, ', '); 
+
+    $sql = "UPDATE $table SET $setClause WHERE $where";
+
+    return self::execute($sql, $params);
   }
 
   public static function begin()

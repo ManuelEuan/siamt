@@ -22,3 +22,10 @@ liquibase \
     --classpath=/liquibase/changelog/manto --changeLogFile=dbchangelog.xml \
     --username=$DB_USER \
     --password=$DB_PASS update
+
+  liquibase \
+    --log-level=INFO \
+    --url="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_DBNAME_FIRMA" \
+    --classpath=/liquibase/changelog/firma --changeLogFile=dbchangelog.xml \
+    --username=$DB_USER \
+    --password=$DB_PASS update

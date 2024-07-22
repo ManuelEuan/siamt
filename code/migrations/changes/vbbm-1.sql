@@ -34,4 +34,3 @@ INSERT INTO territorio.tbl_cat_estado (iclave_estado, vsiglas, txtnombre) VALUES
 INSERT INTO territorio.tbl_cat_estado (iclave_estado, vsiglas, txtnombre) VALUES (30, 'VZ', 'VERACRUZ DE IGNACIO DE LA LLAVE');
 INSERT INTO territorio.tbl_cat_estado (iclave_estado, vsiglas, txtnombre) VALUES (31, 'YN', 'YUCATÁN');
 INSERT INTO territorio.tbl_cat_estado (iclave_estado, vsiglas, txtnombre) VALUES (32, 'ZS', 'ZACATECAS');
-

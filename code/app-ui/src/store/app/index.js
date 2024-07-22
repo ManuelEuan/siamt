@@ -46,6 +46,27 @@ const state = {
   profilesFilters: {},
   profilesTotalPages: 0,
   profilesTotalItems: 0,
+
+  // inspectores filters and pagination
+  inspectors: [],
+  inspectorsData: {},
+  inspectorsFilters: {},
+  inspectorsTotalPages: 0,
+  inspectorsTotalItems: 0,
+
+    // dinamycProcess filters and pagination
+    dinamycRegisterInProcess: [],
+    dinamycRegisterInProcessData: {},
+    dinamycRegisterInProcessFilters: {},
+    dinamycRegisterInProcessTotalPages: 0,
+    dinamycRegisterInProcessTotalItems: 0,
+
+      // inspectores filters and pagination
+  tickets: [],
+  ticketsData: {},
+  ticketsFilters: {},
+  ticketsTotalPages: 0,
+  ticketsTotalItems: 0,
 }
 
 export default {

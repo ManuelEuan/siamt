@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
+    
     <profiles-datatable-dialogs ref="dialogs" />
-
     <v-data-table
       class="elevation-1"
       loading-text="Cargando información"

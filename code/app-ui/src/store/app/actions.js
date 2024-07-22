@@ -36,6 +36,8 @@ const showSuccess = ({ state, commit }, message) => {
   })
 }
 
+
+
 const getUsers = async ({ state, commit }, { data, filters }) => {
   if (data) commit('setUsersData', data)
   if (filters) commit('setUsersFilters', filters)
@@ -64,7 +66,47 @@ const getProfiles = async ({ state, commit }, { data, filters }) => {
   commit('setProfilesTotalItems', totalItems)
 }
 
+const getInspectors = async ({ state, commit }, { data, filters }) => {
+  if (data) commit('setInspectorsData', data)
+  if (filters) commit('setInspectorsFilters', filters)
+  const { inspectors, totalPages, totalItems } = await services.inspections().getInspectors({
+    ...state.inspectorsData,
+    filters: state.inspectorsFilters
+  })
 
+  commit('setInspectors', inspectors)
+  commit('setInspectorsTotalPages', totalPages)
+  commit('setInspectorsTotalItems', totalItems)
+}
+
+const getDinamycRegisterInProcess = async ({ state, commit }, { data, filters }) => {
+  if (data) commit('setDinamycRegisterInProcessData', data)
+  if (filters) commit('setDinamycRegisterInProcessFilters', filters)
+
+  const { dinamycRegisterInProcess, totalPages, totalItems } = await services.admin().getDinamycRegisterInProcess({
+    ...state.dinamycRegisterInProcessData,
+    filters: state.dinamycRegisterInProcessFilters
+  })
+  commit('setDinamycRegisterInProcess', dinamycRegisterInProcess)
+  commit('setDinamycRegisterInProcessTotalPages', totalPages)
+  commit('setDinamycRegisterInProcessTotalItems', totalItems)
+}
+
+const getTickets = async ({ state, commit }, { data, filters }) => {
+  
+  if (data) commit('setTicketsData', data)
+  if (filters) commit('setTicketsFilters', filters)
+  const { tickets, totalPages, totalItems } = await services.inspections().getTickets({
+...state.ticketsData,
+filters: state.ticketsFilters
+})
+console.log('tickets actions************************************')
+console.log(tickets)
+
+  commit('setTickets', tickets)
+  commit('setTicketsTotalPages', totalPages)
+  commit('setTicketsTotalItems', totalItems)
+}
 
 export default {
   showToast,
@@ -72,4 +114,7 @@ export default {
   showSuccess,
   getUsers,
   getProfiles,
+  getInspectors,
+  getDinamycRegisterInProcess,
+  getTickets,
 }

@@ -6,8 +6,14 @@ import config from '../configs';
 // Routes
 import UsersRoutes from "@/router/users.routes";
 import DebitacionRoutes from "@/router/debitacion.routes";
+import ModulesRoutes from "@/router/modules.routes";
 import ProfilesRoutes from "@/router/profiles.routes";
 import mtoUnidades from "@/router/mtoUnidades.routes";
+import InspectionsRoutes from "@/router/inspections.routes";
+import PersonsRoutes from "@/router/persons.routes";
+import FirmsRoutes from "@/router/signature.routes";
+import ProcessRoutes from "@/router/process.routes";
+import DemoRoutes from "@/router/demo.routes";
 
 
 import services from '@/services';
@@ -26,6 +32,14 @@ export const routes = [{
   }
 },
 {
+  path: '/demo',
+  name: 'demo',
+  component: () => import(/* webpackChunkName: "auth-signin" */ '@/pages/auth/SigninPage.vue'),
+  meta: {
+    layout: 'auth'
+  }
+},
+{
   path: '/auth/reset-password',
   name: 'reset-password',
   component: () => import(/* webpackChunkName: "auth-signin" */ '@/pages/auth/ResetPage.vue'),
@@ -34,9 +48,15 @@ export const routes = [{
   }
 },
   ...UsersRoutes,
+  ...ModulesRoutes,
   ...DebitacionRoutes,
   ...ProfilesRoutes,
   ...mtoUnidades,
+  ...InspectionsRoutes,
+  ...PersonsRoutes,
+  ...FirmsRoutes,
+  ...ProcessRoutes,
+  ...DemoRoutes,
 {
   path: '/blank',
   name: 'blank',

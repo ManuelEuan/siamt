@@ -141,7 +141,7 @@ export default {
                     services.admin().getPermissions()
                 ]);
 
-                this.modules = modules;
+                this.modules = modules.data;
                 this.usuarios = usuarios;
                 this.permissions = this.modules.map(({ nombre, id }) => ({
                     nombre,
