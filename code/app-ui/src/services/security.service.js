@@ -13,10 +13,12 @@ export default class SecurityService extends ApiService {
 		this.addHooks();
 	}
 	
-	async login(username, password) {
+	async login(username, password, application) {
 		const response = await this.post('/login',{
 			username: username,
-			password: password
+			password: password,
+			application: application,
+			device: 'BROWSER'
 		}, true);
 	
 		if(response.token) {

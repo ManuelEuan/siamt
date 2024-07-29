@@ -74,4 +74,17 @@ WHERE t.activo = true';
 		$sql = 'SELECT * FROM usuario.usuario WHERE activo = true';
 		return Db::fetchAll($sql);
 	}
+
+    public static function findFirstByUsuarioAndAplicacion($usuario, $aplicacion)
+    {
+        $sql = "select u.*,a.iid idaplicacion, a.txtnombre aplicacion 
+            from usuario.usuario_aplicacion ua 
+            left join usuario.usuario u on(ua.iidusuario = u.id) 
+            left join usuario.aplicacion a on(ua.iidaplicacion=a.iid) 
+            where ua.bactivo = true and u.activo = true and a.bactivo = true 
+            and u.usuario = '$usuario' and a.txtllave = '$aplicacion'";
+
+        return Db::fetch($sql);
+    }
+
 }

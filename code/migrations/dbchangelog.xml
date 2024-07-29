@@ -16,6 +16,9 @@
 	<include file="changes/aicf-8.sql"/>
 	<include file="changes/aicf-9.sql"/>
 	<include file="changes/aicf-10.sql"/>
-
+	<include file="changes/aicf-11.sql"/>
+	<include file="changes/aicf-12.sql"/>
+	<include file="changes/aicf-13.sql"/>
+	<include file="changes/aicf-14.sql"/>
 
 </databaseChangeLog>

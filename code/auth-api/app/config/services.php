@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 $di->setShared('request', function(){ return new Phalcon\Http\Request(); });
 $di->setShared('response', function(){ return new Phalcon\Http\Response(); });
+$di->setShared('modelsManager', function(){ return new Phalcon\Mvc\Model\Manager(); });
+$di->setShared('modelsMetadata', function(){ return new Phalcon\Mvc\Model\MetaData\Memory(); });
 $di->setShared('router', function(){ return new Phalcon\Mvc\Router(); });
 
 $di->setShared('config', function () { return include APP_PATH . '/config/config.php'; });
