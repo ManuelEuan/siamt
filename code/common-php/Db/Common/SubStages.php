@@ -53,4 +53,30 @@ class SubStages
         return $subStage;
     }
 
+    public static function getInicial($claveProceso)
+    {
+        $sql = "SELECT 
+                    s.iid AS iidsubetapa,
+                    s.txtnombre AS subetapa_nombre,
+                    s.vclave,
+                    s.txtdescripcion,
+                    s.txtcolor,
+                    s.txtpermiso,
+                    s.binicial,
+                    s.bfinal,
+                    s.bcancelacion,
+                    s.brequiere_motivo,
+                    s.iidetapa,
+                    e.iidproceso,
+                    e.txtnombre AS etapa_nombre
+                FROM comun.tbl_cat_subetapa s
+                INNER JOIN comun.tbl_cat_etapa e ON s.iidetapa = e.iid
+                INNER JOIN comun.tbl_cat_proceso p ON p.iid = e.iidproceso
+                WHERE s.bactivo and e.bactivo and p.bactivo
+                AND s.binicial and p.vclave ilike :vclave
+                LIMIT 1";
+        $params = array('vclave' => $claveProceso);
+        $subStage = Db::fetch($sql, $params);
+        return $subStage;
+    }
 }
