@@ -26,6 +26,17 @@ $app->post('/login', function () use($app, $config) {
         throw new HttpUnauthorizedException(103,'Usuario/Clave incorrecta');
     }
 
+    $idInspector = null;
+    if($body->application == 'ee4f34f79e9d43156aa09bb2ffd5b725') {
+        $user = Auth::validateInspector($body->username);
+
+        if (empty($user)) {
+            throw new HttpUnauthorizedException(104, 'Usuario/Clave incorrecta');
+        }
+
+        $idInspector = $user->iidinspector;
+    }
+
     $user = Auth::login($body->username, $body->password, Utils::getRequestDomain());
 
     if(empty($user))
@@ -43,6 +54,7 @@ $app->post('/login', function () use($app, $config) {
         ->setSubject($body->username)
         ->setIpAddress(md5(Utils::getClientIp()))
         ->setUserId($user->idusuario)
+        ->setInspectorId($idInspector)
         ->setDomainId($user->iddominio)
         ->setDomain(md5($user->dominio))
         ->setUserFullName($user->nombre)
