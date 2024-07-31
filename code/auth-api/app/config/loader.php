@@ -8,3 +8,9 @@ $loader->registerNamespaces(
         'App\Db'        => APP_PATH . '/db/',
     ]
 )->register();
+
+$loader->registerClasses(
+    [
+        'Vokuro\GenericSQL\GenericSQL' => BASE_PATH . '/../common-php/GenericSQL/GenericSQL.php',
+    ]
+)->register();
