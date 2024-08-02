@@ -222,7 +222,6 @@ $app->mount(
     (new Collection())
     ->setHandler(TerritoryController::class, true)
     ->setPrefix('/admin')
-    ->get("/territory/getAllPostalCodes", "getAllPostalCodes")
-    ->post("/territory/getMunicipalityAndEntityByPostalCode", "getMunicipalityAndEntityByPostalCode")
-    ->post("/territory/getColoniesByPostalCode", "getColoniesByPostalCode")
+    ->get("/territory/getAllSates", "getEsatdos")
+        ->get("/territory/municipalities/{iclave_estado}", "getMunicipioByEstado")
 );
