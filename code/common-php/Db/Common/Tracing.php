@@ -8,32 +8,30 @@ class Tracing extends Model
 {
     public function initialize()
     {
+        $this->setConnectionService('db_siamt');
         $this->setSchema("comun");
         $this->setSource("tbl_seguimiento");
     }
 
-    public function save($idFolio, $idSubEtapa, $motivo)
+    public static function saveSeguimiento($idFolio, $idUsuario, $idSubEtapa, $motivo)
     {
 
-        $dataSubEtapa = SubStages::findFirstById($idSubEtapa);
+        $dataSubEtapa = SubStages::findFirstByIid($idSubEtapa);
         if(!$dataSubEtapa)
             throw new Exception('No existe la SubEtapa');
 
-        $dataEtapa = Stages::findFirstById($dataSubEtapa->iidetapa);
+        $dataEtapa = Stages::findFirstByIid($dataSubEtapa->iidetapa);
         if(!$dataEtapa)
             throw new Exception('No existe la Etapa');
 
-        $token = $this->di->getShared('token');
-        $idUsuario = $token->getUserId();
-
         $estatus = new Tracing();
-        $estatus->idfolio = $idFolio;
-        $estatus->idusuarioautorizo = $idUsuario;
-        $estatus->idproceso = $dataEtapa->iidproceso;
-        $estatus->idetapa = $dataEtapa->iid;
-        $estatus->idsubetapa = $dataSubEtapa->iid;
-        $estatus->motivo = $motivo;
-        $estatus->activo = true;
+        $estatus->iidfolio = $idFolio;
+        $estatus->iidusuarioautorizo = $idUsuario;
+        $estatus->iidproceso = $dataEtapa->iidproceso;
+        $estatus->iidetapa = $dataEtapa->iid;
+        $estatus->iidsubetapa = $dataSubEtapa->iid;
+        $estatus->txtmotivo = $motivo;
+        $estatus->bactivo = true;
 
         if(!$estatus->save()){
             throw new Exception($estatus->getMessages()[0]);
