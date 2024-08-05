@@ -7,6 +7,7 @@ class SubStages extends Model
 {
     public function initialize()
     {
+        $this->setConnectionService('db_siamt');
         $this->setSchema("comun");
         $this->setSource("tbl_cat_subetapa");
     }
