@@ -21,5 +21,7 @@
 	<include file="changes/aicf-13.sql"/>
 	<include file="changes/aicf-14.sql"/>
 	<include file="changes/aicf-15.sql"/>
+	<include file="changes/aicf-16.sql"/>
+	<include file="changes/aicf-17.sql"/>
 
 </databaseChangeLog>

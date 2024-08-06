@@ -1,9 +1,17 @@
 <?php
 namespace Vokuro\GenericSQL\Common;
 use App\Library\Db\SiamtDb as Db;
+use Phalcon\Mvc\Model;
 
-class SubStages
+class SubStages extends Model
 {
+    public function initialize()
+    {
+        $this->setConnectionService('db_siamt');
+        $this->setSchema("comun");
+        $this->setSource("tbl_cat_subetapa");
+    }
+
     public static function getAll()
     {
 

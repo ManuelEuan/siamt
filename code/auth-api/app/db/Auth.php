@@ -3,6 +3,7 @@
 namespace App\Db;
 
 use App\Library\Db\Db;
+use Vokuro\GenericSQL\GenericSQL;
 
 class Auth
 {
@@ -83,6 +84,21 @@ WHERE t.activo = true';
             left join usuario.aplicacion a on(ua.iidaplicacion=a.iid) 
             where ua.bactivo = true and u.activo = true and a.bactivo = true 
             and u.usuario = '$usuario' and a.txtllave = '$aplicacion'";
+
+        return Db::fetch($sql);
+    }
+
+    public static function validateInspector($usuario)
+    {
+        $stringConnection = GenericSQL::getStringConnectionDbLink('db_inspecciones');
+
+        $sql = "select insp.iidinspector
+            from usuario.usuario u  
+            INNER JOIN 
+                    dblink('$stringConnection'::text, 'SELECT iidusuario, iid FROM inspeccion.tbl_inspector where bactivo') 
+                    AS insp(iidusuario integer, iidinspector integer)
+                    ON insp.iidusuario = u.id
+            and u.usuario = '$usuario' and u.activo";
 
         return Db::fetch($sql);
     }
