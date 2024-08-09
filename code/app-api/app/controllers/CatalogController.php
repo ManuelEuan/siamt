@@ -11,22 +11,17 @@ use \App\Library\Http\Exceptions\HttpBadRequestException;
     public function getCompanies()
     {
         $sql = 'SELECT 
-                    s.iid AS id,
-                    TRIM(e.nombre_completo) AS "nombre"
+                    e.iid AS id,
+                    TRIM(p.nombre_completo) AS "nombre"
                 FROM 
-                    transporte.tbl_empresa s
+                    transporte.tbl_empresa e
                 INNER JOIN 
-                    persona.tbl_persona e ON s.iidpersona = e.iid
+                    persona.tbl_persona p ON e.iidpersona = p.iid
                 WHERE 
-                    s.bactivo = true
-                ORDER BY e.nombre_completo';
+                    e.bactivo = true
+                ORDER BY p.nombre_completo';
 
         $result = GenericSQL::getBySQL($sql);
-
-        if (empty($result)) {
-            throw new HttpBadRequestException(404, 'No se encontró información para las empresas solicitadas.');
-        }
-
         return $result;
     }
 
@@ -34,41 +29,33 @@ use \App\Library\Http\Exceptions\HttpBadRequestException;
     {
         if ($iidempresa !== null) {
             if (!is_numeric($iidempresa)) {
-                throw new HttpBadRequestException(400, 'El valor de idEmpresa no es válido. Debe ser un número.');
+                throw new HttpBadRequestException(202, 'El valor de idEmpresa no es válido. Debe ser un número.');
             }
         }
 
         $sql = 'SELECT
-                    a.iid AS "id",
-                    a.iidvehiculo AS "idVehiculo",
-                    a.iidempresa AS "idEmpresa",
-                    TRIM(i.nombre_completo) AS "nombreEmpresa",
-                    a.vnomenclatura || \'-\' || a.inumero_economico AS "numeroEconomico"
+                    ev.iid AS "id",
+                    ev.iidvehiculo AS "idVehiculo",
+                    ev.iidempresa AS "idEmpresa",
+                    TRIM(p.nombre_completo) AS "nombreEmpresa",
+                    ev.vnomenclatura || \'-\' || ev.inumero_economico AS "numeroEconomico"
                 FROM 
-                    transporte.tbl_empresa_vehiculo a
+                    transporte.tbl_empresa_vehiculo ev
                 INNER JOIN 
-                    transporte.tbl_empresa e ON a.iidempresa = e.iid
+                    transporte.tbl_empresa e ON ev.iidempresa = e.iid
                 INNER JOIN 
-                    persona.tbl_persona i ON e.iidpersona = i.iid
+                    persona.tbl_persona p ON e.iidpersona = p.iid
                 WHERE 
-                    a.bactivo = true';
+                    ev.bactivo = true';
     
         if ($iidempresa !== null) {
-            $sql .= ' AND a.iidempresa = ' . (int)$iidempresa;
+            $sql .= ' AND ev.iidempresa = ' . $iidempresa;
         }
     
-        $sql .= ' ORDER BY i.nombre_completo';
-    
+        $sql .= ' ORDER BY p.nombre_completo';
         $result = GenericSQL::getBySQL($sql);
-    
-        if (empty($result)) {
-            throw new HttpBadRequestException(404, 'No se encontró información para el ID de empresa proporcionado.');
-        }
-    
         return $result;
     }
-    
-
     
 
     public function getConcessions($iidempresa = null)
@@ -76,7 +63,7 @@ use \App\Library\Http\Exceptions\HttpBadRequestException;
 
         if ($iidempresa !== null) {
             if (!is_numeric($iidempresa)) {
-                throw new HttpBadRequestException(400, 'El valor de iidempresa no es válido. Debe ser un número.');
+                throw new HttpBadRequestException(202, 'El valor de idEmpresa no es válido. Debe ser un número.');
             }
         }
         
@@ -85,17 +72,11 @@ use \App\Library\Http\Exceptions\HttpBadRequestException;
                 WHERE bactivo = true';
 
         if ($iidempresa !== null) {
-            $sql .= ' AND iidempresa = ' . (int)$iidempresa;
+            $sql .= ' AND iidempresa = ' . $iidempresa;
         }
-
         $sql .= ' ORDER BY txtnombre';
 
         $result = GenericSQL::getBySQL($sql);
-
-        if (empty($result)) {
-            throw new HttpBadRequestException(404, 'No se encontró información para el ID de empresa proporcionado.');
-        }
         return $result;
     }
-
 }
