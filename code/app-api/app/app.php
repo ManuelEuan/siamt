@@ -8,6 +8,7 @@ use App\Controllers\ProfilesController;
 use App\Controllers\SurveyController;
 use App\Controllers\TerritoryController;
 use App\Controllers\UsersController;
+use App\Controllers\CatalogController;
 use App\Db\App;
 use App\Library\Misc\Utils;
 use App\Models\Territory\LocalDistricts;
@@ -224,4 +225,17 @@ $app->mount(
     ->setPrefix('/admin')
     ->get("/territory/getAllSates", "getEsatdos")
         ->get("/territory/municipalities/{iclave_estado}", "getMunicipioByEstado")
+);
+
+$app->mount(
+    (new Collection())
+    ->setHandler(CatalogController::class, true)
+    ->setPrefix('/admin')
+    ->get("/catalog/getCompanies", "getCompanies")
+    ->get("/catalog/getVehicles", "getVehicles")
+    ->get("/catalog/getVehicles/{id}", "getVehicles")
+    ->get("/catalog/getConcessions", "getConcessions")
+    ->get("/catalog/getConcessions/{id}", "getConcessions")
+    ->get("/catalog/getOperators", "getOperators")
+    ->get("/catalog/getOperators/{idEmpresa}", "getOperators")
 );

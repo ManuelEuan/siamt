@@ -1,0 +1,130 @@
+<?php
+
+namespace App\Controllers;
+use App\Library\Http\Controllers\BaseController;
+use Vokuro\GenericSQL\GenericSQL;
+use \App\Library\Http\Exceptions\HttpBadRequestException;
+
+
+    class CatalogController extends BaseController
+    {
+    public function getCompanies()
+    {
+        $sql = 'SELECT 
+                    e.iid AS id,
+                    TRIM(p.nombre_completo) AS "nombre"
+                FROM 
+                    transporte.tbl_empresa e
+                INNER JOIN 
+                    persona.tbl_persona p ON e.iidpersona = p.iid
+                WHERE 
+                    e.bactivo = true
+                ORDER BY p.nombre_completo';
+
+        $result = GenericSQL::getBySQL($sql);
+        return $result;
+    }
+
+    public function getVehicles($iidempresa = null)
+    {
+        if ($iidempresa !== null) {
+            if (!is_numeric($iidempresa)) {
+                throw new HttpBadRequestException(202, 'El valor de idEmpresa no es válido. Debe ser un número.');
+            }
+        }
+
+        $sql = 'SELECT
+                    ev.iid AS "id",
+                    ev.iidvehiculo AS "idVehiculo",
+                    ev.iidempresa AS "idEmpresa",
+                    TRIM(p.nombre_completo) AS "nombreEmpresa",
+                    ev.vnomenclatura || \'-\' || ev.inumero_economico AS "numeroEconomico"
+                FROM 
+                    transporte.tbl_empresa_vehiculo ev
+                INNER JOIN 
+                    transporte.tbl_empresa e ON ev.iidempresa = e.iid
+                INNER JOIN 
+                    persona.tbl_persona p ON e.iidpersona = p.iid
+                WHERE 
+                    ev.bactivo = true';
+    
+        if ($iidempresa !== null) {
+            $sql .= ' AND ev.iidempresa = ' . $iidempresa;
+        }
+    
+        $sql .= ' ORDER BY p.nombre_completo';
+        $result = GenericSQL::getBySQL($sql);
+        return $result;
+    }
+    
+
+    public function getConcessions($iidempresa = null)
+    {
+
+        if ($iidempresa !== null) {
+            if (!is_numeric($iidempresa)) {
+                throw new HttpBadRequestException(202, 'El valor de idEmpresa no es válido. Debe ser un número.');
+            }
+        }
+        
+        $sql = 'SELECT iid AS id, txtnombre AS nombre, iidempresa AS "idEmpresa"
+                FROM transporte.tbl_concesion 
+                WHERE bactivo = true';
+
+        if ($iidempresa !== null) {
+            $sql .= ' AND iidempresa = ' . $iidempresa;
+        }
+        $sql .= ' ORDER BY txtnombre';
+
+        $result = GenericSQL::getBySQL($sql);
+        return $result;
+    }
+
+
+public function getOperators($idEmpresa = null)
+{
+
+    if ($idEmpresa !== null) {
+        if (!is_numeric($idEmpresa)) {
+            throw new HttpBadRequestException(202, 'El valor de idEmpresa no es válido. Debe ser un número.');
+        }
+    }
+   
+    $operatorsJson = '[
+        {
+            "id": 1,
+            "nombre": "operador 1",
+            "teléfono": 234322222,
+            "email": "email1@gmmail.com",
+            "idEmpresa": 2,
+            "nombreEmpresa": "empresa 1"
+        },
+        {
+            "id": 2,
+            "nombre": "operador 2",
+            "teléfono": 9938388332,
+            "email": "email2@gmmail.com",
+            "idEmpresa": 3,
+            "nombreEmpresa": "empresa 2"
+        },
+        {
+            "id": 3,
+            "nombre": "operador 3",
+            "teléfono": 9922213432,
+            "email": "email3@gmmail.com",
+            "idEmpresa": 6,
+            "nombreEmpresa": "empresa 3"
+        }
+    ]';
+
+    $operatorsData = json_decode($operatorsJson, true);
+
+    if ($operatorsData === null) {
+        throw new HttpBadRequestException(202, 'Error al decodificar el JSON de operadores.');
+    }
+
+    return $idEmpresa !== null 
+    ? current(array_filter($operatorsData, fn($operator) => $operator['idEmpresa'] == $idEmpresa)) 
+    : $operatorsData;
+}
+}
