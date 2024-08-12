@@ -79,4 +79,44 @@ use \App\Library\Http\Exceptions\HttpBadRequestException;
         $result = GenericSQL::getBySQL($sql);
         return $result;
     }
+
+
+public function getOperators()
+{
+   
+    $operatorsJson = '[
+        {
+            "id": 1,
+            "nombre": "operador 1",
+            "teléfono": 234322222,
+            "email": "email1@gmmail.com",
+            "idEmpresa": 1,
+            "nombreEmpresa": "empresa 1"
+        },
+        {
+            "id": 2,
+            "nombre": "operador 2",
+            "teléfono": 9938388332,
+            "email": "email2@gmmail.com",
+            "idEmpresa": 2,
+            "nombreEmpresa": "empresa 2"
+        },
+        {
+            "id": 3,
+            "nombre": "operador 3",
+            "teléfono": 9922213432,
+            "email": "email3@gmmail.com",
+            "idEmpresa": 3,
+            "nombreEmpresa": "empresa 3"
+        }
+    ]';
+
+    $operatorsData = json_decode($operatorsJson, true);
+
+    if ($operatorsData === null) {
+        throw new HttpBadRequestException(202, 'Error al decodificar el JSON de operadores.');
+    }
+
+    return $operatorsData;
+}
 }
