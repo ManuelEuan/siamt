@@ -81,8 +81,14 @@ use \App\Library\Http\Exceptions\HttpBadRequestException;
     }
 
 
-public function getOperators()
+public function getOperators($idEmpresa = null)
 {
+
+    if ($idEmpresa !== null) {
+        if (!is_numeric($idEmpresa)) {
+            throw new HttpBadRequestException(202, 'El valor de idEmpresa no es válido. Debe ser un número.');
+        }
+    }
    
     $operatorsJson = '[
         {
@@ -90,7 +96,7 @@ public function getOperators()
             "nombre": "operador 1",
             "teléfono": 234322222,
             "email": "email1@gmmail.com",
-            "idEmpresa": 1,
+            "idEmpresa": 2,
             "nombreEmpresa": "empresa 1"
         },
         {
@@ -98,7 +104,7 @@ public function getOperators()
             "nombre": "operador 2",
             "teléfono": 9938388332,
             "email": "email2@gmmail.com",
-            "idEmpresa": 2,
+            "idEmpresa": 3,
             "nombreEmpresa": "empresa 2"
         },
         {
@@ -106,7 +112,7 @@ public function getOperators()
             "nombre": "operador 3",
             "teléfono": 9922213432,
             "email": "email3@gmmail.com",
-            "idEmpresa": 3,
+            "idEmpresa": 6,
             "nombreEmpresa": "empresa 3"
         }
     ]';
@@ -117,6 +123,8 @@ public function getOperators()
         throw new HttpBadRequestException(202, 'Error al decodificar el JSON de operadores.');
     }
 
-    return $operatorsData;
+    return $idEmpresa !== null 
+    ? current(array_filter($operatorsData, fn($operator) => $operator['idEmpresa'] == $idEmpresa)) 
+    : $operatorsData;
 }
 }
