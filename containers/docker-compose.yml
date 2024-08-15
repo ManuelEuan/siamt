@@ -164,6 +164,7 @@ services:
       - "../code/migrations_inspectores:/liquibase/changelog/inspeccion"
       - "../code/migrations_manto:/liquibase/changelog/manto"
       - "../code/migrations_firma:/liquibase/changelog/firma"
+      - "../code/migrations_operadores:/liquibase/changelog/operadores"
     env_file:
       - dv.env
     networks:
