@@ -6,8 +6,8 @@ use Vokuro\GenericSQL\GenericSQL;
 use \App\Library\Http\Exceptions\HttpBadRequestException;
 
 
-    class CatalogController extends BaseController
-    {
+class CatalogController extends BaseController
+{
     public function getCompanies()
     {
         $sql = 'SELECT 
@@ -37,6 +37,7 @@ use \App\Library\Http\Exceptions\HttpBadRequestException;
                     ev.iid AS "id",
                     ev.iidvehiculo AS "idVehiculo",
                     ev.iidempresa AS "idEmpresa",
+                    vp.txtplaca AS "placa",
                     TRIM(p.nombre_completo) AS "nombreEmpresa",
                     ev.vnomenclatura || \'-\' || ev.inumero_economico AS "numeroEconomico"
                 FROM 
@@ -45,6 +46,8 @@ use \App\Library\Http\Exceptions\HttpBadRequestException;
                     transporte.tbl_empresa e ON ev.iidempresa = e.iid
                 INNER JOIN 
                     persona.tbl_persona p ON e.iidpersona = p.iid
+                INNER JOIN 
+                    vehiculo.tbl_vehiculo_placa vp ON ev.iidvehiculo = vp.iidvehiculo
                 WHERE 
                     ev.bactivo = true';
     
@@ -57,7 +60,6 @@ use \App\Library\Http\Exceptions\HttpBadRequestException;
         return $result;
     }
     
-
     public function getConcessions($iidempresa = null)
     {
 
@@ -81,50 +83,99 @@ use \App\Library\Http\Exceptions\HttpBadRequestException;
     }
 
 
-public function getOperators($idEmpresa = null)
-{
+    public function getOperators($idEmpresa = null)
+    {
 
-    if ($idEmpresa !== null) {
-        if (!is_numeric($idEmpresa)) {
-            throw new HttpBadRequestException(202, 'El valor de idEmpresa no es válido. Debe ser un número.');
+        if ($idEmpresa !== null) {
+            if (!is_numeric($idEmpresa)) {
+                throw new HttpBadRequestException(202, 'El valor de idEmpresa no es válido. Debe ser un número.');
+            }
         }
-    }
-   
-    $operatorsJson = '[
+        
+        $operatorsJson = '[
         {
             "id": 1,
-            "nombre": "operador 1",
-            "teléfono": 234322222,
+            "nombre": "Operador 1",
+            "teléfono": 9998722222,
             "email": "email1@gmmail.com",
-            "idEmpresa": 2,
-            "nombreEmpresa": "empresa 1"
+            "idEmpresa": 1,
+            "nombreEmpresa": "empresa 1",
+            "licencias": [
+                {
+                    "id": 1,
+                    "numero": "12345678",
+                    "idTipo": "1",
+                    "tipoLicencia": "A"
+                },
+                {
+                    "id": 2,
+                    "numero": "87654321",
+                    "idTipo": "2",
+                    "tipoLicencia": "B"
+                }
+            ]
         },
+
         {
             "id": 2,
-            "nombre": "operador 2",
-            "teléfono": 9938388332,
+            "nombre": "Operador 2",
+            "teléfono": 9998922222,
             "email": "email2@gmmail.com",
-            "idEmpresa": 3,
-            "nombreEmpresa": "empresa 2"
+            "idEmpresa": 2,
+            "nombreEmpresa": "empresa 2",
+            "licencias": [
+                {
+                    "id": 1,
+                    "numero": "123378",
+                    "idTipo": "3",
+                    "tipoLicencia": "C"
+                },
+                {
+                    "id": 2,
+                    "numero": "876344321",
+                    "idTipo": "4",
+                    "tipoLicencia": "D"
+                }
+              ]
         },
         {
             "id": 3,
-            "nombre": "operador 3",
-            "teléfono": 9922213432,
+            "nombre": "Operador 3",
+            "teléfono": 9992722232,
             "email": "email3@gmmail.com",
-            "idEmpresa": 6,
-            "nombreEmpresa": "empresa 3"
+            "idEmpresa": 3,
+            "nombreEmpresa": "empresa 3",
+            "licencias": [
+                {
+                    "id": 1,
+                    "numero": "1235478",
+                    "idTipo": "1",
+                    "tipoLicencia": "A"
+                },
+                {
+                    "id": 2,
+                    "numero": "8763221",
+                    "idTipo": "2",
+                    "tipoLicencia": "B"
+                },
+                {
+                    "id": 3,
+                    "numero": "8763221",
+                    "idTipo": "3",
+                    "tipoLicencia": "C"
+                }   
+              ]
+            }
+        ]';
+
+        $operatorsData = json_decode($operatorsJson, true);
+
+        if ($operatorsData === null) {
+            throw new HttpBadRequestException(202, 'Error al decodificar el JSON de operadores.');
         }
-    ]';
 
-    $operatorsData = json_decode($operatorsJson, true);
-
-    if ($operatorsData === null) {
-        throw new HttpBadRequestException(202, 'Error al decodificar el JSON de operadores.');
+        return $idEmpresa !== null 
+        ? current(array_filter($operatorsData, fn($operator) => $operator['idEmpresa'] == $idEmpresa)) 
+        : $operatorsData;
     }
-
-    return $idEmpresa !== null 
-    ? current(array_filter($operatorsData, fn($operator) => $operator['idEmpresa'] == $idEmpresa)) 
-    : $operatorsData;
-}
 }

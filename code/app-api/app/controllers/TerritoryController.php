@@ -33,5 +33,19 @@ class TerritoryController extends BaseController
         return GenericSQL::getBySQL($sql);
     }
 
+    public function getLocalities($iclave_estado, $iclave_municipio)
+    {
+        $sql = 'SELECT 
+                    iid AS id,
+                    txtnombre AS nombre
+                FROM 
+                    territorio.tbl_cat_localidad
+                WHERE 
+                    bactivo = true
+                and iclave_estado = '.$iclave_estado.' and iclave_municipio = '.$iclave_municipio.'
+                ORDER BY txtnombre';
 
+        $result = GenericSQL::getBySQL($sql);
+        return $result;
+    }
 }
