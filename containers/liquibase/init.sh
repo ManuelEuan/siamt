@@ -29,3 +29,10 @@ liquibase \
     --classpath=/liquibase/changelog/firma --changeLogFile=dbchangelog.xml \
     --username=$DB_USER \
     --password=$DB_PASS update
+
+    liquibase \
+        --log-level=INFO \
+        --url="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_DBNAME_OPERADOR" \
+        --classpath=/liquibase/changelog/operadores --changeLogFile=dbchangelog.xml \
+        --username=$DB_USER \
+        --password=$DB_PASS update
