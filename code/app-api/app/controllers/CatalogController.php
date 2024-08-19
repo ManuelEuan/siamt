@@ -46,7 +46,7 @@ class CatalogController extends BaseController
                     transporte.tbl_empresa e ON ev.iidempresa = e.iid
                 INNER JOIN 
                     persona.tbl_persona p ON e.iidpersona = p.iid
-                INNER JOIN 
+                LEFT JOIN 
                     vehiculo.tbl_vehiculo_placa vp ON ev.iidvehiculo = vp.iidvehiculo
                 WHERE 
                     ev.bactivo = true';
