@@ -224,7 +224,8 @@ $app->mount(
     ->setHandler(TerritoryController::class, true)
     ->setPrefix('/admin')
     ->get("/territory/getAllSates", "getEsatdos")
-        ->get("/territory/municipalities/{iclave_estado}", "getMunicipioByEstado")
+    ->get("/territory/municipalities/{iclave_estado}", "getMunicipioByEstado")
+    ->get("/territory/getLocalities/{iclave_estado}/{iclave_municipio}", "getLocalities")   
 );
 
 $app->mount(
