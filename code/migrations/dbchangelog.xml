@@ -25,5 +25,6 @@
 	<include file="changes/aicf-17.sql"/>
 	<include file="changes/vbbm-3.sql"/>
 	<include file="changes/vbbm-4.sql"/>
-
+	<include file="changes/vbbm-5.sql"/>
+	<include file="changes/aicf-18.sql"/>
 </databaseChangeLog>
