@@ -48,4 +48,28 @@ class TerritoryController extends BaseController
         $result = GenericSQL::getBySQL($sql);
         return $result;
     }
+
+    public function getAllPostalCodes()
+    {
+        try {
+            // return Colonies::getAllPostalCodes();
+            return PostalCodes::getAllPostalCodes();
+        } catch (\Exception $e) {
+            $message = 'Error en cp: ' . $e->getMessage();
+            throw new ValidatorBoomException(422, $message);
+        }
+        
+    }
+
+    public function getMunicipalityAndEntityByPostalCode()
+    {
+        $postalCode = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        return PostalCodes::getMunicipalityAndEntityByPostalCode($postalCode);
+    }
+
+    public function getColoniesByPostalCode()
+    {
+        $postalCode = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
+        return PostalCodes::getColoniesByPostalCode($postalCode);
+    } 
 }

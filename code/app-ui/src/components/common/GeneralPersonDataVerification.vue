@@ -168,7 +168,7 @@ export default {
                 txtnombre: '',
                 txtapellido_paterno: '',
                 txtapellido_materno: '',
-                dfecha_nacimiento: '',
+                
                 txtrfc: '',
                 txtcurp: '',
                 txtine: '',
