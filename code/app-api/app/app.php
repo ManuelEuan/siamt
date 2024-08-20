@@ -239,4 +239,5 @@ $app->mount(
     ->get("/catalog/getConcessions/{id}", "getConcessions")
     ->get("/catalog/getOperators", "getOperators")
     ->get("/catalog/getOperators/{idEmpresa}", "getOperators")
+    ->get("/catalog/routes", "routes")
 );
