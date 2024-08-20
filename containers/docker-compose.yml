@@ -13,10 +13,11 @@ services:
         mode: host
     volumes:
       - "./gateway/conf:/etc/nginx"
+      - "app-inspections-files:/srv/app-inspections-files"
     env_file:
       - dv.env
     networks:
-      - internal-services
+      - internal-services-siamt
     depends_on:
       - "app-api"
       - "auth-api"
@@ -35,7 +36,7 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services
+      - internal-services-siamt
     depends_on:
       - "liquibase"
       - "redis"
@@ -53,7 +54,7 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services
+      - internal-services-siamt
   auth-api:
     image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
     volumes:
@@ -63,7 +64,7 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services
+      - internal-services-siamt
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -78,7 +79,7 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services
+      - internal-services-siamt
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -93,7 +94,39 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services
+      - internal-services-siamt
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
+  signature-api:
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
+    volumes:
+      - "./signature-api/config.json:/docker-entrypoint.d/config.json"
+      - "../code/signature-api:/srv/siamt/code/signature-api"
+      - "../code/common-php:/srv/siamt/code/common-php"
+    env_file:
+      - dv.env
+    networks:
+      - internal-services-siamt
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
+  app-inspections-api:
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
+    volumes:
+      - "./app-inspections-api/config.json:/docker-entrypoint.d/config.json"
+      - "../code/app-inspections-api:/srv/siamt/code/app-inspections-api"
+      - "../code/common-php:/srv/siamt/code/common-php"
+      - "app-inspections-files:/srv/app-inspections-files"
+      - "./app-inspections-api/init.sh:/docker-entrypoint.d/local/init.sh"
+    env_file:
+      - dv.env
+    networks:
+      - internal-services-siamt
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -108,7 +141,7 @@ services:
 #    env_file:
 #      - dv.env
 #    networks:
-#      - internal-services
+#      - internal-services-siamt
 #    extra_hosts:
 #      - "host.docker.internal:host-gateway"
 #    depends_on:
@@ -120,22 +153,29 @@ services:
       - "6379:6379"
       - "8001:8001"
     networks:
-      - internal-services
+      - internal-services-siamt
     sysctls:
       net.core.somaxconn: 1024
   liquibase:
     image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/liquibase
     volumes:
+      - "../containers/liquibase/init.sh:/docker-entrypoint.d/init.sh"
       - "../code/migrations:/liquibase/changelog"
+      - "../code/migrations_inspectores:/liquibase/changelog/inspeccion"
+      - "../code/migrations_manto:/liquibase/changelog/manto"
+      - "../code/migrations_firma:/liquibase/changelog/firma"
+      - "../code/migrations_operadores:/liquibase/changelog/operadores"
     env_file:
       - dv.env
     networks:
-      - internal-services
+      - internal-services-siamt
     extra_hosts:
       - "host.docker.internal:host-gateway"
+volumes:
+  app-inspections-files:
 networks:
-  internal-services:
+  internal-services-siamt:
     ipam:
       driver: default
       config:
-        - subnet: "172.31.248.0/21"
+        - subnet: "172.23.16.0/21"

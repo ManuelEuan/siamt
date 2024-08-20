@@ -1,18 +1,40 @@
 <?php
 
 use App\Db\Auth;
-use \App\Library\Http\Exceptions\HttpBadRequestException;
-use \App\Library\Http\Exceptions\HttpUnauthorizedException;
+use App\Library\Http\Exceptions\HttpBadRequestException;
+use App\Library\Http\Exceptions\HttpUnauthorizedException;
 use App\Library\Misc\Utils;
 use App\Library\Security\JwtBuilder;
+use App\Models\Device;
 use Phalcon\Security\JWT\Signer\Hmac;
 
 $app->post('/login', function () use($app, $config) {
     $body = $app->request->getJsonRawBody();
 
-    if(empty($body->username) or empty($body->password))
+    if(empty($body->username) or empty($body->password) or empty($body->application) or empty($body->device))
     {
         throw new HttpBadRequestException(100,'Nombre de usuario y clave son requeridas');
+    }
+
+    if(!Device::get($body->device,$body->application)->bpermitido){
+        throw new HttpUnauthorizedException(102,'Usuario/Clave incorrecta');
+    }
+
+    $user = Auth::findFirstByUsuarioAndAplicacion($body->username, $body->application);
+    if(empty($user))
+    {
+        throw new HttpUnauthorizedException(103,'Usuario/Clave incorrecta');
+    }
+
+    $idInspector = null;
+    if($body->application == 'ee4f34f79e9d43156aa09bb2ffd5b725') {
+        $user = Auth::validateInspector($body->username);
+
+        if (empty($user)) {
+            throw new HttpUnauthorizedException(104, 'Usuario/Clave incorrecta');
+        }
+
+        $idInspector = $user->iidinspector;
     }
 
     $user = Auth::login($body->username, $body->password, Utils::getRequestDomain());
@@ -32,6 +54,7 @@ $app->post('/login', function () use($app, $config) {
         ->setSubject($body->username)
         ->setIpAddress(md5(Utils::getClientIp()))
         ->setUserId($user->idusuario)
+        ->setInspectorId($idInspector)
         ->setDomainId($user->iddominio)
         ->setDomain(md5($user->dominio))
         ->setUserFullName($user->nombre)

@@ -1,7 +1,7 @@
 const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
   productionSourceMap: false,
-  
+  runtimeCompiler: true,
   devServer: {
     host: '0.0.0.0',
     hot: true,

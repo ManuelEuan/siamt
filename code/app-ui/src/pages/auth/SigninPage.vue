@@ -10,6 +10,13 @@
       <v-card-text>
         <v-form ref="form" v-model="isFormValid" lazy-validation>
           <v-text-field
+              v-model="application"
+              name="application"
+              v-show="false"
+              outlined
+          ></v-text-field>
+
+          <v-text-field
             v-model="email"
             :rules="[rules.required]"
             :validate-on-blur="false"
@@ -109,6 +116,7 @@ export default {
       isFormValid: true,
       email: '',
       password: '',
+      application:'a554a189123ea67aa9407a54de9fc4c2',
 
       // form error
       error: false,
@@ -131,12 +139,12 @@ export default {
       if (this.$refs.form.validate()) {
         this.isLoading = true
         this.isSignInDisabled = true
-        this.signIn(this.email, this.password)
+        this.signIn(this.email, this.password, this.application)
       }
     },
-    async signIn(email, password) {
+    async signIn(email, password, application) {
       try{
-        let s = await services.security().login(email, password);
+        let s = await services.security().login(email, password, application);
         this.$router.push('/')
       }catch(e){
         // if (this.$store && this.$store.dispatch) this.$store.dispatch('app/showError',{message: e.message, error: e});

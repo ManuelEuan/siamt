@@ -13,10 +13,12 @@ export default class SecurityService extends ApiService {
 		this.addHooks();
 	}
 	
-	async login(username, password) {
+	async login(username, password, application) {
 		const response = await this.post('/login',{
 			username: username,
-			password: password
+			password: password,
+			application: application,
+			device: 'BROWSER'
 		}, true);
 	
 		if(response.token) {
@@ -84,6 +86,8 @@ export default class SecurityService extends ApiService {
 		const token = this.getToken();
 		if(token !== null) {
 			const data = this.parseTokenData(token);
+			console.log('**********security ****************')
+			console.log(data)
 			return data[key];
 		}
 		return null;
