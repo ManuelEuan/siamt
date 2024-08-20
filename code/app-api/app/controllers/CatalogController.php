@@ -136,7 +136,7 @@ class CatalogController extends BaseController
                     "idTipo": "4",
                     "tipoLicencia": "D"
                 }
-              ]
+            ]
         },
         {
             "id": 3,
@@ -177,5 +177,42 @@ class CatalogController extends BaseController
         return $idEmpresa !== null 
         ? current(array_filter($operatorsData, fn($operator) => $operator['idEmpresa'] == $idEmpresa)) 
         : $operatorsData;
+    }
+
+    public function routes()
+    {
+        $routesJson = '[
+            {
+                "id": 1,
+                "nombre": "Ruta 1"
+            },
+            {
+                "id": 2,
+                "nombre": "Ruta 2"
+            },
+            {
+                "id": 3,
+                "nombre": "Ruta 3"
+            },
+            {
+                "id": 4,
+                "nombre": "Ruta 4"
+            },
+            {
+                "id": 5,
+                "nombre": "Ruta 5"
+            },
+            {
+                "id": 6,
+                "nombre": "Ruta 6"
+            }
+        ]';
+
+        $routesData = json_decode($routesJson, true);
+
+        if ($routesData === null) {
+            throw new HttpBadRequestException(202, 'Error al decodificar el JSON de rutas.');
+        }
+        return $routesData;
     }
 }
