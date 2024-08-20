@@ -225,7 +225,10 @@ $app->mount(
     ->setPrefix('/admin')
     ->get("/territory/getAllSates", "getEsatdos")
     ->get("/territory/municipalities/{iclave_estado}", "getMunicipioByEstado")
-    ->get("/territory/getLocalities/{iclave_estado}/{iclave_municipio}", "getLocalities")   
+    ->get("/territory/getLocalities/{iclave_estado}/{iclave_municipio}", "getLocalities")
+    ->get("/territory/getAllPostalCodes", "getAllPostalCodes")
+    ->post("/territory/getMunicipalityAndEntityByPostalCode", "getMunicipalityAndEntityByPostalCode")
+    ->post("/territory/getColoniesByPostalCode", "getColoniesByPostalCode") 
 );
 
 $app->mount(
