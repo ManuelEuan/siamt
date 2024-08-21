@@ -637,7 +637,7 @@ class ProcessController extends BaseController
                 INNER JOIN
                     comun.tbl_cat_proceso AS proceso ON etapa.iidproceso = proceso.iid
                 WHERE 
-                    proceso.vclave = :processClave
+                    LOWER(proceso.vclave) = LOWER(:processClave)
                     AND etapa.bactivo = true
                     AND proceso.bactivo = true
         ';
