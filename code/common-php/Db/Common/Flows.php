@@ -16,10 +16,11 @@ class Flows
                                 Array(
                                         SELECT JSON_BUILD_OBJECT(
                                                 'id', a.iid,
-                                                'nombre', a.subetapa
+                                                'nombre', a.subetapa,
+                                                'motivo', a.brequiere_motivo
                                         )
                                         FROM (
-                                                SELECT DISTINCT se.iid, se.txtnombre subetapa
+                                                SELECT DISTINCT se.iid, se.txtnombre subetapa, se.brequiere_motivo
                                                 FROM comun.tbl_flujo f
                                                 INNER JOIN comun.tbl_cat_subetapa se ON se.iid = f.iidsubetapa_siguiente AND se.bactivo
                                                 INNER JOIN comun.tbl_cat_etapa e ON e.iid = se.iidetapa AND e.bactivo
