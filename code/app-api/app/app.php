@@ -185,6 +185,9 @@ $app->mount(
     ->get("/process/getAllProcess", "getAllProcess")
     ->get("/process/getAllStages", "getAllStages")
     ->get("/process/getAllSubStages", "getAllSubStages")
+    ->get("/process/stages/{vclave}", "stages")
+    ->get("/process/substages/{iidetapa}", "substages")
+    ->get("/process/process/{iid}", "process")
     ->post("/process/getProcessWithStagesAndSubstages", "getProcessWithStagesAndSubstages")
     ->post("/process/getFlowByProcess", "getFlowByProcess")
     ->post("/process/newRegisterInProcess", "newRegisterInProcess")
@@ -225,7 +228,10 @@ $app->mount(
     ->setPrefix('/admin')
     ->get("/territory/getAllSates", "getEsatdos")
     ->get("/territory/municipalities/{iclave_estado}", "getMunicipioByEstado")
-    ->get("/territory/getLocalities/{iclave_estado}/{iclave_municipio}", "getLocalities")   
+    ->get("/territory/getLocalities/{iclave_estado}/{iclave_municipio}", "getLocalities")
+    ->get("/territory/getAllPostalCodes", "getAllPostalCodes")
+    ->post("/territory/getMunicipalityAndEntityByPostalCode", "getMunicipalityAndEntityByPostalCode")
+    ->post("/territory/getColoniesByPostalCode", "getColoniesByPostalCode") 
 );
 
 $app->mount(

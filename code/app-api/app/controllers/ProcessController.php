@@ -14,6 +14,7 @@ use Vokuro\GenericSQL\Common\Stages;
 use Vokuro\GenericSQL\Common\SubStages;
 use Vokuro\GenericSQL\User\Modules;
 use App\Models\Person\Inspectors;
+use Vokuro\GenericSQL\GenericSQL;
 
 class ProcessController extends BaseController
 {
@@ -625,6 +626,29 @@ class ProcessController extends BaseController
         return $stages;
     }
 
+    //Funcion para obtener la etapa por la clave del proceso
+    public function stages($processClave)
+    {
+        $sql = 'SELECT
+                    etapa.iid AS id, 
+                    etapa.txtnombre AS nombre
+                FROM
+                    comun.tbl_cat_etapa AS etapa
+                INNER JOIN
+                    comun.tbl_cat_proceso AS proceso ON etapa.iidproceso = proceso.iid
+                WHERE 
+                    LOWER(proceso.vclave) = LOWER(:processClave)
+                    AND etapa.bactivo = true
+                    AND proceso.bactivo = true
+        ';
+        $params = array(
+            'processClave' => $processClave
+        );
+        
+        $stage = Db::fetchAll($sql, $params);
+        return $stage;
+    }
+
     public function getSubStagesByStage($iidStage)
     {
         $sql = "SELECT 
@@ -651,6 +675,26 @@ class ProcessController extends BaseController
         return $subStage;
     }
 
+    //funcion para obtener subetapa por el id de la etapa
+    public function substages($stageId)
+    {
+        $sql = 'SELECT 
+                s.iid AS id,
+                s.txtnombre AS nombre
+            FROM 
+                comun.tbl_cat_subetapa s
+            JOIN 
+                comun.tbl_cat_etapa e ON s.iidetapa = e.iid
+            WHERE 
+                s.bactivo = true 
+                AND s.iidetapa = :stageId
+                AND e.bactivo = true
+            ';
+        $params = array('stageId' => $stageId);
+        $subStages = Db::fetchAll($sql, $params);
+        return $subStages;
+    }
+
     public function getProcessBySubStage($iidSubStage)
     {
         $sql = "SELECT
@@ -670,6 +714,29 @@ class ProcessController extends BaseController
         
         $process = Db::fetch($sql, $params);
         return $process;
+    }
+
+    //funcion para obtener el proceso por el id de la subetapa
+    public function process($subStageId)
+    {
+        $sql = 'SELECT
+                proceso.iid AS id, 
+                proceso.txtnombre AS nombre
+            FROM
+                comun.tbl_cat_proceso AS proceso
+            INNER JOIN
+                comun.tbl_cat_etapa AS etapa ON proceso.iid = etapa.iidproceso
+            INNER JOIN
+                comun.tbl_cat_subetapa AS subetapa ON etapa.iid = subetapa.iidetapa
+            WHERE 
+                proceso.bactivo = true 
+                AND subetapa.iid = :subStageId
+                AND subetapa.bactivo = true';
+        
+        $params = array('subStageId' => $subStageId);
+        
+        $process = Db::fetchAll($sql, $params);
+            return $process;
     }
 
     public function getDinamycTrace($type, $idOfSearch)
