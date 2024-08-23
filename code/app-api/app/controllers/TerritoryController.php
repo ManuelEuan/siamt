@@ -36,8 +36,8 @@ class TerritoryController extends BaseController
     public function getLocalities($iclave_estado=null, $iclave_municipio= null)
     {
         $sql = 'SELECT  
-                    iclave_estado AS "claveEstado",
-                    iclave_municipio AS "claveMunicipio",
+                    iclave_estado,
+                    iclave_municipio,
                     iid AS id,
                     txtnombre AS nombre
                 FROM 
