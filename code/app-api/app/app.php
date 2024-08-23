@@ -148,9 +148,7 @@ $app->mount(
     ->post('/batch', 'batch')
     ->post('/getPermissionsOfModule', 'getPermissionsOfModule')
     ->post('/createPermission', 'createPermission')
-    ->post('/updatePermission', 'updatePermission')
-
-    
+    ->post('/updatePermission', 'updatePermission')  
 );
 
 
@@ -226,9 +224,11 @@ $app->mount(
     (new Collection())
     ->setHandler(TerritoryController::class, true)
     ->setPrefix('/admin')
-    ->get("/territory/getAllSates", "getEsatdos")
+    ->get("/territory/allStates", "getEsatdos")
     ->get("/territory/municipalities/{iclave_estado}", "getMunicipioByEstado")
-    ->get("/territory/getLocalities/{iclave_estado}/{iclave_municipio}", "getLocalities")
+    ->get("/territory/localities/{iclave_estado}/{iclave_municipio}", "getLocalities")
+    ->get("/territory/localities/{iclave_estado}", "getLocalities")
+    ->get("/territory/localities", "getLocalities")
     ->get("/territory/getAllPostalCodes", "getAllPostalCodes")
     ->post("/territory/getMunicipalityAndEntityByPostalCode", "getMunicipalityAndEntityByPostalCode")
     ->post("/territory/getColoniesByPostalCode", "getColoniesByPostalCode") 
@@ -238,12 +238,12 @@ $app->mount(
     (new Collection())
     ->setHandler(CatalogController::class, true)
     ->setPrefix('/admin')
-    ->get("/catalog/getCompanies", "getCompanies")
-    ->get("/catalog/getVehicles", "getVehicles")
-    ->get("/catalog/getVehicles/{id}", "getVehicles")
-    ->get("/catalog/getConcessions", "getConcessions")
-    ->get("/catalog/getConcessions/{id}", "getConcessions")
-    ->get("/catalog/getOperators", "getOperators")
-    ->get("/catalog/getOperators/{idEmpresa}", "getOperators")
+    ->get("/catalog/companies", "getCompanies")
+    ->get("/catalog/vehicles", "getVehicles")
+    ->get("/catalog/vehicles/{id}", "getVehicles")
+    ->get("/catalog/concessions", "getConcessions")
+    ->get("/catalog/concessions/{id}", "getConcessions")
+    ->get("/catalog/operators", "getOperators")
+    ->get("/catalog/operators/{idEmpresa}", "getOperators")
     ->get("/catalog/routes", "routes")
 );
