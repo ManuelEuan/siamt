@@ -7,6 +7,7 @@ use App\Library\Http\Controllers\BaseController;
 use App\Library\Db\Db;
 use App\Library\Http\Exceptions\HttpUnauthorizedException;
 use App\Library\Http\Exceptions\ValidatorBoomException;
+use \App\Library\Http\Exceptions\HttpBadRequestException;
 
 // MODELOS COMUNES - COMMON
 use Vokuro\GenericSQL\Common\Process;
@@ -1078,5 +1079,42 @@ class ProcessController extends BaseController
                     break;
             }
         }
+    }
+
+    public function getTracing($vclave, $iidfolio)
+    {
+        if ($iidfolio !== null) {
+            if (!is_numeric($iidfolio)) {
+                throw new HttpBadRequestException(202, 'El valor de idFolio no es válido. Debe ser un número.');
+            }
+        }
+    
+        $sql = 'SELECT
+                    s.iid AS "id",
+                    p.vclave  AS "claveProceso",
+                    e.txtnombre AS "nombreEtapa",
+                    se.txtnombre AS "nombreSubetapa",
+                    s.iidfolio AS "idFolio",
+                    s.txtmotivo AS "motivo",
+                    u.usuario,
+                    TO_CHAR(s.dtfecha_creacion, \'DD/MM/YYYY HH24:MI\') AS "fecha"
+                FROM 
+                    comun.tbl_seguimiento s  
+                LEFT JOIN 
+                    comun.tbl_cat_proceso p ON s.iidproceso = p.iid
+                LEFT JOIN 
+                    comun.tbl_cat_etapa e ON s.iidetapa = e.iid
+                LEFT JOIN 
+                    comun.tbl_cat_subetapa se ON s.iidsubetapa = se.iid
+                LEFT JOIN 
+                    usuario.usuario u ON s.iidusuarioautorizo = u.id
+                WHERE 
+                    s.bactivo = true
+                    AND p.vclave = \'' . $vclave . '\'
+                    AND s.iidfolio = ' . intval($iidfolio) . '
+                ORDER BY u.nombre';
+
+        $result = GenericSQL::getBySQL($sql);
+        return $result;
     }
 }
