@@ -192,6 +192,7 @@ $app->mount(
     ->post("/process/getAllNextSubStagesEnabled", "getAllNextSubStagesEnabled")
     ->put("/process/updateRegisterInProcess", "updateRegisterInProcess")
     ->get("/process/getStructureFormDinamycProcess", "getStructureFormDinamycProcess")
+    ->get ("/process/tracing/{vclave}/{iidfolio}", "getTracing")
 );
 
 $app->mount(

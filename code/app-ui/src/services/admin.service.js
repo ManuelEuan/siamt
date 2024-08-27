@@ -244,6 +244,10 @@ export default class AdminService extends ApiService {
     return await this.get("/process/getStructureFormDinamycProcess");
   }
 
+  async getTracing(vclave, iidfolio) {
+    return await this.get(`/process/tracing/${vclave}/${iidfolio}`);
+  }
+
   async getProcessWithStagesAndSubstages(data) {
     return await this.post("/process/getProcessWithStagesAndSubstages", JSON.stringify(data));
   }
