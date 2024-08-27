@@ -12,7 +12,9 @@ class Status
     const FORBIDDEN             = 403;
     const NOT_FOUND             = 404;
     const BAD_DATA              = 422;
+    const CONFLICT              = 409;
     const INTERNAL_SERVER_ERROR = 500;
+    const SERVICE_UNAVAILABLE   = 503;
 
     const OK_MSG                    = 'OK';
     const CREATED_MSG               = 'Created';
@@ -22,6 +24,8 @@ class Status
     const UNAUTHORIZED_MSG          = 'Unauthorized';
     const FORBIDDEN_MSG             = 'Forbidden';
     const NOT_FOUND_MSG             = 'Not Found';
-    const BAD_DATA_MSG             = 'Unprocessable Entity';
+    const BAD_DATA_MSG              = 'Unprocessable Entity';
+    const CONFLICT_MSG              = 'Conflict';
     const INTERNAL_SERVER_ERROR_MSG = 'Internal Server Error';
+    const SERVICE_UNAVAILABLE_MSG   = 'Service Unavailable';
 }
