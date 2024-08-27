@@ -36,16 +36,24 @@ class CatalogController extends BaseController
         $sql = 'SELECT
                     ev.iid AS "id",
                     ev.iidvehiculo AS "idVehiculo",
-                    ev.iidempresa AS "idEmpresa",
                     vp.txtplaca AS "placa",
+                    m.iid AS "idMarca",
+                    m.txtnombre AS "nombreMarca",
+                    ev.iidempresa AS "idEmpresa",
                     TRIM(p.nombre_completo) AS "nombreEmpresa",
                     ev.vnomenclatura || \'-\' || ev.inumero_economico AS "numeroEconomico"
                 FROM 
                     transporte.tbl_empresa_vehiculo ev
-                INNER JOIN 
+                LEFT JOIN 
                     transporte.tbl_empresa e ON ev.iidempresa = e.iid
-                INNER JOIN 
+                LEFT JOIN 
                     persona.tbl_persona p ON e.iidpersona = p.iid
+                LEFT JOIN
+                    vehiculo.tbl_vehiculo v ON ev.iidvehiculo = v.iid
+                LEFT JOIN
+                    vehiculo.tbl_cat_modelo mo ON v.iidmodelo= mo.iid
+                LEFT JOIN
+                    vehiculo.tbl_cat_marca m ON mo.iidmarca = m.iid
                 LEFT JOIN 
                     vehiculo.tbl_vehiculo_placa vp ON ev.iidvehiculo = vp.iidvehiculo AND vp.bactual= true AND vp.bactivo= true
                 WHERE 
