@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 use App\Library\Http\Controllers\BaseController;
+use App\Library\Db\Db;
 use Vokuro\GenericSQL\GenericSQL;
 use \App\Library\Http\Exceptions\HttpBadRequestException;
 
@@ -222,5 +223,19 @@ class CatalogController extends BaseController
             throw new HttpBadRequestException(202, 'Error al decodificar el JSON de rutas.');
         }
         return $routesData;
+    }
+
+    public function tipovehicles()
+    {
+        $sql = 'SELECT
+                tv.iid AS id, 
+                tv.txtnombre AS nombre
+            FROM
+                vehiculo.tbl_cat_tipo_vehiculo AS tv
+            WHERE 
+                tv.bactivo = true';
+
+        $process = Db::fetchAll($sql);
+        return $process;
     }
 }
