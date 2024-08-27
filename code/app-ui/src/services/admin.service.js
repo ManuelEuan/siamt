@@ -244,10 +244,6 @@ export default class AdminService extends ApiService {
     return await this.get("/process/getStructureFormDinamycProcess");
   }
 
-  async getTracing(vclave, iidfolio) {
-    return await this.get(`/process/tracing/${vclave}/${iidfolio}`);
-  }
-
   async getProcessWithStagesAndSubstages(data) {
     return await this.post("/process/getProcessWithStagesAndSubstages", JSON.stringify(data));
   }
@@ -260,7 +256,6 @@ export default class AdminService extends ApiService {
     return await this.post("/process/getFlowByProcess", JSON.stringify(data));
   }
   
-
   async newRegisterInProcess(data) {
     return await this.post("/process/newRegisterInProcess", JSON.stringify(data));
   }
@@ -296,5 +291,18 @@ export default class AdminService extends ApiService {
 
   async getAllTypesOfRoad() {
     return await this.get("/persons/getAllTypesOfRoad");
+  }
+
+  //process
+  async getTracing(vclave, iidfolio) {
+    return await this.get(`/process/tracing/${vclave}/${iidfolio}`);
+  }
+  
+  async stages(vclave) {
+    return await this.get(`/process/stages/${vclave}`);
+  }
+
+  async substages(iidetapa) {
+    return await this.get(`/process/substages/${iidetapa}`);
   }
 }
