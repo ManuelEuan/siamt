@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-dialog transition="dialog-top-transition" max-width="900" v-model="show.view">
+    <v-dialog transition="dialog-top-transition" max-width="900" v-model="tracingVisibleProp">
       <v-card>
         <v-card-title class="text-uppercase primary--text text-h6 py-2">Seguimiento</v-card-title>
         <v-divider></v-divider>
@@ -36,7 +36,7 @@
         <v-divider></v-divider>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="error" text @click="show.view = false">Cerrar</v-btn>
+          <v-btn color="error" text @click="tracingVisibleProp = false">Cerrar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -56,15 +56,16 @@ export default {
     iidfolio: {
       type: Number,
       required: true
+    },
+    tracingVisible: {
+      type: Boolean,
+      required: true
     }
   },
   data() {
     return {
       tracingData: [],
-      search: "", 
-      show: {
-        view: false
-      },
+      search: "",
       headers: [
         { text: 'Etapa', value: 'nombreEtapa' },
         { text: 'Subetapa', value: 'nombreSubetapa' },
@@ -75,10 +76,18 @@ export default {
     };
   },
   computed: {
+    tracingVisibleProp: {
+      get() {
+        return this.tracingVisible;
+      },
+      set(value) {
+        this.$emit('update:tracingVisible', value);
+      }
+    },
     filteredTracingData() {
       if (!this.search) return this.tracingData;
       const searchLower = this.search.toLowerCase();
-      return this.tracingData.filter(item => 
+      return this.tracingData.filter(item =>
         item.nombreEtapa.toLowerCase().includes(searchLower) ||
         item.nombreSubetapa.toLowerCase().includes(searchLower) ||
         item.motivo.toLowerCase().includes(searchLower) ||
@@ -95,7 +104,6 @@ export default {
         const adminService = new AdminService('/api/admin');
         this.tracingData = await adminService.getTracing(this.vclave, this.iidfolio);
         console.log('Tracing data:', this.tracingData);
-        this.show.view = true;
       } catch (error) {
         console.error('Error tracing data:', error);
       }
@@ -103,3 +111,4 @@ export default {
   }
 };
 </script>
+
