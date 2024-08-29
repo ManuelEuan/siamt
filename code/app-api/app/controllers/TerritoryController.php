@@ -52,8 +52,13 @@ class TerritoryController extends BaseController
         if ($iclave_municipio !== null) {
             $sql .= ' AND iclave_municipio = ' . $iclave_municipio;
         }
+        
+        $sql .= ' ORDER BY txtnombre';
         $result = GenericSQL::getBySQL($sql);
+       
         return $result;
+        
+        
     }
 
     public function getAllPostalCodes()
