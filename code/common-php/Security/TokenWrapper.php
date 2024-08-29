@@ -59,4 +59,9 @@ class TokenWrapper
     {
         return $this->token->getClaims()->get(Enum::SUBJECT);
     }
+
+    public function getInspectorId()
+    {
+        return $this->token->getClaims()->get(JwtBuilder::INSPECTOR_ID);
+    }
 }
