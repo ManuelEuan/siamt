@@ -307,7 +307,7 @@ class ProfilesController extends BaseController
     private function verifyRolePermissions($role, $permissions)
     {
         $sql = 'SELECT idpermiso FROM usuario.perfil_permiso WHERE idperfil=:idperfil'; // Consulta para obtener permisos de rol
-        $params = array('idperfil' => $r); // Parámetros para la consulta
+        $params = array('idperfil' => $role); // Parámetros para la consulta
         $rolePermissions = Db::fetchAll($sql, $params); // Obtener permisos de rol
 
         if (empty($rolePermissions)) return; // Si no hay permisos de rol, salir del método
