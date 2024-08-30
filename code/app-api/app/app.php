@@ -132,6 +132,7 @@ $app->mount(
         ->put('/users/change', 'changeUserPass')
         ->delete('/users/{id}', 'deleteUser')
         ->post('/users/{id}/permissions', 'getPermissionsFromUser')
+        ->get('/users/users/{perfil}', 'users')
 );
 
 $app->mount(
@@ -248,4 +249,5 @@ $app->mount(
     ->get("/catalog/operators", "getOperators")
     ->get("/catalog/operators/{idEmpresa}", "getOperators")
     ->get("/catalog/routes", "routes")
+    ->get("/catalog/licensesType", "licensesType")
 );
