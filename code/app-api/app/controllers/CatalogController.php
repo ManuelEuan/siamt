@@ -118,14 +118,14 @@ class CatalogController extends BaseController
                     "numero": "12345678",
                     "idTipo": "1",
                     "tipoLicencia": "A",
-                    "fechaVigencia": "08/08/2025"
+                    "fechaVigencia": "2025-08-08"
                 },
                 {
                     "id": 2,
                     "numero": "87654321",
                     "idTipo": "2",
                     "tipoLicencia": "B",
-                    "fechaVigencia": "05/03/2025"
+                    "fechaVigencia": "2025-03-05"
                 }
             ]
         },
@@ -146,14 +146,14 @@ class CatalogController extends BaseController
                     "numero": "123378",
                     "idTipo": "3",
                     "tipoLicencia": "C",
-                    "fechaVigencia": "05/03/2025"
+                    "fechaVigencia": "2025-03-05"
                 },
                 {
                     "id": 2,
                     "numero": "876344321",
                     "idTipo": "4",
                     "tipoLicencia": "D",
-                    "fechaVigencia": "05/03/2025"
+                    "fechaVigencia": "2025-03--05"
                 }
             ]
         },
@@ -173,21 +173,21 @@ class CatalogController extends BaseController
                     "numero": "1235478",
                     "idTipo": "1",
                     "tipoLicencia": "A",
-                    "fechaVigencia": "05/03/2025"
+                    "fechaVigencia": "2025-03-05"
                 },
                 {
                     "id": 2,
                     "numero": "8763221",
                     "idTipo": "2",
                     "tipoLicencia": "B",
-                    "fechaVigencia": "05/03/2025"
+                    "fechaVigencia": "2025-03-05"
                 },
                 {
                     "id": 3,
                     "numero": "8763221",
                     "idTipo": "3",
                     "tipoLicencia": "C",
-                    "fechaVigencia": "05/03/2025"
+                    "fechaVigencia": "2025-03-05"
                 }   
               ]
             }
