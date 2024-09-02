@@ -305,4 +305,9 @@ export default class AdminService extends ApiService {
   async substages(iidetapa) {
     return await this.get(`/process/substages/${iidetapa}`);
   }
+
+  async users(perfil) {
+    return await this.get(`/users/users/${perfil}`);
+  }
+
 }

@@ -104,7 +104,10 @@ class CatalogController extends BaseController
         $operatorsJson = '[
         {
             "id": 1,
-            "nombre": "Operador 1",
+            "nombre": "Angel",
+            "apellidoPaterno": "Cohuo",
+            "apellidoMaterno": "Canche",
+            "nombreCompleto": "Cohuo Canche Angel",
             "teléfono": 9998722222,
             "email": "email1@gmmail.com",
             "idEmpresa": 1,
@@ -114,20 +117,25 @@ class CatalogController extends BaseController
                     "id": 1,
                     "numero": "12345678",
                     "idTipo": "1",
-                    "tipoLicencia": "A"
+                    "tipoLicencia": "A",
+                    "fechaVigencia": "08/08/2025"
                 },
                 {
                     "id": 2,
                     "numero": "87654321",
                     "idTipo": "2",
-                    "tipoLicencia": "B"
+                    "tipoLicencia": "B",
+                    "fechaVigencia": "05/03/2025"
                 }
             ]
         },
 
         {
             "id": 2,
-            "nombre": "Operador 2",
+            "nombre": "Gustavo",
+            "apellidoPaterno": "Can",
+            "apellidoMaterno": "Canche",
+            "nombreCompleto": "Can Canche Gustavo",
             "teléfono": 9998922222,
             "email": "email2@gmmail.com",
             "idEmpresa": 2,
@@ -137,19 +145,24 @@ class CatalogController extends BaseController
                     "id": 1,
                     "numero": "123378",
                     "idTipo": "3",
-                    "tipoLicencia": "C"
+                    "tipoLicencia": "C",
+                    "fechaVigencia": "05/03/2025"
                 },
                 {
                     "id": 2,
                     "numero": "876344321",
                     "idTipo": "4",
-                    "tipoLicencia": "D"
+                    "tipoLicencia": "D",
+                    "fechaVigencia": "05/03/2025"
                 }
             ]
         },
         {
             "id": 3,
-            "nombre": "Operador 3",
+            "nombre": "Jose",
+            "apellidoPaterno": "Dzul",
+            "apellidoMaterno": "Canche",
+            "nombreCompleto": "Dzul Canche Jose",
             "teléfono": 9992722232,
             "email": "email3@gmmail.com",
             "idEmpresa": 3,
@@ -159,19 +172,22 @@ class CatalogController extends BaseController
                     "id": 1,
                     "numero": "1235478",
                     "idTipo": "1",
-                    "tipoLicencia": "A"
+                    "tipoLicencia": "A",
+                    "fechaVigencia": "05/03/2025"
                 },
                 {
                     "id": 2,
                     "numero": "8763221",
                     "idTipo": "2",
-                    "tipoLicencia": "B"
+                    "tipoLicencia": "B",
+                    "fechaVigencia": "05/03/2025"
                 },
                 {
                     "id": 3,
                     "numero": "8763221",
                     "idTipo": "3",
-                    "tipoLicencia": "C"
+                    "tipoLicencia": "C",
+                    "fechaVigencia": "05/03/2025"
                 }   
               ]
             }
@@ -237,5 +253,42 @@ class CatalogController extends BaseController
 
         $process = Db::fetchAll($sql);
         return $process;
+    }
+
+    public function licensesType()
+    {
+        $licensesJson = '[
+            {
+               "id": "1",
+                "tipo": "A"
+            },
+            {
+                "id": "2",
+                "tipo": "B"
+            },
+            {
+                "id": "3",
+                "tipo": "C"
+            },
+            {
+                "id": "4",
+                "tipo": "D"
+            },
+            {
+                "id": "5",
+                "tipo": "E"
+            },
+            {
+                "id": "5",
+                "tipo": "F"
+            }
+        ]';
+
+        $licensesData = json_decode($licensesJson, true);
+
+        if ($licensesData === null) {
+            throw new HttpBadRequestException(202, 'Error al decodificar el JSON de tipos de licencias.');
+        }
+        return $licensesData;
     }
 }
