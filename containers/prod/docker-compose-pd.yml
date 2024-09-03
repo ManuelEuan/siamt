@@ -70,6 +70,53 @@ services:
     depends_on:
       - "liquibase"
       - "redis"
+  app-manto-unidades-api:
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
+    volumes:
+      - "./app-manto-unidades-api/config.json:/docker-entrypoint.d/config.json"
+      - "../code/app-manto-unidades-api:/srv/siamt/code/app-manto-unidades-api"
+      - "../code/common-php:/srv/siamt/code/common-php"
+    env_file:
+      - dv.env
+    networks:
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
+  signature-api:
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
+    volumes:
+      - "./signature-api/config.json:/docker-entrypoint.d/config.json"
+      - "../code/signature-api:/srv/siamt/code/signature-api"
+      - "../code/common-php:/srv/siamt/code/common-php"
+    env_file:
+      - dv.env
+    networks:
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
+  app-inspections-api:
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
+    volumes:
+      - "./app-inspections-api/config.json:/docker-entrypoint.d/config.json"
+      - "../code/app-inspections-api:/srv/siamt/code/app-inspections-api"
+      - "../code/common-php:/srv/siamt/code/common-php"
+      - "app-inspections-files:/srv/app-inspections-files"
+      - "./app-inspections-api/init.sh:/docker-entrypoint.d/local/init.sh"
+    env_file:
+      - dv.env
+    networks:
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
   redis:
     image: redis
     volumes:
