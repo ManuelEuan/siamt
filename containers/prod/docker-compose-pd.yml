@@ -136,6 +136,7 @@ services:
 volumes:
   frontend:
   queue:
+  app-inspections-files:
 networks:
   internal-services:
     ipam:
