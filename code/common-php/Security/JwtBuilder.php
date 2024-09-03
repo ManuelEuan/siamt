@@ -20,6 +20,8 @@ class JwtBuilder extends Builder
     const USER_FULL_NAME = 'ufn';
     const PERMISSIONS = 'prm';
 
+    const INSPECTOR_ID = 'inspid';
+
     public function setIpAddress($ip)
     {
         return $this->setClaim(JwtBuilder::IP_ADDRESS, $ip);
@@ -43,6 +45,10 @@ class JwtBuilder extends Builder
     public function setPermissions($data)
     {
         return $this->setClaim(JwtBuilder::PERMISSIONS, $data);
+    }
+    public function setInspectorId($id)
+    {
+        return $this->setClaim(JwtBuilder::INSPECTOR_ID, $id);
     }
 
 }

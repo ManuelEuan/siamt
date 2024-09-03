@@ -5,7 +5,7 @@ namespace App\Db;
 use App\Library\Db\Db;
 use App\Models\CensusCat;
 use App\Models\User;
-use App\Models\Module;
+use App\Models\Modules;
 use App\Models\UserDomainModule;
 
 class App
@@ -120,7 +120,7 @@ FROM usuario.usuario_dominio_configuracion c WHERE idusuario = :userId and iddom
         ]);
 
 
-        $modules = Module::findFirst([
+        $modules = Modules::findFirst([
           "conditions"=>"siglas = :module:",
             "bind" => [
                 "module" => $module

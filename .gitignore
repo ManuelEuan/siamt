@@ -1,3 +1,4 @@
+# code/migrations/changes/modules
 .idea
 node_modules
 .DS_Store
@@ -9,6 +10,7 @@ vendor
 # local env files
 .env.local
 .env.*.local
+dv.env
 
 # Log files
 npm-debug.log*

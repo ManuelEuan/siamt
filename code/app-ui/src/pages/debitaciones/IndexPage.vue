@@ -12,7 +12,7 @@
       src="https://vnd-balance-tool.vinden.cloud/?client_id=PTbV7govNXW2HJX&authorize=fwZfyDyz7pOReFujepJWkxAEvel0XSfo"
       style="height: 100%; width: 100%" allowfullscreen>
     </iframe> -->
-      <!-- <a ref="urlFrame" target="_blank">Abrir URL del Servicio Vinden</a> -->
+      <a ref="urlFrame" target="_blank">Abrir URL del Servicio Vinden</a>
       <iframe ref="serviceFrame" class="embed-responsive-item" style="height: 100%; width: 100%"
         allowfullscreen></iframe>
 
@@ -43,7 +43,7 @@ export default {
     async getServiceVindenUrlDebitaciones() {
       try {
         let url = await services.admin().getServiceVindenUrlDebitaciones();
-        //this.$refs.urlFrame.href = url;
+        this.$refs.urlFrame.href = url;
         this.$refs.serviceFrame.src = url;
       } catch (error) {
         const message = 'Error al cargar servicio de Vinden.';

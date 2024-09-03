@@ -44,5 +44,32 @@ class GenericSQL
         );
         return $resp;
     }
+    public function dep($data)
+    {
+        $format  = print_r('<pre>');
+        $format .= print_r($data);
+        $format .= print_r('</pre>');
+        return $format;
+    }
 
+    public static function getStringConnectionDbLink($db = null)
+    {
+     
+        if($db == 'db_siamt'){
+            $host = getenv('DB_HOST');
+            $port = intval(getenv('DB_PORT'));
+            $username = getenv('DB_USER');
+            $password = getenv('DB_PASS');
+            $dbname = getenv('DB_DBNAME');
+        }
+        if($db == 'db_inspecciones'){
+            $host = getenv('DB_HOST');
+            $port = intval(getenv('DB_PORT'));
+            $username = getenv('DB_USER');
+            $password = getenv('DB_PASS');
+            $dbname = getenv('DB_DBNAME_INSP');
+            }
+        $connection = "dbname=$dbname host=$host port=$port user=$username password=$password";
+        return $connection;
+    }
 }
