@@ -6,7 +6,6 @@ use App\Library\Db\Db;
 use Vokuro\GenericSQL\GenericSQL;
 use \App\Library\Http\Exceptions\HttpBadRequestException;
 
-
 class CatalogController extends BaseController
 {
     public function getCompanies()
@@ -108,7 +107,7 @@ class CatalogController extends BaseController
             "apellidoPaterno": "Cohuo",
             "apellidoMaterno": "Canche",
             "nombreCompleto": "Cohuo Canche Angel",
-            "teléfono": 9998722222,
+            "telefono": 9998722222,
             "email": "email1@gmmail.com",
             "idEmpresa": 1,
             "nombreEmpresa": "empresa 1",
@@ -136,7 +135,7 @@ class CatalogController extends BaseController
             "apellidoPaterno": "Can",
             "apellidoMaterno": "Canche",
             "nombreCompleto": "Can Canche Gustavo",
-            "teléfono": 9998922222,
+            "telefono": 9998922222,
             "email": "email2@gmmail.com",
             "idEmpresa": 2,
             "nombreEmpresa": "empresa 2",
@@ -163,7 +162,7 @@ class CatalogController extends BaseController
             "apellidoPaterno": "Dzul",
             "apellidoMaterno": "Canche",
             "nombreCompleto": "Dzul Canche Jose",
-            "teléfono": 9992722232,
+            "telefono": 9992722232,
             "email": "email3@gmmail.com",
             "idEmpresa": 3,
             "nombreEmpresa": "empresa 3",
