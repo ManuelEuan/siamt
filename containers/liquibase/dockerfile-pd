@@ -5,9 +5,10 @@ ARG GIT_PASS=$GIT_PASS
 
 RUN set -ex && \
     git clone --depth 1 --filter=blob:none --sparse https://$GIT_USR:$GIT_PASS@gitaty.transporteyucatan.org.mx/aty/siamt.git /srv/siamt && \
-    cd /srv/siamt && rm -rf /liquibase/changelog && rm -rf /liquibase/changelog/inspeccion && rm -rf /liquibase/changelog/manto && rm -rf /liquibase/changelog/firma && \
+    cd /srv/siamt && rm -rf /liquibase/changelog && rm -rf /liquibase/changelog/inspeccion && rm -rf /liquibase/changelog/manto && rm -rf /liquibase/changelog/firma && rm -rf /liquibase/changelog/operadores && rm -rf /liquibase/changelog/procedure && \
     git sparse-checkout add code/migrations && ln -s /srv/siamt/code/migrations /liquibase/changelog && \
     git sparse-checkout add code/migrations_inspectores && ln -s /srv/siamt/code/migrations_inspectores /liquibase/changelog/inspeccion && \
     git sparse-checkout add code/migrations_manto && ln -s /srv/siamt/code/migrations_manto /liquibase/changelog/manto && \
     git sparse-checkout add code/migrations_firma && ln -s /srv/siamt/code/migrations_firma /liquibase/changelog/firma && \
-    git sparse-checkout add code/migrations_operadores && ln -s /srv/siamt/code/migrations_operadores /liquibase/changelog/operadores
+    git sparse-checkout add code/migrations_operadores && ln -s /srv/siamt/code/migrations_operadores /liquibase/changelog/operadores && \
+    git sparse-checkout add code/migrations_procedure && ln -s /srv/siamt/code/migrations_procedure /liquibase/changelog/procedure
