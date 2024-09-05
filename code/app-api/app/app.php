@@ -251,3 +251,10 @@ $app->mount(
     ->get("/catalog/routes", "routes")
     ->get("/catalog/licensesType", "licensesType")
 );
+
+$app->mount(
+    (new Collection())
+    ->setHandler(DebitsController::class, true)
+    ->setPrefix('/admin')
+    ->get("/debits/getServiceVindenUrlDebitaciones", "getServiceVindenUrlDebitaciones")
+);
