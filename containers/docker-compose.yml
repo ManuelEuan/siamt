@@ -132,6 +132,21 @@ services:
     depends_on:
       - "liquibase"
       - "redis"
+  app-procedures-api:
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
+    volumes:
+      - "./app-procedures-api/config.json:/docker-entrypoint.d/config.json"
+      - "../code/app-procedures-api:/srv/siamt/code/app-procedures-api"
+      - "../code/common-php:/srv/siamt/code/common-php"
+    env_file:
+      - dv.env
+    networks:
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
 #  users-api:
 #    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
 #    volumes:
@@ -165,6 +180,7 @@ services:
       - "../code/migrations_manto:/liquibase/changelog/manto"
       - "../code/migrations_firma:/liquibase/changelog/firma"
       - "../code/migrations_operadores:/liquibase/changelog/operadores"
+      - "../code/migrations_procedure:/liquibase/changelog/procedure"
     env_file:
       - dv.env
     networks:
