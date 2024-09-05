@@ -17,7 +17,7 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services-siamt
+      - internal-services
     depends_on:
       - "app-api"
       - "auth-api"
@@ -36,7 +36,7 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services-siamt
+      - internal-services
     depends_on:
       - "liquibase"
       - "redis"
@@ -54,7 +54,7 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services-siamt
+      - internal-services
   auth-api:
     image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
     volumes:
@@ -64,7 +64,7 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services-siamt
+      - internal-services
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -79,7 +79,7 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services-siamt
+      - internal-services
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -94,7 +94,7 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services-siamt
+      - internal-services
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -109,7 +109,7 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services-siamt
+      - internal-services
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -126,7 +126,22 @@ services:
     env_file:
       - dv.env
     networks:
-      - internal-services-siamt
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
+  app-procedures-api:
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
+    volumes:
+      - "./app-procedures-api/config.json:/docker-entrypoint.d/config.json"
+      - "../code/app-procedures-api:/srv/siamt/code/app-procedures-api"
+      - "../code/common-php:/srv/siamt/code/common-php"
+    env_file:
+      - dv.env
+    networks:
+      - internal-services
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -141,7 +156,7 @@ services:
 #    env_file:
 #      - dv.env
 #    networks:
-#      - internal-services-siamt
+#      - internal-services
 #    extra_hosts:
 #      - "host.docker.internal:host-gateway"
 #    depends_on:
@@ -153,7 +168,7 @@ services:
       - "6379:6379"
       - "8001:8001"
     networks:
-      - internal-services-siamt
+      - internal-services
     sysctls:
       net.core.somaxconn: 1024
   liquibase:
@@ -165,16 +180,17 @@ services:
       - "../code/migrations_manto:/liquibase/changelog/manto"
       - "../code/migrations_firma:/liquibase/changelog/firma"
       - "../code/migrations_operadores:/liquibase/changelog/operadores"
+      - "../code/migrations_procedure:/liquibase/changelog/procedure"
     env_file:
       - dv.env
     networks:
-      - internal-services-siamt
+      - internal-services
     extra_hosts:
       - "host.docker.internal:host-gateway"
 volumes:
   app-inspections-files:
 networks:
-  internal-services-siamt:
+  internal-services:
     ipam:
       driver: default
       config:
