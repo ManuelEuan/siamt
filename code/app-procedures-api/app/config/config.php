@@ -6,7 +6,7 @@ return new \Phalcon\Config([
         'port' => intval(getenv('DB_PORT')),
         'username' => getenv('DB_USER'),
         'password' => getenv('DB_PASS'),
-        'dbname' => getenv('DB_DBNAME_INSP'),
+        'dbname' => getenv('DB_DBNAME_PROCEDURE'),
         'persistent' => boolval(getenv('DB_PERSISTENT'))
     ],
     'database_siamt' => [

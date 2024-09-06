@@ -11,7 +11,6 @@ define('ROOT_PATH', realpath(__DIR__."/../"));
 
 try {
     session_start();
-    require_once ROOT_PATH.'/vendor/autoload.php';
     include APP_PATH . '/config/loader.php';
 
     $di = new Di();
