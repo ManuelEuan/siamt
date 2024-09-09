@@ -25,11 +25,12 @@ class RightController extends BaseController
                 FROM 
                     comun.tbl_cat_tramite_derecho ctd
                 LEFT JOIN comun.tbl_cat_derecho cd ON ctd.iidderecho = cd.iid
+                LEFT JOIN comun.tbl_cat_tramite ct ON ctd.iidtramite = ct.iid
                 WHERE
                     ctd.bactivo = true';
 
         if ($vclave !== null) {
-            $sql .= " AND cd.vclave = '" . $vclave . "'";
+            $sql .= " AND ct.vclave = '" . $vclave . "'";
         }
 
         $sql .= ' ORDER BY cd.txtnombre';
