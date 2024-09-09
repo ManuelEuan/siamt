@@ -310,4 +310,8 @@ export default class AdminService extends ApiService {
     return await this.get(`/users/users/${perfil}`);
   }
 
+  async licensesType() {
+    return await this.get("/catalog/licensesType");
+  }
+
 }

@@ -1,0 +1,37 @@
+{
+  "applications": {
+    "app-procedures-api": {
+      "type": "php",
+      "root": "/srv/siamt/code/app-procedures-api/public",
+      "working_directory": "/srv/siamt/code/app-procedures-api",
+      "script": "index.php",
+      "limits": {
+        "timeout": 10,
+        "requests": 1000
+      },
+      "processes": {
+        "max": 10,
+        "spare": 2,
+        "idle_timeout": 60
+      },
+      "options": {
+        "admin": {
+          "memory_limit": "10240m",
+          "post_max_size": "100m",
+          "upload_max_filesize": "100m",
+          "max_execution_time": "1000",
+          "max_input_time": "1000",
+          "max_file_uploads": "2"
+        },
+        "user": {
+          "opcache.enable": "0"
+        }
+      }
+    }
+  },
+  "listeners": {
+    "*:80": {
+      "pass": "applications/app-procedures-api"
+    }
+  }
+}
