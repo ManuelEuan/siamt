@@ -11,7 +11,7 @@ use \App\Library\Http\Exceptions\HttpBadRequestException;
 class RightController extends BaseController
 {
     
-    public function right($vclave=null)
+    public function right($vclave = null)
     {
         $sql = 'SELECT 
                     ctd.iid AS "idTramiteDerecho",
@@ -22,17 +22,19 @@ class RightController extends BaseController
                     cd.numa_maximo AS "UMAMaximo",
                     cd.numa_minimo AS "UMAMinimo",
                     150.00 AS "UMAValor"
-                   FROM 
+                FROM 
                     comun.tbl_cat_tramite_derecho ctd
                 LEFT JOIN comun.tbl_cat_derecho cd ON ctd.iidderecho = cd.iid
                 WHERE
                     ctd.bactivo = true';
-        
+
         if ($vclave !== null) {
-            $sql .= ' AND cd.vclave = ' . $vclave;
+            $sql .= " AND cd.vclave = '" . $vclave . "'";
         }
+
         $sql .= ' ORDER BY cd.txtnombre';
         $result = GenericSQL::getBySQL($sql);
         return $result;
     }
+
 }
