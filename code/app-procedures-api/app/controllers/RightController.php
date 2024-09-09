@@ -24,10 +24,10 @@ class RightController extends BaseController
                     150.00 AS "UMAValor"
                 FROM 
                     comun.tbl_cat_tramite_derecho ctd
-                LEFT JOIN comun.tbl_cat_derecho cd ON ctd.iidderecho = cd.iid
-                LEFT JOIN comun.tbl_cat_tramite ct ON ctd.iidtramite = ct.iid
+                INNER JOIN comun.tbl_cat_derecho cd ON ctd.iidderecho = cd.iid
+                INNER JOIN comun.tbl_cat_tramite ct ON ctd.iidtramite = ct.iid
                 WHERE
-                    ctd.bactivo = true';
+                    ctd.bactivo = true and cd.bactivo = true and ct.bactivo= true';
 
         if ($vclave !== null) {
             $sql .= " AND ct.vclave = '" . $vclave . "'";
