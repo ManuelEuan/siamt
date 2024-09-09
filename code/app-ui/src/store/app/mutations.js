@@ -122,6 +122,32 @@ export default {
   },
 
 
+
+    /**
+  * Inspectors Filters and Pagination
+  */
+  setCompanies: (state, companies) => {
+    console.log('companies******************')
+    console.log(companies)
+    state.companies = companies
+  },
+  setCompaniesData: (state, data) => {
+    state.companiesData = { ...data };
+  },
+  setCompaniesFilters: (state, filters) => {
+    console.log('mutation')
+    console.log(filters)
+    state.companiesFilters = { ...filters };
+  },
+  setCompaniesTotalPages: (state, totalPages) => {
+    state.companiesTotalPages = totalPages
+  },
+  setCompaniesTotalItems: (state, totalItems) => {
+    state.companiesTotalItems = totalItems
+  },
+
+
+
   /**
   * DinamycRegisterInProcess Filters and Pagination
   */

@@ -20,6 +20,7 @@ use Vokuro\GenericSQL\Person\TypesRoad;
 
 // MODELOS 
 use App\Models\Person\Inspectors;
+use App\Models\Person\Companies;
 // MODELOS PERSONAS
 // use App\Models\Person\Persons;
 use App\Models\Person\Sexes;
@@ -73,6 +74,16 @@ class PersonsController extends BaseController
                         $persona->foundRequestSearched = false;
                     } else {
                         $persona->iidOfSearchedRequest = $inspector->iidinspector;
+                        $persona->foundRequestSearched = true;
+                    }
+                }
+                if ($typeOfRequest == 'Empresa') {
+                    // Consulta adicional para obtener información de inspección
+                    $company = Companies::getCompany($persona->iidpersona);
+                    if (!$company) {
+                        $persona->foundRequestSearched = false;
+                    } else {
+                        $persona->iidOfSearchedRequest = $company->iidempresa;
                         $persona->foundRequestSearched = true;
                     }
                 }

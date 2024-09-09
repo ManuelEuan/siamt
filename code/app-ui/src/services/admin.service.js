@@ -314,4 +314,24 @@ export default class AdminService extends ApiService {
     return await this.get("/catalog/licensesType");
   }
 
+  //EMPRESAS
+  async getCompanies(data) {
+    return await this.post("/companies", JSON.stringify(data));
+  }
+
+  async getCompanyInfo(id){
+    return await this.post("/companies/getCompanyInfo", JSON.stringify(id));
+  }
+
+  async createCompany(data) {
+    return await this.post("/companies/new", JSON.stringify(data));
+  }
+  async updateCompany(data) {
+    return await this.put("/companies", JSON.stringify(data));
+  }
+  
+  async getPersonByCurp(curp) {
+    return await this.post("/companies/getPersonByCurp", JSON.stringify(curp));
+  }
+
 }

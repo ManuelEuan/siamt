@@ -9,6 +9,7 @@ use App\Controllers\SurveyController;
 use App\Controllers\TerritoryController;
 use App\Controllers\UsersController;
 use App\Controllers\CatalogController;
+use App\Controllers\CompaniesController;
 use App\Db\App;
 use App\Library\Misc\Utils;
 use App\Models\Territory\LocalDistricts;
@@ -257,4 +258,17 @@ $app->mount(
     ->setHandler(DebitsController::class, true)
     ->setPrefix('/admin')
     ->get("/debits/getServiceVindenUrlDebitaciones", "getServiceVindenUrlDebitaciones")
+);
+
+
+$app->mount(
+    (new Collection())
+    ->setHandler(CompaniesController::class, true)
+    ->setPrefix('/admin')
+    ->post("/companies", "getCompanies")
+    ->post("/companies/getPersonByCurp", "getPersonByCurp")
+    ->post("/companies/new", "createCompany")
+    ->put("/companies", "updateCompany")
+    ->delete("/companies/{id}", "deleteCompany")
+    ->post("/companies/getCompanyInfo", "getCompanyInfo")
 );

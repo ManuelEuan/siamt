@@ -14,6 +14,7 @@ import PersonsRoutes from "@/router/persons.routes";
 import FirmsRoutes from "@/router/signature.routes";
 import ProcessRoutes from "@/router/process.routes";
 import DemoRoutes from "@/router/demo.routes";
+import TransportsRoutes from "@/router/transports.routes";
 
 
 import services from '@/services';
@@ -57,6 +58,7 @@ export const routes = [{
   ...FirmsRoutes,
   ...ProcessRoutes,
   ...DemoRoutes,
+  ...TransportsRoutes,
 {
   path: '/blank',
   name: 'blank',
