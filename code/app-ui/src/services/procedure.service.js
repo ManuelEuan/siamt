@@ -1,6 +1,6 @@
 import ApiService from "@/services/api.service";
 
-export default class MantoUnidadesService extends ApiService {
+export default class ProcedureService extends ApiService {
   static DOMAIN_CONFIG_KEY = "dmn-config";
   static USER_CONFIG_KEY = "usr-config";
   static MODULES_CONFIG_KEY = "mod-config";
