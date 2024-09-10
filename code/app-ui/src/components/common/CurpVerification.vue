@@ -153,6 +153,9 @@
                                         <th class="text-left" v-if="request.type == 'Inspector'">
                                             ¿Es inspector?
                                         </th>
+                                        <th class="text-left" v-if="request.type == 'Empresa'">
+                                            ¿Es una empresa?
+                                        </th>
                                         <th class="text-left" style="min-width: 140px;">
                                             Acciones
                                         </th>
@@ -163,6 +166,15 @@
                                         <td>{{ item.txtnombre_completo }}</td>
                                         <td>{{ item.dfecha_nacimiento }}</td>
                                         <td v-if="request.type == 'Inspector'">
+                                            <template item.foundRequestSearched>
+                                                <v-icon v-show="item.foundRequestSearched" size="medium" color="green">
+                                                    mdi-check
+                                                </v-icon>
+                                                <v-icon v-show="!item.foundRequestSearched" size="medium"
+                                                    color="red">mdi-close</v-icon>
+                                            </template>
+                                        </td>
+                                        <td v-if="request.type == 'Empresa'">
                                             <template item.foundRequestSearched>
                                                 <v-icon v-show="item.foundRequestSearched" size="medium" color="green">
                                                     mdi-check
@@ -514,6 +526,13 @@ export default {
                             this.routeTypeOfRequest = `/inspections/inspectors/${this.persona.iidOfSearchedRequest}/edit`;
                             this.personaDisponible = false
                             this.messageDialogOfRequest = "La clave ingresada pertenece a un " + this.request.type
+                            this.dialogRedirectFoundRequest = true
+                            this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona);
+                        }
+                        if (this.request.type == 'Empresa') {
+                            this.routeTypeOfRequest = `/transports/companies/${this.persona.iidOfSearchedRequest}/edit`;
+                            this.personaDisponible = false
+                            this.messageDialogOfRequest = "La clave ingresada pertenece a una " + this.request.type
                             this.dialogRedirectFoundRequest = true
                             this.$emit('person-info', this.personaEncontrada, this.personaDisponible, this.persona);
                         }

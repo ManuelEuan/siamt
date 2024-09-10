@@ -54,12 +54,20 @@ const state = {
   inspectorsTotalPages: 0,
   inspectorsTotalItems: 0,
 
-    // dinamycProcess filters and pagination
-    dinamycRegisterInProcess: [],
-    dinamycRegisterInProcessData: {},
-    dinamycRegisterInProcessFilters: {},
-    dinamycRegisterInProcessTotalPages: 0,
-    dinamycRegisterInProcessTotalItems: 0,
+  // companies filters and pagination
+  companies: [],
+  companiesData: {},
+  companiesFilters: {},
+  companiesTotalPages: 0,
+  companiesTotalItems: 0,
+
+
+  // dinamycProcess filters and pagination
+  dinamycRegisterInProcess: [],
+  dinamycRegisterInProcessData: {},
+  dinamycRegisterInProcessFilters: {},
+  dinamycRegisterInProcessTotalPages: 0,
+  dinamycRegisterInProcessTotalItems: 0,
 
       // inspectores filters and pagination
   tickets: [],

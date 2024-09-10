@@ -79,6 +79,20 @@ const getInspectors = async ({ state, commit }, { data, filters }) => {
   commit('setInspectorsTotalItems', totalItems)
 }
 
+
+const getCompanies = async ({ state, commit }, { data, filters }) => {
+  if (data) commit('setCompaniesData', data)
+  if (filters) commit('setCompaniesFilters', filters)
+  const { companies, totalPages, totalItems } = await services.admin().getCompanies({
+    ...state.companiesData,
+    filters: state.companiesFilters
+  })
+
+  commit('setCompanies', companies)
+  commit('setCompaniesTotalPages', totalPages)
+  commit('setCompaniesTotalItems', totalItems)
+}
+
 const getDinamycRegisterInProcess = async ({ state, commit }, { data, filters }) => {
   if (data) commit('setDinamycRegisterInProcessData', data)
   if (filters) commit('setDinamycRegisterInProcessFilters', filters)
@@ -115,6 +129,7 @@ export default {
   getUsers,
   getProfiles,
   getInspectors,
+  getCompanies,
   getDinamycRegisterInProcess,
   getTickets,
 }
