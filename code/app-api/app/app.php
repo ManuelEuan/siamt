@@ -1,6 +1,7 @@
 <?php
 
 use App\Controllers\DebitsController;
+use App\Controllers\ImagesController;
 use App\Controllers\ModulesController;
 use App\Controllers\PersonsController;
 use App\Controllers\ProcessController;
