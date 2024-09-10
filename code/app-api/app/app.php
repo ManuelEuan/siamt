@@ -1,6 +1,7 @@
 <?php
 
 use App\Controllers\DebitsController;
+use App\Controllers\ImagesController;
 use App\Controllers\ModulesController;
 use App\Controllers\PersonsController;
 use App\Controllers\ProcessController;
@@ -254,7 +255,7 @@ $app->mount(
 
 $app->mount(
     (new Collection())
-    ->setHandler(DebitsController::class, true)
-    ->setPrefix('/admin')
-    ->get("/debits/getServiceVindenUrlDebitaciones", "getServiceVindenUrlDebitaciones")
+        ->setHandler(ImagesController::class, true)
+        ->setPrefix('/admin/images')
+        ->get("/get", "get")
 );
