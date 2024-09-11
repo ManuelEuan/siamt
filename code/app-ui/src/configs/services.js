@@ -23,5 +23,5 @@ export default {
   comitesUrl : BASE_URL + "/comites",
   finderUrl : BASE_URL + "/finder",
   signatureUrl : BASE_URL + "/signature",
-  procedureUrl : BASE_URL + "/procedure",
+  procedureUrl : BASE_URL + "/procedures",
 }
