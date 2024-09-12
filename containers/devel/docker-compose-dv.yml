@@ -17,7 +17,7 @@ services:
     env_file:
       - ../../../.dv-env
     networks:
-      - internal-services-siamt
+      - internal-services
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -34,7 +34,7 @@ services:
     env_file:
       - ../../../.dv-env
     networks:
-      - internal-services-siamt
+      - internal-services
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -47,13 +47,13 @@ services:
     env_file:
       - ../../../.dv-env
     networks:
-      - internal-services-siamt
+      - internal-services
   auth-api:
     image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/auth-api-dv
     env_file:
       - ../../../.dv-env
     networks:
-      - internal-services-siamt
+      - internal-services
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -64,7 +64,69 @@ services:
     env_file:
       - ../../../.dv-env
     networks:
-      - internal-services-siamt
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
+  app-manto-unidades-api:
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/app-manto-unidades-api-dv
+    volumes:
+      - "./app-manto-unidades-api/config.json:/docker-entrypoint.d/config.json"
+      - "../code/app-manto-unidades-api:/srv/siamt/code/app-manto-unidades-api"
+      - "../code/common-php:/srv/siamt/code/common-php"
+    env_file:
+      - ../../../.dv-env
+    networks:
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
+  signature-api:
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/signature-api-dv
+    volumes:
+      - "./signature-api/config.json:/docker-entrypoint.d/config.json"
+      - "../code/signature-api:/srv/siamt/code/signature-api"
+      - "../code/common-php:/srv/siamt/code/common-php"
+    env_file:
+      - ../../../.dv-env
+    networks:
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
+  app-inspections-api:
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/app-inspections-api-dv
+    volumes:
+      - "./app-inspections-api/config.json:/docker-entrypoint.d/config.json"
+      - "../code/app-inspections-api:/srv/siamt/code/app-inspections-api"
+      - "../code/common-php:/srv/siamt/code/common-php"
+      - "app-inspections-files:/srv/app-inspections-files"
+      - "./app-inspections-api/init.sh:/docker-entrypoint.d/local/init.sh"
+    env_file:
+      - ../../../.dv-env
+    networks:
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
+  app-procedures-api:
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/app-procedures-api-dv
+    volumes:
+      - "./app-procedures-api/config.json:/docker-entrypoint.d/config.json"
+      - "../code/app-procedures-api:/srv/siamt/code/app-procedures-api"
+      - "../code/common-php:/srv/siamt/code/common-php"
+    env_file:
+      - ../../../.dv-env
+    networks:
+      - internal-services
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -75,7 +137,7 @@ services:
     volumes:
       - "queue:/data"
     networks:
-      - internal-services-siamt
+      - internal-services
     sysctls:
       net.core.somaxconn: 1024
   liquibase:
@@ -83,14 +145,14 @@ services:
     env_file:
       - ../../../.dv-env
     networks:
-      - internal-services-siamt
+      - internal-services
     extra_hosts:
       - "host.docker.internal:host-gateway"
 volumes:
   frontend:
   queue:
 networks:
-  internal-services-siamt:
+  internal-services:
     ipam:
       driver: default
       config:

@@ -71,7 +71,7 @@ services:
       - "liquibase"
       - "redis"
   app-manto-unidades-api:
-    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/app-manto-unidades-api-pd
     volumes:
       - "./app-manto-unidades-api/config.json:/docker-entrypoint.d/config.json"
       - "../code/app-manto-unidades-api:/srv/siamt/code/app-manto-unidades-api"
@@ -86,7 +86,7 @@ services:
       - "liquibase"
       - "redis"
   signature-api:
-    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/signature-api-pd
     volumes:
       - "./signature-api/config.json:/docker-entrypoint.d/config.json"
       - "../code/signature-api:/srv/siamt/code/signature-api"
@@ -101,7 +101,7 @@ services:
       - "liquibase"
       - "redis"
   app-inspections-api:
-    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-api
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/app-inspections-api-pd
     volumes:
       - "./app-inspections-api/config.json:/docker-entrypoint.d/config.json"
       - "../code/app-inspections-api:/srv/siamt/code/app-inspections-api"

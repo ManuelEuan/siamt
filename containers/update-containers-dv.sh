@@ -23,7 +23,7 @@ do
 	  --build-arg GIT_PASS=$GIT_PASS \
 	  -t gitaty.transporteyucatan.org.mx:5050/aty/siamt/$i-dv \
 	  -t gitaty.transporteyucatan.org.mx:5050/aty/siamt/$i-dv:$timestamp \
-	  -f ./dockerfile-pd .
+	  -f ./dockerfile-dv .
 	docker push gitaty.transporteyucatan.org.mx:5050/aty/siamt/$i-dv --all-tags
 	cd ..
 done
