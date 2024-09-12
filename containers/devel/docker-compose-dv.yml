@@ -14,6 +14,7 @@ services:
     volumes:
       - "frontend:/srv/www"
       - "/var/www:/var/www"
+      - "/mnt/dv/app-inspections-files:/srv/app-inspections-files"
     env_file:
       - ../../../.dv-env
     networks:
@@ -87,10 +88,6 @@ services:
       - "redis"
   signature-api:
     image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/signature-api-dv
-    volumes:
-      - "./signature-api/config.json:/docker-entrypoint.d/config.json"
-      - "../code/signature-api:/srv/siamt/code/signature-api"
-      - "../code/common-php:/srv/siamt/code/common-php"
     env_file:
       - ../../../.dv-env
     networks:
@@ -103,11 +100,7 @@ services:
   app-inspections-api:
     image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/app-inspections-api-dv
     volumes:
-      - "./app-inspections-api/config.json:/docker-entrypoint.d/config.json"
-      - "../code/app-inspections-api:/srv/siamt/code/app-inspections-api"
-      - "../code/common-php:/srv/siamt/code/common-php"
       - "app-inspections-files:/srv/app-inspections-files"
-      - "./app-inspections-api/init.sh:/docker-entrypoint.d/local/init.sh"
     env_file:
       - ../../../.dv-env
     networks:
@@ -119,10 +112,6 @@ services:
       - "redis"
   app-procedures-api:
     image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/app-procedures-api-dv
-    volumes:
-      - "./app-procedures-api/config.json:/docker-entrypoint.d/config.json"
-      - "../code/app-procedures-api:/srv/siamt/code/app-procedures-api"
-      - "../code/common-php:/srv/siamt/code/common-php"
     env_file:
       - ../../../.dv-env
     networks:
