@@ -8,7 +8,7 @@ timestamp=$(TZ="America/Merida" date +"%d%m%y%H%M")
 array=()
 if [ $# -eq 0 ]; then
   echo "No arguments supplied, building all"
-  array=( gateway app-ui app-api auth-api wss-njs liquibase )
+  array=( gateway app-ui app-api auth-api wss-njs liquibase app-manto-unidades-api signature-api app-inspections-api app-procedures-ap)
 else
   array=( "$@" )
 fi
