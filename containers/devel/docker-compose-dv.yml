@@ -130,7 +130,7 @@ services:
     env_file:
       - ../../../.dv-env
     environment:
-      JAVA_OPTS: "-Xmx2048m"
+      JAVA_OPTS: "-Xmx4096m"
     networks:
       - internal-services
     extra_hosts:
