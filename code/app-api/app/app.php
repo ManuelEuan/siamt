@@ -273,3 +273,10 @@ $app->mount(
     ->delete("/companies/{id}", "deleteCompany")
     ->post("/companies/getCompanyInfo", "getCompanyInfo")
 );
+
+$app->mount(
+    (new Collection())
+        ->setHandler(ImagesController::class, true)
+        ->setPrefix('/admin/images')
+        ->get("/", "get")
+);

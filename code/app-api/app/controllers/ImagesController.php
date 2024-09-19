@@ -28,26 +28,26 @@ class ImagesController extends BaseController
 
             $ruta = $a."".$file;
 
-            echo $file_rout;
-            die;
+//            echo $file_rout;
+//            die;
             if (!file_exists($file_rout)) {
                 throw new HttpNotFoundException(404, "No se encuentra el archivo");
             }
 
-            echo 7777;
-            die;
+//            echo 7777;
+//            die;
             $split = explode(".", $file);
 //            print_r($split);
 //            die;
 
-//            print_r(mime_content_type($ruta));
+//            print_r(mime_content_type($file_rout));
 //            die;
             header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-            header('Content-Disposition: inline; filename="'.basename($ruta).'"');
+            header('Content-Disposition: inline; filename="'.basename($file_rout).'"');
             header('Accept-Ranges: bytes');
-            header('Content-type: ' . mime_content_type($ruta));
-            header('Content-length: ' . filesize($ruta));
-            readfile($ruta);
+            header('Content-type: ' . mime_content_type($file_rout));
+            header('Content-length: ' . filesize($file_rout));
+            readfile($file_rout);
             die();
 
 
