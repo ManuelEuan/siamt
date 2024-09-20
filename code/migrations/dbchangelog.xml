@@ -29,4 +29,10 @@
 	<include file="changes/aicf-18.sql"/>
 	<include file="changes/vbbm-6.sql"/>
 	<include file="changes/aicf-19.sql"/>
+	<include file="changes/aicf-20.sql"/>
+	<include file="changes/aicf-21.sql"/>
+	<include file="changes/aicf-22.sql"/>
+	<include file="changes/aicf-23.sql"/>
+	<include file="changes/aicf-24.sql"/>
+
 </databaseChangeLog>
