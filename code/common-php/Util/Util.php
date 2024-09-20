@@ -27,4 +27,8 @@ class Util
         return $decrypted;
     }
 
+    public static function encryptURLImage($txtEncripted){
+        return  "/api/admin/images?a=". Util::encryptTxt($txtEncripted);
+    }
+
 }
