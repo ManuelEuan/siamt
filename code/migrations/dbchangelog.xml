@@ -36,5 +36,6 @@
 	<include file="changes/aicf-24.sql"/>
 	<include file="changes/aicf-25.sql"/>
 	<include file="changes/aicf-26.sql"/>
+	<include file="changes/aicf-27.sql"/>
 
 </databaseChangeLog>
