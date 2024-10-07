@@ -143,7 +143,7 @@
                 </v-col>
                 <v-col cols="12" md="6">
                     <v-text-field v-model="address.inumero_exterior" label="Número exterior*" hide-details="auto"
-                        clearable dense outlined :rules="[rules.required]" />
+                    type="number"    clearable dense outlined :rules="[rules.required]" />
 
                 </v-col>
                 <v-col cols="12" md="6">
@@ -152,7 +152,7 @@
                 </v-col>
                 <v-col cols="12" md="6">
                     <v-text-field v-model="address.inumero_interior" label="Número interior" hide-details="auto"
-                        clearable dense outlined :rules="[rules.ifNotEmptyInt]" />
+                     type="number"   clearable dense outlined :rules="[rules.ifNotEmptyInt]" />
                 </v-col>
                 <v-col cols="12" md="6">
                     <v-text-field v-model="address.txtnumero_interior_letra" label="Número interior letra"
@@ -160,7 +160,7 @@
                 </v-col>
                 <v-col cols="12" md="6">
                     <v-text-field v-model="address.txtcruzamiento_uno" label="Cruzamiento uno" hide-details="auto"
-                        clearable dense outlined />
+                    type="number"   clearable dense outlined />
                 </v-col>
                 <v-col cols="12" md="6">
                     <v-text-field v-model="address.txtcruzamiento_uno_letra" label="Cruzamiento uno letra"
@@ -168,7 +168,7 @@
                 </v-col>
                 <v-col cols="12" md="6">
                     <v-text-field v-model="address.txtcruzamiento_dos" label="Cruzamiento dos" hide-details="auto"
-                        clearable dense outlined />
+                    type="number"   clearable dense outlined />
                 </v-col>
                 <v-col cols="12" md="6">
                     <v-text-field v-model="address.txtcruzamiento_dos_letra" label="Cruzamiento dos letra"
