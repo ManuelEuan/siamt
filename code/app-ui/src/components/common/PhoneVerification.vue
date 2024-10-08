@@ -4,7 +4,7 @@
         <v-row class="mx-auto" v-if="!newRegisterPerson">
             <v-col cols="12" md="12" class="d-flex justify-end py-1"
                 v-if="!newPhone && !editPhone && peopleModulePermissions.includes('crtp')">
-                <v-btn depressed color="primary" @click="newPhone = true">
+                <v-btn depressed color="primary" @click="checkForExistingPhone">
                     Nuevo teléfono
                 </v-btn>
             </v-col>
@@ -105,6 +105,18 @@
             </v-row>
         </v-form>
 
+        <!-- Modal de confirmación para nuevo teléfono -->
+        <generic-dialog
+            :dialogVisible="dialogNewPhoneConfirmation"
+            dialogTitle="Confirmar nuevo teléfono"
+            @update:dialogVisible="dialogNewPhoneConfirmation = $event"
+            @confirm="confirmNewPhone"
+        >
+            <template v-slot:default>
+                Ya tienes un teléfono registrado. ¿Deseas establecer este nuevo teléfono como el actual?
+            </template>
+        </generic-dialog>
+
         <!-- DIALOG ACTUALIZAR TELÉFONO ACTUAL -->
         <!-- <generic-dialog :dialogVisible="dialogNewCurrentPhone" dialogTitle="Actualizar teléfono principal"
             @update:dialogVisible="dialogNewCurrentPhone = $event" @confirm="updateCurrentPhoneMethod">
@@ -142,6 +154,10 @@ export default {
     },
     data() {
         return {
+
+            dialogNewPhoneConfirmation: false, // Controla la visibilidad del modal
+            existingPhone: null, 
+
             // DATOS INFORMATIVOS
             requiredLadaIdentifiers: false,
             editPhone: false,
@@ -189,6 +205,29 @@ export default {
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
+
+        // Método para verificar si hay un teléfono existente
+        checkForExistingPhone() {
+            if (this.personPhones.length > 0) {
+                this.existingPhone = this.personPhones.find(phone => phone.bactual);
+                if (this.existingPhone) {
+                    // Si hay un teléfono actual registrado, muestra el modal
+                    this.dialogNewPhoneConfirmation = true;
+                } else {
+                    // Si no hay teléfono actual, procede con la creación del nuevo
+                    this.newPhone = true;
+                }
+            } else {
+                // Si no hay teléfonos registrados, procede directamente a crear el nuevo
+                this.newPhone = true;
+            }
+        },
+
+        // Confirmación de la creación de un nuevo teléfono
+        confirmNewPhone() {
+            this.newPhone = true;
+            this.dialogNewPhoneConfirmation = false;
+        },
 
         // GET (BD)
         async getTypesPhone() {
