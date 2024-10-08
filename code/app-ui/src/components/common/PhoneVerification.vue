@@ -34,7 +34,7 @@
             </template>
             <template v-slot:item.actions="{ item }">
                 <div v-if="peopleModulePermissions.includes('edtp')" style="min-width: 85px;">
-                    <v-tooltip bottom>
+                    <v-tooltip bottom v-if="item.bactual">
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn v-bind="attrs" v-on="on" icon small
                                 @click="actionsHandlerOfTable(item, 'editPhone')">
@@ -44,7 +44,7 @@
                         <span>Editar teléfono</span>
                     </v-tooltip>
                     
-                    <v-tooltip bottom v-if="!item.bactual">
+                    <!-- <v-tooltip bottom v-if="!item.bactual">
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn v-bind="attrs" v-on="on" icon small
                                 @click="actionsHandlerOfTable(item, 'newCurrentPhone')">
@@ -53,7 +53,7 @@
                             </v-btn>
                         </template>
                         <span>Activar teléfono</span>
-                    </v-tooltip>
+                    </v-tooltip> -->
                     <v-tooltip bottom v-if="!item.bactual">
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn v-bind="attrs" v-on="on" icon small
@@ -106,12 +106,12 @@
         </v-form>
 
         <!-- DIALOG ACTUALIZAR TELÉFONO ACTUAL -->
-        <generic-dialog :dialogVisible="dialogNewCurrentPhone" dialogTitle="Actualizar teléfono principal"
+        <!-- <generic-dialog :dialogVisible="dialogNewCurrentPhone" dialogTitle="Actualizar teléfono principal"
             @update:dialogVisible="dialogNewCurrentPhone = $event" @confirm="updateCurrentPhoneMethod">
             <template v-slot:default>
                 Este cambio implica que este es el nuevo teléfono actual ¿Desea seguir con el proceso?
             </template>
-        </generic-dialog>
+        </generic-dialog> -->
 
         <!-- DIALOG ACTUALIZAR DESACTIVAR TELÉFONO -->
         <generic-dialog :dialogVisible="dialogDeletePhone" dialogTitle="Eliminar teléfono"
