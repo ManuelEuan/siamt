@@ -12,10 +12,10 @@ class Addresses
         try {
             $params = [];
             $omitKeys = [
-                'txtcalle_letra', 'txtnumero_exterior_letra',
-                'inumero_interior', 'txtnumero_interior_letra', 'txtcruzamiento_uno',
-                'txtcruzamiento_uno_letra', 'txtcruzamiento_dos', 'txtcruzamiento_dos_letra',
-                'txtreferencia'
+                // 'txtcalle_letra', 'txtnumero_exterior_letra',
+                // 'inumero_interior', 'txtnumero_interior_letra', 'txtcruzamiento_uno',
+                // 'txtcruzamiento_uno_letra', 'txtcruzamiento_dos', 'txtcruzamiento_dos_letra',
+                // 'txtreferencia'
             ];
 
             foreach ($data as $key => $value) {

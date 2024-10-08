@@ -26,7 +26,6 @@ class PersonAddresses
             d.inumero_interior,
             d.txtnumero_exterior_letra,
             d.txtnumero_interior_letra,
-            d.the_geom,
             d.txtcruzamiento_uno,
             d.txtcruzamiento_uno_letra,
             d.txtcruzamiento_dos,

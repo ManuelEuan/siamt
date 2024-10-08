@@ -137,10 +137,10 @@
                     <v-text-field v-model="address.txtcalle_letra" label="Calle letra" hide-details="auto" clearable
                         dense outlined />
                 </v-col>
-                <v-col cols="12" md="6" v-if="address.iidtipo_vialidad === 2">
+                <!-- <v-col cols="12" md="6" v-if="address.iidtipo_vialidad === 2">
                     <v-text-field v-model="address.txtavenida_kilometro" label="Avenida o Km*" hide-details="auto"
                         clearable dense outlined />
-                </v-col>
+                </v-col> -->
                 <v-col cols="12" md="6">
                     <v-text-field v-model="address.inumero_exterior" label="Número exterior*" hide-details="auto"
                     type="number"    clearable dense outlined :rules="[rules.required]" />
