@@ -489,33 +489,45 @@ class PersonsController extends BaseController
     }
 
     public function updateAddress()
-    {
-        $this->hasClientAuthorized('eddp');
-        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        $this->validRequiredData($data->address, 'address'); // Validar datos requeridos
+{
+    $this->hasClientAuthorized('eddp');
+    $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
 
-        Db::begin();
+    error_log('Datos recibidos en updateAddress: ' . print_r($data, true));
 
-        try {
-            // Verificar y extraer las coordenadas
-        if (!empty($data->the_geom->coordinates) && count($data->the_geom->coordinates) >= 2) {
-            $nlatitud = (float)$data->the_geom->coordinates[1];
-            $nlongitud = (float)$data->the_geom->coordinates[0];
-            $data->address->the_geom = "POINT($nlongitud $nlatitud)"; // Convertir a formato POINT
-        } else {
-            throw new ValidatorBoomException(422, 'Coordenadas no válidas.');
-        }
-
-            Addresses::update($data->address);
-            Db::commit();
-            return ['message' => 'La dirección ha sido actualizada.', 'data' => $data];
-        } catch (\Exception $e) {
-            Db::rollback();
-            throw new ValidatorBoomException(422, 'Ha ocurrido un error al actualizar la dirección.');
-        }
-
-        Db::commit();
-
-        return array('message' => 'La dirección ha sido actualizada.'); // Devolver mensaje de éxito
+    try {
+        $this->validRequiredData($data->address, 'address');
+    } catch (\Exception $e) {
+        error_log('Error en validRequiredData: ' . $e->getMessage());
+        throw new ValidatorBoomException(422, 'Error de validación: ' . $e->getMessage());
     }
+
+    // Asegúrate de que the_geom y sus coordenadas están presentes
+    if (!isset($data->address->the_geom) || !isset($data->address->the_geom->coordinates)) {
+        throw new ValidatorBoomException(422, 'Coordenadas no válidas.');
+    }
+
+    error_log('Coordenadas recibidas: ' . print_r($data->address->the_geom->coordinates, true));
+
+    if (!empty($data->address->the_geom->coordinates) && count($data->address->the_geom->coordinates) == 2) {
+        $nlatitud = (float)$data->address->the_geom->coordinates[1];
+        $nlongitud = (float)$data->address->the_geom->coordinates[0];
+        $data->address->the_geom = "POINT($nlongitud $nlatitud)";
+    } else {
+        throw new ValidatorBoomException(422, 'Coordenadas no válidas.');
+    }
+
+    Db::begin();
+
+    try {
+        error_log('Datos a actualizar: ' . print_r($data->address, true));
+        Addresses::update($data->address);
+        Db::commit();
+        return ['message' => 'La dirección ha sido actualizada.', 'data' => $data];
+    } catch (\Exception $e) {
+        Db::rollback();
+        error_log('Error en updateAddress: ' . $e->getMessage());
+        throw new ValidatorBoomException(422, 'Ha ocurrido un error al actualizar la dirección: ' . $e->getMessage());
+    }
+}
 }

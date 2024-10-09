@@ -71,18 +71,13 @@ class Addresses
             $table = "persona.tbl_direccion";
 
             // Verifica si se proporciona the_geom con las coordenadas
-            if (isset($data->the_geom) && isset($data->the_geom->coordinates)) {
-                // Extraer latitud y longitud de the_geom
-                $nlatitud = $data->the_geom->coordinates[1]; // Latitud
-                $nlongitud = $data->the_geom->coordinates[0]; // Longitud
+        if (isset($data->the_geom)) {
+            $the_geom = $data->the_geom; // Ya convertido a formato POINT
+        } else {
+            throw new \Exception('Las coordenadas no están disponibles para actualizar.');
+        }
 
-                // Convertir a un formato geométrico (Point) que la base de datos entienda
-                $the_geom = "ST_SetSRID(ST_MakePoint($nlongitud, $nlatitud), 4326)";
-            } else {
-                throw new \Exception('Las coordenadas no están disponibles para actualizar.');
-            }
-
-            $params = array(
+            $params = [
                 'icodigo_postal' => $data->icodigo_postal,
                 'txtcolonia' => $data->txtcolonia,
                 'txtcalle' => $data->txtcalle,
@@ -101,7 +96,7 @@ class Addresses
                 'iidtipo_vialidad' => $data->iidtipo_vialidad !== '' ? $data->iidtipo_vialidad : null,
                 'the_geom' => $the_geom,
                 'iid' => $data->iiddireccion,
-            );
+            ];
 
             $where = "iid = :iid"; // Condición WHERE para la actualización
             $direccion = Db::update($table, $params, $where);

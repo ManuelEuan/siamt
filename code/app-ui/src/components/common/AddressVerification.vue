@@ -391,6 +391,7 @@ export default {
             try {
                 // Asegúrarnos de que la latitud y longitud están disponibles
                 if (this.address.nlatitud !== null && this.address.nlongitud !== null) {
+                    
                     // Crear el objeto GeoJSON para the_geom
                     this.address.the_geom = {
                         type: "Point",
