@@ -5,7 +5,8 @@ $loader->registerNamespaces(
     [
         'App\Library'   => BASE_PATH . '/../common-php/',
         'App\Controllers'    => APP_PATH . '/controllers/',
-        'App\Models'    => APP_PATH . '/models/'
+        'App\Models'    => APP_PATH . '/models/',
+        'Vokuro\GenericSQL' => BASE_PATH . '/../common-php/Db',
     ]
 )->register();
 

@@ -3,6 +3,16 @@
 namespace App\Library\Util;
 use Phalcon\Crypt;
 use Phalcon\Di;
+use App\Library\Http\Middlewares\SecurityMiddleware;
+use Symfony\Bridge\Twig\Mime\BodyRenderer;
+use Symfony\Component\Mailer\Mailer;
+use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\Email;
+use Twig\Environment;
+use Twig\Extra\CssInliner\CssInlinerExtension;
+use Twig\Loader\FilesystemLoader;
 
 class Util
 {
@@ -31,4 +41,41 @@ class Util
         return  "/api/admin/images?a=". Util::encryptTxt($txtEncripted);
     }
 
+    public static function sendMail($asunto, $para, array $paraCC, $contenido, $adjunto, $template, array $context =[], &$mensajeReturn)
+    {
+        try {
+            $di = DI::getDefault();
+            $mailer = $di->getShared('internetFailturesMailer');
+            $smtp = $di->getConfig()->internetFailtures->sender;
+            if($mailer)
+            {
+                $email = (new TemplatedEmail())
+                    ->from(new Address($smtp->email, $smtp->name))
+                    ->to(new Address($para))
+                    ->cc(...$paraCC)
+                    ->subject($asunto);
+
+                if($contenido != null && $contenido != "")
+                    $email->html($contenido);
+                else if($template != null && $template != "")
+                {
+                    $twig = $di->getShared('twig');
+                    $email->htmlTemplate($template);
+                    $email->context($context);
+
+                    $twigBodyRenderer = new BodyRenderer($twig);
+                    $twigBodyRenderer->render($email);
+                }
+
+
+                $mailer->send($email);
+            }
+            return true;
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            $mensajeReturn = "ocurrio un error al enviar mensaje.";
+            return false;
+        }
+
+    }
 }

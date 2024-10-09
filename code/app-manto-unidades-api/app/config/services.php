@@ -50,3 +50,32 @@ $di->setShared('redis', function () {
 
     return $redis;
 });
+
+$di->setShared('internetFailturesMailer', function () {
+    $config = $this->getConfig();
+    $smtp = $config->internetFailtures->smtp;
+
+    $transport = (new EsmtpTransport(
+        $smtp->server,
+        $smtp->port,
+        false
+    // false
+    ))
+        ->setUsername($smtp->username)
+        ->setPassword($smtp->password);
+
+    $mailer = new Mailer($transport);
+
+    return $mailer;
+});
+
+$di->setShared('twig', function () {
+    // $config = $this->getConfig();
+    $loader = new FilesystemLoader(BASE_PATH . '/public/twig/templates');
+    //$loader->addPath(BASE_PATH . '/public/twig/images', 'images');
+
+    $env = new Environment($loader);
+    $env->addExtension(new CssInlinerExtension());
+
+    return $env;
+});
