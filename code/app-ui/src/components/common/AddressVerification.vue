@@ -5,12 +5,12 @@
             <v-col cols="12" md="12" class="d-flex justify-end py-1"
                 v-if="!newAddress && !editAddress && peopleModulePermissions.includes('crdp')">
                 <v-btn depressed color="primary" @click="newAddress = true">
-                    Nueva dirección
+                    Nueva Dirección
                 </v-btn>
             </v-col>
             <v-col cols="12" sm="6" class="d-flex justify-end py-1" v-if="newAddress || editAddress">
                 <v-btn depressed color="info" @click="showAddresses()">
-                    Ver direcciones
+                    Ver Direcciones
                 </v-btn>
             </v-col>
             <v-col cols="12" sm="6" class="d-flex justify-end py-1" v-if="newAddress || editAddress">
@@ -34,24 +34,24 @@
             </template>
             <template v-slot:item.actions="{ item }">
                 <div v-if="peopleModulePermissions.includes('eddp')" style="min-width: 85px;">
-                    <v-tooltip bottom>
+                    <v-tooltip bottom v-if="item.bactual">
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn v-bind="attrs" v-on="on" icon small
                                 @click="actionsHandlerOfTable(item, 'editAddress')">
                                 <v-icon small>mdi-square-edit-outline</v-icon>
                             </v-btn>
                         </template>
-                        <span>Editar dirección</span>
+                        <span>Editar Dirección</span>
                     </v-tooltip>
                     <v-tooltip bottom v-if="!item.bactual">
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn v-bind="attrs" v-on="on" icon small
                                 @click="actionsHandlerOfTable(item, 'newCurrentAddress')">
-                                <v-icon small v-show="item.bactivo">mdi-close</v-icon>
-                                <v-icon small v-show="!item.bactivo">mdi-check</v-icon>
+                                <v-icon small v-show="item.bactivo">mdi-check</v-icon>
+                                <v-icon small v-show="!item.bactivo">mdi-close</v-icon>
                             </v-btn>
                         </template>
-                        <span>Activar dirección</span>
+                        <span>Establecer Como Actual</span>
                     </v-tooltip>
                     <v-tooltip bottom v-if="!item.bactual">
                         <template v-slot:activator="{ on, attrs }">
@@ -61,11 +61,11 @@
                                 <v-icon small v-show="!item.bactivo">mdi-check</v-icon>
                             </v-btn>
                         </template>
-                        <span>Eliminar dirección</span>
+                        <span>Eliminar Dirección</span>
                     </v-tooltip>
                 </div>
                 <div v-else>
-                    Sin permisos
+                    Sin Permisos
                 </div>
             </template>
         </v-data-table>
@@ -74,7 +74,7 @@
         <v-form v-model="addressValidation" v-if="newAddress || newRegisterPerson || editAddress">
             <v-row>
                 <v-col cols="12" md="4">
-                    <v-autocomplete v-model="codePostal" label="Código postal*" :items="postalCodes"
+                    <v-autocomplete v-model="codePostal" label="Código Postal*" :items="postalCodes"
                         item-text="icodigo_postal" item-value="icodigo_postal" hide-details="auto" small-chips clearable
                         dense :rules="[rules.required]" outlined />
                 </v-col>
@@ -103,7 +103,7 @@
                         outlined :rules="[rules.required]" />
                 </v-col>
                 <v-col cols="12" md="6" v-if="codePostal && address.iidtipo_direccion === 1">
-                    <v-autocomplete v-model="address.iidtipo_vialidad" label="Tipo vialidad*" :items="typesRoads"
+                    <v-autocomplete v-model="address.iidtipo_vialidad" label="Tipo Víalidad*" :items="typesRoads"
                         item-text="txtnombre" item-value="iidtipo_vialidad" hide-details="auto" small-chips clearable
                         dense :rules="[rules.required]" outlined :disabled="!codePostal" />
                 </v-col>
@@ -124,17 +124,17 @@
                         outlined :rules="[rules.required]" />
                 </v-col>
                 <v-col cols="12" md="6" v-if="codePostal && address.iidtipo_direccion === 3">
-                    <v-text-field v-model="address.txtcalle" label="Descripción dirección*" hide-details="auto"
+                    <v-text-field v-model="address.txtcalle" label="Descripción Dirección*" hide-details="auto"
                         clearable dense outlined :rules="[rules.required]" />
                 </v-col>
             </v-row>
             <v-row v-if="codePostal && address.iidtipo_direccion === 1">
                 <v-col cols="12" md="6" v-if="address.iidtipo_vialidad === 1">
-                    <v-text-field v-model="address.txtcalle" label="Calle principal/s*" hide-details="auto" clearable
+                    <v-text-field v-model="address.txtcalle" label="Calle Principal/s*" hide-details="auto" clearable
                         dense outlined :rules="[rules.required]" />
                 </v-col>
                 <v-col cols="12" md="6" v-if="address.iidtipo_vialidad === 1">
-                    <v-text-field v-model="address.txtcalle_letra" label="Calle letra" hide-details="auto" clearable
+                    <v-text-field v-model="address.txtcalle_letra" label="Calle Letra" hide-details="auto" clearable
                         dense outlined />
                 </v-col>
                 <!-- <v-col cols="12" md="6" v-if="address.iidtipo_vialidad === 2">
@@ -142,36 +142,36 @@
                         clearable dense outlined />
                 </v-col> -->
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="address.inumero_exterior" label="Número exterior*" hide-details="auto"
-                    type="number"    clearable dense outlined :rules="[rules.required]" />
+                    <v-text-field v-model="address.inumero_exterior" label="Número Exterior*" hide-details="auto"
+                        type="number" clearable dense outlined :rules="[rules.required]" />
 
                 </v-col>
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="address.txtnumero_exterior_letra" label="Numero exterior letra"
+                    <v-text-field v-model="address.txtnumero_exterior_letra" label="Número Exterior Letra"
                         hide-details="auto" clearable dense outlined />
                 </v-col>
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="address.inumero_interior" label="Número interior" hide-details="auto"
-                     type="number"   clearable dense outlined :rules="[rules.ifNotEmptyInt]" />
+                    <v-text-field v-model="address.inumero_interior" label="Número Interior" hide-details="auto"
+                        type="number" clearable dense outlined :rules="[rules.ifNotEmptyInt]" />
                 </v-col>
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="address.txtnumero_interior_letra" label="Número interior letra"
+                    <v-text-field v-model="address.txtnumero_interior_letra" label="Número Interior Letra"
                         hide-details="auto" clearable dense outlined />
                 </v-col>
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="address.txtcruzamiento_uno" label="Cruzamiento uno" hide-details="auto"
-                    type="number"   clearable dense outlined />
+                    <v-text-field v-model="address.txtcruzamiento_uno" label="Cruzamiento Uno" hide-details="auto"
+                        type="number" clearable dense outlined />
                 </v-col>
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="address.txtcruzamiento_uno_letra" label="Cruzamiento uno letra"
+                    <v-text-field v-model="address.txtcruzamiento_uno_letra" label="Cruzamiento Uno Letra"
                         hide-details="auto" clearable dense outlined />
                 </v-col>
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="address.txtcruzamiento_dos" label="Cruzamiento dos" hide-details="auto"
-                    type="number"   clearable dense outlined />
+                    <v-text-field v-model="address.txtcruzamiento_dos" label="Cruzamiento Dos" hide-details="auto"
+                        type="number" clearable dense outlined />
                 </v-col>
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="address.txtcruzamiento_dos_letra" label="Cruzamiento dos letra"
+                    <v-text-field v-model="address.txtcruzamiento_dos_letra" label="Cruzamiento Dos Letra"
                         hide-details="auto" clearable dense outlined />
                 </v-col>
                 <v-col cols="12" md="6">
@@ -180,11 +180,11 @@
                 </v-col>
                 <v-col cols="12" md="6">
                     <v-text-field v-model="address.nlatitud" label="Latitud" hide-details="auto" clearable dense
-                        maxlength="15" outlined :rules="[rules.latitud]" />
+                        outlined :rules="[rules.latitud]" />
                 </v-col>
                 <v-col cols="12" md="6">
                     <v-text-field v-model="address.nlongitud" label="Longitud" hide-details="auto" clearable dense
-                        maxlength="15" outlined :rules="[rules.longitud]" />
+                        outlined :rules="[rules.longitud]" />
                 </v-col>
                 <v-col cols="12" md="6" v-if="address.nlatitud && address.nlongitud">
                     <v-btn color="primary" text @click="verifyAddress()"> Verificar </v-btn>
@@ -197,7 +197,7 @@
         <!-- </v-card-text> -->
 
         <!-- DIALOG GENERIC ACTUALIZAR DIRECCION ACTUAL -->
-        <generic-dialog :dialogVisible="dialogNewCurrentAddress" dialogTitle="Actualizar dirección principal"
+        <generic-dialog :dialogVisible="dialogNewCurrentAddress" dialogTitle="Actualizar Dirección Principal"
             @update:dialogVisible="dialogNewCurrentAddress = $event" @confirm="updateCurrentAddress">
             <template v-slot:default>
                 Este cambio implica que esta es la nueva dirección actual ¿Desea seguir con el proceso?
@@ -205,7 +205,7 @@
         </generic-dialog>
 
         <!-- DIALOG ACTUALIZAR DESACTIVAR DIRECCIÓN -->
-        <generic-dialog :dialogVisible="dialogDeleteAddress" dialogTitle="Eliminar dirección"
+        <generic-dialog :dialogVisible="dialogDeleteAddress" dialogTitle="Eliminar Dirección"
             @update:dialogVisible="dialogDeleteAddress = $event" @confirm="deleteAddress()">
             <template v-slot:default>
                 ¿Estás seguro de que deseas Eliminar esta dirección?
@@ -285,6 +285,7 @@ export default {
             ],
             address: {
                 // iidcolonia: 0,
+                icodigo_postal: '',
                 txtcolonia: '',
                 txtcalle: '',
                 txtcalle_letra: '',
@@ -299,6 +300,7 @@ export default {
                 txtreferencia: '',
                 nlatitud: null,
                 nlongitud: null,
+                the_geom: null,
                 bactivo: null,
                 dtfecha_creacion: null,
                 dtfecha_modificacion: null,
@@ -313,6 +315,8 @@ export default {
             // REGLAS
             rules: {
                 ...rules,
+                latitud: [v => !!v || 'La latitud es requerida'],
+                longitud: [v => !!v || 'La longitud es requerida']
             },
         };
     },
@@ -385,6 +389,16 @@ export default {
         async saveAddress() {
             console.log('Guardando dirección');
             try {
+                // Asegúrarnos de que la latitud y longitud están disponibles
+                if (this.address.nlatitud !== null && this.address.nlongitud !== null) {
+                    // Crear el objeto GeoJSON para the_geom
+                    this.address.the_geom = {
+                        type: "Point",
+                        coordinates: [this.address.nlongitud, this.address.nlatitud] // Longitud primero, luego latitud
+                    };
+                } else {
+                    this.address.the_geom = null; // O maneja el caso de error según tus necesidades
+                }
                 let data = {
                     iidpersona: this.iidpersona,
                     address: this.address,

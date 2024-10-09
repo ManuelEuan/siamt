@@ -35,8 +35,8 @@ class PersonPhones
                 }
             }
             //  'bactual' y 'bactivo' sean siempre true
-            $params['bactual'] = 't';   
-            $params['bactivo'] = 't';   
+            $params['bactual'] = 't';
+            $params['bactivo'] = 't';
             // Db::dep($params);exit;
             return Db::insert('persona.tbl_persona_telefono', $params);
         } catch (\Exception $e) {
@@ -104,7 +104,8 @@ class PersonPhones
                     persona.tbl_cat_tipo_telefono AS tt ON pt.iidtipo_telefono = tt.iid
                 WHERE 
                     pt.iidpersona = :iidpersona AND pt.bactivo = true
-                    -- AND pt.bactivo = true
+                ORDER BY 
+                    pt.bactual DESC, pt.vtelefono
         ";
         $phones = Db::fetchAll($sql, $params);
         return $phones;

@@ -51,6 +51,11 @@ class Addresses
                 }
             }
 
+            // Asegúrate de incluir 'the_geom' en los parámetros si está presente
+            if (isset($data->the_geom)) {
+                $params['the_geom'] = $data->the_geom;
+            }
+
             $address =  Db::insert('persona.tbl_direccion', $params);
             return $address;
         } catch (\Exception $e) {
@@ -65,7 +70,21 @@ class Addresses
         try {
             $table = "persona.tbl_direccion";
 
+            // Verifica si se proporciona the_geom con las coordenadas
+            if (isset($data->the_geom) && isset($data->the_geom->coordinates)) {
+                // Extraer latitud y longitud de the_geom
+                $nlatitud = $data->the_geom->coordinates[1]; // Latitud
+                $nlongitud = $data->the_geom->coordinates[0]; // Longitud
+
+                // Convertir a un formato geométrico (Point) que la base de datos entienda
+                $the_geom = "ST_SetSRID(ST_MakePoint($nlongitud, $nlatitud), 4326)";
+            } else {
+                throw new \Exception('Las coordenadas no están disponibles para actualizar.');
+            }
+
             $params = array(
+                'icodigo_postal' => $data->icodigo_postal,
+                'txtcolonia' => $data->txtcolonia,
                 'txtcalle' => $data->txtcalle,
                 'txtcalle_letra' => $data->txtcalle_letra,
                 'inumero_exterior' => $data->inumero_exterior !== '' ? $data->inumero_exterior : null,
@@ -80,6 +99,7 @@ class Addresses
                 'dtfecha_modificacion' => date('Y-m-d H:i:s'),
                 'iidtipo_direccion' => $data->iidtipo_direccion !== '' ? $data->iidtipo_direccion : null,
                 'iidtipo_vialidad' => $data->iidtipo_vialidad !== '' ? $data->iidtipo_vialidad : null,
+                'the_geom' => $the_geom,
                 'iid' => $data->iiddireccion,
             );
 

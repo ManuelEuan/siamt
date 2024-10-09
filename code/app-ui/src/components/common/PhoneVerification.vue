@@ -5,12 +5,12 @@
             <v-col cols="12" md="12" class="d-flex justify-end py-1"
                 v-if="!newPhone && !editPhone && peopleModulePermissions.includes('crtp')">
                 <v-btn depressed color="primary" @click="checkForExistingPhone">
-                    Nuevo teléfono
+                    Nuevo Teléfono
                 </v-btn>
             </v-col>
             <v-col cols="12" sm="6" class="d-flex justify-end py-1" v-if="newPhone || editPhone">
                 <v-btn depressed color="info" @click="showPhones()">
-                    Ver teléfonos
+                    Ver Teléfonos
                 </v-btn>
             </v-col>
             <v-col cols="12" sm="6" class="d-flex justify-end py-1" v-if="newPhone || editPhone">
@@ -41,7 +41,7 @@
                                 <v-icon small>mdi-square-edit-outline</v-icon>
                             </v-btn>
                         </template>
-                        <span>Editar teléfono</span>
+                        <span>Editar Teléfono</span>
                     </v-tooltip>
                     
                     <!-- <v-tooltip bottom v-if="!item.bactual">
@@ -62,7 +62,7 @@
                                 <v-icon small v-show="!item.bactivo">mdi-check</v-icon>
                             </v-btn>
                         </template>
-                        <span>Eliminar teléfono</span>
+                        <span>Eliminar Teléfono</span>
                     </v-tooltip>
                 </div>
                 <div v-else>
@@ -108,7 +108,7 @@
         <!-- Modal de confirmación para nuevo teléfono -->
         <generic-dialog
             :dialogVisible="dialogNewPhoneConfirmation"
-            dialogTitle="Confirmar nuevo teléfono"
+            dialogTitle="Confirmar Nuevo Teléfono"
             @update:dialogVisible="dialogNewPhoneConfirmation = $event"
             @confirm="confirmNewPhone"
         >
@@ -126,7 +126,7 @@
         </generic-dialog> -->
 
         <!-- DIALOG ACTUALIZAR DESACTIVAR TELÉFONO -->
-        <generic-dialog :dialogVisible="dialogDeletePhone" dialogTitle="Eliminar teléfono"
+        <generic-dialog :dialogVisible="dialogDeletePhone" dialogTitle="Eliminar Teléfono"
             @update:dialogVisible="dialogDeletePhone = $event" @confirm="deletePhone">
             <template v-slot:default>
                 ¿Estás seguro de que deseas Eliminar este

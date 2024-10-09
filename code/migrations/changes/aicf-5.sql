@@ -136,7 +136,7 @@ CREATE TABLE "persona"."tbl_direccion" (
    "txtdescripcion_direccion" text COLLATE "pg_catalog"."default",
    txtdireccion_completa text GENERATED ALWAYS AS (
            CASE WHEN (txtcalle = '') IS NOT FALSE THEN ''  ELSE 'CALLE ' || txtcalle || COALESCE (txtcalle_letra, '') END || ' '
-               || CASE WHEN (inumero_exterior is not null) IS NOT FALSE THEN ''  ELSE '# ' || inumero_exterior::text || COALESCE (txtnumero_exterior_letra, '') END || ' '
+               || CASE  WHEN inumero_exterior IS NULL THEN '' ELSE '# ' || inumero_exterior::text || COALESCE (txtnumero_exterior_letra, '') END || ' '
                || CASE WHEN (txtcruzamiento_uno = '') IS NOT FALSE THEN ''  ELSE 'ENTRE ' || txtcruzamiento_uno || COALESCE (txtcruzamiento_uno_letra, '') END || ' '
                || CASE WHEN (txtcruzamiento_dos = '') IS NOT FALSE THEN ''  ELSE 'Y ' || txtcruzamiento_dos || COALESCE (txtcruzamiento_dos_letra, '') END || ' '
                || CASE WHEN (txtcolonia = '') IS NOT FALSE THEN ''  ELSE 'COL. ' || txtcolonia END
