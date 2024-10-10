@@ -74,7 +74,7 @@
         <v-form v-model="addressValidation" v-if="newAddress || newRegisterPerson || editAddress">
             <v-row>
                 <v-col cols="12" md="4">
-                    <v-autocomplete v-model="codePostal" label="Código Postal*" :items="postalCodes"
+                    <v-autocomplete v-model="address.icodigo_postal" label="Código Postal*" :items="postalCodes"
                         item-text="icodigo_postal" item-value="icodigo_postal" hide-details="auto" small-chips clearable
                         dense :rules="[rules.required]" outlined />
                 </v-col>
@@ -322,7 +322,6 @@ export default {
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
-
 
         // GET (BD)
         async getAddressTypes() {
