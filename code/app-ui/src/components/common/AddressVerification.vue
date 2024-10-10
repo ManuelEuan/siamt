@@ -178,7 +178,7 @@
                     <v-text-field v-model="address.txtreferencia" label="Referencia" hide-details="auto" clearable dense
                         outlined />
                 </v-col>
-                <v-col cols="12" md="6">
+                <!-- <v-col cols="12" md="6">
                     <v-text-field v-model="address.nlatitud" label="Latitud" hide-details="auto" clearable dense
                         outlined :rules="[rules.latitud]" />
                 </v-col>
@@ -189,7 +189,7 @@
                 <v-col cols="12" md="6" v-if="address.nlatitud && address.nlongitud">
                     <v-btn color="primary" text @click="verifyAddress()"> Verificar </v-btn>
 
-                </v-col>
+                </v-col> -->
             </v-row>
 
 
@@ -298,9 +298,9 @@ export default {
                 txtcruzamiento_dos: '',
                 txtcruzamiento_dos_letra: '',
                 txtreferencia: '',
-                nlatitud: null,
-                nlongitud: null,
-                the_geom: null,
+                // nlatitud: null,
+                // nlongitud: null,
+                // the_geom: null,
                 bactivo: null,
                 dtfecha_creacion: null,
                 dtfecha_modificacion: null,
@@ -315,8 +315,8 @@ export default {
             // REGLAS
             rules: {
                 ...rules,
-                latitud: [v => !!v || 'La latitud es requerida'],
-                longitud: [v => !!v || 'La longitud es requerida']
+                // latitud: [v => !!v || 'La latitud es requerida'],
+                // longitud: [v => !!v || 'La longitud es requerida']
             },
         };
     },
@@ -389,17 +389,17 @@ export default {
         async saveAddress() {
             console.log('Guardando dirección');
             try {
-                // Asegúrarnos de que la latitud y longitud están disponibles
-                if (this.address.nlatitud !== null && this.address.nlongitud !== null) {
+                // // Asegúrarnos de que la latitud y longitud están disponibles
+                // if (this.address.nlatitud !== null && this.address.nlongitud !== null) {
                     
-                    // Crear el objeto GeoJSON para the_geom
-                    this.address.the_geom = {
-                        type: "Point",
-                        coordinates: [this.address.nlongitud, this.address.nlatitud] // Longitud primero, luego latitud
-                    };
-                } else {
-                    this.address.the_geom = null; // O maneja el caso de error según tus necesidades
-                }
+                //     // Crear el objeto GeoJSON para the_geom
+                //     this.address.the_geom = {
+                //         type: "Point",
+                //         coordinates: [this.address.nlongitud, this.address.nlatitud] // Longitud primero, luego latitud
+                //     };
+                // } else {
+                //     this.address.the_geom = null; // O maneja el caso de error según tus necesidades
+                // }
                 let data = {
                     iidpersona: this.iidpersona,
                     address: this.address,
@@ -475,8 +475,8 @@ export default {
                 txtcruzamiento_dos: '',
                 txtcruzamiento_dos_letra: '',
                 txtreferencia: '',
-                nlatitud: null,
-                nlongitud: null,
+                // nlatitud: null,
+                // nlongitud: null,
                 bactivo: null,
                 dtfecha_creacion: null,
                 dtfecha_modificacion: null,
@@ -521,11 +521,11 @@ export default {
             }
         },
 
-        // ACA SE PUEDE PONER LA GEOLOCALIZACIÓN
-        verifyAddress() {
-            const url = `https://www.google.com/maps?q=${this.address.nlatitud},${this.address.nlongitud}`;
-            window.open(url);
-        },
+        // // ACA SE PUEDE PONER LA GEOLOCALIZACIÓN
+        // verifyAddress() {
+        //     const url = `https://www.google.com/maps?q=${this.address.nlatitud},${this.address.nlongitud}`;
+        //     window.open(url);
+        // },
 
         // EMITIR A COMPONENTE PADRE
         emitToParentComponent() {

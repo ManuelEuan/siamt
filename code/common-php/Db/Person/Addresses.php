@@ -22,8 +22,8 @@ class Addresses
                 switch ($key) {
                     case 'iidpersona':
                     case 'bactivo':
-                    case 'nlatitud':
-                    case 'nlongitud':
+                    // case 'nlatitud':
+                    // case 'nlongitud':
                     case 'txtavenida_kilometro':
                     case 'txttablaje':
                     case 'dtfecha_creacion':
@@ -70,12 +70,12 @@ class Addresses
         try {
             $table = "persona.tbl_direccion";
 
-            // Verifica si se proporciona the_geom con las coordenadas
-        if (isset($data->the_geom)) {
-            $the_geom = $data->the_geom; // Ya convertido a formato POINT
-        } else {
-            throw new \Exception('Las coordenadas no están disponibles para actualizar.');
-        }
+            // // Verificar si se proporciono the_geom con las coordenadas
+            // if (isset($data->the_geom)) {
+            //     $the_geom = $data->the_geom; // Ya convertido a formato POINT
+            // } else {
+            //     throw new \Exception('Las coordenadas no están disponibles para actualizar.');
+            // }
 
             $params = [
                 'icodigo_postal' => $data->icodigo_postal,
@@ -94,7 +94,7 @@ class Addresses
                 'dtfecha_modificacion' => date('Y-m-d H:i:s'),
                 'iidtipo_direccion' => $data->iidtipo_direccion !== '' ? $data->iidtipo_direccion : null,
                 'iidtipo_vialidad' => $data->iidtipo_vialidad !== '' ? $data->iidtipo_vialidad : null,
-                'the_geom' => $the_geom,
+                //'the_geom' => $the_geom,
                 'iid' => $data->iiddireccion,
             ];
 
