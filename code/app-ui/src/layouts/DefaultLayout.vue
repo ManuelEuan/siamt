@@ -2,7 +2,7 @@
 <template>
     <div v-shortkey="['ctrl', '/']" class="d-flex flex-grow-1" @shortkey="onKeyup">
         <!-- Navigation -->
-        <v-navigation-drawer v-model="drawer" app floating class="elevation-1" :right="$vuetify.rtl" :light="menuTheme === 'light'" :dark="menuTheme === 'dark'" style="z-index: 100000">
+        <v-navigation-drawer v-model="drawer" app floating class="elevation-1" :right="$vuetify.rtl" :light="menuTheme === 'light'" :dark="menuTheme === 'dark'" >
             <!-- Navigation menu info -->
             <template v-slot:prepend>
                 <div class="pa-2 text-center">
