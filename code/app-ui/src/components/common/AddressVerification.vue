@@ -76,7 +76,7 @@
                 <v-col cols="12" md="4">
                     <v-autocomplete v-model="address.icodigo_postal" label="Código Postal*" :items="postalCodes"
                         item-text="icodigo_postal" item-value="icodigo_postal" hide-details="auto" small-chips clearable
-                        dense :rules="[rules.required]" outlined />
+                        dense :rules="[rules.required]" outlined @input="onInputChange" />
                 </v-col>
                 <v-col cols="12" md="4" v-if="codePostal">
                     <v-text-field v-model="entity" label="Estado" hide-details="auto" clearable dense outlined
@@ -323,6 +323,23 @@ export default {
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
 
+        onInputChange(value) {
+            // Si vacío el campo (clear), reseteo el código postal
+            if (!value) {
+                this.address.icodigo_postal = ''; // se limpia el campo del modelo
+                this.codePostal = 0; // reinicia 
+                
+            } else {
+                // si se ingresa un valor, actualiza el modelo
+                this.address.icodigo_postal = value; // establecer el nuevo valor ingresado
+                this.codePostal = value;
+                console.log('Código postal ingresado:', value);
+                // realiza otras acciones como obtener datos relacionados
+                this.getMunicipalityAndEntityByPostalCode(value);
+            }
+        },
+
+
         // GET (BD)
         async getAddressTypes() {
             try {
@@ -390,7 +407,7 @@ export default {
             try {
                 // // Asegúrarnos de que la latitud y longitud están disponibles
                 // if (this.address.nlatitud !== null && this.address.nlongitud !== null) {
-                    
+
                 //     // Crear el objeto GeoJSON para the_geom
                 //     this.address.the_geom = {
                 //         type: "Point",
@@ -461,6 +478,7 @@ export default {
         resetAddress() {
             this.codePostal = 0
             this.address = {
+                ...this.address,
                 // iidcolonia: 0,
                 txtcolonia: '',
                 txtcalle: '',
