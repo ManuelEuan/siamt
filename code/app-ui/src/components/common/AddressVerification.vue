@@ -130,7 +130,7 @@
             </v-row>
             <v-row v-if="codePostal && address.iidtipo_direccion === 1">
                 <v-col cols="12" md="6" v-if="address.iidtipo_vialidad === 1">
-                    <v-text-field v-model="address.txtcalle" label="Calle Principal/s*" hide-details="auto" clearable
+                    <v-text-field v-model="address.txtcalle" label="Calle Principal*" hide-details="auto" clearable
                         dense outlined :rules="[rules.required]" />
                 </v-col>
                 <v-col cols="12" md="6" v-if="address.iidtipo_vialidad === 1">
