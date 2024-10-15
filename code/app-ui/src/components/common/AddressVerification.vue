@@ -4,7 +4,7 @@
         <v-row class="mx-auto" v-if="!newRegisterPerson">
             <v-col cols="12" md="12" class="d-flex justify-end py-1"
                 v-if="!newAddress && !editAddress && peopleModulePermissions.includes('crdp')">
-                <v-btn depressed color="primary" @click="newAddress = true">
+                <v-btn depressed color="primary" @click="openCreateAddressModal">
                     Nueva Dirección
                 </v-btn>
             </v-col>
@@ -283,33 +283,8 @@ export default {
                 //     "txtnombre": "Avenida o Km"
                 // }
             ],
-            address: {
-                // iidcolonia: 0,
-                icodigo_postal: '',
-                txtcolonia: '',
-                txtcalle: '',
-                txtcalle_letra: '',
-                inumero_exterior: null,
-                txtnumero_exterior_letra: '',
-                inumero_interior: null,
-                txtnumero_interior_letra: '',
-                txtcruzamiento_uno: '',
-                txtcruzamiento_uno_letra: '',
-                txtcruzamiento_dos: '',
-                txtcruzamiento_dos_letra: '',
-                txtreferencia: '',
-                // nlatitud: null,
-                // nlongitud: null,
-                // the_geom: null,
-                bactivo: null,
-                dtfecha_creacion: null,
-                dtfecha_modificacion: null,
-                iidtipo_direccion: null,
-                iidtipo_vialidad: 0,
-                txtavenida_kilometro: '',
-                txttablaje: '',
-                txtdescripcion_direccion: '',
-            },
+            address: this.getInitialAddressState(),
+
             peopleModulePermissions: [],
 
             // REGLAS
@@ -323,12 +298,38 @@ export default {
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
 
+        getInitialAddressState() {
+            return {
+                icodigo_postal: '',
+                txtcolonia: '',
+                txtcalle: '',
+                txtcalle_letra: '',
+                inumero_exterior: null,
+                txtnumero_exterior_letra: '',
+                inumero_interior: null,
+                txtnumero_interior_letra: '',
+                txtcruzamiento_uno: '',
+                txtcruzamiento_uno_letra: '',
+                txtcruzamiento_dos: '',
+                txtcruzamiento_dos_letra: '',
+                txtreferencia: '',
+                bactivo: null,
+                dtfecha_creacion: null,
+                dtfecha_modificacion: null,
+                iidtipo_direccion: null,
+                iidtipo_vialidad: 0,
+                txtavenida_kilometro: '',
+                txttablaje: '',
+                txtdescripcion_direccion: '',
+            };
+        },
+
         onInputChange(value) {
             // Si vacío el campo (clear), reseteo el código postal
             if (!value) {
                 this.address.icodigo_postal = ''; // se limpia el campo del modelo
                 this.codePostal = 0; // reinicia 
-                
+
             } else {
                 // si se ingresa un valor, actualiza el modelo
                 this.address.icodigo_postal = value; // establecer el nuevo valor ingresado
@@ -418,22 +419,19 @@ export default {
                 // }
                 let data = {
                     iidpersona: this.iidpersona,
-                    address: this.address,
-                }
-                console.log(data)
+                    address: { ...this.address, icodigo_postal: this.codePostal }
+                };
+                let response;
                 if (!this.address.iiddireccion) {
-                    this.address.icodigo_postal = this.codePostal;
-                    let response = await services.admin().createAddress(data);
-                    console.log('address create')
-                    this.showSuccess(response.message);
-                    this.newAddress = true
+                    response = await services.admin().createAddress(data);
+                    this.newAddress = true;
                 } else {
-                    let response = await services.admin().updateAddress(data);
-                    console.log('address update')
-                    this.showSuccess(response.message);
-                    this.editAddress = false
+                    response = await services.admin().updateAddress(data);
+                    this.editAddress = false;
                 }
+                this.showSuccess(response.message);
                 await this.loadAddressesTable();
+                this.resetAddress();
             } catch (error) {
                 const message = 'Error al guardar la dirección.';
                 this.showError({ message, error });
@@ -476,34 +474,15 @@ export default {
 
         // RESETEO EN CASO DE NUEVO REGISTRO
         resetAddress() {
-            this.codePostal = 0
-            this.address = {
-                ...this.address,
-                // iidcolonia: 0,
-                txtcolonia: '',
-                txtcalle: '',
-                txtcalle_letra: '',
-                inumero_exterior: null,
-                txtnumero_exterior_letra: '',
-                inumero_interior: null,
-                txtnumero_interior_letra: '',
-                txtcruzamiento_uno: '',
-                txtcruzamiento_uno_letra: '',
-                txtcruzamiento_dos: '',
-                txtcruzamiento_dos_letra: '',
-                txtreferencia: '',
-                // nlatitud: null,
-                // nlongitud: null,
-                bactivo: null,
-                dtfecha_creacion: null,
-                dtfecha_modificacion: null,
-                iidtipo_direccion: null,
-                iidtipo_vialidad: 0,
-                icodigo_postal: 0,
-                txtavenida_kilometro: '',
-                txttablaje: '',
-                txtdescripcion_direccion: '',
-            }
+            this.codePostal = 0;
+            this.address = this.getInitialAddressState();
+            this.editAddress = false;
+        },
+
+        openCreateAddressModal() {
+            this.resetAddress(); // Limpia los datos del formulario
+            this.newAddress = true; // Activa el modo de creación
+            this.editAddress = false; // Desactiva el modo de edición
         },
 
         // MOSTRAR REGISTROS, CAMBIO DE VALORES PARA MODO CAPTURA Y MODO EDICIÓN
