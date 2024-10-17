@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Library\Util;
+use DateTime;
 use Phalcon\Crypt;
 use Phalcon\Di;
 use App\Library\Http\Middlewares\SecurityMiddleware;
@@ -13,6 +14,7 @@ use Symfony\Component\Mime\Email;
 use Twig\Environment;
 use Twig\Extra\CssInliner\CssInlinerExtension;
 use Twig\Loader\FilesystemLoader;
+use Vokuro\GenericSQL\Common\NonWorkingDay;
 
 class Util
 {
@@ -77,5 +79,29 @@ class Util
             return false;
         }
 
+    }
+
+    public static function agregarDias($fecha, int $dias, bool $inhabiles)
+    {
+        $fecha = new DateTime($fecha);
+        $diasAgregados = 0;
+
+        while ($diasAgregados < $dias) {
+            $fecha->modify('+1 day');
+            // Verifica si es un día de semana (lunes a viernes)
+            if ($fecha->format('N') < 6) {
+                if($inhabiles == true) {
+                    $día = NonWorkingDay::findFirst([
+                        "dfecha = '".$fecha->format('Y-m-d')."' AND bactivo"
+                    ]);
+                    if(!$día)
+                        $diasAgregados++;
+                }
+                else
+                    $diasAgregados++;
+            }
+        }
+
+        return $fecha;
     }
 }
