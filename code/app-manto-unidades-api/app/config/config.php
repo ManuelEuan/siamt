@@ -9,7 +9,14 @@ return new \Phalcon\Config([
         'dbname' => getenv('DB_DBNAME_MANTO'),
         'persistent' => boolval(getenv('DB_PERSISTENT'))
     ],
-
+    'database_siamt' => [
+        'host' => getenv('DB_HOST'),
+        'port' => intval(getenv('DB_PORT')),
+        'username' => getenv('DB_USER'),
+        'password' => getenv('DB_PASS'),
+        'dbname' => getenv('DB_DBNAME'),
+        'persistent' => boolval(getenv('DB_PERSISTENT'))
+    ],
     'redis' => [
         'host' => getenv('RD_HOST'),
         'port' => intval(getenv('RD_PORT')),
@@ -24,7 +31,9 @@ return new \Phalcon\Config([
 
     'app' => [
         'auditQueue' => getenv('RD_AUDIT_QUEUE'),
-        'whitelistedApis' => array('GET:/domain/config')
+        'whitelistedApis' => array('GET:/domain/config'),
+        'appMantoFilesDir' => getenv('APP_MANTO_FILES_DIR'),
+        'keyDocumentos' => getenv('KEY_DOCUMENTOS')
     ],
     'internetFailtures' => [
         'smtp' => [

@@ -9,13 +9,6 @@ liquibase \
   --password=$DB_PASS update
 
 
-liquibase \
-  --log-level=INFO \
-  --url="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_DBNAME_INSP" \
-  --classpath=/liquibase/changelog/inspeccion --changeLogFile=dbchangelog.xml \
-  --username=$DB_USER \
-  --password=$DB_PASS update
-
   liquibase \
     --log-level=INFO \
     --url="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_DBNAME_MANTO" \
@@ -23,23 +16,3 @@ liquibase \
     --username=$DB_USER \
     --password=$DB_PASS update
 
-  liquibase \
-    --log-level=INFO \
-    --url="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_DBNAME_FIRMA" \
-    --classpath=/liquibase/changelog/firma --changeLogFile=dbchangelog.xml \
-    --username=$DB_USER \
-    --password=$DB_PASS update
-
-    liquibase \
-        --log-level=INFO \
-        --url="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_DBNAME_OPERADOR" \
-        --classpath=/liquibase/changelog/operadores --changeLogFile=dbchangelog.xml \
-        --username=$DB_USER \
-        --password=$DB_PASS update
-
-liquibase \
-  --log-level=INFO \
-  --url="jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_DBNAME_PROCEDURE" \
-  --classpath=/liquibase/changelog/procedure --changeLogFile=dbchangelog.xml \
-  --username=$DB_USER \
-  --password=$DB_PASS update
