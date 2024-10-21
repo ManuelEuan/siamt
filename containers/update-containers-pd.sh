@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-GIT_USR= gitlab+deploy-token-1
+GIT_USR=gitlab+deploy-token-1
 GIT_PASS=gldt-TeJh7jzKHXA2kiTC9kzW
 timestamp=$(TZ="America/Merida" date +"%d%m%y%H%M")
 

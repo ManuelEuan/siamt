@@ -19,25 +19,29 @@ class TerritoryController extends BaseController
 {
     public function getEsatdos()
     {
-        $sql = "SELECT iclave_estado, txtnombre as nombre
+        $sql = 'SELECT iclave_estado as "claveEstado", txtnombre as nombre
         FROM territorio.tbl_cat_estado WHERE bactivo = true
-        ORDER BY txtnombre";
+        ORDER BY txtnombre';
         return GenericSQL::getBySQL($sql);
     }
 
     public function getMunicipioByEstado($iclave_estado)
     {
-        $sql = "SELECT iclave_municipio, txtnombre as nombre
-        FROM territorio.tbl_cat_municipio WHERE bactivo = true and iclave_estado = $iclave_estado
-        ORDER BY txtnombre";
-        return GenericSQL::getBySQL($sql);
+        $sql = 'SELECT 
+                    iclave_estado as "claveEstado",
+                    iclave_municipio as "claveMunicipio",
+                    txtnombre as nombre
+                FROM territorio.tbl_cat_municipio 
+                WHERE bactivo = true and iclave_estado = ' . ($iclave_estado) . '
+                ORDER BY txtnombre';
+                return GenericSQL::getBySQL($sql);
     }
 
     public function getLocalities($iclave_estado=null, $iclave_municipio= null)
     {
         $sql = 'SELECT  
-                    iclave_estado,
-                    iclave_municipio,
+                    iclave_estado as "claveEstado",
+                    iclave_municipio as "claveMunicipio",
                     iid AS id,
                     txtnombre AS nombre
                 FROM 
@@ -52,8 +56,11 @@ class TerritoryController extends BaseController
         if ($iclave_municipio !== null) {
             $sql .= ' AND iclave_municipio = ' . $iclave_municipio;
         }
+        
+        $sql .= ' ORDER BY txtnombre';
         $result = GenericSQL::getBySQL($sql);
-        return $result;
+       
+        return $result;    
     }
 
     public function getAllPostalCodes()

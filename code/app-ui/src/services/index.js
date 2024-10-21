@@ -20,6 +20,7 @@ import DashboarsService from './dashboard.service';
 import DialogueService from './dialogue.service';
 import UsersService from "./users.service";
 import SignatureService from "./signature.service";
+import ProcedureService from "./procedure.service";
 const getInstance = (classType, arg1) => { return classType._instance? classType._instance : (classType._instance = new classType(arg1)); }
 
 export default {
@@ -34,5 +35,6 @@ export default {
 	storage: () => getInstance(StorageService),
 	dashboard : () => getInstance(DashboarsService, config.services.dashboardUrl),
 	dialogue : () => getInstance(DialogueService, config.services.dialogueUrl),
-	signature : () => getInstance(SignatureService, config.services.signatureUrl)
+	signature : () => getInstance(SignatureService, config.services.signatureUrl),
+	procedure : () => getInstance(ProcedureService, config.services.procedureUrl)
 };

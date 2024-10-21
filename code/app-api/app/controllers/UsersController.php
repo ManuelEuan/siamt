@@ -16,6 +16,7 @@ use App\Library\Db\Db;
 use App\Library\Http\Status;
 use App\Library\Http\Exceptions\HttpUnauthorizedException;
 use App\Library\Http\Exceptions\ValidatorBoomException;
+use Vokuro\GenericSQL\GenericSQL;
 
 class UsersController extends BaseController
 {
@@ -588,5 +589,25 @@ class UsersController extends BaseController
 
         $message = 'Longitud incorrecta en clave.';
         if (strlen($data->clave) < 8) throw new ValidatorBoomException(422, $message);
+    }
+
+    public function users($perfil)
+    {
+        $sql = "SELECT 
+                    pu.idusuario AS id,
+                    u.usuario AS usuario
+                FROM
+                    usuario.perfil_usuario pu
+                LEFT JOIN 
+                    usuario.usuario u ON pu.idusuario = u.id
+                LEFT JOIN 
+                    usuario.perfil p ON pu.idperfil = p.id
+                WHERE 
+                    u.activo = true
+                AND p.nombre = '$perfil'
+                ORDER BY u.usuario";
+
+        $result = GenericSQL::getBySQL($sql);
+        return $result;
     }
 }

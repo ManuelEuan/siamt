@@ -2,7 +2,7 @@
 <template>
   <div>
     <v-card class="text-center pa-2">
-      <img :src="require('@/assets/images/Logo-oficial-ATY.svg')" alt="" width="70%" class="img-fluid d-inline-block align-text-top">
+      <img :src="imageLogo" alt="" width="70%" class="img-fluid d-inline-block align-text-top">
       <v-card-title class="justify-center display-1 mb-2">Iniciar sesión</v-card-title>
       <v-card-subtitle>Por favor ingresa tus credenciales para continuar</v-card-subtitle>
 
@@ -108,6 +108,7 @@ import services from '@/services';
 export default {
   data() {
     return {
+      imageLogo: process.env.VUE_APP_LOGO_OFICIAL,
       // sign in buttons
       isLoading: false,
       isSignInDisabled: false,

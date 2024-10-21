@@ -1,0 +1,14 @@
+ FROM gitaty.transporteyucatan.org.mx:5050/aty/siamt/base-njs-16
+
+ARG GIT_USR=$GIT_USR
+ARG GIT_PASS=$GIT_PASS
+
+RUN set -ex && \
+    git clone --branch unstable --depth 1 --filter=blob:none --sparse https://$GIT_USR:$GIT_PASS@gitaty.transporteyucatan.org.mx/aty/siamt.git /srv/siamt && \
+    cd /srv/siamt && git sparse-checkout add code/app-ui && \
+    cd /srv/siamt/code/app-ui && yarn install && yarn build && \
+    echo "#!/usr/bin/env bash \ncp -fR /srv/siamt/code/app-ui/dist/* /srv/www" > /docker-entrypoint.d/init.sh
+
+STOPSIGNAL SIGKILL
+
+CMD read < /.pause

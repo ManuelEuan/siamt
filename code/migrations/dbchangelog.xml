@@ -27,4 +27,20 @@
 	<include file="changes/vbbm-4.sql"/>
 	<include file="changes/vbbm-5.sql"/>
 	<include file="changes/aicf-18.sql"/>
+	<include file="changes/vbbm-6.sql"/>
+	<include file="changes/aicf-19.sql"/>
+	<include file="changes/aicf-20.sql"/>
+	<include file="changes/aicf-21.sql"/>
+	<include file="changes/aicf-22.sql"/>
+	<include file="changes/aicf-23.sql"/>
+	<include file="changes/aicf-24.sql"/>
+	<include file="changes/aicf-25.sql"/>
+	<include file="changes/aicf-26.sql"/>
+	<include file="changes/aicf-27.sql"/>
+	<include file="changes/aicf-28.sql"/>
+	<include file="changes/aicf-29.sql"/>
+	<include file="changes/aicf-30.sql"/>
+	<include file="changes/aicf-31.sql"/>
+	<include file="changes/aicf-32.sql"/>
+
 </databaseChangeLog>

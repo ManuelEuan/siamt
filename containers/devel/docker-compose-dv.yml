@@ -14,10 +14,11 @@ services:
     volumes:
       - "frontend:/srv/www"
       - "/var/www:/var/www"
+      - "/mnt/dv/app-inspections-files:/srv/app-inspections-files"
     env_file:
       - ../../../.dv-env
     networks:
-      - internal-services-siamt
+      - internal-services
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -34,7 +35,7 @@ services:
     env_file:
       - ../../../.dv-env
     networks:
-      - internal-services-siamt
+      - internal-services
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -47,13 +48,13 @@ services:
     env_file:
       - ../../../.dv-env
     networks:
-      - internal-services-siamt
+      - internal-services
   auth-api:
     image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/auth-api-dv
     env_file:
       - ../../../.dv-env
     networks:
-      - internal-services-siamt
+      - internal-services
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -64,7 +65,53 @@ services:
     env_file:
       - ../../../.dv-env
     networks:
-      - internal-services-siamt
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
+  app-manto-unidades-api:
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/app-manto-unidades-api-dv
+    env_file:
+      - ../../../.dv-env
+    networks:
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
+  signature-api:
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/signature-api-dv
+    env_file:
+      - ../../../.dv-env
+    networks:
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
+  app-inspections-api:
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/app-inspections-api-dv
+    volumes:
+      - "app-inspections-files:/srv/app-inspections-files"
+    env_file:
+      - ../../../.dv-env
+    networks:
+      - internal-services
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - "liquibase"
+      - "redis"
+  app-procedures-api:
+    image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/app-procedures-api-dv
+    env_file:
+      - ../../../.dv-env
+    networks:
+      - internal-services
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -75,22 +122,25 @@ services:
     volumes:
       - "queue:/data"
     networks:
-      - internal-services-siamt
+      - internal-services
     sysctls:
       net.core.somaxconn: 1024
   liquibase:
     image: gitaty.transporteyucatan.org.mx:5050/aty/siamt/liquibase-dv
     env_file:
       - ../../../.dv-env
+    environment:
+      JAVA_OPTS: "-Xmx5120m"
     networks:
-      - internal-services-siamt
+      - internal-services
     extra_hosts:
       - "host.docker.internal:host-gateway"
 volumes:
   frontend:
   queue:
+  app-inspections-files:
 networks:
-  internal-services-siamt:
+  internal-services:
     ipam:
       driver: default
       config:

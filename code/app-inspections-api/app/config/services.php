@@ -2,6 +2,12 @@
 declare(strict_types=1);
 
 use App\Library\Http\Middlewares\SecurityMiddleware;
+use Symfony\Component\Mailer\Mailer;
+use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
+
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
+use Twig\Extra\CssInliner\CssInlinerExtension;
 
 $di->setShared('request', function(){ return new Phalcon\Http\Request(); });
 $di->setShared('response', function(){ return new Phalcon\Http\Response(); });
@@ -63,4 +69,33 @@ $di->setShared('redis', function () {
         $redis->connect($config->redis->host, $config->redis->port);
 
     return $redis;
+});
+
+$di->setShared('internetFailturesMailer', function () {
+    $config = $this->getConfig();
+    $smtp = $config->internetFailtures->smtp;
+
+    $transport = (new EsmtpTransport(
+        $smtp->server,
+        $smtp->port,
+        false
+    // false
+    ))
+        ->setUsername($smtp->username)
+        ->setPassword($smtp->password);
+
+    $mailer = new Mailer($transport);
+
+    return $mailer;
+});
+
+$di->setShared('twig', function () {
+    // $config = $this->getConfig();
+    $loader = new FilesystemLoader(BASE_PATH . '/public/twig/templates');
+    //$loader->addPath(BASE_PATH . '/public/twig/images', 'images');
+
+    $env = new Environment($loader);
+    $env->addExtension(new CssInlinerExtension());
+
+    return $env;
 });

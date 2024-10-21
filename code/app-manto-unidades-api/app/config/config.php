@@ -25,5 +25,22 @@ return new \Phalcon\Config([
     'app' => [
         'auditQueue' => getenv('RD_AUDIT_QUEUE'),
         'whitelistedApis' => array('GET:/domain/config')
+    ],
+    'internetFailtures' => [
+        'smtp' => [
+            'server' => getenv('INTERNET_FAILTURES_SMTP_SERVER'),
+            'port' => intval(getenv('INTERNET_FAILTURES_SMTP_PORT')),
+            'security' => boolval(getenv('INTERNET_FAILTURES_SMTP_SECURITY')),
+            'username' => getenv('INTERNET_FAILTURES_SMTP_USERNAME'),
+            'password' => getenv('INTERNET_FAILTURES_SMTP_PASSWORD')
+        ],
+        'provider' => [
+            'name' => getenv('INTERNET_FAILTURES_PROVIDER_NAME'),
+            'email' => getenv('INTERNET_FAILTURES_PROVIDER_EMAIL')
+        ],
+        'sender' => [
+            'name' => getenv('INTERNET_FAILTURES_SENDER_NAME'),
+            'email' => getenv('INTERNET_FAILTURES_SENDER_EMAIL')
+        ]
     ]
 ]);

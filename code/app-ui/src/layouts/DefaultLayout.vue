@@ -2,12 +2,12 @@
 <template>
     <div v-shortkey="['ctrl', '/']" class="d-flex flex-grow-1" @shortkey="onKeyup">
         <!-- Navigation -->
-        <v-navigation-drawer v-model="drawer" app floating class="elevation-1" :right="$vuetify.rtl" :light="menuTheme === 'light'" :dark="menuTheme === 'dark'" style="z-index: 100000">
+        <v-navigation-drawer v-model="drawer" app floating class="elevation-1" :right="$vuetify.rtl" :light="menuTheme === 'light'" :dark="menuTheme === 'dark'" >
             <!-- Navigation menu info -->
             <template v-slot:prepend>
                 <div class="pa-2 text-center">
                     <a href="/">
-                        <img src="/images/logo-ATY.svg" alt="" id="logo-nav" class="d-inline-block align-text-top text-center" height="40px">
+                        <img :src="imageLogo" alt="" id="logo-nav" class="d-inline-block align-text-top text-center" height="40px">
                     </a>
                     <!--          <div class="title font-weight-bold text-uppercase text-center primary&#45;&#45;text">{{ product.name }}</div>-->
                     <div class="overline grey--text text-center">{{ product.version }}</div>
@@ -119,6 +119,7 @@
         },
         data() {
             return {
+                imageLogo: process.env.VUE_APP_LOGO,
                 drawer: null,
                 showSearch: false,
                 userName: '',

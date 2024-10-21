@@ -1,6 +1,7 @@
 <?php
 
 use App\Controllers\DebitsController;
+use App\Controllers\ImagesController;
 use App\Controllers\ModulesController;
 use App\Controllers\PersonsController;
 use App\Controllers\ProcessController;
@@ -9,6 +10,7 @@ use App\Controllers\SurveyController;
 use App\Controllers\TerritoryController;
 use App\Controllers\UsersController;
 use App\Controllers\CatalogController;
+use App\Controllers\CompaniesController;
 use App\Db\App;
 use App\Library\Misc\Utils;
 use App\Models\Territory\LocalDistricts;
@@ -132,6 +134,7 @@ $app->mount(
         ->put('/users/change', 'changeUserPass')
         ->delete('/users/{id}', 'deleteUser')
         ->post('/users/{id}/permissions', 'getPermissionsFromUser')
+        ->get('/users/users/{perfil}', 'users')
 );
 
 $app->mount(
@@ -192,6 +195,7 @@ $app->mount(
     ->post("/process/getAllNextSubStagesEnabled", "getAllNextSubStagesEnabled")
     ->put("/process/updateRegisterInProcess", "updateRegisterInProcess")
     ->get("/process/getStructureFormDinamycProcess", "getStructureFormDinamycProcess")
+    ->get ("/process/tracing/{vclave}/{iidfolio}", "getTracing")
 );
 
 $app->mount(
@@ -241,9 +245,38 @@ $app->mount(
     ->get("/catalog/companies", "getCompanies")
     ->get("/catalog/vehicles", "getVehicles")
     ->get("/catalog/vehicles/{id}", "getVehicles")
+    ->get("/catalog/vehiclesType", "tipovehicles")
     ->get("/catalog/concessions", "getConcessions")
     ->get("/catalog/concessions/{id}", "getConcessions")
     ->get("/catalog/operators", "getOperators")
     ->get("/catalog/operators/{idEmpresa}", "getOperators")
     ->get("/catalog/routes", "routes")
+    ->get("/catalog/licensesType", "licensesType")
+);
+
+$app->mount(
+    (new Collection())
+    ->setHandler(DebitsController::class, true)
+    ->setPrefix('/admin')
+    ->get("/debits/getServiceVindenUrlDebitaciones", "getServiceVindenUrlDebitaciones")
+);
+
+
+$app->mount(
+    (new Collection())
+    ->setHandler(CompaniesController::class, true)
+    ->setPrefix('/admin')
+    ->post("/companies", "getCompanies")
+    ->post("/companies/getPersonByCurp", "getPersonByCurp")
+    ->post("/companies/new", "createCompany")
+    ->put("/companies", "updateCompany")
+    ->delete("/companies/{id}", "deleteCompany")
+    ->post("/companies/getCompanyInfo", "getCompanyInfo")
+);
+
+$app->mount(
+    (new Collection())
+        ->setHandler(ImagesController::class, true)
+        ->setPrefix('/admin/images')
+        ->get("/", "get")
 );

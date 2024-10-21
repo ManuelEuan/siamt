@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
-GIT_USR=gitlab+deploy-token-3443868
-GIT_PASS=muDmKDbsmjNysyBCkBvh
+GIT_USR=gitlab+deploy-token-1
+GIT_PASS=gldt-TeJh7jzKHXA2kiTC9kzW
 timestamp=$(TZ="America/Merida" date +"%d%m%y%H%M")
 
 #docker builder prune -af
 array=()
 if [ $# -eq 0 ]; then
   echo "No arguments supplied, building all"
-  array=( gateway app-ui app-api auth-api wss-njs liquibase )
+  array=( gateway app-ui app-api auth-api wss-njs liquibase app-manto-unidades-api signature-api app-inspections-api app-procedures-api)
 else
   array=( "$@" )
 fi
@@ -23,7 +23,7 @@ do
 	  --build-arg GIT_PASS=$GIT_PASS \
 	  -t gitaty.transporteyucatan.org.mx:5050/aty/siamt/$i-dv \
 	  -t gitaty.transporteyucatan.org.mx:5050/aty/siamt/$i-dv:$timestamp \
-	  -f ./dockerfile-pd .
+	  -f ./dockerfile-dv .
 	docker push gitaty.transporteyucatan.org.mx:5050/aty/siamt/$i-dv --all-tags
 	cd ..
 done

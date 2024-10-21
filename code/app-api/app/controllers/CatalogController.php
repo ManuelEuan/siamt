@@ -2,9 +2,9 @@
 
 namespace App\Controllers;
 use App\Library\Http\Controllers\BaseController;
+use App\Library\Db\Db;
 use Vokuro\GenericSQL\GenericSQL;
 use \App\Library\Http\Exceptions\HttpBadRequestException;
-
 
 class CatalogController extends BaseController
 {
@@ -36,16 +36,24 @@ class CatalogController extends BaseController
         $sql = 'SELECT
                     ev.iid AS "id",
                     ev.iidvehiculo AS "idVehiculo",
-                    ev.iidempresa AS "idEmpresa",
                     vp.txtplaca AS "placa",
+                    m.iid AS "idMarca",
+                    m.txtnombre AS "nombreMarca",
+                    ev.iidempresa AS "idEmpresa",
                     TRIM(p.nombre_completo) AS "nombreEmpresa",
                     ev.vnomenclatura || \'-\' || ev.inumero_economico AS "numeroEconomico"
                 FROM 
                     transporte.tbl_empresa_vehiculo ev
-                INNER JOIN 
+                LEFT JOIN 
                     transporte.tbl_empresa e ON ev.iidempresa = e.iid
-                INNER JOIN 
+                LEFT JOIN 
                     persona.tbl_persona p ON e.iidpersona = p.iid
+                LEFT JOIN
+                    vehiculo.tbl_vehiculo v ON ev.iidvehiculo = v.iid
+                LEFT JOIN
+                    vehiculo.tbl_cat_modelo mo ON v.iidmodelo= mo.iid
+                LEFT JOIN
+                    vehiculo.tbl_cat_marca m ON mo.iidmarca = m.iid
                 LEFT JOIN 
                     vehiculo.tbl_vehiculo_placa vp ON ev.iidvehiculo = vp.iidvehiculo AND vp.bactual= true AND vp.bactivo= true
                 WHERE 
@@ -95,8 +103,11 @@ class CatalogController extends BaseController
         $operatorsJson = '[
         {
             "id": 1,
-            "nombre": "Operador 1",
-            "teléfono": 9998722222,
+            "nombre": "Angel",
+            "apellidoPaterno": "Cohuo",
+            "apellidoMaterno": "Canche",
+            "nombreCompleto": "Cohuo Canche Angel",
+            "telefono": 9998722222,
             "email": "email1@gmmail.com",
             "idEmpresa": 1,
             "nombreEmpresa": "empresa 1",
@@ -105,21 +116,26 @@ class CatalogController extends BaseController
                     "id": 1,
                     "numero": "12345678",
                     "idTipo": "1",
-                    "tipoLicencia": "A"
+                    "tipoLicencia": "A",
+                    "fechaVigencia": "2025-08-08"
                 },
                 {
                     "id": 2,
                     "numero": "87654321",
                     "idTipo": "2",
-                    "tipoLicencia": "B"
+                    "tipoLicencia": "B",
+                    "fechaVigencia": "2025-03-05"
                 }
             ]
         },
 
         {
             "id": 2,
-            "nombre": "Operador 2",
-            "teléfono": 9998922222,
+            "nombre": "Gustavo",
+            "apellidoPaterno": "Can",
+            "apellidoMaterno": "Canche",
+            "nombreCompleto": "Can Canche Gustavo",
+            "telefono": 9998922222,
             "email": "email2@gmmail.com",
             "idEmpresa": 2,
             "nombreEmpresa": "empresa 2",
@@ -128,20 +144,25 @@ class CatalogController extends BaseController
                     "id": 1,
                     "numero": "123378",
                     "idTipo": "3",
-                    "tipoLicencia": "C"
+                    "tipoLicencia": "C",
+                    "fechaVigencia": "2025-03-05"
                 },
                 {
                     "id": 2,
                     "numero": "876344321",
                     "idTipo": "4",
-                    "tipoLicencia": "D"
+                    "tipoLicencia": "D",
+                    "fechaVigencia": "2025-03--05"
                 }
             ]
         },
         {
             "id": 3,
-            "nombre": "Operador 3",
-            "teléfono": 9992722232,
+            "nombre": "Jose",
+            "apellidoPaterno": "Dzul",
+            "apellidoMaterno": "Canche",
+            "nombreCompleto": "Dzul Canche Jose",
+            "telefono": 9992722232,
             "email": "email3@gmmail.com",
             "idEmpresa": 3,
             "nombreEmpresa": "empresa 3",
@@ -150,19 +171,22 @@ class CatalogController extends BaseController
                     "id": 1,
                     "numero": "1235478",
                     "idTipo": "1",
-                    "tipoLicencia": "A"
+                    "tipoLicencia": "A",
+                    "fechaVigencia": "2025-03-05"
                 },
                 {
                     "id": 2,
                     "numero": "8763221",
                     "idTipo": "2",
-                    "tipoLicencia": "B"
+                    "tipoLicencia": "B",
+                    "fechaVigencia": "2025-03-05"
                 },
                 {
                     "id": 3,
                     "numero": "8763221",
                     "idTipo": "3",
-                    "tipoLicencia": "C"
+                    "tipoLicencia": "C",
+                    "fechaVigencia": "2025-03-05"
                 }   
               ]
             }
@@ -214,5 +238,56 @@ class CatalogController extends BaseController
             throw new HttpBadRequestException(202, 'Error al decodificar el JSON de rutas.');
         }
         return $routesData;
+    }
+
+    public function tipovehicles()
+    {
+        $sql = 'SELECT
+                tv.iid AS id, 
+                tv.txtnombre AS nombre
+            FROM
+                vehiculo.tbl_cat_tipo_vehiculo AS tv
+            WHERE 
+                tv.bactivo = true';
+
+        $process = Db::fetchAll($sql);
+        return $process;
+    }
+
+    public function licensesType()
+    {
+        $licensesJson = '[
+            {
+               "id": "1",
+                "tipo": "A"
+            },
+            {
+                "id": "2",
+                "tipo": "B"
+            },
+            {
+                "id": "3",
+                "tipo": "C"
+            },
+            {
+                "id": "4",
+                "tipo": "D"
+            },
+            {
+                "id": "5",
+                "tipo": "E"
+            },
+            {
+                "id": "5",
+                "tipo": "F"
+            }
+        ]';
+
+        $licensesData = json_decode($licensesJson, true);
+
+        if ($licensesData === null) {
+            throw new HttpBadRequestException(202, 'Error al decodificar el JSON de tipos de licencias.');
+        }
+        return $licensesData;
     }
 }
