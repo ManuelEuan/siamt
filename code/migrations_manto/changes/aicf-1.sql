@@ -2,7 +2,7 @@
 --changeset aicf:1
 --Tabla ejemplo
 
-CREATE EXTENSION comun;
+CREATE SCHEMA comun;
 
 CREATE TABLE comun.tbl_dia_inhabil(
     iid SERIAL primary key not null,

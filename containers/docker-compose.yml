@@ -92,8 +92,8 @@ services:
       - "./app-manto-unidades-api/config.json:/docker-entrypoint.d/config.json"
       - "../code/app-manto-unidades-api:/srv/siamt/code/app-manto-unidades-api"
       - "../code/common-php:/srv/siamt/code/common-php"
-      - "app-manto-files:/srv/app-manto-files"
-      - "./app-inspections-api/init.sh:/docker-entrypoint.d/local/init.sh"
+      - "/srv/app-manto-files:/srv/app-manto-files"
+      - "./app-manto-api/init.sh:/docker-entrypoint.d/local/init.sh"
     env_file:
       - dv.env
     networks:
@@ -143,6 +143,8 @@ services:
       - internal-services
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    environment:
+      JAVA_OPTS: "-Xmx4096m"
 volumes:
   app-inspections-files:
 networks:
