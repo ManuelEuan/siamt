@@ -105,7 +105,7 @@ class PersonsController extends BaseController
     {
         return Sexes::getAllSexes();
     }
-   
+
     public function getAllTypesOfAddress()
     {
         return TypesAddress::getAll();
@@ -115,7 +115,7 @@ class PersonsController extends BaseController
     {
         return TypesRoad::getAll();
     }
-    
+
 
     public function getAllLadaIdentifiers()
     {
@@ -185,10 +185,10 @@ class PersonsController extends BaseController
             $exist = Persons::searchRFC($data->txtrfc);
             $message = 'El RFC ya se encuentra registrado';
         }
-        if($exist){
+        if ($exist) {
             throw new ValidatorBoomException(422, $message);
         }
-       
+
 
         Db::begin(); // Iniciar transacción en la base de datos
         try {
@@ -267,6 +267,11 @@ class PersonsController extends BaseController
         $iidpersona = $data->iidpersona;
         $this->validRequiredData($data->address, 'address'); // Validar datos requeridos
 
+        // // Añadir the_geom a los datos de dirección
+        // if (!empty($data->address->nlatitud) && !empty($data->address->nlongitud)) {
+        //     $data->address->the_geom = "POINT({$data->address->nlongitud} {$data->address->nlatitud})"; // Formato POINT
+        // }
+
         Db::begin(); // Iniciar transacción en la base de datos
         try {
             $iiddireccion = Addresses::create($data->address);
@@ -313,11 +318,11 @@ class PersonsController extends BaseController
             // PersonPhones::deactivateAll($iidpersona);
 
             // PersonPhones::create($data->phone->iidpersona, $data->phone->iid_tipo_telefono, $data->phone->vtelefono);
-            if(!isset($data->phone->iidpersona)){
+            if (!isset($data->phone->iidpersona)) {
                 $data->phone->iidpersona = $iidpersona;
             }
             $iidtelefono = PersonPhones::create($data);
-           
+
             Db::commit(); // Confirmar transacción en la base de datos
             $data->phone->iidtelefono = $iidtelefono;
             return ['message' => 'El teléfono ha sido creado.', 'data' => $data];
@@ -375,6 +380,7 @@ class PersonsController extends BaseController
             throw new ValidatorBoomException(422, 'Falta de información requerida');
         }
         Db::begin();
+
         try {
             PersonAddresses::updateCurrentAddress($data);
             Db::commit();
@@ -483,22 +489,45 @@ class PersonsController extends BaseController
     }
 
     public function updateAddress()
-    {
-        $this->hasClientAuthorized('eddp');
-        $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
-        $this->validRequiredData($data->address, 'address'); // Validar datos requeridos
-        Db::begin();
-        try {
-            Addresses::update($data->address);
-            Db::commit();
-            return ['message' => 'La dirección ha sido actualizada.', 'data' => $data];
-        } catch (\Exception $e) {
-            Db::rollback();
-            throw new ValidatorBoomException(422, 'Ha ocurrido un error al actualizar la dirección.');
-        }
+{
+    $this->hasClientAuthorized('eddp');
+    $data = $this->request->getJsonRawBody(); // Obtener datos de la solicitud HTTP
 
-        Db::commit();
+    error_log('Datos recibidos en updateAddress: ' . print_r($data, true));
 
-        return array('message' => 'La dirección ha sido actualizada.'); // Devolver mensaje de éxito
+    try {
+        $this->validRequiredData($data->address, 'address');
+    } catch (\Exception $e) {
+        error_log('Error en validRequiredData: ' . $e->getMessage());
+        throw new ValidatorBoomException(422, 'Error de validación: ' . $e->getMessage());
     }
+
+    // // Asegúrar que the_geom y sus coordenadas están presentes
+    // if (!isset($data->address->the_geom) || !isset($data->address->the_geom->coordinates)) {
+    //     throw new ValidatorBoomException(422, 'Coordenadas no válidas.');
+    // }
+
+    // error_log('Coordenadas recibidas: ' . print_r($data->address->the_geom->coordinates, true));
+
+    // if (!empty($data->address->the_geom->coordinates) && count($data->address->the_geom->coordinates) == 2) {
+    //     $nlatitud = (float)$data->address->the_geom->coordinates[1];
+    //     $nlongitud = (float)$data->address->the_geom->coordinates[0];
+    //     $data->address->the_geom = "POINT($nlongitud $nlatitud)";
+    // } else {
+    //     throw new ValidatorBoomException(422, 'Coordenadas no válidas.');
+    // }
+
+    Db::begin();
+
+    try {
+        //error_log('Datos a actualizar: ' . print_r($data->address, true));
+        Addresses::update($data->address);
+        Db::commit();
+        return ['message' => 'La dirección ha sido actualizada.', 'data' => $data];
+    } catch (\Exception $e) {
+        Db::rollback();
+        error_log('Error en updateAddress: ' . $e->getMessage());
+        throw new ValidatorBoomException(422, 'Ha ocurrido un error al actualizar la dirección: ' . $e->getMessage());
+    }
+}
 }

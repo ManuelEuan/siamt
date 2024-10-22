@@ -19,10 +19,14 @@ class PersonAddresses
             pd.iiddireccion, 
             CONCAT(d.txtdireccion_completa, ', ', ' C.P. ', d.icodigo_postal, ', ', cp.txtmunicipio, ' ', cp.txtestado) AS direccion_completa,
             d.icodigo_postal,
+            d.the_geom,
             d.txtcalle,
             d.txtcolonia,
             d.txtcalle_letra,
             d.inumero_exterior,
+            d.inumero_interior,
+            d.txtnumero_exterior_letra,
+            d.txtnumero_interior_letra,
             d.txtcruzamiento_uno,
             d.txtcruzamiento_uno_letra,
             d.txtcruzamiento_dos,
@@ -44,7 +48,9 @@ class PersonAddresses
             ) cp ON d.icodigo_postal = cp.icp
         WHERE 
             pd.bactivo = true 
-            AND pd.iidpersona = :iidpersona";
+            AND pd.iidpersona = :iidpersona
+            ORDER BY 
+            pd.bactual DESC, pd.iiddireccion";
 
         $addresses = Db::fetchAll($sql, $params);
         return $addresses;
