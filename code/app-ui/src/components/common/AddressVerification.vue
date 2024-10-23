@@ -107,18 +107,7 @@
                         item-text="txtnombre" item-value="iidtipo_vialidad" hide-details="auto" small-chips clearable
                         dense :rules="[rules.required]" outlined :disabled="!codePostal" />
                 </v-col>
-                <!-- <v-col cols="12" md="6" v-if="address.iidtipo_vialidad === 1">
-                    <v-text-field v-model="address.txtcalle" label="Calle principal/s*" hide-details="auto" clearable
-                        dense outlined :rules="[rules.required]" />
-                </v-col> -->
-                <!-- <v-col cols="12" md="6" v-if="codePostal && address.iidtipo_direccion === 2">
-                    <v-text-field v-model="address.txttablaje" label="Tablaje*" hide-details="auto" clearable dense
-                        outlined :rules="[rules.required]" />
-                </v-col> -->
-                <!-- <v-col cols="12" md="6" v-if="codePostal && address.iidtipo_direccion === 3">
-                    <v-text-field v-model="address.txtdescripcion_direccion" label="Descripción dirección*"
-                        hide-details="auto" clearable dense outlined :rules="[rules.required]" />
-                </v-col> -->
+
                 <v-col cols="12" md="6" v-if="codePostal && address.iidtipo_direccion === 2">
                     <v-text-field v-model="address.txtcalle" label="Tablaje*" hide-details="auto" clearable dense
                         outlined :rules="[rules.required]" />
@@ -129,73 +118,74 @@
                 </v-col>
             </v-row>
             <v-row v-if="codePostal && address.iidtipo_direccion === 1">
-                <v-col cols="12" md="6" v-if="address.iidtipo_vialidad === 1">
-                    <v-text-field v-model="address.txtcalle" label="Calle Principal*" hide-details="auto" clearable
-                        dense outlined :rules="[rules.required]" />
-                </v-col>
-                <v-col cols="12" md="6" v-if="address.iidtipo_vialidad === 1">
-                    <v-text-field v-model="address.txtcalle_letra" label="Calle Letra" hide-details="auto" clearable
-                        dense outlined />
-                </v-col>
-                <!-- <v-col cols="12" md="6" v-if="address.iidtipo_vialidad === 2">
-                    <v-text-field v-model="address.txtavenida_kilometro" label="Avenida o Km*" hide-details="auto"
-                        clearable dense outlined />
-                </v-col> -->
-                <v-col cols="12" md="6">
-                    <v-text-field v-model="address.inumero_exterior" label="Número Exterior*" hide-details="auto"
-                        type="number" clearable dense outlined :rules="[rules.required]" />
+                <template v-if="address.iidtipo_vialidad === 1">
+                    <v-col cols="12" md="6">
+                        <v-text-field v-model="address.txtcalle" label="Calle principal/s*" hide-details="auto"
+                            clearable dense outlined :rules="[rules.required]" />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-text-field v-model="address.txtcalle_letra" label="Calle letra" hide-details="auto" clearable
+                            dense outlined />
+                    </v-col>
 
-                </v-col>
-                <v-col cols="12" md="6">
-                    <v-text-field v-model="address.txtnumero_exterior_letra" label="Número Exterior Letra"
-                        hide-details="auto" clearable dense outlined />
-                </v-col>
-                <v-col cols="12" md="6">
-                    <v-text-field v-model="address.inumero_interior" label="Número Interior" hide-details="auto"
-                        type="number" clearable dense outlined :rules="[rules.ifNotEmptyInt]" />
-                </v-col>
-                <v-col cols="12" md="6">
-                    <v-text-field v-model="address.txtnumero_interior_letra" label="Número Interior Letra"
-                        hide-details="auto" clearable dense outlined />
-                </v-col>
-                <v-col cols="12" md="6">
-                    <v-text-field v-model="address.txtcruzamiento_uno" label="Cruzamiento Uno" hide-details="auto"
-                        type="number" clearable dense outlined />
-                </v-col>
-                <v-col cols="12" md="6">
-                    <v-text-field v-model="address.txtcruzamiento_uno_letra" label="Cruzamiento Uno Letra"
-                        hide-details="auto" clearable dense outlined />
-                </v-col>
-                <v-col cols="12" md="6">
-                    <v-text-field v-model="address.txtcruzamiento_dos" label="Cruzamiento Dos" hide-details="auto"
-                        type="number" clearable dense outlined />
-                </v-col>
-                <v-col cols="12" md="6">
-                    <v-text-field v-model="address.txtcruzamiento_dos_letra" label="Cruzamiento Dos Letra"
-                        hide-details="auto" clearable dense outlined />
-                </v-col>
-                <v-col cols="12" md="6">
-                    <v-text-field v-model="address.txtreferencia" label="Referencia" hide-details="auto" clearable dense
-                        outlined />
-                </v-col>
-                <!-- <v-col cols="12" md="6">
-                    <v-text-field v-model="address.nlatitud" label="Latitud" hide-details="auto" clearable dense
-                        outlined :rules="[rules.latitud]" />
-                </v-col>
-                <v-col cols="12" md="6">
-                    <v-text-field v-model="address.nlongitud" label="Longitud" hide-details="auto" clearable dense
-                        outlined :rules="[rules.longitud]" />
-                </v-col>
-                <v-col cols="12" md="6" v-if="address.nlatitud && address.nlongitud">
-                    <v-btn color="primary" text @click="verifyAddress()"> Verificar </v-btn>
+                    <v-col cols="12" md="6">
+                        <v-text-field v-model="address.inumero_exterior" label="Número exterior*" hide-details="auto"
+                            clearable dense outlined :rules="[rules.required]" />
 
-                </v-col> -->
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-text-field v-model="address.txtnumero_exterior_letra" label="Numero exterior letra"
+                            hide-details="auto" clearable dense outlined />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-text-field v-model="address.inumero_interior" label="Número interior" hide-details="auto"
+                            clearable dense outlined :rules="[rules.ifNotEmptyInt]" />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-text-field v-model="address.txtnumero_interior_letra" label="Número interior letra"
+                            hide-details="auto" clearable dense outlined />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-text-field v-model="address.txtcruzamiento_uno" label="Cruzamiento uno" hide-details="auto"
+                            clearable dense outlined />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-text-field v-model="address.txtcruzamiento_uno_letra" label="Cruzamiento uno letra"
+                            hide-details="auto" clearable dense outlined />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-text-field v-model="address.txtcruzamiento_dos" label="Cruzamiento dos" hide-details="auto"
+                            clearable dense outlined />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-text-field v-model="address.txtcruzamiento_dos_letra" label="Cruzamiento dos letra"
+                            hide-details="auto" clearable dense outlined />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-text-field v-model="address.txtreferencia" label="Referencia" hide-details="auto" clearable
+                            dense outlined />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-text-field v-model="address.nlatitud" label="Latitud" hide-details="auto" clearable dense
+                            maxlength="15" outlined :rules="[rules.latitud]" />
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-text-field v-model="address.nlongitud" label="Longitud" hide-details="auto" clearable dense
+                            maxlength="15" outlined :rules="[rules.longitud]" />
+                    </v-col>
+                    <v-col cols="12" md="6" v-if="address.nlatitud && address.nlongitud">
+                        <v-btn color="primary" text @click="verifyAddress()"> Verificar </v-btn>
+
+                    </v-col>
+                </template>
+                <template v-if="address.iidtipo_vialidad === 2">
+                    <v-col cols="12" md="6">
+                        <v-text-field v-model="address.txtcalle" :rules="[rules.required]" label="Avenidas o Km*" hide-details="auto" clearable
+                            dense outlined />
+                    </v-col>
+                </template>
             </v-row>
-
-
         </v-form>
-        <!-- </v-card-text> -->
-
         <!-- DIALOG GENERIC ACTUALIZAR DIRECCION ACTUAL -->
         <generic-dialog :dialogVisible="dialogNewCurrentAddress" dialogTitle="Actualizar Dirección Principal"
             @update:dialogVisible="dialogNewCurrentAddress = $event" @confirm="updateCurrentAddress">
@@ -259,39 +249,14 @@ export default {
             dialogNewCurrentAddress: false,
 
             // ARREGLOS
-            typesAddress: [
-                // {
-                //     "iidtipo_direccion": 1,
-                //     "txtnombre": "Predio",
-                // },
-                // {
-                //     "iidtipo_direccion": 2,
-                //     "txtnombre": "Tablaje"
-                // },
-                // {
-                //     "iidtipo_direccion": 3,
-                //     "txtnombre": "Domicilio Conocido"
-                // }
-            ],
-            typesRoads: [
-                // {
-                //     "iidtipo_vialidad": 1,
-                //     "txtnombre": "Calle",
-                // },
-                // {
-                //     "iidtipo_vialidad": 2,
-                //     "txtnombre": "Avenida o Km"
-                // }
-            ],
+            typesAddress: [],
+            typesRoads: [],
             address: this.getInitialAddressState(),
-
             peopleModulePermissions: [],
 
             // REGLAS
             rules: {
-                ...rules,
-                // latitud: [v => !!v || 'La latitud es requerida'],
-                // longitud: [v => !!v || 'La longitud es requerida']
+                ...rules
             },
         };
     },
