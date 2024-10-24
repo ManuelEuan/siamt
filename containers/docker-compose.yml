@@ -92,7 +92,7 @@ services:
       - "./app-manto-unidades-api/config.json:/docker-entrypoint.d/config.json"
       - "../code/app-manto-unidades-api:/srv/siamt/code/app-manto-unidades-api"
       - "../code/common-php:/srv/siamt/code/common-php"
-      - "/srv/app-manto-files:/srv/app-manto-files"
+      - "../../files-content/manto_unidades:/srv/app-manto-files"
       - "./app-manto-api/init.sh:/docker-entrypoint.d/local/init.sh"
     env_file:
       - dv.env
