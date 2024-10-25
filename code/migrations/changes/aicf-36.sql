@@ -57,10 +57,12 @@ RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER trg_actualizar_txtdireccion_completa
-BEFORE INSERT OR UPDATE ON "persona"."tbl_direccion"
-FOR EACH ROW
-EXECUTE FUNCTION actualizar_txtdireccion_completa();
+DROP TRIGGER IF EXISTS trg_actualizar_txtdireccion_completa ON "persona"."tbl_direccion";
+
+CREATE TRIGGER trg_actualizar_txtdireccion_completa
+    BEFORE INSERT OR UPDATE ON "persona"."tbl_direccion"
+                         FOR EACH ROW
+                         EXECUTE FUNCTION actualizar_txtdireccion_completa();
 
 UPDATE "persona"."tbl_direccion"
 SET txtdireccion_completa = TRIM(
