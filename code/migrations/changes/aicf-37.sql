@@ -61,7 +61,7 @@ ALTER TABLE "vehiculo"."tbl_vehiculo"
     DROP COLUMN "iidtipo_peso",
     DROP COLUMN "ipasajeros",
     DROP COLUMN "ipasajeros_sentados",
-    DROP CLOUMN "ipasajeros_pie";
+    DROP COLUMN "ipasajeros_pie";
 
 
 ALTER TABLE "vehiculo"."tbl_cat_version"
