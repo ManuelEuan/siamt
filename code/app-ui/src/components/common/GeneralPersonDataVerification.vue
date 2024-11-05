@@ -5,14 +5,14 @@
             <v-row class="mx-auto" v-if="peopleModulePermissions.includes('edgp') && iidpersona">
                 <v-col cols="12" class="text-right">
                     <v-btn depressed color="primary" :disabled="!generalPersonDataValidation" @click="updatePerson()">
-                        Actualizar datos
+                        Actualizar Datos
                     </v-btn>
                 </v-col>
             </v-row>
             <!-- CAMPOS DE AGREGAR - MODIFICAR -->
             <v-form v-model="generalPersonDataValidation">
                 <div class="row d-flex justify-space-beetwen align-center mx-auto">
-                    <p class=" my-0 mx-0 pr-3 py-0">Tipo de persona</p>
+                    <p class=" my-0 mx-0 pr-3 py-0">Tipo de Persona</p>
                     <v-radio-group cols="12" v-model="generalPersonData.bfisica" mandatory row
                         :disabled="preLoadPerson.txtvariable !== '' || editGeneralPersonData">
                         <v-radio color="success" label="Física" :value="true" style="max-width:80px"></v-radio>
@@ -25,16 +25,16 @@
                             clearable dense outlined :rules="[rules.required]" />
                     </v-col>
                     <v-col cols="12" md="6" v-if="generalPersonData.bfisica">
-                        <v-text-field v-model="generalPersonData.txtapellido_paterno" label="Apellido paterno*"
+                        <v-text-field v-model="generalPersonData.txtapellido_paterno" label="Apellido Paterno*"
                             :rules="[rules.required]" hide-details="auto" clearable dense outlined />
                     </v-col>
                     <v-col cols="12" md="6" v-if="generalPersonData.bfisica">
-                        <v-text-field v-model="generalPersonData.txtapellido_materno" label="Apellido materno"
+                        <v-text-field v-model="generalPersonData.txtapellido_materno" label="Apellido Materno"
                             hide-details="auto" clearable dense outlined />
                     </v-col>
                     <v-col cols="12" md="6" v-if="generalPersonData.bfisica">
                         <v-text-field v-model="generalPersonData.dfecha_nacimiento" clearable dense outlined
-                            label="Fecha de nacimiento*" type="date" :max="getDate" :mask="'####/##/##'"
+                            label="Fecha de Nacimiento*" type="date" :max="getDate" :mask="'####/##/##'"
                             :rules="[rules.required]"></v-text-field>
                     </v-col>
                     <v-col cols="12" md="6">
@@ -51,7 +51,7 @@
                             outlined maxlength="19" />
                     </v-col>
                     <v-col cols="12" md="6" v-if="generalPersonData.bfisica">
-                        <v-autocomplete v-model="generalPersonData.iidestado_civil" label="Estado civil"
+                        <v-autocomplete v-model="generalPersonData.iidestado_civil" label="Estado Civil"
                             :items="civilStatus" item-text="txtnombre" item-value="iidestado_civil" hide-details="auto"
                             small-chips clearable dense outlined />
                     </v-col>
@@ -61,7 +61,7 @@
                             outlined />
                     </v-col>
                     <v-col cols="12" md="6">
-                        <v-text-field v-model="generalPersonData.txtcorreo" label="Correo electrónico"
+                        <v-text-field v-model="generalPersonData.txtcorreo" label="Correo Electrónico"
                             hide-details="auto" clearable dense outlined :rules="[rules.ifNotEmptyEmail]" />
                     </v-col>
                 </v-row>

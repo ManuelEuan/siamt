@@ -36,7 +36,7 @@ export default {
 		return regex.test(v) || 'CURP válida requerida.'; 
 	},
 	rfc: v => {
-		const regex = /^[A-Z&Ñ]{3,4}[0-9]{6}[A-V1-9][0-9A-Z][0-9]$/;
+		const regex = /^[A-Z&Ñ]{3,4}[0-9]{6}[A-V1-9][0-9A-Z]{2}$/;
 		return regex.test(v) || 'RFC válido requerido.'; 
 	},
 	latitud: v => {

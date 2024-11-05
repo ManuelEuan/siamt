@@ -1,14 +1,18 @@
 <?php
 
 namespace Vokuro\GenericSQL\Person;
+
 use App\Library\Db\SiamtDb as Db;
 use App\Library\Http\Exceptions\ValidatorBoomException;
 
 class PersonPhones
 {
-    public static function create($data){
+    public static function create($data)
+    {
+        // Desactivar todos los teléfonos actuales antes de insertar el nuevo
+        self::deactivateAll($data->iidpersona);
 
-        try{
+        try {
             $params = [];
             foreach ($data->phone as $key => $value) {
                 // $params[$key] = $value;
@@ -30,6 +34,9 @@ class PersonPhones
                         break;
                 }
             }
+            //  'bactual' y 'bactivo' sean siempre true
+            $params['bactual'] = 't';
+            $params['bactivo'] = 't';
             // Db::dep($params);exit;
             return Db::insert('persona.tbl_persona_telefono', $params);
         } catch (\Exception $e) {
@@ -97,17 +104,19 @@ class PersonPhones
                     persona.tbl_cat_tipo_telefono AS tt ON pt.iidtipo_telefono = tt.iid
                 WHERE 
                     pt.iidpersona = :iidpersona AND pt.bactivo = true
-                    -- AND pt.bactivo = true
+                ORDER BY 
+                    pt.bactual DESC, pt.vtelefono
         ";
         $phones = Db::fetchAll($sql, $params);
         return $phones;
     }
 
-    public static function deactivateAll($iidpersona){
+    public static function deactivateAll($iidpersona)
+    {
         $params = array('iidpersona' => $iidpersona);
         $sql = "SELECT 
                     iidpersona,
-                    iidtelefono,
+                    iidtipo_telefono,
                     bactual,
                     bactivo AS activo,
                     TO_CHAR(dtfecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha_creacion,
@@ -124,7 +133,8 @@ class PersonPhones
         }
     }
 
-    public static function updateCurrentPhone($data){
+    public static function updateCurrentPhone($data)
+    {
         $paramsOld = array('iidpersona' => $data->iidpersona);
         $sql = "UPDATE persona.tbl_persona_telefono SET bactual = false WHERE iidpersona = :iidpersona";
         Db::execute($sql, $paramsOld);
@@ -133,10 +143,10 @@ class PersonPhones
         Db::execute($sql, $paramsNew);
     }
 
-    public static function deactivate($data){
+    public static function deactivate($data)
+    {
         $paramsNew = array('iidpersona' => $data->iidpersona, 'iid' => $data->selectedPhone);
         $sql = "UPDATE persona.tbl_persona_telefono SET bactivo = false WHERE iidpersona = :iidpersona AND iid = :iid";
         Db::execute($sql, $paramsNew);
     }
-    
 }

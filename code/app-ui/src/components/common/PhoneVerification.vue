@@ -4,13 +4,13 @@
         <v-row class="mx-auto" v-if="!newRegisterPerson">
             <v-col cols="12" md="12" class="d-flex justify-end py-1"
                 v-if="!newPhone && !editPhone && peopleModulePermissions.includes('crtp')">
-                <v-btn depressed color="primary" @click="newPhone = true">
-                    Nuevo teléfono
+                <v-btn depressed color="primary" @click="checkForExistingPhone">
+                    Nuevo Teléfono
                 </v-btn>
             </v-col>
             <v-col cols="12" sm="6" class="d-flex justify-end py-1" v-if="newPhone || editPhone">
                 <v-btn depressed color="info" @click="showPhones()">
-                    Ver teléfonos
+                    Ver Teléfonos
                 </v-btn>
             </v-col>
             <v-col cols="12" sm="6" class="d-flex justify-end py-1" v-if="newPhone || editPhone">
@@ -34,17 +34,17 @@
             </template>
             <template v-slot:item.actions="{ item }">
                 <div v-if="peopleModulePermissions.includes('edtp')" style="min-width: 85px;">
-                    <v-tooltip bottom>
+                    <v-tooltip bottom v-if="item.bactual">
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn v-bind="attrs" v-on="on" icon small
                                 @click="actionsHandlerOfTable(item, 'editPhone')">
                                 <v-icon small>mdi-square-edit-outline</v-icon>
                             </v-btn>
                         </template>
-                        <span>Editar teléfono</span>
+                        <span>Editar Teléfono</span>
                     </v-tooltip>
                     
-                    <v-tooltip bottom v-if="!item.bactual">
+                    <!-- <v-tooltip bottom v-if="!item.bactual">
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn v-bind="attrs" v-on="on" icon small
                                 @click="actionsHandlerOfTable(item, 'newCurrentPhone')">
@@ -53,7 +53,7 @@
                             </v-btn>
                         </template>
                         <span>Activar teléfono</span>
-                    </v-tooltip>
+                    </v-tooltip> -->
                     <v-tooltip bottom v-if="!item.bactual">
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn v-bind="attrs" v-on="on" icon small
@@ -62,7 +62,7 @@
                                 <v-icon small v-show="!item.bactivo">mdi-check</v-icon>
                             </v-btn>
                         </template>
-                        <span>Eliminar teléfono</span>
+                        <span>Eliminar Teléfono</span>
                     </v-tooltip>
                 </div>
                 <div v-else>
@@ -105,16 +105,28 @@
             </v-row>
         </v-form>
 
+        <!-- Modal de confirmación para nuevo teléfono -->
+        <generic-dialog
+            :dialogVisible="dialogNewPhoneConfirmation"
+            dialogTitle="Confirmar Nuevo Teléfono"
+            @update:dialogVisible="dialogNewPhoneConfirmation = $event"
+            @confirm="confirmNewPhone"
+        >
+            <template v-slot:default>
+                Ya tienes un teléfono registrado. ¿Deseas establecer este nuevo teléfono como el actual?
+            </template>
+        </generic-dialog>
+
         <!-- DIALOG ACTUALIZAR TELÉFONO ACTUAL -->
-        <generic-dialog :dialogVisible="dialogNewCurrentPhone" dialogTitle="Actualizar teléfono principal"
+        <!-- <generic-dialog :dialogVisible="dialogNewCurrentPhone" dialogTitle="Actualizar teléfono principal"
             @update:dialogVisible="dialogNewCurrentPhone = $event" @confirm="updateCurrentPhoneMethod">
             <template v-slot:default>
                 Este cambio implica que este es el nuevo teléfono actual ¿Desea seguir con el proceso?
             </template>
-        </generic-dialog>
+        </generic-dialog> -->
 
         <!-- DIALOG ACTUALIZAR DESACTIVAR TELÉFONO -->
-        <generic-dialog :dialogVisible="dialogDeletePhone" dialogTitle="Eliminar teléfono"
+        <generic-dialog :dialogVisible="dialogDeletePhone" dialogTitle="Eliminar Teléfono"
             @update:dialogVisible="dialogDeletePhone = $event" @confirm="deletePhone">
             <template v-slot:default>
                 ¿Estás seguro de que deseas Eliminar este
@@ -142,6 +154,10 @@ export default {
     },
     data() {
         return {
+
+            dialogNewPhoneConfirmation: false, // Controla la visibilidad del modal
+            existingPhone: null, 
+
             // DATOS INFORMATIVOS
             requiredLadaIdentifiers: false,
             editPhone: false,
@@ -189,6 +205,29 @@ export default {
     },
     methods: {
         ...mapActions('app', ['showError', 'showSuccess']),
+
+        // Método para verificar si hay un teléfono existente
+        checkForExistingPhone() {
+            if (this.personPhones.length > 0) {
+                this.existingPhone = this.personPhones.find(phone => phone.bactual);
+                if (this.existingPhone) {
+                    // Si hay un teléfono actual registrado, muestra el modal
+                    this.dialogNewPhoneConfirmation = true;
+                } else {
+                    // Si no hay teléfono actual, procede con la creación del nuevo
+                    this.newPhone = true;
+                }
+            } else {
+                // Si no hay teléfonos registrados, procede directamente a crear el nuevo
+                this.newPhone = true;
+            }
+        },
+
+        // Confirmación de la creación de un nuevo teléfono
+        confirmNewPhone() {
+            this.newPhone = true;
+            this.dialogNewPhoneConfirmation = false;
+        },
 
         // GET (BD)
         async getTypesPhone() {
