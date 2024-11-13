@@ -25,6 +25,9 @@ class VehiclesController extends BaseController
 
     public function getVehicles($iidempresa = null)
     {
+        set_time_limit(0);
+        ini_set('memory_limit', '-1');
+        
         $data = $this->request->getJsonRawBody();
         $where = ''; 
         $conditions = []; 
@@ -58,7 +61,6 @@ class VehiclesController extends BaseController
                         v.txtnumero_serie AS "serie",
                         v.txtnumero_chasis AS "chasis",
                         vm.txtnumero AS "motor",
-            
                         mo.txtnombre AS "modelo",
                         -- mo.iid AS "idModelo",
                         v.ianio AS "anio",
@@ -69,7 +71,11 @@ class VehiclesController extends BaseController
                         vc.txtnombre AS "tipoCombustible",
                         ver.npeso AS "peso",
                         ver.nlargo AS "largo",
-                        ver.nancho AS "ancho"
+                        ver.nancho AS "ancho",
+                        ver.ipasajeros_sentados AS "pasajerosSentados",
+                        ver.ipasajeros_pie AS "pasajerosPie",
+                        ver.ipasajeros AS "totalPasajeros"
+
                 FROM 
                     transporte.tbl_empresa_vehiculo ev
                 INNER JOIN 
@@ -93,7 +99,8 @@ class VehiclesController extends BaseController
                 INNER JOIN
                     vehiculo.tbl_cat_marca ma ON mo.iidmarca = ma.iid
                 INNER JOIN 
-                    vehiculo.tbl_vehiculo_placa vp ON ev.iidvehiculo = vp.iidvehiculo AND vp.bactual = true AND vp.bactivo = true';
+                    vehiculo.tbl_vehiculo_placa vp ON ev.iidvehiculo = vp.iidvehiculo AND vp.bactual = true AND vp.bactivo = true
+                WHERE ev.bactivo=true';
         
         
         if (!empty($where)) {
@@ -105,9 +112,6 @@ class VehiclesController extends BaseController
         }
 
         $sql .= ' ORDER BY p.nombre_completo';
-
-        // echo $sql;
-        // die;
         $result = GenericSQL::getBySQL($sql);
         // echo $sql;
         // die;
@@ -163,7 +167,6 @@ class VehiclesController extends BaseController
         $result = GenericSQL::getBySQL($sql);
         return $result;
     }
-
 }
 
 
