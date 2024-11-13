@@ -25,49 +25,6 @@ class CatalogController extends BaseController
         return $result;
     }
 
-    public function getVehicles($iidempresa = null)
-    {
-        if ($iidempresa !== null) {
-            if (!is_numeric($iidempresa)) {
-                throw new HttpBadRequestException(202, 'El valor de idEmpresa no es válido. Debe ser un número.');
-            }
-        }
-
-        $sql = 'SELECT
-                    ev.iid AS "id",
-                    ev.iidvehiculo AS "idVehiculo",
-                    vp.txtplaca AS "placa",
-                    m.iid AS "idMarca",
-                    m.txtnombre AS "nombreMarca",
-                    ev.iidempresa AS "idEmpresa",
-                    TRIM(p.nombre_completo) AS "nombreEmpresa",
-                    ev.vnomenclatura || \'-\' || ev.inumero_economico AS "numeroEconomico"
-                FROM 
-                    transporte.tbl_empresa_vehiculo ev
-                LEFT JOIN 
-                    transporte.tbl_empresa e ON ev.iidempresa = e.iid
-                LEFT JOIN 
-                    persona.tbl_persona p ON e.iidpersona = p.iid
-                LEFT JOIN
-                    vehiculo.tbl_vehiculo v ON ev.iidvehiculo = v.iid
-                LEFT JOIN
-                    vehiculo.tbl_cat_modelo mo ON v.iidmodelo= mo.iid
-                LEFT JOIN
-                    vehiculo.tbl_cat_marca m ON mo.iidmarca = m.iid
-                LEFT JOIN 
-                    vehiculo.tbl_vehiculo_placa vp ON ev.iidvehiculo = vp.iidvehiculo AND vp.bactual= true AND vp.bactivo= true
-                WHERE 
-                    ev.bactivo = true';
-    
-        if ($iidempresa !== null) {
-            $sql .= ' AND ev.iidempresa = ' . $iidempresa;
-        }
-    
-        $sql .= ' ORDER BY p.nombre_completo';
-        $result = GenericSQL::getBySQL($sql);
-        return $result;
-    }
-    
     public function getConcessions($iidempresa = null)
     {
 
@@ -240,19 +197,7 @@ class CatalogController extends BaseController
         return $routesData;
     }
 
-    public function tipovehicles()
-    {
-        $sql = 'SELECT
-                tv.iid AS id, 
-                tv.txtnombre AS nombre
-            FROM
-                vehiculo.tbl_cat_tipo_vehiculo AS tv
-            WHERE 
-                tv.bactivo = true';
-
-        $process = Db::fetchAll($sql);
-        return $process;
-    }
+    
 
     public function licensesType()
     {
