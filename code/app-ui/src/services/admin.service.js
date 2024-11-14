@@ -334,4 +334,26 @@ export default class AdminService extends ApiService {
     return await this.post("/companies/getPersonByCurp", JSON.stringify(curp));
   }
 
+    //vehiculos
+
+  async getVehicles() {
+    return await this.get("/catalog/vehicles");
+  }
+
+  async getConcessions() {
+    return await this.get("/catalog/concessions");
+  }
+
+  async getBrand() {
+    return await this.get("/vehicles/getBrand");
+  }
+
+  async getModel() {
+    return await this.get("/vehicles/getModel");
+  }
+
+  async getFuelType() {
+    return await this.get("/vehicles/getFuelType");
+  }
+  
 }

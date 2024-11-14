@@ -286,9 +286,9 @@ $app->mount(
     ->get("/catalog/vehicles", "getVehicles")
     ->get("/catalog/vehicles/{id}", "getVehicles")
     ->get("/catalog/vehiclesType", "typeVehicles") 
-    ->get("/vehicles/getmarca", "getMarca") 
-    ->get("/vehicles/getmodelo", "getModelo")
-    ->get("/vehicles/gettipocombustible", "getTipoCombustible")
+    ->get("/vehicles/getBrand", "getBrand") 
+    ->get("/vehicles/getModel", "getModel")
+    ->get("/vehicles/getFuelType", "getFuelType")
 );
 
 

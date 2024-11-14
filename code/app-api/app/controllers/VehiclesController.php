@@ -120,7 +120,7 @@ class VehiclesController extends BaseController
     }
 
 
-    public function getMarca()
+    public function getBrand()
     {
 
         $sql = 'SELECT
@@ -136,23 +136,27 @@ class VehiclesController extends BaseController
         return $result;
     }
 
-    public function getModelo()
+    public function getModel()
     {
 
         $sql = 'SELECT
-                    iid AS "id",
-                    txtnombre AS "nombre"  
+                    mo.iid AS "id",
+                    mo.txtnombre AS "nombreModelo",
+                    ma.iid AS "idMarca",
+                    ma.txtnombre AS "nombreMarca"
                 FROM 
-                    vehiculo.tbl_cat_modelo
+                    vehiculo.tbl_cat_modelo mo
+                INNER JOIN
+                    vehiculo.tbl_cat_marca ma ON mo.iidmarca = ma.iid
                 WHERE 
-                    bactivo = true';
+                    mo.bactivo = true and ma.bactivo = true';
 
-        $sql .= ' ORDER BY txtnombre';
+        $sql .= ' ORDER BY mo.txtnombre';
         $result = GenericSQL::getBySQL($sql);
         return $result;
     }
 
-    public function getTipoCombustible()
+    public function getFuelType()
     {
 
         $sql = 'SELECT
