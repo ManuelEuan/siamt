@@ -11,6 +11,7 @@ use App\Controllers\TerritoryController;
 use App\Controllers\UsersController;
 use App\Controllers\CatalogController;
 use App\Controllers\CompaniesController;
+use App\Controllers\VehiclesController;
 use App\Db\App;
 use App\Library\Misc\Utils;
 use App\Models\Territory\LocalDistricts;
@@ -243,9 +244,6 @@ $app->mount(
     ->setHandler(CatalogController::class, true)
     ->setPrefix('/admin')
     ->get("/catalog/companies", "getCompanies")
-    ->get("/catalog/vehicles", "getVehicles")
-    ->get("/catalog/vehicles/{id}", "getVehicles")
-    ->get("/catalog/vehiclesType", "tipovehicles")
     ->get("/catalog/concessions", "getConcessions")
     ->get("/catalog/concessions/{id}", "getConcessions")
     ->get("/catalog/operators", "getOperators")
@@ -280,3 +278,17 @@ $app->mount(
         ->setPrefix('/admin/images')
         ->get("/", "get")
 );
+
+$app->mount(
+    (new Collection())
+    ->setHandler(VehiclesController::class, true)
+    ->setPrefix('/admin')
+    ->get("/catalog/vehicles", "getVehicles")
+    ->get("/catalog/vehicles/{id}", "getVehicles")
+    ->get("/catalog/vehiclesType", "typeVehicles") 
+    ->get("/vehicles/getBrand", "getBrand") 
+    ->get("/vehicles/getModel", "getModel")
+    ->get("/vehicles/getFuelType", "getFuelType")
+);
+
+
