@@ -1112,7 +1112,7 @@ class ProcessController extends BaseController
                     s.bactivo = true
                     AND p.vclave = \'' . $vclave . '\'
                     AND s.iidfolio = ' . intval($iidfolio) . '
-                ORDER BY u.nombre';
+                ORDER BY s.dtfecha_creacion DESC';
 
         $result = GenericSQL::getBySQL($sql);
         return $result;
