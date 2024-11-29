@@ -9,5 +9,6 @@ use App\Controllers\MantoUnidadesController;
 $app->mount(
     (new Collection())
     ->setHandler(MantoUnidadesController::class, true)
+    ->setPrefix('/admin')
     ->get("/demo", "demo")
 );
