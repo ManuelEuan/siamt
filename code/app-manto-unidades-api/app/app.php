@@ -1,9 +1,10 @@
 <?php
 
-use App\Models\Territory\LocalDistricts;
+
 use Phalcon\Mvc\Micro\Collection;
-use App\Db\App;
-use App\Library\Misc\Utils;
+use App\Controllers\CatalogosController;
+use App\Controllers\ActividadesController;
+use App\Controllers\EquiposCargaController;
 use App\Controllers\MantoUnidadesController;
 
 $app->mount(
@@ -11,4 +12,44 @@ $app->mount(
     ->setHandler(MantoUnidadesController::class, true)
     ->setPrefix('/admin')
     ->get("/demo", "demo")
+);
+
+$app->mount(
+    (new Collection())
+    ->setHandler(CatalogosController::class, true)
+    ->setPrefix('/admin/complejidad')
+    ->post("/", "storeComplejidad")
+    ->put("/", "updateComplejidad")
+    ->delete("/{id}", "deleteComplejidad")
+    ->get("/", "findComplejidad")
+);
+
+$app->mount(
+    (new Collection())
+    ->setHandler(CatalogosController::class, true)
+    ->setPrefix('/admin/tipoConjunto')
+    ->post("/", "storetipoConjunto")
+    ->put("/", "updatetipoConjunto")
+    ->delete("/{id}", "deletetipoConjunto")
+    ->get("/", "findtipoConjunto")
+);
+
+$app->mount(
+    (new Collection())
+    ->setHandler(ActividadesController::class, true)
+    ->setPrefix('/admin/actividades')
+    ->post("/", "store")
+    ->put("/", "update")
+    ->delete("/{id}", "delete")
+    ->get("/", "find")
+);
+
+$app->mount(
+    (new Collection())
+    ->setHandler(EquiposCargaController::class, true)
+    ->setPrefix('/admin/equiposCarga')
+    ->post("/", "store")
+    ->put("/", "update")
+    ->delete("/{id}", "delete")
+    ->get("/", "find")
 );

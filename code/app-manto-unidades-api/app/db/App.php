@@ -29,5 +29,5 @@ class App
 	// 			) AS c WHERE d.id IN (SELECT id FROM single_domain)';
 
 	// 	return Db::fetchColumn($sql, ['domain' => $domain]);
-	}
+	//}
 }
