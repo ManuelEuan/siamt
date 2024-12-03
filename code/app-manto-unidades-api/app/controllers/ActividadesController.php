@@ -155,9 +155,9 @@ class ActividadesController extends BaseController {
             'complejidadId' => 'required|numeric|exists:tbl_cat_complejidad,iid',
             'modeloId'      => 'required|numeric',
             'clave'         => 'required',
+            'descripcion'   => 'required',
             'dirigido_a'    => 'required|in:vehiculo,equipo_de_carga',
             'kms'           => 'required',
-            'meses'         => 'required',
         ];
 
         $rules      = $action == 'add' ? $rules : array_merge($rules,['id' => 'required|numeric']);

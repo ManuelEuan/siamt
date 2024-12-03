@@ -10,10 +10,26 @@ export default class MantoUnidadesService extends ApiService {
     console.log("MantoUnidadesService Created");
   }
 
-  //Módulos
+  
+  async getComplejidad() {
+    return await this.get("/admin//complejidad");
+  }
 
-  async demo() {
-    return await this.get("/demo");
+  async getTipoConjunto() {
+    return await this.get("/admin//tipoConjunto");
+  }
+
+  /***********  Actividades  ***********/
+  async getActividades(params = {}) {
+		return await this.get("/admin//actividades", params);
+	}
+
+  async saveActividad(data) {
+    return await this.post("/admin//actividades", data);
+  }
+
+  async updateActividad(data) {
+    return await this.put("/admin//actividades", data);
   }
 
 

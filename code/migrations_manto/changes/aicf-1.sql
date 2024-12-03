@@ -64,3 +64,27 @@ CREATE TABLE comun.tbl_equipos_carga(
 
 COMMENT ON COLUMN comun.tbl_equipos_carga.fcapacidad_carga IS 'La capacidad de carga vene en Kw/Hr';
 COMMENT ON COLUMN comun.tbl_equipos_carga.fconsumo_corriente IS 'La medicion se da en amperes';
+
+CREATE TABLE comun.tbl_plan_matenimiento(
+    "iid" SERIAL primary key not null,
+    "iidmodelo" int4 NOT NULL,
+    "vnombre" varchar(250) not null,
+    "iciclo" int4 NOT NULL,
+    "imeses" int4 NOT NULL,
+    "txtcomentarios" text,
+    "bactivo" bool NOT NULL DEFAULT true,
+    "dtfecha_creacion" timestamp(6) NOT NULL DEFAULT now(),
+    "dtfecha_modificacion" timestamp(6)
+);
+
+CREATE TABLE comun.tbl_plan_matenimiento_actividades(
+    "iid" SERIAL primary key not null,
+    "iidplan_mantenimiento" int4 NOT NULL,
+    "iidactividad" int4 NOT NULL,
+    "txtcomentarios" text,
+    "bactivo" bool NOT NULL DEFAULT true,
+    "dtfecha_creacion" timestamp(6) NOT NULL DEFAULT now(),
+    "dtfecha_modificacion" timestamp(6),
+    CONSTRAINT fk_tbl_plan_mantenimiento_tbl_actividad_mantenimiento FOREIGN KEY (iidplan_mantenimiento) REFERENCES comun.tbl_plan_matenimiento (iid) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_tbl_actividad_mantenimiento_tbl_plan_mantenimiento FOREIGN KEY (iidactividad) REFERENCES comun.tbl_actividad_mantenimiento (iid) ON DELETE CASCADE ON UPDATE CASCADE
+);
