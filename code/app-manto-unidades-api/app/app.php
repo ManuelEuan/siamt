@@ -2,6 +2,7 @@
 
 
 use Phalcon\Mvc\Micro\Collection;
+use App\Controllers\PlanesController;
 use App\Controllers\CatalogosController;
 use App\Controllers\ActividadesController;
 use App\Controllers\EquiposCargaController;
@@ -52,4 +53,18 @@ $app->mount(
     ->put("/", "update")
     ->delete("/{id}", "delete")
     ->get("/", "find")
+);
+
+$app->mount(
+    (new Collection())
+    ->setHandler(PlanesController::class, true)
+    ->setPrefix('/admin/planes')
+    ->post("/", "store")
+    ->put("/", "update")
+    ->delete("/{id}", "delete")
+    ->get("/", "find")
+
+    ->post("/detalles", "storeDetalle")
+    ->delete("/detalles/{id}", "deleteDetalle")
+    ->get("/detalles/{id}", "getDetalles")
 );
