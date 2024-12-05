@@ -153,6 +153,9 @@ export default class AdminService extends ApiService {
   async deleteProfile(id) {
     return await this.delete(`/profiles/${id}`);
   }
+  async deleteActividad(id) {
+    return await this.delete(`/actividades/${id}`);
+  }
 
   async updateProfile(data) {
     return await this.put("/profiles", JSON.stringify(data));

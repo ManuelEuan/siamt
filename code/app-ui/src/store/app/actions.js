@@ -122,6 +122,41 @@ console.log(tickets)
   commit('setTicketsTotalItems', totalItems)
 }
 
+
+const getActividades = async ({ state, commit }, { data, filters }) => {
+  if (data) commit('setActividadesData', data);
+  if (filters) commit('setActividadesFilters', filters);
+
+  try {
+    const response = await services.mantounidades().getActividades({
+      ...state.actividadesData,
+      filters: state.actividadesFilters,
+    });
+
+    // Verifica la respuesta
+    console.log("Respuesta completa del servicio:", response);
+
+    const actividades = response.items || []; // Datos de actividades
+    const totalPages = response.totalPages || 1; // Total de páginas
+    const totalItems = response.totalItems || actividades.length; // Total de elementos
+
+    console.log("Actividades:", actividades);
+    console.log("Total Páginas:", totalPages);
+    console.log("Total Items:", totalItems);
+
+    // Mutaciones para Vuex
+    commit('setActividades', actividades);
+    commit('setActividadesTotalPages', totalPages);
+    commit('setActividadesTotalItems', totalItems);
+
+  } catch (error) {
+    console.error('Error fetching actividades:', error);
+  }
+};
+
+
+
+
 export default {
   showToast,
   showError,
@@ -132,4 +167,5 @@ export default {
   getCompanies,
   getDinamycRegisterInProcess,
   getTickets,
+  getActividades,
 }

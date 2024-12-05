@@ -2,7 +2,7 @@
   <div class="wrapper">
     <v-dialog transition="dialog-top-transition" max-width="600" v-model="show.view">
       <v-card>
-        <v-card-title class="text-uppercase primary--text text-h6 py-2"> ver perfil </v-card-title>
+        <v-card-title class="text-uppercase primary--text text-h6 py-2"> ver actividad </v-card-title>
         <v-divider></v-divider>
         <v-card-text class="py-0 my-0">
           <v-list class="pa-0 ma-0">
@@ -79,19 +79,19 @@
     <v-dialog transition="dialog-top-transition" max-width="600" v-model="show.delete">
       <v-card>
         <v-card-title class="text-uppercase primary--text text-h6 py-2">
-          {{ profile.activo ? "desactivar" : "activar" }} perfil
+          {{ actividad.activo ? "desactivar" : "activar" }} actividad
         </v-card-title>
         <v-divider></v-divider>
         <v-card-text class="text-lowercase text-body-1 py-2">
-          ¿est&aacute;s seguro de que deseas {{ profile.activo ? "desactivar" : "activar" }} este
-          perfil?
+          ¿est&aacute;s seguro de que deseas {{ actividad.activo ? "desactivar" : "activar" }} esta
+          actividad?
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions class="py-2">
           <v-spacer></v-spacer>
           <v-btn color="error" text @click="show.delete = false"> Cerrar </v-btn>
-          <v-btn color="primary" text @click="deleteProfile">
-            {{ profile.activo ? "Desactivar" : "Activar" }}
+          <v-btn color="primary" text @click="deleteActividad">
+            {{ actividad.activo ? "Desactivar" : "Activar" }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -141,9 +141,9 @@ export default {
   },
   methods: {
     ...mapActions('app', ['showError', 'showSuccess']),
-    async viewProfile() {
+    async viewActividad() {
       try {
-        const { id } = this.profile;
+        const { id } = this.actividad;
         let [modules, usuarios, permissions, { perfil }] = await Promise.all([
           services.admin().getModules(),
           services.admin().getUsersFromProfile({ id }),
@@ -195,13 +195,13 @@ export default {
         this.showError({ message, error });
       }
     },
-    async deleteProfile() {
+    async deleteActividad() {
       try {
-        const { message } = await services.admin().deleteProfile(this.profile.id);
-        this.$parent.loadProfilesTable();
+        const { message } = await services.admin().deleteActividad(this.actividad.id);
+        this.$parent.loadActividadesTable();
         this.showSuccess(message);
       } catch (error) {
-        const message = 'Error al activar/desactivar perfil.';
+        const message = 'Error al activar/desactivar actividad.';
         this.showError({ message, error });
       }
 

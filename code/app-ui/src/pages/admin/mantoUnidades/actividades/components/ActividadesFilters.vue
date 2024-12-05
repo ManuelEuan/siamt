@@ -26,18 +26,18 @@
                         <v-card-text>
                             <v-row dense>
                                 <v-col cols="12" md="6">
-                                    <v-text-field v-model="filters.name" label="Nombre" hide-details="auto" clearable
+                                    <v-text-field v-model="filters.txtdescripcion" label="Nombre" hide-details="auto" clearable
                                         dense outlined></v-text-field>
                                 </v-col>
                                 <v-col cols="12" md="6">
-                                    <v-select v-model="filters.active" label="Activo" :items="items.active"
+                                    <v-select v-model="filters.bactivo" label="Activo" :items="items.bactivo"
                                         item-text="text" item-value="value" hide-details clearable outlined dense>
                                         <template v-slot:prepend-inner>
                                             <div class="d-flex align-center" style="height: 25px;">
-                                                <v-icon v-if="filters.active === 't'" size="medium" color="green">
+                                                <v-icon v-if="filters.bactivo === 't'" size="medium" color="green">
                                                     mdi-check
                                                 </v-icon>
-                                                <v-icon v-else-if="filters.active === 'f'" size="medium" color="red">
+                                                <v-icon v-else-if="filters.bactivo === 'f'" size="medium" color="red">
                                                     mdi-close
                                                 </v-icon>
                                                 <v-icon v-else size="medium">
@@ -82,39 +82,38 @@ export default {
             dialog: false,
             permissions: [],
             filters: {
-                active: '',
-                name: '',
+                bactivo: '',
+                txtdescripcion: '',
             },
             items: {
-                active: [
+                bactivo: [
                     { text: 'activo', value: 't' },
                     { text: 'inactivo', value: 'f' },
                 ],
-                roles: [],
             },
         };
     },
     computed: {
-        ...mapState('app', ['profilesFilters']),
+        ...mapState('app', ['actividadesFilters']),
         activeFilters() {
             return Object
-                .values(this.profilesFilters)
+                .values(this.actividadesFilters)
                 .filter(v => v && (typeof (v) === 'string' ? v.trim() : v.length))
                 .length;
         }
     },
     methods: {
-        ...mapActions('app', ['getProfiles', 'showError']),
+        ...mapActions('app', ['getActividades', 'showError']),
         cleanFilters() {
-            this.filters = { active: '', name: '', username: '', roles: [] };
+            this.filters = { bactivo: '', txtdescripcion: '' };
         },
         async applyFilters() {
             const filters = this.filters;
-            await this.getProfiles({ filters });
+            await this.getActividades({ filters });
             this.dialog = false;
         },
         closeFilters() {
-            this.filters = { ...this.profilesFilters };
+            this.filters = { ...this.actividadesFilters };
             this.dialog = false;
         },
         newActividad() {
@@ -122,13 +121,6 @@ export default {
         },
     },
     async mounted() {
-        try {
-            const response = await services.admin().getRoles();
-            this.items.roles = response.map(({ id, nombre }) => ({ id, nombre }));
-        } catch (error) {
-            const message = 'Error al cargar opciones de filtrado.';
-            this.showError({ message, error });
-        }
 
         const { per } = await services.security().getPermissions();
         if (per) this.permissions = per;

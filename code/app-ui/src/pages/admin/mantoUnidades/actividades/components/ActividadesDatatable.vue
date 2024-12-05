@@ -6,9 +6,9 @@
       class="elevation-1"
       loading-text="Cargando información"
       :headers="headers"
-      :items="profiles"
-      :page-count="profilesTotalPages"
-      :server-items-length="profilesTotalItems"
+      :items="actividades"
+      :page-count="actividadesTotalPages"
+      :server-items-length="actividadesTotalItems"
       :options.sync="options"
       :loading="loadingTable"
     >
@@ -30,7 +30,7 @@
               <v-icon small> mdi-eye </v-icon>
             </v-btn>
           </template>
-          <span>Ver perfil</span>
+          <span>Ver Actividad</span>
         </v-tooltip>
 
         <v-tooltip v-if="permissions.includes('edpe')" bottom>
@@ -45,10 +45,10 @@
               <v-icon small> mdi-square-edit-outline </v-icon>
             </v-btn>
           </template>
-          <span>Editar perfil</span>
+          <span>Editar Actividad</span>
         </v-tooltip>
 
-        <v-tooltip v-if="permissions.includes('bope')" bottom>
+        <v-tooltip >
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               v-bind="attrs" 
@@ -57,12 +57,13 @@
               small
               @click="actionsHandler(item, 'delete')"
             >
-              <v-icon small v-show="item.activo"> mdi-close </v-icon>
-              <v-icon small v-show="!item.activo"> mdi-check </v-icon>
+              <v-icon small v-show="item.activo"> mdi-delete </v-icon>
+              <v-icon small v-show="!item.activo"> mdi-delete-off </v-icon>
             </v-btn>
           </template>
-          <span>{{ item.activo ? "Desactivar" : "Activar" }} verfil</span>
+          <span>{{ item.activo ? "Desactivar" : "Activar" }} actividad</span>
         </v-tooltip>
+        
 
       </template>
     </v-data-table>
@@ -81,12 +82,11 @@ export default {
   },
   data() {
     return {
-      permissions: [],
       options: {
-        profiles: [],
+        actividades: [],
         page: 1,
         itemsPerPage: 10,
-        sortBy: ['nombre'],//nombre
+        sortBy: ['txtdescripcion'],//nombre
         sortDesc: [false],
         multiSort: true,
         mustSort: false,
@@ -94,21 +94,80 @@ export default {
       loadingTable: true,
       headers: [
         {
-          text: "Nombre",
-          value: "nombre",
+          text: "Id Actividad",
+          value: "iid",
           align: "center",
           class: "font-weight-bold",
         },
-       
         {
-          text: "Descripción",
-          value: "descripcion",
+          text: "Clave",
+          value: "vclave",
           align: "center",
           class: "font-weight-bold",
         },
+        {
+          text: "Descripcion",
+          value: "txtdescripcion",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Kms",
+          value: "ikms",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Meses",
+          value: "imeses",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Tolerancia Kms",
+          value: "itolerancia_kms",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Tolerancia Meses",
+          value: "itolerancia_meses",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Costo mano de obra",
+          value: "fcosto_mano_obra",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Costo mano de refacciones",
+          value: "fcosto_refacciones",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Costo total",
+          value: "fcosto_total",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Notas técnicas",
+          value: "txtnotas_tecnicas",
+          align: "center",
+          class: "font-weight-bold",
+        },                   
         {
           text: "Activo",
-          value: "activo",
+          value: "bactivo",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Modelo",
+          value: "iidmodelo",
           align: "center",
           class: "font-weight-bold",
         },
@@ -123,22 +182,22 @@ export default {
     };
   },
   computed: {
-    ...mapState('app', ['profiles', 'profilesTotalPages', 'profilesTotalItems']),
+    ...mapState('app', ['actividades', 'actividadesTotalPages', 'actividadesTotalItems']),
   },
   methods: {
-    ...mapActions('app', ['getProfiles']),
-    async loadProfilesTable() {
+    ...mapActions('app', ['getActividades']),
+    async loadActividadesTable() {
       const { page, itemsPerPage, sortBy, sortDesc } = this.options;
       const data = { page, itemsPerPage, sortBy, sortDesc }; 
-      this.getProfiles({ data });
+      this.getActividades({ data });
       this.loadingTable = false;
     },
-    actionsHandler(profile, action) {
-      this.$refs.dialogs.profile = profile;
+    actionsHandler(actividad, action) {
+      this.$refs.dialogs.actividad = actividad;
 
       switch (action) {
-        case 'edit': this.$router.push(`/profiles/${profile.id}/edit`); break;
-        case 'view': this.$refs.dialogs.viewProfile(); break;
+        case 'edit': this.$router.push(`//actividades/${actividad.iid}/edit`); break;
+        case 'view': this.$refs.dialogs.viewActividad(); break;
         default: this.$refs.dialogs.show[action] = true;
       }
     },
@@ -146,7 +205,7 @@ export default {
   watch: {
     options: {
       handler() {
-        this.loadProfilesTable();
+        this.loadActividadesTable();
       },
       deep: true,
     },
