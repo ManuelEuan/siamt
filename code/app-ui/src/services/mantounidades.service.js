@@ -10,7 +10,7 @@ export default class MantoUnidadesService extends ApiService {
     console.log("MantoUnidadesService Created");
   }
 
-  
+
   async getComplejidad() {
     return await this.get("/admin//complejidad");
   }
@@ -32,5 +32,8 @@ export default class MantoUnidadesService extends ApiService {
     return await this.put("/admin//actividades", data);
   }
 
-
+  /***********  Planes  ***********/
+  async savePlan(data) {
+    return await this.post("/admin//planes", data);
+  }
 }
