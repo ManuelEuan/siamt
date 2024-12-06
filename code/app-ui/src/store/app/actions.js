@@ -36,8 +36,6 @@ const showSuccess = ({ state, commit }, message) => {
   })
 }
 
-
-
 const getUsers = async ({ state, commit }, { data, filters }) => {
   if (data) commit('setUsersData', data)
   if (filters) commit('setUsersFilters', filters)
@@ -78,7 +76,6 @@ const getInspectors = async ({ state, commit }, { data, filters }) => {
   commit('setInspectorsTotalPages', totalPages)
   commit('setInspectorsTotalItems', totalItems)
 }
-
 
 const getCompanies = async ({ state, commit }, { data, filters }) => {
   if (data) commit('setCompaniesData', data)
@@ -149,6 +146,33 @@ const getActividades = async ({ state, commit }, { data, filters }) => {
   }
 };
 
+const getPlanes = async ({ state, commit }, { data, filters }) => {
+  if (data) commit('setPlanesData', data);
+  if (filters) commit('setPlanesFilters', filters);
+
+  try {
+    const response = await services.mantounidades().getPlanes({
+      ...state.planesData,
+      filters: state.planesFilters,
+    });
+
+    // Verifica la respuesta
+    console.log("Respuesta completa del servicio:", response);
+
+    const planes = response.items || []; // Datos de planes
+    const totalPages = response.totalPages || 1; // Total de páginas
+    const totalItems = response.totalItems || planes.length; // Total de elementos
+
+    // Mutaciones para Vuex
+    commit('setPlanes', planes);
+    commit('setPlanesTotalPages', totalPages);
+    commit('setPlanesTotalItems', totalItems);
+
+  } catch (error) {
+    console.error('Error fetching planes:', error);
+  }
+};
+
 export default {
   showToast,
   showError,
@@ -160,4 +184,5 @@ export default {
   getDinamycRegisterInProcess,
   getTickets,
   getActividades,
+  getPlanes
 }
