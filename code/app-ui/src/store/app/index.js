@@ -86,7 +86,6 @@ const state = {
   // mantenimiento/planes filters and pagination
   planes: [],
   planesData: {},
-  planesFilters: {},
   planesTotalPages: 0,
   planesTotalItems: 0,
 }
