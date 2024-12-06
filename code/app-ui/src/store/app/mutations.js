@@ -191,22 +191,22 @@ export default {
       state.ticketsTotalItems = totalItems
     },
 
-  /**
-  * mantenimiento/Actividades Filters and Pagination
-  */
-  setActividades: (state, actividades) => {
-    state.actividades = actividades
-  },
-  setActividadesData: (state, data) => {
-    state.actividadesData = { ...data };
-  },
-  setActividadesFilters: (state, filters) => {
-    state.actividadesFilters = { ...filters };
-  },
-  setActividadesTotalPages: (state, totalPages) => {
-    state.actividadesTotalPages = totalPages
-  },
-  setActividadesTotalItems: (state, totalItems) => {
-    state.actividadesTotalItems = totalItems
-  },
+    /**
+    * mantenimiento/Actividades Filters and Pagination
+    */
+    setActividades: (state, actividades) => {
+      state.actividades = actividades
+    },
+    setActividadesData: (state, data) => {
+      state.actividadesData = { ...data };
+    },
+    setActividadesFilters: (state, filters) => {
+      state.actividadesFilters = { ...filters };
+    },
+    setActividadesTotalPages: (state, totalPages) => {
+      state.actividadesTotalPages = totalPages
+    },
+    setActividadesTotalItems: (state, totalItems) => {
+      state.actividadesTotalItems = totalItems
+    },
 }

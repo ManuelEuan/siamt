@@ -13,7 +13,7 @@ class Varios {
      * @param Request $request
      */
     public static function paginate($query, $request) {
-        $show   = !empty($request->getQuery('show')) ? $request->getQuery('show') : 10;
+        $show   = !empty($request->getQuery('itemsPerPage')) ? $request->getQuery('itemsPerPage') : 10;
         $page   = !empty($request->getQuery('page')) ? (int)$request->getQuery('page') : 1;
 
         $offset = ($page - 1) * $show;
@@ -30,8 +30,8 @@ class Varios {
             'items' => $items,
             'from'  => $from, 
             'to'    => $to, 
-            'total' => $total, 
-            'total_pages'   => $totalPages,
+            'totalItems' => $total, 
+            'totalPages'   => $totalPages,
             'current_page'  => $page,
             'last_page'     => $total
         );
@@ -41,9 +41,24 @@ class Varios {
      * Retorna el ordenamiento que se dara en el query
      * @param Request $request
      */
-    public static function ordering($request){
-        $order   = !empty($request->getQuery('order')) ? $request->getQuery('order') : "desc";
-        $orderBy = !empty($request->getQuery('orderBy')) ? $request->getQuery('orderBy') : "iid";
+    public static function ordering($request, $tabla){
+        if (!empty($request->getQuery('sortBy'))){
+            $orderBy    = $request->getQuery('sortBy');
+            $order      = $request->getQuery('sortDesc');
+
+            $query = ' ';
+            foreach ($orderBy as $key => $value) {
+                $desc = $order[$key] == 'false' ? 'asc' : 'desc';
+                $query .= $tabla.'.'.$value.' '.$desc.',';
+            }
+
+            $query = substr($query, 0, -1);
+            return ' ORDER BY '.$query;
+        }
+        else {
+            return  ' ORDER BY iid desc';
+        }
+       
         
         return ' ORDER BY '.$orderBy.' '.$order;
     }

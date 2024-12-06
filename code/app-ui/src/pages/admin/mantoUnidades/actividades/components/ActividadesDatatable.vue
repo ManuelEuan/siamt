@@ -18,7 +18,7 @@
       </template>
 
       <template v-slot:item.acciones="{ item }">
-        <v-tooltip v-if="permissions.includes('vepe')" bottom>
+        <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-btn 
               v-bind="attrs" 
@@ -33,7 +33,7 @@
           <span>Ver Actividad</span>
         </v-tooltip>
 
-        <v-tooltip v-if="permissions.includes('edpe')" bottom>
+        <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               v-bind="attrs" 
@@ -48,7 +48,7 @@
           <span>Editar Actividad</span>
         </v-tooltip>
 
-        <v-tooltip >
+        <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               v-bind="attrs" 
@@ -57,11 +57,10 @@
               small
               @click="actionsHandler(item, 'delete')"
             >
-              <v-icon small v-show="item.activo"> mdi-delete </v-icon>
-              <v-icon small v-show="!item.activo"> mdi-delete-off </v-icon>
+              <v-icon small v-show="item.bactivo"> mdi-delete </v-icon>
             </v-btn>
           </template>
-          <span>{{ item.activo ? "Desactivar" : "Activar" }} actividad</span>
+          <span>Eliminar actividad</span>
         </v-tooltip>
         
 
@@ -72,7 +71,6 @@
 
 <script>
 import ActividadesDatatableDialogs from "@/pages/admin/mantoUnidades/actividades/components/ActividadesDatatableDialogs";
-import services from "@/services";
 import { mapActions, mapState } from "vuex";
 
 export default {
@@ -86,7 +84,7 @@ export default {
         actividades: [],
         page: 1,
         itemsPerPage: 10,
-        sortBy: ['txtdescripcion'],//nombre
+        sortBy: ['vclave'],//nombre
         sortDesc: [false],
         multiSort: true,
         mustSort: false,
@@ -94,32 +92,8 @@ export default {
       loadingTable: true,
       headers: [
         {
-          text: "Id Actividad",
-          value: "iid",
-          align: "center",
-          class: "font-weight-bold",
-        },
-        {
           text: "Clave",
           value: "vclave",
-          align: "center",
-          class: "font-weight-bold",
-        },
-        {
-          text: "Descripcion",
-          value: "txtdescripcion",
-          align: "center",
-          class: "font-weight-bold",
-        },
-        {
-          text: "Kms",
-          value: "ikms",
-          align: "center",
-          class: "font-weight-bold",
-        },
-        {
-          text: "Meses",
-          value: "imeses",
           align: "center",
           class: "font-weight-bold",
         },
@@ -136,38 +110,21 @@ export default {
           class: "font-weight-bold",
         },
         {
-          text: "Costo mano de obra",
-          value: "fcosto_mano_obra",
+          text: "Complejidad",
+          value: "complejidad",
           align: "center",
           class: "font-weight-bold",
+          sortable: false,
         },
         {
-          text: "Costo mano de refacciones",
-          value: "fcosto_refacciones",
-          align: "center",
-          class: "font-weight-bold",
-        },
-        {
-          text: "Costo total",
+          text: "Costo",
           value: "fcosto_total",
           align: "center",
           class: "font-weight-bold",
         },
         {
-          text: "Notas técnicas",
-          value: "txtnotas_tecnicas",
-          align: "center",
-          class: "font-weight-bold",
-        },                   
-        {
-          text: "Activo",
-          value: "bactivo",
-          align: "center",
-          class: "font-weight-bold",
-        },
-        {
-          text: "Modelo",
-          value: "iidmodelo",
+          text: "Descripcion",
+          value: "txtdescripcion",
           align: "center",
           class: "font-weight-bold",
         },
@@ -196,7 +153,7 @@ export default {
       this.$refs.dialogs.actividad = actividad;
 
       switch (action) {
-        case 'edit': this.$router.push(`//actividades/${actividad.iid}/edit`); break;
+        case 'edit': this.$router.push(`/mantenimiento/actividades/${actividad.iid}/edit`); break;
         case 'view': this.$refs.dialogs.viewActividad(); break;
         default: this.$refs.dialogs.show[action] = true;
       }
@@ -210,9 +167,5 @@ export default {
       deep: true,
     },
   },
-  async mounted() {
-    const { per } = await services.security().getPermissions();
-    if (per) this.permissions = per;
-  }
 };
 </script>

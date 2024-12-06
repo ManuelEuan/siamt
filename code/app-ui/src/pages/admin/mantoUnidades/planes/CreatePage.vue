@@ -32,10 +32,10 @@
                   <v-text-field v-model="plan.nombre" label="Nombre*" :rules="[rules.required]" hide-details="auto" clearable dense outlined />
                 </v-col>
                 <v-col cols="3">
-                  <v-text-field v-model="plan.ciclo" label="Ciclo*" :rules="[rules.required]" type="number" hide-details="auto" clearable dense outlined />
+                  <v-text-field v-model="plan.ciclo" label="Ciclo*" :rules="[rules.required,rules.positiveIntNumber]" type="number" hide-details="auto" clearable dense outlined />
                 </v-col>
                 <v-col cols="3">
-                  <v-text-field v-model="plan.meses" label="Meses*" :rules="[rules.required]" type="number" hide-details="auto" clearable dense outlined />
+                  <v-text-field v-model="plan.meses" label="Meses*" :rules="[rules.required,rules.positiveIntNumber]" type="number" hide-details="auto" clearable dense outlined />
                 </v-col>
                 <v-col cols="12">
                   <v-textarea v-model="plan.comentarios" label="Comentarios" hide-details="auto" clearable dense outlined />
@@ -77,9 +77,6 @@ export default {
   computed: {},
   methods: {
     ...mapActions("app", ["showError", "showSuccess"]),
-    async getModelos() {
-      this.modelos = [{ id: 1, nombre: "Modelo #1" }];
-    },
     async save() {
       if (!this.valid) {
         return;
@@ -108,7 +105,7 @@ export default {
     },
   },
   async mounted() {
-    await this.getModelos();
-  },
+    this.modelos = await services.mantounidades().getModelos();
+  }
 };
 </script>

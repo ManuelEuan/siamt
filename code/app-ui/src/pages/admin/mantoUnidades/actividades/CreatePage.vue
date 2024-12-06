@@ -9,7 +9,6 @@
                 </v-card>
             </v-col>
             <v-col cols="12" class="pa-0 mt-2">
-                
                 <v-tabs-items v-model="tab">
                     <v-card flat>
                         <v-tab-item :key="1" value="generaltab" class="py-1">
@@ -68,7 +67,7 @@
                                             <v-select
                                                 v-model="actividad.complejidadId"
                                                 label="Complejidad"
-                                                :rules="[rules.seleecion]"
+                                                :rules="[rules.required]"
                                                 :items="complejidades.items"
                                                 item-text="txtdescripcion"
                                                 item-value="iid"
@@ -205,7 +204,7 @@ export default {
                 this.actividad.costo_mano_obra  = actividad.items[0].fcosto_mano_obra;
                 this.actividad.costo_refacciones= actividad.items[0].fcosto_refacciones;
                 this.actividad.costo_otro       = actividad.items[0].fcosto_otro;
-                this.actividad.costo_total      = actividad.items[0].fcosto_total;
+                this.actividad.costo_total      = actividad.items[0].total;
                 this.actividad.notas_tecnicas   = actividad.items[0].txtnotas_tecnicas;
             } catch (error) {
                 const message = 'Error al cargar información de la actividad.';
@@ -248,7 +247,7 @@ export default {
     async mounted() {
         this.tiposConjuntos = await services.mantounidades().getTipoConjunto();
         this.complejidades  = await services.mantounidades().getComplejidad();
-        this.modelos        = [{ id: 1, nombre : 'Chevrolet' },{id:2, nombre : 'Nissan'},{id:3, nombre : 'Toyota'},{id:4, nombre : 'Mazda'}];
+        this.modelos        = await services.mantounidades().getModelos();
         this.dirigido       = [{ valor: 'vehiculo', descripcion : 'Vehículos' },{valor:'equipo_de_carga', descripcion : 'Equipos de carga'}];
 
         if (!this.createMode) await this.setEditMode();

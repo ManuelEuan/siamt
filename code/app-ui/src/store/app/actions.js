@@ -122,7 +122,6 @@ console.log(tickets)
   commit('setTicketsTotalItems', totalItems)
 }
 
-
 const getActividades = async ({ state, commit }, { data, filters }) => {
   if (data) commit('setActividadesData', data);
   if (filters) commit('setActividadesFilters', filters);
@@ -140,10 +139,6 @@ const getActividades = async ({ state, commit }, { data, filters }) => {
     const totalPages = response.totalPages || 1; // Total de páginas
     const totalItems = response.totalItems || actividades.length; // Total de elementos
 
-    console.log("Actividades:", actividades);
-    console.log("Total Páginas:", totalPages);
-    console.log("Total Items:", totalItems);
-
     // Mutaciones para Vuex
     commit('setActividades', actividades);
     commit('setActividadesTotalPages', totalPages);
@@ -153,9 +148,6 @@ const getActividades = async ({ state, commit }, { data, filters }) => {
     console.error('Error fetching actividades:', error);
   }
 };
-
-
-
 
 export default {
   showToast,

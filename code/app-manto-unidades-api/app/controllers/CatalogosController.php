@@ -65,7 +65,7 @@ class CatalogosController extends BaseController {
         $comentarios    = $this->request->getQuery('comentarios');
         $condicional    = 'WHERE';
         
-        $query = 'SELECT iid,txtdescripcion,txtcomentarios FROM comun.tbl_cat_complejidad';
+        $query = 'SELECT iid,txtdescripcion,txtcomentarios FROM comun.tbl_cat_complejidad as complejidad';
 
         if(!empty($id)) {
             $query .= "  $condicional iid =".$id;
@@ -79,7 +79,7 @@ class CatalogosController extends BaseController {
             $query .= " $condicional txtcomentarios ILIKE '%".$comentarios."%'";
         }
 
-        $query.= Varios::ordering($this->request);
+        $query.= Varios::ordering($this->request, 'complejidad' );
         if(!empty($this->request->getQuery('paginate')) && $this->request->getQuery('paginate') == 'true') {
             return Varios::paginate($query, $this->request);
         }
@@ -138,7 +138,7 @@ class CatalogosController extends BaseController {
         $comentarios    = $this->request->getQuery('comentarios');
         $condicional    = 'WHERE';
 
-        $query = 'SELECT iid, txtdescripcion, txtcomentarios FROM comun.tbl_cat_tipo_conjunto';
+        $query = 'SELECT iid, txtdescripcion, txtcomentarios FROM comun.tbl_cat_tipo_conjunto as conjunto';
         if(!empty($id)) {
             $query .= "  $condicional iid =".$id;
             $condicional = 'AND';
@@ -151,7 +151,7 @@ class CatalogosController extends BaseController {
             $query .= " $condicional txtcomentarios ILIKE '%".$comentarios."%'";
         }
 
-        $query.= Varios::ordering($this->request);
+        $query.= Varios::ordering($this->request, 'conjunto');
         if(!empty($this->request->getQuery('paginate')) && $this->request->getQuery('paginate') == 'true') {
             return Varios::paginate($query, $this->request);
         }

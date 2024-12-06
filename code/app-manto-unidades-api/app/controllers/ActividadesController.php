@@ -18,47 +18,57 @@ class ActividadesController extends BaseController {
 
     public function find() {
         $actividadId    = $this->request->getQuery('id');
-        $clave          = $this->request->getQuery('clave');
-        $modeloId       = $this->request->getQuery('modeloId');
-        $dirigido_a     = $this->request->getQuery('dirigido_a');
-        $tipoConjuntoId = $this->request->getQuery('tipoConjuntoId');
-        $complejidadId  = $this->request->getQuery('complejidadId');
-        $condicional    = 'WHERE';
-        
-        $query = 'SELECT * FROM comun.tbl_actividad_mantenimiento';
+        $filtros        = $this->request->getQuery('filters');
+        $condicional    = 'AND';
+
+        $query = 'SELECT actividad.*, complejidad.txtdescripcion as complejidad, conjunto.txtdescripcion as conjunto
+                    FROM comun.tbl_actividad_mantenimiento as actividad
+                    inner join comun.tbl_cat_complejidad complejidad on complejidad.iid = actividad.iidcomplejidad 
+                    inner join comun.tbl_cat_tipo_conjunto conjunto on conjunto.iid  = actividad.iidcomplejidad 
+                    WHERE actividad.bactivo = true  ';
         if(!empty($actividadId)) {
-            $query .= "  $condicional iid = ".$actividadId;
-            $condicional = 'AND';
-        }
-        if(!empty($tipoConjuntoId)) {
-            $query .= "  $condicional iidtipo_conjunto = ".$tipoConjuntoId;
-            $condicional = 'AND';
-        }
-        if(!empty($complejidadId)) {
-            $query .= "  $condicional iidcomplejidad = ".$complejidadId;
-            $condicional = 'AND';
-        }
-        if(!empty($modeloId)) {
-            $query .= " $condicional iidmodelo = ".$modeloId;
-            $condicional = 'AND';
-        }
-        if(!empty($clave)) {
-            $query .= " $condicional vclave = ".$clave;
-            $condicional = 'AND';
-        }
-        if(!empty($dirigido_a)) {
-            $query .= " $condicional vdirigido_a = ".$dirigido_a;
+            $query .= "  $condicional actividad.iid = ".$actividadId;
             $condicional = 'AND';
         }
 
-        $query.= Varios::ordering($this->request);
-        if(!empty($this->request->getQuery('paginate')) && $this->request->getQuery('paginate') == 'true') {
-            return Varios::paginate($query, $this->request);
+        if(!empty($filtros)) {
+            $valores = json_decode($filtros);
+            
+            if($valores->clave != '' ) {
+                $query .= " $condicional actividad.vclave ILIKE '%".$valores->clave."%'";
+                $condicional = 'AND';
+            }
+            if($valores->modelo_id != '' ) {
+                $query .= " $condicional actividad.iidmodelo = ".$valores->modelo_id;
+                $condicional = 'AND';
+            }
+            if($valores->complejidad_id != '' ) {
+                $query .= " $condicional actividad.iidcomplejidad = ".$valores->complejidad_id;
+                $condicional = 'AND';
+            }
+            if($valores->dirigido_a != '' ) {
+                $query .= " $condicional actividad.vdirigido_a = '".$valores->dirigido_a."'";
+            }
         }
-        else{
+
+        $query.= Varios::ordering($this->request, 'actividad');
+        if(empty($this->request->getQuery('paginate')) && $this->request->getQuery('paginate') == 'false') {
             $items = GenericSQL::getBySQL($query);
-            return array('items' => $items,);
+            return array('items' => $items);    
         }
+
+        $items = Varios::paginate($query, $this->request);
+        $temp = array();
+        foreach ($items['items'] as $value) {
+            $value->mano_obra   = '$'.number_format($value->fcosto_mano_obra, 2);
+            $value->refacciones = '$'.number_format($value->fcosto_refacciones, 2);
+            $value->otro        = '$'.number_format($value->fcosto_otro, 2);
+            $value->fcosto_total= '$'.number_format($value->fcosto_total, 2);
+            
+            array_push($temp, $value);
+        }
+        $items['items'] = $temp;
+        return $items;
     }
 
     public function store() {

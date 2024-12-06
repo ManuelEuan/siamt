@@ -7,10 +7,12 @@ export default class MantoUnidadesService extends ApiService {
 
   constructor(basePath) {
     super(basePath);
-    console.log("MantoUnidadesService Created");
   }
 
-
+  async getModelos() {
+    return await [{ id: 1, nombre : 'Chevrolet' },{id:2, nombre : 'Nissan'},{id:3, nombre : 'Toyota'},{id:4, nombre : 'Mazda'}];
+  }
+  
   async getComplejidad() {
     return await this.get("/admin//complejidad");
   }
@@ -30,6 +32,10 @@ export default class MantoUnidadesService extends ApiService {
 
   async updateActividad(data) {
     return await this.put("/admin//actividades", data);
+  }
+
+  async deleteActividad(id) {
+    return await this.delete(`/admin//actividades/${id}`);
   }
 
   /***********  Planes  ***********/
