@@ -118,7 +118,7 @@ export default [
       {
         path: "/mantenimiento/planes",
         name: "planes",
-        // component: () => import(/* webpackChunkName: "planes" */ "@/pages/admin/mantoUnidades/planes/IndexPage.vue"),
+        component: () => import(/* webpackChunkName: "planes" */ "@/pages/admin/mantoUnidades/planes/IndexPage.vue"),
         meta: {
           layout: "default",
           code: "mto_pla",

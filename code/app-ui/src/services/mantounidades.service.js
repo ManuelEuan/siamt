@@ -39,7 +39,19 @@ export default class MantoUnidadesService extends ApiService {
   }
 
   /***********  Planes  ***********/
+  async getPlanes(params = {}) {
+		return await this.get("/admin//planes", params);
+	}
+
   async savePlan(data) {
     return await this.post("/admin//planes", data);
+  }
+
+  async updatePlan(data) {
+    return await this.put("/admin//planes", data);
+  }
+
+  async deletePlan(id) {
+    return await this.delete(`/admin//planes/${id}`);
   }
 }
