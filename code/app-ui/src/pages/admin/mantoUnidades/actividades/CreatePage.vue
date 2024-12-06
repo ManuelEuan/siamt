@@ -139,8 +139,6 @@
     </v-container>
 </template>
 
-  
-  
 <script>
 import rules from "@/core/rules.forms";
 import services from "@/services";
@@ -227,7 +225,6 @@ export default {
                 const message = 'Error al guardar la actividad.';
                 this.showError({ message, error });
             }
-
         },
         exitWindow() {
             this.$router.push("/mantenimiento/actividades");

@@ -24,7 +24,7 @@ class ActividadesController extends BaseController {
         $query = 'SELECT actividad.*, complejidad.txtdescripcion as complejidad, conjunto.txtdescripcion as conjunto
                     FROM comun.tbl_actividad_mantenimiento as actividad
                     inner join comun.tbl_cat_complejidad complejidad on complejidad.iid = actividad.iidcomplejidad 
-                    inner join comun.tbl_cat_tipo_conjunto conjunto on conjunto.iid  = actividad.iidcomplejidad 
+                    inner join comun.tbl_cat_tipo_conjunto conjunto on conjunto.iid  = actividad.iidtipo_conjunto 
                     WHERE actividad.bactivo = true  ';
         if(!empty($actividadId)) {
             $query .= "  $condicional actividad.iid = ".$actividadId;
@@ -80,7 +80,7 @@ class ActividadesController extends BaseController {
             $query = "INSERT INTO comun.tbl_actividad_mantenimiento 
                         (iidtipo_conjunto,iidcomplejidad,iidmodelo,vclave,vdirigido_a,txtdescripcion,ikms,imeses,itolerancia_kms,itolerancia_meses,fcosto_mano_obra,fcosto_refacciones,fcosto_otro,fcosto_total,txtnotas_tecnicas) 
                         VALUES (:itipo_conjunto,:icomplejidad,:imodelo,:vclave,:vdirigido_a,:vdescripcion,:ikms,:imeses,:itolerancia_kms,:itolerancia_meses,:fcosto_mano_obra,:fcosto_refacciones,:fcosto_otro,:fcosto_total,:vnotas_tecnicas)";
-            
+
             Db::execute($query, $this->getParams());
         } catch (Exception $ex) {
             $statusCode = 403;
@@ -144,14 +144,14 @@ class ActividadesController extends BaseController {
             'vclave'            => $data->clave,
             'vdirigido_a'       => $data->dirigido_a ?? 'vehiculos',
             'ikms'              => $data->kms,
-            'imeses'            => $data->meses ?? null,
+            'imeses'            => (int)$data->meses ?? null,
             'vdescripcion'      => $data->descripcion ?? null,
-            'itolerancia_kms'   => $data->tolerancia_kms ?? null,
-            'itolerancia_meses' => $data->tolerancia_meses ?? null,
-            'fcosto_mano_obra'  => $data->costo_mano_obra ?? 0,
-            'fcosto_refacciones'=> $data->costo_refacciones ?? 0,
-            'fcosto_otro'       => $data->costo_otro ?? 0,
-            'fcosto_total'      => $data->costo_total ?? 0,
+            'itolerancia_kms'   => (int)$data->tolerancia_kms ?? null,
+            'itolerancia_meses' => (int)$data->tolerancia_meses ?? null,
+            'fcosto_mano_obra'  => (float)$data->costo_mano_obra ?? 0,
+            'fcosto_refacciones'=> (float)$data->costo_refacciones ?? 0,
+            'fcosto_otro'       => (float)$data->costo_otro ?? 0,
+            'fcosto_total'      => (float)$data->costo_total ?? 0,
             'vnotas_tecnicas'   => $data->notas_tecnicas ?? null,
         );
        

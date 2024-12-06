@@ -17,38 +17,50 @@ class PlanesController extends BaseController {
     protected $errors;
 
     public function find() {
-        $planId     = $this->request->getQuery('id');
-        $nombre     = $this->request->getQuery('nombre');
-        $comentarios= $this->request->getQuery('comentarios');
-        $modelo_id  = $this->request->getQuery('modelo_id');
-        $condicional = 'WHERE';
+        $planId         = $this->request->getQuery('id');
+        $filtros        = $this->request->getQuery('filters');
+        $condicional    = 'AND';
         
-        $query = 'SELECT * FROM comun.tbl_plan_matenimiento';
+        $query = 'SELECT * FROM comun.tbl_plan_matenimiento as plan WHERE bactivo = true';
         if(!empty($planId)) {
-            $query .= "  $condicional iid = ".$planId;
+            $query .= "  $condicional plan.iid = ".$planId;
             $condicional = 'AND';
         }
-        if(!empty($nombre)) {
-            $query .= "  $condicional vnombre ILIKE '%".$nombre."%'";
-            $condicional = 'AND';
-        }
-        if(!empty($comentarios)) {
-            $query .= " $condicional txtcomentarios ILIKE '%".$comentarios."%'";
-            $condicional = 'AND';
-        }
-        if(!empty($modelo_id)) {
-            $query .= " $condicional iidmodelo = ".$modelo_id;
-        }
-       
 
-        $query.= Varios::ordering($this->request);
-        if(!empty($this->request->getQuery('paginate')) && $this->request->getQuery('paginate') == 'true') {
-            return Varios::paginate($query, $this->request);
+        if(!empty($filtros)) {
+            $valores = json_decode($filtros);
+
+            if(!empty($valores->nombre)) {
+                $query .= "  $condicional plan.vnombre ILIKE '%".$valores->nombre."%'";
+                $condicional = 'AND';
+            }
+            if(!empty($valores->comentarios)) {
+                $query .= " $condicional plan.txtcomentarios ILIKE '%".$valores->comentarios."%'";
+                $condicional = 'AND';
+            }
+            if(!empty($valores->modelo_id)) {
+                $query .= " $condicional plan.iidmodelo = ".$valores->modelo_id;
+            }
         }
-        else{
+
+        $query.= Varios::ordering($this->request, 'plan');
+        if(empty($this->request->getQuery('paginate')) && $this->request->getQuery('paginate') == 'false') {
             $items = GenericSQL::getBySQL($query);
-            return array('items' => $items,);
+            return array('items' => $items);    
         }
+
+        $items = Varios::paginate($query, $this->request);
+        /* $temp = array();
+        foreach ($items['items'] as $value) {
+            $value->mano_obra   = '$'.number_format($value->fcosto_mano_obra, 2);
+            $value->refacciones = '$'.number_format($value->fcosto_refacciones, 2);
+            $value->otro        = '$'.number_format($value->fcosto_otro, 2);
+            $value->fcosto_total= '$'.number_format($value->fcosto_total, 2);
+            
+            array_push($temp, $value);
+        }
+        $items['items'] = $temp; */
+        return $items;
     }
 
     public function store() {

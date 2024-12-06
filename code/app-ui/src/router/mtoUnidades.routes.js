@@ -127,7 +127,7 @@ export default [
       {
         path: "/mantenimiento/planes/new",
         name: "planes-new",
-        component: () => import(/* webpackChunkName: "planes-edit" */ "@/pages/admin/mantoUnidades/planes/CreatePage.vue"),
+        component: () => import(/* webpackChunkName: "planes-new" */ "@/pages/admin/mantoUnidades/planes/CreatePage.vue"),
         meta: {
           layout: "default",
           code: "nus",
@@ -137,7 +137,7 @@ export default [
       {
         path: "/mantenimiento/planes/:id/edit",
         name: "planes-edit",
-        // component: () => import(/* webpackChunkName: "planes-edit" */ "@/pages/admin/mantoUnidades/planes/EditPage.vue"),
+        component: () => import(/* webpackChunkName: "planes-edit" */ "@/pages/admin/mantoUnidades/planes/CreatePage.vue"),
         meta: {
           layout: "default",
           code: "tus",

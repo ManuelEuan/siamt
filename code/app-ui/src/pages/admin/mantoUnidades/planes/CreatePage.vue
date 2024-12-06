@@ -4,7 +4,7 @@
       <v-col cols="12" class="pa-0">
         <v-card flat>
           <v-toolbar>
-            <v-toolbar-title>Nuevo Plan</v-toolbar-title>
+            <v-toolbar-title> Plan de mantenimiento</v-toolbar-title>
           </v-toolbar>
         </v-card>
       </v-col>
@@ -60,45 +60,62 @@ import rules from "@/core/rules.forms";
 import services from "@/services";
 import { mapActions } from "vuex";
 
-const FAILURE_MSG = "Error al guardar el plan";
 const PLANS_PAGE = "/mantenimiento/planes";
-const STATUS_CODE = { success: 200, failure: 403 };
 
 export default {
   name: "PlanCreatePage",
   data() {
     return {
       valid: false,
-      plan: {},
+      plan: {
+        modeloId: '',
+        nombre: '',
+        ciclo: '',
+        meses: '',
+        comentarios: ''
+      },
       modelos: [],
       rules,
     };
   },
-  computed: {},
+  computed: {
+    createMode() {
+      return !this.$route.params.id;
+    },
+  },
   methods: {
     ...mapActions("app", ["showError", "showSuccess"]),
     async save() {
-      if (!this.valid) {
-        return;
+      if (!this.valid) return;
+
+      try {
+          const { message } = await (
+            this.createMode ?
+              services.mantounidades().savePlan(this.plan) :
+              services.mantounidades().updatePlan(this.plan)
+          );
+
+          this.showSuccess(message);
+          this.backPage();
+      } catch (error) {
+          const message = 'Error al guardar el plan.';
+          this.showError({ message, error });
       }
-
-      const plan = {
-        modeloId: this.plan.modeloId,
-        nombre: this.plan.nombre,
-        ciclo: Number(this.plan.ciclo),
-        meses: Number(this.plan.meses),
-        comentarios: this.plan.comentarios,
-      };
-
-      const { message: data, statusCode } = await services.mantounidades().savePlan(plan);
-
-      if (statusCode === STATUS_CODE.success) {
-        this.showSuccess(data);
-        this.backPage();
-        return;
+    },
+    async setEditMode() {
+      try {
+        const { id } = this.$route.params;
+        const item  = await services.mantounidades().getPlanes({ id: id });
+        this.plan.id        = item.items[0].iid;
+        this.plan.modeloId  = item.items[0].iidmodelo;
+        this.plan.nombre    = item.items[0].vnombre;
+        this.plan.ciclo     = item.items[0].iciclo;
+        this.plan.meses     = item.items[0].imeses;
+        this.plan.comentarios = item.items[0].txtcomentarios;
+      } catch (error) {
+          const message = 'Error al cargar información del plan.';
+          this.showError({ message, error });
       }
-
-      this.showError({ message: FAILURE_MSG, error: data });
     },
     backPage() {
       this.$router.push(PLANS_PAGE);
@@ -106,6 +123,7 @@ export default {
   },
   async mounted() {
     this.modelos = await services.mantounidades().getModelos();
+    if (!this.createMode) await this.setEditMode();
   }
 };
 </script>
