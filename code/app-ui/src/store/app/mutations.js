@@ -209,4 +209,23 @@ export default {
     setActividadesTotalItems: (state, totalItems) => {
       state.actividadesTotalItems = totalItems
     },
+
+  /**
+  * mantenimiento/Planes Filters and Pagination
+  */
+  setPlanes: (state, planes) => {
+    state.planes = planes
+  },
+  setPlanesData: (state, data) => {
+    state.planesData = { ...data };
+  },
+  setPlanesFilters: (state, filters) => {
+    state.planesFilters = { ...filters };
+  },
+  setPlanesTotalPages: (state, totalPages) => {
+    state.planesTotalPages = totalPages
+  },
+  setPlanesTotalItems: (state, totalItems) => {
+    state.planesTotalItems = totalItems
+  },
 }

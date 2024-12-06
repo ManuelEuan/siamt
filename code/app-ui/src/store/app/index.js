@@ -82,6 +82,13 @@ const state = {
   actividadesFilters: {},
   actividadesTotalPages: 0,
   actividadesTotalItems: 0,
+
+  // mantenimiento/planes filters and pagination
+  planes: [],
+  planesData: {},
+  planesFilters: {},
+  planesTotalPages: 0,
+  planesTotalItems: 0,
 }
 
 export default {
