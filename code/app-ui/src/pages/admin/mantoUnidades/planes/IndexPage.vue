@@ -5,7 +5,7 @@
                 <v-tooltip top>
                     <template v-slot:activator="{ on, attrs }">
                         <v-btn color="primary" class="me-1" @click="actionsHandler({}, 'new')" v-bind="attrs" v-on="on">
-                            <v-icon> mdi-plus </v-icon>
+                            Agregar <v-icon> mdi-plus </v-icon>
                         </v-btn>
                     </template>
                     <span>Agregar</span>
@@ -13,14 +13,6 @@
             </v-col>
             <v-col cols="12" class="pa-0 mt-2">
                 <div class="wrapper">
-                    <v-tooltip top>
-                        <template v-slot:activator="{ on, attrs }">
-                            <v-btn color="primary" class="me-1" @click="newPlan" v-bind="attrs" v-on="on">
-                                <v-icon> mdi-format-list-bulleted </v-icon>
-                            </v-btn>
-                        </template>
-                        <span>Agregar Plan</span>
-                    </v-tooltip>
                     <v-data-table class="elevation-1" loading-text="Cargando información"
                         :headers="headers"
                         :items="planes"
@@ -62,10 +54,7 @@
 
     export default {
         name: 'PlanesPage',
-        components: {
-            PlanesFilters,
-            PlanesDatatable
-        },
+        components: {},
         data() {
             return {
                 options: {

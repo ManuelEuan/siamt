@@ -219,9 +219,6 @@ export default {
   setPlanesData: (state, data) => {
     state.planesData = { ...data };
   },
-  setPlanesFilters: (state, filters) => {
-    state.planesFilters = { ...filters };
-  },
   setPlanesTotalPages: (state, totalPages) => {
     state.planesTotalPages = totalPages
   },

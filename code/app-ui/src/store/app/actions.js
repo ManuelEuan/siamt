@@ -148,12 +148,11 @@ const getActividades = async ({ state, commit }, { data, filters }) => {
 
 const getPlanes = async ({ state, commit }, { data, filters }) => {
   if (data) commit('setPlanesData', data);
-  if (filters) commit('setPlanesFilters', filters);
+  if(filters) console.log("")
 
   try {
     const response = await services.mantounidades().getPlanes({
       ...state.planesData,
-      filters: state.planesFilters,
     });
 
     // Verifica la respuesta
