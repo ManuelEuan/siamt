@@ -64,6 +64,7 @@ class PlanesController extends BaseController {
     }
 
     public function store() {
+        $id         = null;
         $statusCode = 200;
         $message    = 'Operacion exitosa';
 
@@ -72,13 +73,19 @@ class PlanesController extends BaseController {
             $query = "INSERT INTO comun.tbl_plan_matenimiento (iidmodelo,vnombre,iciclo,imeses,txtcomentarios) 
                         VALUES (:iidmodelo,:vnombre,:iciclo,:imeses,:vcomentarios)";
             
-            Db::execute($query, $this->getParams());
+            $id = Db::execute($query, $this->getParams());
         } catch (Exception $ex) {
             $statusCode = 403;
             $message = sizeof($this->errors) > 0 ? $this->errors : $ex->getMessage();
         }
 
-        return array('message' => $message, 'statusCode' => $statusCode);
+        return array(
+            'data' => [
+                'id' => intval($id),
+                'message' => $message,
+            ],
+            'statusCode' => $statusCode
+        );
     }
 
     public function update() {
@@ -105,7 +112,12 @@ class PlanesController extends BaseController {
             $message = sizeof($this->errors) > 0 ? $this->errors : $ex->getMessage();
         }
 
-        return array('message' => $message, 'statusCode' => $statusCode);
+        return array(
+            'data' => [
+                'message' => $message,
+            ],
+            'statusCode' => $statusCode
+        );
     }
 
     public function delete($id) {
@@ -124,7 +136,7 @@ class PlanesController extends BaseController {
             $query = "INSERT INTO comun.tbl_plan_matenimiento_actividades (iidplan_mantenimiento,iidactividad,txtcomentarios) 
                         VALUES (:iidplan_mantenimiento,:iidactividad,:vcomentarios)";
             
-            Db::execute($query, $this->getParams());
+            Db::execute($query, $this->getDetalleParams());
         } catch (Exception $ex) {
             $statusCode = 403;
             $message = sizeof($this->errors) > 0 ? $this->errors : $ex->getMessage();
@@ -198,5 +210,16 @@ class PlanesController extends BaseController {
         
         if(sizeof($this->errors) > 0)
             throw new ValidatorBoomException(403, "Validaciones no aprobadas");
+    }
+
+    private function getDetalleParams(){
+        $data  = $this->request->getJsonRawBody();
+        $params = array(
+            'iidplan_mantenimiento' => $data->planMantenimientoId,
+            'iidactividad'          => $data->actividadId,
+            'vcomentarios'          => $data->comentarios ?? ''
+        );
+       
+        return $params;
     }
 }

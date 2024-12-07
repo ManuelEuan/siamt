@@ -12,7 +12,7 @@ export default class MantoUnidadesService extends ApiService {
   async getModelos() {
     return await [{ id: 1, nombre : 'Chevrolet' },{id:2, nombre : 'Nissan'},{id:3, nombre : 'Toyota'},{id:4, nombre : 'Mazda'}];
   }
-  
+
   async getComplejidad() {
     return await this.get("/admin//complejidad");
   }
@@ -54,4 +54,12 @@ export default class MantoUnidadesService extends ApiService {
   async deletePlan(id) {
     return await this.delete(`/admin//planes/${id}`);
   }
+
+  async savePlanActividad(data) {
+    return await this.post('/admin//planes/detalles', data);
+  }
+
+  async getPlanActividades(id) {
+		return await this.get(`/admin//planes/detalles/${id}`);
+	}
 }

@@ -16,29 +16,56 @@
               <v-row>
                 <v-col cols="3">
                   <v-select
+                    dense
+                    outlined
                     v-model="plan.modeloId"
                     label="Modelo*"
-                    :rules="[rules.required]"
-                    :items="modelos"
                     item-text="nombre"
                     item-value="id"
                     hide-details="auto"
-                    clearable
-                    dense
-                    outlined
+                    :rules="[rules.required]"
+                    :items="modelos"
+                    @input="selectModelo($event)"
                   />
                 </v-col>
                 <v-col cols="3">
                   <v-text-field v-model="plan.nombre" label="Nombre*" :rules="[rules.required]" hide-details="auto" clearable dense outlined />
                 </v-col>
                 <v-col cols="3">
-                  <v-text-field v-model="plan.ciclo" label="Ciclo*" :rules="[rules.required,rules.positiveIntNumber]" type="number" hide-details="auto" clearable dense outlined />
+                  <v-text-field v-model="plan.ciclo" label="Ciclo*" :rules="[rules.required, rules.positiveIntNumber]" type="number" hide-details="auto" clearable dense outlined />
                 </v-col>
                 <v-col cols="3">
-                  <v-text-field v-model="plan.meses" label="Meses*" :rules="[rules.required,rules.positiveIntNumber]" type="number" hide-details="auto" clearable dense outlined />
+                  <v-text-field v-model="plan.meses" label="Meses*" :rules="[rules.required, rules.positiveIntNumber]" type="number" hide-details="auto" clearable dense outlined />
                 </v-col>
                 <v-col cols="12">
                   <v-textarea v-model="plan.comentarios" label="Comentarios" hide-details="auto" clearable dense outlined />
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col cols="12">
+                  <v-select
+                    dense
+                    outlined
+                    ref="vSelectActividades"
+                    label="Actividades"
+                    item-text="txtdescripcion"
+                    item-value="iid"
+                    :items="actividades"
+                    @input="selectActividad($event)"
+                  ></v-select>
+                  <v-data-table class="elevation-1" :headers="tblActividades.headers" :items="tblActividades.items" :loading="tblActividades.loading">
+                    <template v-slot:item.acciones="{ item }">
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <v-btn icon small v-bind="attrs" v-on="on" @click="removeActividad(item.iid)">
+                            <v-icon small> mdi-delete </v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Eliminar</span>
+                      </v-tooltip>
+                    </template>
+                  </v-data-table>
                 </v-col>
               </v-row>
             </v-form>
@@ -60,21 +87,72 @@ import rules from "@/core/rules.forms";
 import services from "@/services";
 import { mapActions } from "vuex";
 
+const FAILURE_CODE = 403;
 const PLANS_PAGE = "/mantenimiento/planes";
 
 export default {
-  name: "PlanCreatePage",
+  name: "PlanesForm",
   data() {
     return {
       valid: false,
-      plan: {
-        modeloId: '',
-        nombre: '',
-        ciclo: '',
-        meses: '',
-        comentarios: ''
-      },
+      loading: false,
       modelos: [],
+      actividades: [],
+      plan: {
+        id: 0,
+        modeloId: 0,
+        nombre: "",
+        ciclo: "",
+        meses: "",
+        comentarios: "",
+      },
+      tblActividades: {
+        headers: [
+          {
+            text: "Clave",
+            value: "vclave",
+            align: "center",
+            class: "font-weight-bold",
+          },
+          {
+            text: "Descripción",
+            value: "txtdescripcion",
+            align: "center",
+            class: "font-weight-bold",
+          },
+          {
+            text: "Dirigido",
+            value: "vdirigido_a",
+            align: "center",
+            class: "font-weight-bold",
+          },
+          {
+            text: "Complejidad",
+            value: "complejidad",
+            align: "center",
+            class: "font-weight-bold",
+          },
+          {
+            text: "Tipo de conjunto",
+            value: "conjunto",
+            align: "center",
+            class: "font-weight-bold",
+          },
+          {
+            text: "Acciones",
+            value: "acciones",
+            align: "center",
+            sortable: false,
+            width: "100px",
+          },
+        ],
+        options: {
+          page: 1,
+          sortBy: ["vclave"],
+        },
+        loading: false,
+        items: [],
+      },
       rules,
     };
   },
@@ -85,36 +163,94 @@ export default {
   },
   methods: {
     ...mapActions("app", ["showError", "showSuccess"]),
+    async setEditMode() {
+      const { datos, detalles } = await services.mantounidades().getPlanActividades(this.$route.params.id);
+
+      if (!datos.length) {
+        this.showError({ message: "Error al cargar información del plan" });
+        this.backPage();
+        return;
+      }
+
+      const [plan] = datos;
+      this.plan.id = plan.iid;
+      this.plan.modeloId = plan.iidmodelo;
+      this.plan.nombre = plan.vnombre;
+      this.plan.ciclo = plan.iciclo;
+      this.plan.meses = plan.imeses;
+      this.plan.comentarios = plan.txtcomentarios;
+
+      this.tblActividades.items = detalles.map(detalle => ({
+        iid: detalle.iid,
+        vclave: detalle.clave_actividad,
+        txtdescripcion: detalle.descripcion_actividad,
+        vdirigido_a: detalle.vdirigido_a,
+      }));
+    },
+    async selectModelo(idModelo) {
+      this.actividades = [];
+      this.tblActividades.items = [];
+
+      if (idModelo) {
+        const params = { modelo_id: idModelo };
+        const { items } = await services.mantounidades().getActividades(params);
+        this.actividades = items;
+      }
+    },
+    selectActividad(idActividad) {
+      if (idActividad) {
+        this.$refs["vSelectActividades"].reset();
+        this.swapActividad(idActividad, this.actividades, this.tblActividades.items);
+      }
+    },
+    removeActividad(idActividad) {
+      this.swapActividad(idActividad, this.tblActividades.items, this.actividades);
+    },
+    swapActividad(idActividad, source, dest) {
+      const index = source.findIndex((actividad) => actividad.iid === idActividad);
+      const [actividad] = source.splice(index, 1);
+      dest.push(actividad);
+    },
     async save() {
       if (!this.valid) return;
 
-      try {
-          const { message } = await (
-            this.createMode ?
-              services.mantounidades().savePlan(this.plan) :
-              services.mantounidades().updatePlan(this.plan)
-          );
-
-          this.showSuccess(message);
-          this.backPage();
-      } catch (error) {
-          const message = 'Error al guardar el plan.';
-          this.showError({ message, error });
+      if (!this.tblActividades.items.length) {
+        this.showError({ message: "Debe seleccionar al menos una actividad" });
+        return;
       }
+
+      await this.savePlan();
     },
-    async setEditMode() {
-      try {
-        const { id } = this.$route.params;
-        const item  = await services.mantounidades().getPlanes({ id: id });
-        this.plan.id        = item.items[0].iid;
-        this.plan.modeloId  = item.items[0].iidmodelo;
-        this.plan.nombre    = item.items[0].vnombre;
-        this.plan.ciclo     = item.items[0].iciclo;
-        this.plan.meses     = item.items[0].imeses;
-        this.plan.comentarios = item.items[0].txtcomentarios;
-      } catch (error) {
-          const message = 'Error al cargar información del plan.';
-          this.showError({ message, error });
+    async savePlan() {
+      const plan = {
+        id: this.plan.id,
+        modeloId: this.plan.modeloId,
+        nombre: this.plan.nombre,
+        ciclo: Number(this.plan.ciclo),
+        meses: Number(this.plan.meses),
+        comentarios: this.plan.comentarios,
+      };
+
+      const response = await (this.createMode ? services.mantounidades().savePlan(plan) : services.mantounidades().updatePlan(plan));
+      const {
+        data: { id, message },
+        statusCode,
+      } = response;
+
+      if (statusCode === FAILURE_CODE) {
+        this.showError({ message: "Error al guardar el plan" });
+        return;
+      }
+
+      await this.saveActividades(this.createMode ? id : plan.id);
+
+      this.showSuccess(message);
+      this.backPage();
+    },
+    async saveActividades(idPlan) {
+      for (const { iid } of this.tblActividades.items) {
+        const actividad = { planMantenimientoId: idPlan, actividadId: iid };
+        await services.mantounidades().savePlanActividad(actividad);
       }
     },
     backPage() {
@@ -124,6 +260,6 @@ export default {
   async mounted() {
     this.modelos = await services.mantounidades().getModelos();
     if (!this.createMode) await this.setEditMode();
-  }
+  },
 };
 </script>
