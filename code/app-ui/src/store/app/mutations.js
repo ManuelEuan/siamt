@@ -225,4 +225,22 @@ export default {
   setPlanesTotalItems: (state, totalItems) => {
     state.planesTotalItems = totalItems
   },
+
+
+   /**
+  * mantenimiento/Correctivos Filters and Pagination
+  */
+
+   setCorrectivos: (state, correctivos) => {
+    state.correctivos = correctivos
+  },
+  setCorrectivosData: (state, data) => {
+    state.correctivosData = { ...data };
+  },
+  setCorrectivosTotalPages: (state, totalPages) => {
+    state.correctivosTotalPages = totalPages
+  },
+  setCorrectivosTotalItems: (state, totalItems) => {
+    state.correctivosTotalItems = totalItems
+  },
 }
