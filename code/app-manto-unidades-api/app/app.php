@@ -5,6 +5,7 @@ use Phalcon\Mvc\Micro\Collection;
 use App\Controllers\PlanesController;
 use App\Controllers\CatalogosController;
 use App\Controllers\ActividadesController;
+use App\Controllers\CorrectivosController;
 use App\Controllers\EquiposCargaController;
 use App\Controllers\MantoUnidadesController;
 
@@ -33,6 +34,16 @@ $app->mount(
     ->put("/", "updatetipoConjunto")
     ->delete("/{id}", "deletetipoConjunto")
     ->get("/", "findtipoConjunto")
+);
+
+$app->mount(
+    (new Collection())
+    ->setHandler(CatalogosController::class, true)
+    ->setPrefix('/admin/estatus')
+    /* ->post("/", "storetipoConjunto")
+    ->put("/", "updatetipoConjunto")
+    ->delete("/{id}", "deletetipoConjunto") */
+    ->get("/", "findEstatus")
 );
 
 $app->mount(
@@ -68,3 +79,14 @@ $app->mount(
     ->delete("/detalles/{id}", "deleteDetalle")
     ->get("/detalles/{id}", "getDetalles")
 );
+
+$app->mount(
+    (new Collection())
+    ->setHandler(CorrectivosController::class, true)
+    ->setPrefix('/admin/correctivos')
+    ->post("/", "store")
+    ->put("/", "update")
+    ->delete("/{id}", "delete")
+    ->get("/", "find")
+);
+

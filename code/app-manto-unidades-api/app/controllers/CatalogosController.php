@@ -161,6 +161,36 @@ class CatalogosController extends BaseController {
         }
     }
 
+    ############################## Estatus ##############################
+    public function findEstatus() {
+        $id             = $this->request->getQuery('id');
+        $descripcion    = $this->request->getQuery('descripcion');
+        $tipo           = $this->request->getQuery('tipo');
+        $condicional    = 'WHERE';
+
+        $query = 'SELECT * FROM comun.tbl_cat_estatus as estatus';
+        if(!empty($id)) {
+            $query .= "  $condicional iid =".$id;
+            $condicional = 'AND';
+        }
+        if(!empty($descripcion)) {
+            $query .= "  $condicional txtdescripcion ILIKE '%".$descripcion."%'";
+            $condicional = 'AND';
+        }
+        if(!empty($tipo)) {
+            $query .= " $condicional txttipo ='".$tipo."'";
+        }
+
+        $query.= Varios::ordering($this->request, 'estatus');
+        if(!empty($this->request->getQuery('paginate')) && $this->request->getQuery('paginate') == 'true') {
+            return Varios::paginate($query, $this->request);
+        }
+        else{
+            $items = GenericSQL::getBySQL($query);
+            return array('items' => $items,);
+        }
+    }
+
     ############################## Metodos Privados ##############################
     private function validate($action = 'add') {
         $data       = (array)$this->request->getJsonRawBody();

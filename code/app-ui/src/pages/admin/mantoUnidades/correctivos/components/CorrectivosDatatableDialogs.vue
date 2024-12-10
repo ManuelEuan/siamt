@@ -35,7 +35,7 @@
                         </v-list-item-title>
 
                         <v-list-item-subtitle class="text-lowercase text-body-1 py-1">
-                          <v-textarea v-model="this.correctivo.comentarios" rows="3" disabled hide-details="auto" clearable dense outlined />
+                          <v-textarea v-model="this.correctivo.txtdescripcion" rows="3" disabled hide-details="auto" clearable dense outlined />
                         </v-list-item-subtitle>
                       </v-list-item-content>
                     </v-list-item>
@@ -49,7 +49,7 @@
                         </v-list-item-title>
 
                         <v-list-item-subtitle class="text-lowercase text-body-1 py-1">
-                          <v-textarea v-model="this.correctivo.acciones" rows="3" disabled hide-details="auto" clearable dense outlined />
+                          <v-textarea v-model="this.correctivo.txtcomentarios" rows="3" disabled hide-details="auto" clearable dense outlined />
                         </v-list-item-subtitle>
                       </v-list-item-content>
                     </v-list-item>
@@ -99,6 +99,7 @@ export default {
   data() {
     return {
       datos:[],
+      unidades: [],
       show: {
         view: false,
         delete: false,
@@ -109,33 +110,40 @@ export default {
   },
   methods: {
     ...mapActions('app', ['showError', 'showSuccess']),
-    async viewCorrectivo() {
+    async viewCorrectivo(accion = 'view') {
       try {
-        this.datos = [
-        { titulo: 'Marca', valor: 'Marca X' },
-  { titulo: 'Modelo', valor: 'Modelo 123' },
-  { titulo: 'Serie', valor: 'SERIE12345' },
-  { titulo: 'Placa', valor: 'ABC-1234' },
-  { titulo: 'Año', valor: 2020 },
-  { titulo: 'Fecha de Ingreso', valor: '2024-11-25' },
-  { titulo: 'Fecha Estimada', valor: '2024-12-05' },
-  { titulo: 'Fecha de Egreso', valor: '2024-12-10' },
-  { titulo: 'Costo de Mantenimiento', valor: '$1500' },
- 
-        ],
-      
-      
+        if(accion == 'view') {
+          const value  = this.unidades.filter(item => item.id == this.correctivo.iidunidad);
 
-        this.show.view = true;
+          this.datos = [
+          { titulo: 'Marca', valor: value[0].marca },
+          { titulo: 'Modelo', valor: value[0].modelo },
+          { titulo: 'Serie', valor: value[0].serie },
+          { titulo: 'Placa', valor: value[0].placa },
+          { titulo: 'Número Economico', valor: value[0].nume_econ },
+          { titulo: 'Año', valor: 2020 },
+          { titulo: 'Fecha de Ingreso', valor: this.correctivo.dtfecha_ingreso },
+          { titulo: 'Fecha de Egreso', valor: this.correctivo.dtfecha_salida },
+          { titulo: 'Costo de Mantenimiento', valor: this.correctivo.fcosto_total },
+          { titulo: 'Lugar del servicio', valor: this.correctivo.txtlugar },
+          { titulo: 'Estatus', valor: this.correctivo.estatus },
+          ];
+          this.show.delete = false;
+          this.show.view = true;
+        }
+        else{
+          this.show.delete = true;
+          this.show.view = false;
+        }
       }
       catch (error) {
         const message = 'Error al cargar la información.';
         this.showError({ message, error });
       }
     },
-    async deleteActividad() {
+    async deleteCorrectivo() {
       try {
-        const { message } = await services.mantounidades().deleteCorrectivo(this.correctivo.id);
+        const { message } = await services.mantounidades().deleteCorrectivos(this.correctivo.iid);
         this.$parent.loadCorrectivosTable();
         this.showSuccess(message);
 
@@ -152,6 +160,11 @@ export default {
       if (newValue) return;
       this.$refs.form.reset();
     },
+  },
+
+  async mounted() {
+    //this.estatus    = await services.mantounidades().getEstatus({tipo:'correctivo'});
+    this.unidades   = await services.mantounidades().getUnidades();
   },
 };
 </script>

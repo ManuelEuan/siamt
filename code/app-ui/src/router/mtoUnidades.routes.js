@@ -60,7 +60,7 @@ export default [
       {
         path: "/mantenimiento/correctivos",
         name: "correctivos",
-         component: () => import(/* webpackChunkName: "correctivos" */ "@/pages/admin/mantoUnidades/correctivos/IndexPage.vue"),
+        component: () => import(/* webpackChunkName: "correctivos" */ "@/pages/admin/mantoUnidades/correctivos/IndexPage.vue"),
         meta: {
           layout: "default",
           code: "mto_cor",
@@ -69,7 +69,7 @@ export default [
       {
         path: "/mantenimiento/correctivos/new",
         name: "correctivos-new",
-         component: () => import(/* webpackChunkName: "correctivos-edit" */ "@/pages/admin/mantoUnidades/correctivos/CreatePage.vue"),
+        component: () => import(/* webpackChunkName: "correctivos-edit" */ "@/pages/admin/mantoUnidades/correctivos/CreatePage.vue"),
         meta: {
           layout: "default",
           code: "nus",
@@ -79,7 +79,7 @@ export default [
       {
         path: "/mantenimiento/correctivos/:id/edit",
         name: "correctivos-edit",
-        // component: () => import(/* webpackChunkName: "correctivos-edit" */ "@/pages/admin/mantoUnidades/correctivos/EditPage.vue"),
+        component: () => import(/* webpackChunkName: "correctivos-edit" */ "@/pages/admin/mantoUnidades/correctivos/CreatePage.vue"),
         meta: {
           layout: "default",
           code: "tus",

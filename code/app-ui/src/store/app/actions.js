@@ -172,72 +172,21 @@ const getPlanes = async ({ state, commit }, { data, filters }) => {
   }
 };
 
-
-const getCorrectivos = async ({commit }, { data, filters }) => {
+const getCorrectivos = async ({ state, commit }, { data, filters }) => {
   if (data) commit('setCorrectivosData', data);
   if (filters) console.log("Aplicando filtros:", filters);
 
   try {
-    const simulatedResponse = {
-      items: [
-        {
-          id: 1,
-          marca: "Marca X",
-          modelo: "Modelo 123",
-          serie: "SERIE12345",
-          placa: "ABC-1234",
-          año: 2020,
-          fechaIngreso: "2024-11-25",
-          fechaEstimada: "2024-12-05",
-          fechaEgreso: "2024-12-10",
-          costo: 1500,
-          comentarios: "Cambio de piezas por desgaste",
-          acciones: "Reemplazo completo de piezas críticas",
-          activo: 1
-        },
-        {
-          id: 2,
-          marca: "Marca Y",
-          modelo: "Modelo 456",
-          serie: "SERIE67890",
-          placa: "XYZ-5678",
-          año: 2018,
-          fechaIngreso: "2024-11-20",
-          fechaEstimada: "2024-12-01",
-          fechaEgreso: "2024-12-06",
-          costo: 2000,
-          comentarios: "Reparación general del sistema hidráulico",
-          acciones: "Ajuste y cambio de componentes principales",
-          activo: 1
-
-        },
-        {
-          id: 3,
-          marca: "Marca Z",
-          modelo: "Modelo 789",
-          serie: "SERIE11223",
-          placa: "LMN-9101",
-          año: 2022,
-          fechaIngreso: "2024-11-30",
-          fechaEstimada: "2024-12-07",
-          fechaEgreso: "2024-12-12",
-          costo: 800,
-          comentarios: "Limpieza interna y mantenimiento preventivo",
-          acciones: "Limpieza de componentes y ajustes menores",
-          activo: 0
-
-        },
-      ],
-      totalPages: 1,
-      totalItems: 3,
-    };
-
-    console.log("Simulación de respuesta:", simulatedResponse);
+    const response = await services.mantounidades().getCorrectivos({
+      /* ...state.correctivos, */
+      /* f */
+      filters: state.correctivosFilters,
+    });
 
     // Usa la simulación como respuesta
-    const correctivos = simulatedResponse.items || [];
-    const totalPages = simulatedResponse.totalPages || 1;
-    const totalItems = simulatedResponse.totalItems || correctivos.length;
+    const correctivos = response.items || [];
+    const totalPages = response.totalPages || 1;
+    const totalItems = response.totalItems || correctivos.length;
 
     // Mutaciones para Vuex
     commit('setCorrectivos', correctivos);
@@ -248,8 +197,6 @@ const getCorrectivos = async ({commit }, { data, filters }) => {
     console.error('Error fetching correctivos:', error);
   }
 };
-
-
 
 export default {
   showToast,

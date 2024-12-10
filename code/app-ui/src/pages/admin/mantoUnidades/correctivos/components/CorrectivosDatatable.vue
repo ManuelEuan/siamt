@@ -57,12 +57,11 @@
               small
               @click="actionsHandler(item, 'delete')"
             >
-              <v-icon small v-show="item.activo"> mdi-delete </v-icon>
+              <v-icon small v-show="item.bactivo"> mdi-delete </v-icon>
             </v-btn>
           </template>
           <span>Eliminar Correctivo</span>
         </v-tooltip>
-        
 
       </template>
     </v-data-table>
@@ -84,89 +83,82 @@ export default {
         correctivos: [],
         page: 1,
         itemsPerPage: 10,
-        sortBy: ['vclave'],//nombre
+        sortBy: ['iid'],//nombre
         sortDesc: [false],
         multiSort: true,
         mustSort: false,
       },
       loadingTable: true,
       headers: [
-  {
-    text: "ID",
-    value: "id",
-    align: "center",
-    class: "font-weight-bold",
-  },
-  {
-    text: "Marca",
-    value: "marca",
-    align: "center",
-    class: "font-weight-bold",
-  },
-  {
-    text: "Modelo",
-    value: "modelo",
-    align: "center",
-    class: "font-weight-bold",
-  },
-  {
-    text: "Serie",
-    value: "serie",
-    align: "center",
-    class: "font-weight-bold",
-  },
-  {
-    text: "Placa",
-    value: "placa",
-    align: "center",
-    class: "font-weight-bold",
-  },
-  {
-    text: "Año",
-    value: "año",
-    align: "center",
-    class: "font-weight-bold",
-  },
-  {
-    text: "Fecha Ingreso",
-    value: "fechaIngreso",
-    align: "center",
-    class: "font-weight-bold",
-  },
-  {
-    text: "Fecha Estimada",
-    value: "fechaEstimada",
-    align: "center",
-    class: "font-weight-bold",
-  },
-  {
-    text: "Fecha Egreso",
-    value: "fechaEgreso",
-    align: "center",
-    class: "font-weight-bold",
-  },
-  {
-    text: "Costo",
-    value: "costo",
-    align: "center",
-    class: "font-weight-bold",
-  },
-  {
-    text: "Comentarios",
-    value: "comentarios",
-    align: "center",
-    class: "font-weight-bold",
-  },
-  {
-    text: "Acciones",
-    value: "acciones",
-    align: "center",
-    class: "font-weight-bold",
-    sortable: false,
-    width: "196px",
-  },
-],
-
+        {
+          text: "ID",
+          value: "iid",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Marca",
+          value: "marca",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Modelo",
+          value: "modelo",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Serie",
+          value: "serie",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Placa",
+          value: "placa",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Año",
+          value: "año",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Fecha Ingreso",
+          value: "dtfecha_ingreso",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Fecha Egreso",
+          value: "dtfecha_salida",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Costo",
+          value: "fcosto_total",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Descripcion",
+          value: "txtdescripcion",
+          align: "center",
+          class: "font-weight-bold",
+        },
+        {
+          text: "Acciones",
+          value: "acciones",
+          align: "center",
+          class: "font-weight-bold",
+          sortable: false,
+          width: "196px",
+        },
+      ],
     };
   },
   computed: {
@@ -184,8 +176,9 @@ export default {
       this.$refs.dialogs.correctivo = correctivo;
 
       switch (action) {
-        case 'edit': this.$router.push(`/mantenimiento/correctivos/${correctivo.id}/edit`); break;
-        case 'view': this.$refs.dialogs.viewCorrectivo(); break;
+        case 'edit': this.$router.push(`/mantenimiento/correctivos/${correctivo.iid}/edit`); break;
+        case 'view': this.$refs.dialogs.viewCorrectivo('view'); break;
+        case 'delete': this.$refs.dialogs.viewCorrectivo('delete'); break;
         default: this.$refs.dialogs.show[action] = true;
       }
     },

@@ -89,14 +89,13 @@ const state = {
   planesTotalPages: 0,
   planesTotalItems: 0,
 
-    // mantenimiento/Actividades filters and pagination
-    correctivos: [],
-    correctivosData: {},
-    correctivosFilters: {},
-    correctivosTotalPages: 0,
-    correctivosTotalItems: 0,
+  // mantenimiento/Actividades filters and pagination
+  correctivos: [],
+  correctivosData: {},
+  correctivosFilters: {},
+  correctivosTotalPages: 0,
+  correctivosTotalItems: 0,
 }
-
 
 export default {
   namespaced: true,

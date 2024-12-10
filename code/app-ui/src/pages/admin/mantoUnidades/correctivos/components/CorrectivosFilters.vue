@@ -27,20 +27,24 @@
                             <v-row dense>
                              
                                 <v-col cols="12" md="6">
-                                    <v-text-field v-model="filters.empresa" label="Empresa" hide-details="auto" clearable dense outlined></v-text-field>
+                                    <v-text-field v-model="filters.empresa_id" label="Empresa" hide-details="auto" clearable dense outlined></v-text-field>
                                 </v-col>
                                 <v-col cols="12" md="6">
-                                    <v-text-field v-model="filters.marca" label="Marca" hide-details="auto" clearable dense outlined></v-text-field>
+                                    <v-text-field v-model="filters.marca_id" label="Marca" hide-details="auto" clearable dense outlined></v-text-field>
                                 </v-col>
 
                                 <v-col cols="12" md="6">
-                                    <v-text-field v-model="filters.modelo" label="Modelo" hide-details="auto" clearable dense outlined></v-text-field>
+                                    <v-text-field v-model="filters.modelo_id" label="Modelo" hide-details="auto" clearable dense outlined></v-text-field>
                                 </v-col>
 
                                 <v-col cols="12" md="6">
-                                    <v-text-field v-model="filters.unidad" label="Serie" hide-details="auto" clearable dense outlined></v-text-field>
+                                    <v-text-field v-model="filters.unidad_id" label="Serie" hide-details="auto" clearable dense outlined></v-text-field>
                                 </v-col>
 
+                                <v-col cols="6">
+                                    <v-autocomplete label="Estatus" :items="estatus.items" hide-details="auto" clearable dense outlined 
+                                        v-model="filters.estatus_id" item-text="txtdescripcion" item-value="iid" ></v-autocomplete>
+                                </v-col>
                                                            
                             </v-row>
                         </v-card-text>
@@ -66,7 +70,7 @@
 </template>
 
 <script>
-//import services from '@/services';
+import services from '@/services';
 import { mapActions, mapState } from 'vuex';
 
 export default {
@@ -74,11 +78,16 @@ export default {
     data() {
         return {
             dialog: false,
+            empresas: [],
+            marcas: [],
+            modelos: [],
+            estatus: [],
             filters: {
-                empresa: '',
-                marca: '',
-                modelo: '',
-                unidad: ''              
+                empresa_id: '',
+                marca_id: '',
+                modelo_id: '',
+                estatus_id: '',
+                unidad_id: ''              
             },
         };
     },
@@ -98,10 +107,11 @@ export default {
         ...mapActions('app', ['getCorrectivos', 'showError']),
         cleanFilters() {
             this.filters = {
-                empresa: '',
-                marca: '',
-                modelo: '',
-                unidad: ''     
+                empresa_id: '',
+                marca_id: '',
+                modelo_id: '',
+                estatus_id: '',
+                unidad_id: ''     
             };
         },
         async applyFilters() {
@@ -117,6 +127,13 @@ export default {
         newCorrectivo() {
             this.$router.push("/mantenimiento/correctivos/new");
         },
+    },
+    async mounted() {
+        this.empresas   = await services.mantounidades().getComplejidad();
+        this.marcas     = [{ valor: 'vehiculo', descripcion : 'Vehículos' },{valor:'equipo_de_carga', descripcion : 'Equipos de carga'}];
+        this.modelos    = await services.mantounidades().getModelos();
+        this.estatus    = await services.mantounidades().getEstatus({tipo:'correctivo'});
+        console.log(this.estatus);
     },
 };
 </script>
