@@ -18,6 +18,7 @@ class ActividadesController extends BaseController {
 
     public function find() {
         $actividadId    = $this->request->getQuery('id');
+        $modelo_id      = $this->request->getQuery('modelo_id');
         $filtros        = $this->request->getQuery('filters');
         $condicional    = 'AND';
 
@@ -29,6 +30,9 @@ class ActividadesController extends BaseController {
         if(!empty($actividadId)) {
             $query .= "  $condicional actividad.iid = ".$actividadId;
             $condicional = 'AND';
+        }
+        if(!empty($modelo_id)) {
+            $query .= " $condicional actividad.iidmodelo = ".$modelo_id;
         }
 
         if(!empty($filtros)) {

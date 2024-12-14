@@ -20,7 +20,7 @@
                     outlined
                     v-model="plan.modeloId"
                     label="Modelo*"
-                    item-text="nombre"
+                    item-text="nombreModelo"
                     item-value="id"
                     hide-details="auto"
                     :rules="[rules.required]"

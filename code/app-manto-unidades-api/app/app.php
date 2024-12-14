@@ -5,7 +5,7 @@ use Phalcon\Mvc\Micro\Collection;
 use App\Controllers\PlanesController;
 use App\Controllers\CatalogosController;
 use App\Controllers\ActividadesController;
-use App\Controllers\CorrectivosController;
+use App\Controllers\MantenimientosController;
 use App\Controllers\EquiposCargaController;
 use App\Controllers\MantoUnidadesController;
 
@@ -82,8 +82,8 @@ $app->mount(
 
 $app->mount(
     (new Collection())
-    ->setHandler(CorrectivosController::class, true)
-    ->setPrefix('/admin/correctivos')
+    ->setHandler(MantenimientosController::class, true)
+    ->setPrefix('/admin/mantenimientos')
     ->post("/", "store")
     ->put("/", "update")
     ->delete("/{id}", "delete")

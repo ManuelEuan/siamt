@@ -9,12 +9,17 @@ export default class MantoUnidadesService extends ApiService {
     super(basePath);
   }
 
+  /***********  Catalogos  ***********/
   async getComplejidad() {
     return await this.get("/admin//complejidad");
   }
 
   async getTipoConjunto() {
     return await this.get("/admin//tipoConjunto");
+  }
+
+  async getEstatus(params = {}) {
+    return await this.get("/admin//estatus", params);
   }
 
   /***********  Actividades  ***********/
@@ -59,39 +64,83 @@ export default class MantoUnidadesService extends ApiService {
 		return await this.get(`/admin//planes/detalles/${id}`);
 	}
 
-  /***********  Mantenimientos Correctivos  ***********/
-  async getCorrectivos(params = {}) {
-		return await this.get("/admin//correctivos", params);
+  /***********  Mantenimientos Correctivos y Preventivos  ***********/
+  async getMantenimientos(params = {}) {
+		return await this.get("/admin//mantenimientos", params);
 	}
 
-  async saveCorrectivo(data) {
-    return await this.post("/admin//correctivos", data);
+  async saveMantenimiento(data) {
+    return await this.post("/admin//mantenimientos", data);
   }
 
-  async updateCorrectivo(data) {
-    return await this.put("/admin//correctivos", data);
+  async updateMantenimiento(data) {
+    return await this.put("/admin//mantenimientos", data);
   }
 
-  async deleteCorrectivos(id) {
-    return await this.delete(`/admin//correctivos/${id}`);
+  async deleteMantenimiento(id) {
+    return await this.delete(`/admin//mantenimientos/${id}`);
   }
+
+  async getPreventivos() {
+    return await [
+      { id: 1, placa : 'A-04998-Z', numeroEconomico: 'CM-28', nombreMarca: 'MERCEDES BENZ' ,modelo: 'N/A',anio: '2024', serie: '2323', Odometro: '99999', "nombreEmpresa": 'CIRCUITO METROPOLITANO S.A. DE C.V.' },
+      { id: 2, placa : 'A-05029-Z', numeroEconomico: 'CM-29', nombreMarca: 'MERCEDES BENZ' ,modelo: 'N/A',anio: '2024', serie: '2323', Odometro: '99999', "nombreEmpresa": 'CIRCUITO METROPOLITANO S.A. DE C.V.'},
+      { id: 3, placa : 'A-04998-Z', numeroEconomico: 'CM-30', nombreMarca: 'MERCEDES BENZ' ,modelo: 'N/A',anio: '2024', serie: '2323', Odometro: '99999', "nombreEmpresa": 'CIRCUITO METROPOLITANO S.A. DE C.V.'},
+      { id: 4, placa : 'A-04998-Z', numeroEconomico: 'CM-31', nombreMarca: 'MERCEDES BENZ' ,modelo: 'N/A',anio: '2024', serie: '2323', Odometro: '99999', "nombreEmpresa": 'CIRCUITO METROPOLITANO S.A. DE C.V.'}
+    ];
+  }
+
+  
 
   /***********  Api de SIAMT  ***********/
-  async getUnidades() {
+  async getUnidades(params = {}) {
+    console.log(params);
     return await [
-          { id: 1, placa : '234', nume_econ: '123456', marca: 'Irizar' ,modelo: 'IETRAM',anio: '2024', serie: '2323', Odometro: '99999' },
-          { id: 2, placa : '123456', nume_econ: 'ZASDF', marca: 'Irizar' ,modelo: 'IETRAM',anio: '2024', serie: '2323', Odometro: '99999' },
-          { id: 3, placa : '876543', nume_econ: 'QWERTY', marca: 'Irizar' ,modelo: 'IETRAM',anio: '2024', serie: '2323', Odometro: '99999' },
-          { id: 4, placa : '0csad78', nume_econ: 'OIUYTR', marca: 'Irizar' ,modelo: 'IETRAM',anio: '2024', serie: '2323', Odometro: '99999' }
-        ];
-    //return await this.delete(`/admin//correctivos/${id}`);
+      { id: 1, placa : 'A-04998-Z', numeroEconomico: 'CM-28', nombreMarca: 'MERCEDES BENZ' ,modelo: 'N/A',anio: '2024', serie: '2323', Odometro: '99999', "nombreEmpresa": 'CIRCUITO METROPOLITANO S.A. DE C.V.' },
+      { id: 2, placa : 'A-05029-Z', numeroEconomico: 'CM-29', nombreMarca: 'MERCEDES BENZ' ,modelo: 'N/A',anio: '2024', serie: '2323', Odometro: '99999', "nombreEmpresa": 'CIRCUITO METROPOLITANO S.A. DE C.V.'},
+      { id: 3, placa : 'A-04998-Z', numeroEconomico: 'CM-30', nombreMarca: 'MERCEDES BENZ' ,modelo: 'N/A',anio: '2024', serie: '2323', Odometro: '99999', "nombreEmpresa": 'CIRCUITO METROPOLITANO S.A. DE C.V.'},
+      { id: 4, placa : 'A-04998-Z', numeroEconomico: 'CM-31', nombreMarca: 'MERCEDES BENZ' ,modelo: 'N/A',anio: '2024', serie: '2323', Odometro: '99999', "nombreEmpresa": 'CIRCUITO METROPOLITANO S.A. DE C.V.'}
+    ];
   }
 
-  async getEstatus(params = {}) {
-    return await this.get("/admin//estatus", params);
+  async getUnidad(id){
+    let unidades = [
+      { id: 1, placa : 'A-04998-Z', numeroEconomico: 'CM-28', nombreMarca: 'MERCEDES BENZ' ,modelo: 'N/A',anio: '2024', serie: '2323', Odometro: '99999', "nombreEmpresa": 'CIRCUITO METROPOLITANO S.A. DE C.V.' },
+      { id: 2, placa : 'A-05029-Z', numeroEconomico: 'CM-29', nombreMarca: 'MERCEDES BENZ' ,modelo: 'N/A',anio: '2024', serie: '2323', Odometro: '99999', "nombreEmpresa": 'CIRCUITO METROPOLITANO S.A. DE C.V.'},
+      { id: 3, placa : 'A-04998-Z', numeroEconomico: 'CM-30', nombreMarca: 'MERCEDES BENZ' ,modelo: 'N/A',anio: '2024', serie: '2323', Odometro: '99999', "nombreEmpresa": 'CIRCUITO METROPOLITANO S.A. DE C.V.'},
+      { id: 4, placa : 'A-04998-Z', numeroEconomico: 'CM-31', nombreMarca: 'MERCEDES BENZ' ,modelo: 'N/A',anio: '2024', serie: '2323', Odometro: '99999', "nombreEmpresa": 'CIRCUITO METROPOLITANO S.A. DE C.V.'}
+    ]
+
+    const value  = unidades.filter(i => i.id == id);
+    return await value;
+  }
+  async getEmpresas() {
+		return await [
+			{ id: 1, nombre : 'CIRCUITO METROPOLITANO S.A. DE C.V."' },
+			{ id: 2, nombre : 'LINEAS URBE' },
+			{ id: 3, nombre : 'MAYAN BUS CO' },
+			{ id: 4, nombre : 'MINI JARDINES DE MERIDA' },
+			{ id: 5, nombre : 'MINIBUSES DEL MAYAB'}
+		];
+  }
+
+  async getMarcas() {
+		return await [
+			{ id: 1, nombre : 'AYCON' },
+			{ id: 2, nombre : 'BECCAR' },
+			{ id: 3, nombre : 'DINA' },
+			{ id: 4, nombre : 'IRIZAR' },
+			{ id: 5, nombre : 'JAC'}
+		];
   }
 
   async getModelos() {
-    return await [{ id: 1, nombre : 'Chevrolet' },{id:2, nombre : 'Nissan'},{id:3, nombre : 'Toyota'},{id:4, nombre : 'Mazda'}];
+		return await [
+			{ id: 1, nombreModelo : 'N/A', idMarca: 1, nombreMarca: 'MERCEDES BENZ' },
+			{ id: 2, nombreModelo : 'N/A', idMarca: 2, nombreMarca: 'VOLVO' },
+			{ id: 3, nombreModelo : 'N/A', idMarca: 3, nombreMarca: 'YUTONG' },
+			{ id: 4, nombreModelo : 'N/A', idMarca: 4, nombreMarca: 'MARCO POL' },
+			{ id: 5, nombreModelo : 'N/A', idMarca: 5, nombreMarca: 'MERCEDEZ' }
+		];
   }
 }

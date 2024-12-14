@@ -95,6 +95,13 @@ const state = {
   correctivosFilters: {},
   correctivosTotalPages: 0,
   correctivosTotalItems: 0,
+
+    // mantenimiento/Actividades filters and pagination
+    preventivos: [],
+    preventivosData: {},
+    preventivosFilters: {},
+    preventivosTotalPages: 0,
+    preventivosTotalItems: 0,
 }
 
 export default {

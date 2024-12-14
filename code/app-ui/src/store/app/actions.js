@@ -129,9 +129,6 @@ const getActividades = async ({ state, commit }, { data, filters }) => {
       filters: state.actividadesFilters,
     });
 
-    // Verifica la respuesta
-    console.log("Respuesta completa del servicio:", response);
-
     const actividades = response.items || []; // Datos de actividades
     const totalPages = response.totalPages || 1; // Total de páginas
     const totalItems = response.totalItems || actividades.length; // Total de elementos
@@ -172,14 +169,13 @@ const getPlanes = async ({ state, commit }, { data, filters }) => {
   }
 };
 
-const getCorrectivos = async ({ state, commit }, { data, filters }) => {
+const getMantenimientos = async ({ state, commit }, { data, filters }) => {
   if (data) commit('setCorrectivosData', data);
-  if (filters) console.log("Aplicando filtros:", filters);
+  if (filters) commit('setCorrectivosFilters', filters);
 
   try {
-    const response = await services.mantounidades().getCorrectivos({
-      /* ...state.correctivos, */
-      /* f */
+    const response = await services.mantounidades().getMantenimientos({
+      ...state.correctivosData,
       filters: state.correctivosFilters,
     });
 
@@ -198,6 +194,61 @@ const getCorrectivos = async ({ state, commit }, { data, filters }) => {
   }
 };
 
+const getPreventivos = async ({commit }, { data, filters }) => {
+  if (data) commit('setCorrectivosData', data);
+  if (filters) console.log("Aplicando filtros:", filters);
+
+  try {
+    const simulatedResponse = {
+      items: [
+        {
+          id: 2,
+          marca: "Marca Y",
+          modelo: "Modelo 456",
+          serie: "SERIE67890",
+          placa: "XYZ-5678",
+          año: 2018,
+          ultimo: "2024-11-20",
+          km_actual: 2000,
+          sig_plan: "Prueba de plan de mantenimiento",
+          acciones: "Ajuste y cambio de componentes principales",
+          siguiente: '100 Km'
+        },
+        {
+          id: 3,
+          marca: "Marca Z",
+          modelo: "Modelo 789",
+          serie: "SERIE11223",
+          placa: "LMN-9101",
+          año: 2022,
+          ultimo: "2024-11-30",
+          km_actual: 800,
+          sig_plan: "Prueba de plan de mantenimiento",
+          acciones: "Limpieza de componentes y ajustes menores",
+          siguiente: '100 Km',
+        },
+      ],
+      totalPages: 1,
+      totalItems: 2,
+    };
+
+    console.log("Simulación de respuesta:", simulatedResponse);
+
+    // Usa la simulación como respuesta
+    const preventivos = simulatedResponse.items || [];
+    const totalPages = simulatedResponse.totalPages || 1;
+    const totalItems = simulatedResponse.totalItems || preventivos.length;
+
+    // Mutaciones para Vuex
+    commit('setPreventivos', preventivos);
+    commit('setPreventivosTotalPages', totalPages);
+    commit('setPreventivosTotalItems', totalItems);
+
+  } catch (error) {
+    console.error('Error fetching preventivos:', error);
+  }
+};
+
 export default {
   showToast,
   showError,
@@ -210,5 +261,6 @@ export default {
   getTickets,
   getActividades,
   getPlanes,
-  getCorrectivos
+  getMantenimientos,
+  getPreventivos
 }

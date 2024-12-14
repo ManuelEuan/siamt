@@ -10,7 +10,7 @@ use App\Library\Http\Exceptions\ValidatorBoomException;
 use App\Services\Validator as ServicesValidator;
 use App\Services\Varios;
 
-class CorrectivosController extends BaseController {
+class MantenimientosController extends BaseController {
 
     /**
      * @var array
@@ -18,29 +18,42 @@ class CorrectivosController extends BaseController {
     protected $errors;
 
     public function find() {
-        $correctivoId    = $this->request->getQuery('id');
+        $correctivoId   = $this->request->getQuery('id');
         $filtros        = $this->request->getQuery('filters');
+        $tipo           = $this->request->getQuery('tipo');
+        $unidadId       = $this->request->getQuery('unidadId');
         $condicional    = 'AND';
 
-        $query = 'SELECT correctivo.*, estatus.txtdescripcion as estatus
-                    FROM comun.tbl_mantenimiento_correctivo as correctivo
-                    inner join comun.tbl_cat_estatus estatus on correctivo.iidestatus = estatus.iid
-                    WHERE correctivo.bactivo = true  ';
+        $query = 'SELECT mantenimiento.*, estatus.txtdescripcion as estatus
+                    FROM comun.tbl_mantenimientos as mantenimiento
+                    inner join comun.tbl_cat_estatus estatus on mantenimiento.iidestatus = estatus.iid
+                    WHERE mantenimiento.bactivo = true ';
+
         if(!empty($correctivoId)) {
-            $query .= "  $condicional correctivo.iid = ".$correctivoId;
+            $query .= "  $condicional mantenimiento.iid = ".$correctivoId;
+            $condicional = 'AND';
+        }
+        
+        if($tipo != '' ) {
+            $query .= " $condicional mantenimiento.txttipo = '".$tipo."'";
+            $condicional = 'AND';
+        }
+
+        if($unidadId != '' ) {
+            $query .= " $condicional mantenimiento.iidunidad = '".$unidadId."'";
             $condicional = 'AND';
         }
 
         if(!empty($filtros)) {
             $valores = json_decode($filtros);
-
             if($valores->estatus_id != '' ) {
-                $query .= " $condicional correctivo.iidestatus = ".$valores->estatus_id;
+                return 888;
+                $query .= " $condicional mantenimiento.iidestatus = ".$valores->estatus_id;
                 $condicional = 'AND';
             }
         }
 
-        $query.= Varios::ordering($this->request, 'tbl_mantenimiento_correctivo');
+        $query.= Varios::ordering($this->request, 'mantenimiento');
         if(empty($this->request->getQuery('paginate')) && $this->request->getQuery('paginate') == 'false') {
             $items = GenericSQL::getBySQL($query);
             return array('items' => $items);    
@@ -74,9 +87,9 @@ class CorrectivosController extends BaseController {
 
         try {
             $this->validate('add');
-            $query = "INSERT INTO comun.tbl_mantenimiento_correctivo 
-                        (iidestatus,iidunidad,dtfecha_ingreso,dtfecha_salida,txtlugar,fcosto_total,txtdescripcion,txtcomentarios,txtarchivo) 
-                        VALUES (:iidestatus,:iidunidad,:dtfecha_ingreso,:dtfecha_salida,:txtlugar,:fcosto_total,:txtdescripcion,:txtcomentarios,:txtarchivo)";
+            $query = "INSERT INTO comun.tbl_mantenimientos 
+                        (iidestatus,iidunidad,dtfecha_ingreso,dtfecha_salida,txtlugar,fcosto_total,txtdescripcion,txtcomentarios,txttipo) 
+                        VALUES (:iidestatus,:iidunidad,:dtfecha_ingreso,:dtfecha_salida,:txtlugar,:fcosto_total,:txtdescripcion,:txtcomentarios,:txttipo)";
 
             Db::execute($query, $this->getParams());
         } catch (Exception $ex) {
@@ -93,12 +106,13 @@ class CorrectivosController extends BaseController {
 
         try {
             $this->validate('update');
-            $query = "UPDATE comun.tbl_mantenimiento_correctivo SET
+            $query = "UPDATE comun.tbl_mantenimientos SET
                         iidestatus      = :iidestatus,
                         iidunidad       = :iidunidad,
                         dtfecha_ingreso = :dtfecha_ingreso,
                         dtfecha_salida  = :dtfecha_salida,
                         txtlugar        = :txtlugar,
+                        txttipo         = :txttipo,
                         fcosto_total    = :fcosto_total,
                         txtdescripcion  = :txtdescripcion,
                         txtcomentarios  = :txtcomentarios,
@@ -119,7 +133,7 @@ class CorrectivosController extends BaseController {
 
     public function delete($id) {
         $params = array('iid' => $id);
-        $sql = "UPDATE comun.tbl_mantenimiento_correctivo SET bactivo =false, dtfecha_modificacion=now() WHERE iid=:iid";
+        $sql = "UPDATE comun.tbl_mantenimientos SET bactivo =false, dtfecha_modificacion=now() WHERE iid=:iid";
         Db::execute($sql, $params);
         return array('message' => "Operacion exitosa."); 
     }
@@ -132,6 +146,7 @@ class CorrectivosController extends BaseController {
             'iidunidad'     => $data->unidadId,
             'dtfecha_ingreso' => $data->fecha_ingreso,
             'dtfecha_salida'  => $data->fecha_salida ?? null,
+            'txttipo'       => $data->tipo,
             'txtlugar'      => $data->lugar,
             'fcosto_total'  => $data->costo_total,
             'txtdescripcion'=> $data->descripcion ?? null,
@@ -147,6 +162,7 @@ class CorrectivosController extends BaseController {
             'estatusId' => 'required|numeric|exists:tbl_cat_estatus,iid',
             'unidadId'  => 'required|numeric',
             'lugar'     => 'required',
+            'tipo'      => 'required',
             'fecha_ingreso' => 'required',
             'costo_total'   => 'required',
         ];

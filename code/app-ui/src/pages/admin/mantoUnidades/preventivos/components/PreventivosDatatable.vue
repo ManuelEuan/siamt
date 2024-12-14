@@ -1,14 +1,14 @@
 <template>
   <div class="wrapper">
     
-    <correctivos-datatable-dialogs ref="dialogs" />
+    <preventivos-datatable-dialogs ref="dialogs" />
     <v-data-table
       class="elevation-1"
       loading-text="Cargando información"
       :headers="headers"
-      :items="correctivos"
-      :page-count="correctivosTotalPages"
-      :server-items-length="correctivosTotalItems"
+      :items="preventivos"
+      :page-count="preventivosTotalPages"
+      :server-items-length="preventivosTotalItems"
       :options.sync="options"
       :loading="loadingTable"
     >
@@ -30,7 +30,7 @@
               <v-icon small> mdi-eye </v-icon>
             </v-btn>
           </template>
-          <span>Ver Correctivo</span>
+          <span>Historial</span>
         </v-tooltip>
 
         <v-tooltip bottom>
@@ -40,60 +40,43 @@
               v-on="on" 
               icon 
               small
-              @click="actionsHandler(item, 'edit')"
+              @click="actionsHandler(item, 'add')"
             >
-              <v-icon small> mdi-square-edit-outline </v-icon>
+              <v-icon small> mdi-plus-box-outline </v-icon>
             </v-btn>
           </template>
-          <span>Editar Correctivo</span>
+          <span>Ingresar Vehiculo</span>
         </v-tooltip>
-
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              v-bind="attrs" 
-              v-on="on" 
-              icon 
-              small
-              @click="actionsHandler(item, 'delete')"
-            >
-              <v-icon small v-show="item.bactivo"> mdi-delete </v-icon>
-            </v-btn>
-          </template>
-          <span>Eliminar Correctivo</span>
-        </v-tooltip>
-
       </template>
     </v-data-table>
   </div>
 </template>
 
 <script>
-import CorrectivosDatatableDialogs from "@/pages/admin/mantoUnidades/correctivos/components/CorrectivosDatatableDialogs";
+import PreventivosDatatableDialogs from "@/pages/admin/mantoUnidades/preventivos/components/PreventivosDatatableDialogs";
 import { mapActions, mapState } from "vuex";
 
 export default {
-  name: "CorrectivosDatatable",
+  name: "PreventivosDatatable",
   components: {
-    CorrectivosDatatableDialogs,
+    PreventivosDatatableDialogs,
   },
   data() {
     return {
       options: {
-        correctivos: [],
+        preventivos: [],
         page: 1,
         itemsPerPage: 10,
         sortBy: ['iid'],//nombre
         sortDesc: [false],
         multiSort: true,
         mustSort: false,
-        tipo:'correctivo'
       },
       loadingTable: true,
       headers: [
         {
           text: "ID",
-          value: "iid",
+          value: "id",
           align: "center",
           class: "font-weight-bold",
         },
@@ -101,58 +84,53 @@ export default {
           text: "Marca",
           value: "marca",
           align: "center",
-          sortable: false,
           class: "font-weight-bold",
         },
         {
           text: "Modelo",
           value: "modelo",
           align: "center",
-          sortable: false,
           class: "font-weight-bold",
         },
         {
           text: "Num Comercial",
           value: "serie",
           align: "center",
-          sortable: false,
           class: "font-weight-bold",
         },
         {
           text: "Placa",
           value: "placa",
           align: "center",
-          sortable: false,
           class: "font-weight-bold",
         },
         {
           text: "Año",
           value: "año",
           align: "center",
-          sortable: false,
           class: "font-weight-bold",
         },
         {
-          text: "Fecha Ingreso",
-          value: "dtfecha_ingreso",
+          text: "Km Actual",
+          value: "km_actual",
           align: "center",
           class: "font-weight-bold",
         },
         {
-          text: "Fecha Egreso",
-          value: "dtfecha_salida",
+          text: "Último Mantenimiento",
+          value: "ultimo",
           align: "center",
           class: "font-weight-bold",
         },
         {
-          text: "Costo",
-          value: "fcosto_total",
+          text: "Sig Mantenimiento",
+          value: "siguiente",
           align: "center",
           class: "font-weight-bold",
         },
         {
-          text: "Estatus",
-          value: "estatus",
+          text: "Sig Plan",
+          value: "sig_plan",
           align: "center",
           class: "font-weight-bold",
         },
@@ -168,23 +146,22 @@ export default {
     };
   },
   computed: {
-    ...mapState('app', ['correctivos', 'correctivosTotalPages', 'correctivosTotalItems']),
+    ...mapState('app', ['preventivos', 'preventivosTotalPages', 'preventivosTotalItems']),
   },
   methods: {
-    ...mapActions('app', ['getMantenimientos']),
-    async loadCorrectivosTable() {
-      const { page, itemsPerPage, sortBy, sortDesc, tipo } = this.options;
-      const data = { page, itemsPerPage, sortBy, sortDesc, tipo };
-      this.getMantenimientos({ data });
+    ...mapActions('app', ['getPreventivos']),
+    async loadpreventivosTable() {
+      const { page, itemsPerPage, sortBy, sortDesc } = this.options;
+      const data = { page, itemsPerPage, sortBy, sortDesc }; 
+      this.getPreventivos({ data });
       this.loadingTable = false;
     },
-    actionsHandler(correctivo, action) {
-      this.$refs.dialogs.correctivo = correctivo;
+    actionsHandler(preventivo, action) {
+      this.$refs.dialogs.preventivo = preventivo;
 
       switch (action) {
-        case 'edit': this.$router.push(`/mantenimiento/correctivos/${correctivo.iid}/edit`); break;
-        case 'view': this.$refs.dialogs.viewCorrectivo('view'); break;
-        case 'delete': this.$refs.dialogs.viewCorrectivo('delete'); break;
+        case 'add': this.$router.push(`/mantenimiento/preventivos/${preventivo.id}/new`); break;
+        case 'view': this.$refs.dialogs.viewPreventivo('view'); break;
         default: this.$refs.dialogs.show[action] = true;
       }
     },
@@ -192,7 +169,7 @@ export default {
   watch: {
     options: {
       handler() {
-        this.loadCorrectivosTable();
+        this.loadpreventivosTable();
       },
       deep: true,
     },

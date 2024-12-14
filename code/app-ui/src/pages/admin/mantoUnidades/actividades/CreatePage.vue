@@ -37,7 +37,7 @@
                                                 label="Modelo"
                                                 :rules="[rules.required]"
                                                 :items="modelos"
-                                                item-text="nombre"
+                                                item-text="nombreModelo"
                                                 item-value="id"
                                                 hide-details="auto"
                                                 small-chips

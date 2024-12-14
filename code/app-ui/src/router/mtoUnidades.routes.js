@@ -31,16 +31,16 @@ export default [
       {
         path: "/mantenimiento/preventivos",
         name: "preventivos",
-        // component: () => import(/* webpackChunkName: "preventivos" */ "@/pages/admin/mantoUnidades/preventivos/IndexPage.vue"),
+        component: () => import(/* webpackChunkName: "preventivos" */ "@/pages/admin/mantoUnidades/preventivos/IndexPage.vue"),
         meta: {
           layout: "default",
           code: "mto_pre",
         },
       },
       {
-        path: "/mantenimiento/preventivos/new",
+        path: "/mantenimiento/preventivos/:id/new",
         name: "preventivos-new",
-        // component: () => import(/* webpackChunkName: "preventivos-edit" */ "@/pages/admin/mantoUnidades/preventivos/CreatePage.vue"),
+        component: () => import(/* webpackChunkName: "preventivos-new" */ "@/pages/admin/mantoUnidades/preventivos/CreatePage.vue"),
         meta: {
           layout: "default",
           code: "nus",
@@ -50,7 +50,7 @@ export default [
       {
         path: "/mantenimiento/preventivos/:id/edit",
         name: "preventivos-edit",
-        // component: () => import(/* webpackChunkName: "preventivos-edit" */ "@/pages/admin/mantoUnidades/preventivos/EditPage.vue"),
+        component: () => import(/* webpackChunkName: "preventivos-edit" */ "@/pages/admin/mantoUnidades/preventivos/CreatePage.vue"),
         meta: {
           layout: "default",
           code: "tus",

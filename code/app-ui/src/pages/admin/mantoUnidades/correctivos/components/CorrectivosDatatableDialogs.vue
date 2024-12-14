@@ -75,7 +75,7 @@
         </v-card-title>
         <v-divider></v-divider>
         <v-card-text class="text-body-1 py-2">
-          ¿Est&aacute;s seguro de que deseas eliminar esta correctivo?
+          ¿Est&aacute;s seguro de que deseas eliminar este registro?
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions class="py-2">
@@ -116,11 +116,11 @@ export default {
           const value  = this.unidades.filter(item => item.id == this.correctivo.iidunidad);
 
           this.datos = [
-          { titulo: 'Marca', valor: value[0].marca },
+          { titulo: 'Marca', valor: value[0].nombreMarca },
           { titulo: 'Modelo', valor: value[0].modelo },
           { titulo: 'Serie', valor: value[0].serie },
           { titulo: 'Placa', valor: value[0].placa },
-          { titulo: 'Número Economico', valor: value[0].nume_econ },
+          { titulo: 'Número Economico', valor: value[0].numeroEconomico },
           { titulo: 'Año', valor: 2020 },
           { titulo: 'Fecha de Ingreso', valor: this.correctivo.dtfecha_ingreso },
           { titulo: 'Fecha de Egreso', valor: this.correctivo.dtfecha_salida },
@@ -143,7 +143,7 @@ export default {
     },
     async deleteCorrectivo() {
       try {
-        const { message } = await services.mantounidades().deleteCorrectivos(this.correctivo.iid);
+        const { message } = await services.mantounidades().deleteMantenimiento(this.correctivo.iid);
         this.$parent.loadCorrectivosTable();
         this.showSuccess(message);
 

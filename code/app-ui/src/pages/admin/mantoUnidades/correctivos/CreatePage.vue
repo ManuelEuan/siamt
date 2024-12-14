@@ -4,7 +4,7 @@
             <v-col cols="12" class="pa-0">
                 <v-card flat>
                     <v-toolbar>
-                        <v-toolbar-title>{{ createMode ? "Nuevo" : "Editar" }} Correctivo</v-toolbar-title>
+                        <v-toolbar-title>{{ createMode ? "Nuevo" : "Editar" }} Mantenimiento Correctivo</v-toolbar-title>
                     </v-toolbar>
                 </v-card>
             </v-col>
@@ -15,7 +15,7 @@
                             <v-row>
                                 <v-col cols="6" md="3">
                                     <v-autocomplete label="Unidades" :items="unidades" :rules="[rules.required]" hide-details="auto" clearable dense outlined 
-                                        v-model="correctivo.unidadId" item-text="nume_econ" item-value="id" @change="infoUnidad" ></v-autocomplete>
+                                        v-model="correctivo.unidadId" item-text="numeroEconomico" item-value="id" @change="infoUnidad" ></v-autocomplete>
                                 </v-col>
 
                                 <v-col cols="6" md="3">
@@ -23,7 +23,7 @@
                                 </v-col>
 
                                 <v-col cols="6" md="3">
-                                    <v-text-field v-model="correctivo.numero" label="Num Económico" disabled hide-details="auto" clearable dense outlined />
+                                    <v-text-field v-model="correctivo.numero" label="Número Económico" disabled hide-details="auto" clearable dense outlined />
                                 </v-col>
 
                                 <v-col cols="6" md="3">
@@ -139,7 +139,7 @@ export default {
                 costo_total: "",
                 descripcion: "",
                 comentarios: "",
-
+                tipo: 'correctivo',
                 fechaIngresoMenu: false,
                 fechaSalidaMenu: false
             },
@@ -160,8 +160,8 @@ export default {
 
             if(id != null){
                 this.correctivo.placa   = value[0].placa;
-                this.correctivo.numero  = value[0].nume_econ;
-                this.correctivo.marca   = value[0].marca;
+                this.correctivo.numero  = value[0].numeroEconomico;
+                this.correctivo.marca   = value[0].nombreMarca;
                 this.correctivo.modelo  = value[0].modelo;
                 this.correctivo.anio    = value[0].anio;
                 this.correctivo.serie   = value[0].serie;
@@ -171,7 +171,7 @@ export default {
         async setEditMode() {
             try {
                 const { id } = this.$route.params;
-                const value = await services.mantounidades().getCorrectivos({ id });
+                const value = await services.mantounidades().getMantenimientos({ id });
                 
                 this.correctivo.id          = value.items[0].iid;
                 this.correctivo.estatusId   = value.items[0].iidestatus;
@@ -195,8 +195,8 @@ export default {
             try {
                 const { message } = await (
                     this.createMode
-                        ? services.mantounidades().saveCorrectivo(this.correctivo)
-                        : services.mantounidades().updateCorrectivo(this.correctivo)
+                        ? services.mantounidades().saveMantenimiento(this.correctivo)
+                        : services.mantounidades().updateMantenimiento(this.correctivo)
                 );
 
                 this.showSuccess(message);
@@ -213,7 +213,6 @@ export default {
         this.estatus    = await services.mantounidades().getEstatus({tipo:'correctivo'});
         this.unidades   = await services.mantounidades().getUnidades();
         if (!this.createMode) await this.setEditMode();
-
     },
 };
 </script>

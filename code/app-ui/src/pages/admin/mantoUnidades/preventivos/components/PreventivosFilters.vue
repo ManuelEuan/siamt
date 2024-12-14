@@ -1,16 +1,8 @@
 <template>
     <v-card flat>
         <v-toolbar>
-            <v-toolbar-title>Mantenimientos Correctivos</v-toolbar-title>
+            <v-toolbar-title>Mantenimientos Preventivos</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-tooltip top>
-                <template v-slot:activator="{ on, attrs }">
-                    <v-btn color="primary" class="me-1" @click="newCorrectivo" v-bind="attrs" v-on="on">
-                        <v-icon>mdi-format-list-bulleted</v-icon>
-                    </v-btn>
-                </template>
-                <span>Agregar correctivo</span>
-            </v-tooltip>
             <v-divider vertical class="mx-2"></v-divider>
             <v-badge overlap :content="activeFilters" :value="activeFilters">
                 <v-dialog v-model="dialog" width="600">
@@ -25,29 +17,27 @@
                         <v-divider></v-divider>
                         <v-card-text>
                             <v-row dense>
+                             
                                 <v-col cols="12" md="6">
-                                    <v-autocomplete label="Empresa" :items="empresas"  hide-details="auto" clearable dense outlined 
-                                        v-model="filters.empresa_id" item-text="nombre" item-value="id" ></v-autocomplete>
+                                    <v-text-field v-model="filters.empresa_id" label="Empresa" hide-details="auto" clearable dense outlined></v-text-field>
+                                </v-col>
+                                <v-col cols="12" md="6">
+                                    <v-text-field v-model="filters.marca_id" label="Marca" hide-details="auto" clearable dense outlined></v-text-field>
                                 </v-col>
 
                                 <v-col cols="12" md="6">
-                                    <v-autocomplete label="Marcas" :items="marcas"  hide-details="auto" clearable dense outlined 
-                                        v-model="filters.marca_id" item-text="nombre" item-value="id" ></v-autocomplete>
+                                    <v-text-field v-model="filters.modelo_id" label="Modelo" hide-details="auto" clearable dense outlined></v-text-field>
                                 </v-col>
 
                                 <v-col cols="12" md="6">
-                                    <v-autocomplete label="Modelos" :items="modelos"  hide-details="auto" clearable dense outlined 
-                                        v-model="filters.modelo_id" item-text="nombreModelo" item-value="id" ></v-autocomplete>
+                                    <v-text-field v-model="filters.unidad_id" label="Serie" hide-details="auto" clearable dense outlined></v-text-field>
                                 </v-col>
-                                
+
                                 <v-col cols="6">
                                     <v-autocomplete label="Estatus" :items="estatus.items" hide-details="auto" clearable dense outlined 
                                         v-model="filters.estatus_id" item-text="txtdescripcion" item-value="iid" ></v-autocomplete>
                                 </v-col>
-
-                                <v-col cols="12" md="6">
-                                    <v-text-field v-model="filters.numero_economico" label="Número Economico" hide-details="auto" clearable dense outlined></v-text-field>
-                                </v-col>
+                                                           
                             </v-row>
                         </v-card-text>
 
@@ -76,7 +66,7 @@ import services from '@/services';
 import { mapActions, mapState } from 'vuex';
 
 export default {
-    name: "CorrectivosFilters",
+    name: "PreventivosFilters",
     data() {
         return {
             dialog: false,
@@ -89,14 +79,14 @@ export default {
                 marca_id: '',
                 modelo_id: '',
                 estatus_id: '',
-                numero_economico: ''    
+                unidad_id: ''              
             },
         };
     },
     computed: {
-        ...mapState('app', ['correctivosFilters']),
+        ...mapState('app', ['preventivosFilters']),
         activeFilters() {
-            let length = -1;
+            let length = 0;
             Object.keys(this.filters).forEach((key) => {
                 if (this.filters[key] !== '' && key !== 'fechaIngresoMenu') {
                     length++;
@@ -113,7 +103,7 @@ export default {
                 marca_id: '',
                 modelo_id: '',
                 estatus_id: '',
-                numero_economico: ''
+                unidad_id: ''     
             };
         },
         async applyFilters() {
@@ -126,18 +116,12 @@ export default {
             this.cleanFilters();
             this.dialog = false;
         },
-        newCorrectivo() {
-            this.$router.push("/mantenimiento/correctivos/new");
-        },
-        getMarcas(item) {
-            console.log(item);
-        }
     },
     async mounted() {
-        this.empresas   = await services.mantounidades().getEmpresas();
-        this.marcas     = await services.mantounidades().getMarcas();
+        this.empresas   = await services.mantounidades().getComplejidad();
+        this.marcas     = [{ valor: 'vehiculo', descripcion : 'Vehículos' },{valor:'equipo_de_carga', descripcion : 'Equipos de carga'}];
         this.modelos    = await services.mantounidades().getModelos();
-        this.estatus    = await services.mantounidades().getEstatus({tipo:'correctivo'});
+        this.estatus    = await services.mantounidades().getEstatus({tipo:'preventivo'});
     },
 };
 </script>

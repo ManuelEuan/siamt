@@ -235,10 +235,32 @@ export default {
   setCorrectivosData: (state, data) => {
     state.correctivosData = { ...data };
   },
+  setCorrectivosFilters: (state, filters) => {
+    state.correctivosFilters = { ...filters };
+  },
   setCorrectivosTotalPages: (state, totalPages) => {
     state.correctivosTotalPages = totalPages
   },
   setCorrectivosTotalItems: (state, totalItems) => {
     state.correctivosTotalItems = totalItems
   },
+
+  /**
+  * mantenimiento/preventivos Filters and Pagination
+  */
+    setPreventivos: (state, preventivos) => {
+      state.preventivos = preventivos
+    },
+    setPreventivosData: (state, data) => {
+      state.preventivosData = { ...data };
+    },
+    setPreventivosFilters: (state, filters) => {
+      state.preventivosFilters = { ...filters };
+    },
+    setPreventivosTotalPages: (state, totalPages) => {
+      state.preventivosTotalPages = totalPages
+    },
+    setPreventivosTotalItems: (state, totalItems) => {
+      state.preventivosTotalItems = totalItems
+    },
 }

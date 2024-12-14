@@ -99,6 +99,7 @@ export default {
   data() {
     return {
       datos:[],
+      modelos: [],
       show: {
         view: false,
         delete: false,
@@ -111,9 +112,10 @@ export default {
     ...mapActions('app', ['showError', 'showSuccess']),
     async viewActividad() {
       try {
+        const value  = this.modelos.filter(item => item.id == this.actividad.iidmodelo);
         this.datos = [
           { titulo:'Dirigido A:', valor: this.actividad.vdirigido_a == 'vehiculo' ? 'Vehículos' : 'Equipos de carga' },
-          { titulo: 'Modelo', valor: 'Pendiente'  },
+          { titulo: 'Modelo', valor: value[0].nombreModelo },
           { titulo: 'Tipo de cojunto', valor: this.actividad.conjunto  },
           { titulo: 'Complejidad', valor: this.actividad.complejidad  },
           { titulo: 'Clave', valor: this.actividad.vclave  },
@@ -154,5 +156,8 @@ export default {
       this.$refs.form.reset();
     },
   },
+  async mounted() {
+        this.modelos = await services.mantounidades().getModelos();
+    },
 };
 </script>

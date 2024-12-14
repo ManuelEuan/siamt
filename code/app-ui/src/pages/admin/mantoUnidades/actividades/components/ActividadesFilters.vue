@@ -43,7 +43,7 @@
                                 </v-col>
 
                                 <v-col cols="12" md="6">
-                                    <v-select v-model="filters.modelo_id" label="Modelo" :items="modelos" item-text="nombre" item-value="id" hide-details clearable outlined dense>
+                                    <v-select v-model="filters.modelo_id" label="Modelo" :items="modelos" item-text="nombreModelo" item-value="id" hide-details clearable outlined dense>
                                         <template v-slot:prepend-inner>
                                             <div class="d-flex align-center" style="height: 25px;">
                                                 <v-icon size="medium">

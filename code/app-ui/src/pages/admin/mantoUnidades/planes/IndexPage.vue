@@ -132,6 +132,7 @@
         components: {},
         data() {
             return {
+                modelos: [],
                 options: {
                     planes: [],
                     page: 1,
@@ -228,9 +229,10 @@
             async view(item) {
                 try {
                     this.tituloModal = 'ver informacion';
+                    const value  = this.modelos.filter(i => i.id == item.iidmodelo);
                     this.datos = [
                         { titulo: 'Nombre', valor: item.vnombre  },
-                        { titulo: 'Modelo', valor: 'Pendiente'  },
+                        { titulo: 'Modelo', valor: value[0].nombreModelo  },
                         { titulo: 'Cliclo', valor: item.iciclo },
                         { titulo: 'Meses', valor: item.imeses    },
                     ];
@@ -265,6 +267,9 @@
                 },
                 deep: true,
             },
+        },
+        async mounted() {
+            this.modelos = await services.mantounidades().getModelos();
         },
     }
 </script>
