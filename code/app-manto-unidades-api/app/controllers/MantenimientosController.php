@@ -47,7 +47,6 @@ class MantenimientosController extends BaseController {
         if(!empty($filtros)) {
             $valores = json_decode($filtros);
             if($valores->estatus_id != '' ) {
-                return 888;
                 $query .= " $condicional mantenimiento.iidestatus = ".$valores->estatus_id;
                 $condicional = 'AND';
             }
