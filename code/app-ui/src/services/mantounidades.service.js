@@ -81,6 +81,10 @@ export default class MantoUnidadesService extends ApiService {
     return await this.delete(`/admin//mantenimientos/${id}`);
   }
 
+  async uploadFactura(data) {
+    return await this.post("/admin//mantenimientos/upload/factura", data);
+  }
+
   async getPreventivos() {
     return await [
       { id: 1, placa : 'A-04998-Z', numeroEconomico: 'CM-28', nombreMarca: 'MERCEDES BENZ' ,modelo: 'N/A',anio: '2024', serie: '2323', Odometro: '99999', "nombreEmpresa": 'CIRCUITO METROPOLITANO S.A. DE C.V.' },
@@ -90,7 +94,7 @@ export default class MantoUnidadesService extends ApiService {
     ];
   }
 
-  
+
 
   /***********  Api de SIAMT  ***********/
   async getUnidades(params = {}) {
