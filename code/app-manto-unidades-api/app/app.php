@@ -88,5 +88,6 @@ $app->mount(
     ->put("/", "update")
     ->delete("/{id}", "delete")
     ->get("/", "find")
+    ->post("/upload/factura", "uploadFactura")
 );
 

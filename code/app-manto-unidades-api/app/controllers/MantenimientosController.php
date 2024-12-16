@@ -81,6 +81,7 @@ class MantenimientosController extends BaseController {
     }
 
     public function store() {
+        $id         = 0;
         $statusCode = 200;
         $message    = 'Operacion exitosa';
 
@@ -90,13 +91,13 @@ class MantenimientosController extends BaseController {
                         (iidestatus,iidunidad,dtfecha_ingreso,dtfecha_salida,txtlugar,fcosto_total,txtdescripcion,txtcomentarios,txttipo) 
                         VALUES (:iidestatus,:iidunidad,:dtfecha_ingreso,:dtfecha_salida,:txtlugar,:fcosto_total,:txtdescripcion,:txtcomentarios,:txttipo)";
 
-            Db::execute($query, $this->getParams());
+            $id = Db::execute($query, $this->getParams());
         } catch (Exception $ex) {
             $statusCode = 403;
             $message = sizeof($this->errors) > 0 ? $this->errors : $ex->getMessage();
         }
 
-        return array('message' => $message, 'statusCode' => $statusCode);
+        return array('id' => $id, 'message' => $message, 'statusCode' => $statusCode);
     }
 
     public function update() {
@@ -137,6 +138,35 @@ class MantenimientosController extends BaseController {
         return array('message' => "Operacion exitosa."); 
     }
 
+    public function uploadFactura() {
+        // TODO (e.millan): Delete previous saved file if exists to avoid junk files.
+        $statusCode = 200;
+        $message    = 'Operacion exitosa';
+
+        try {
+            $isRequestValid = $this->request->has("id") && $this->request->hasFiles();
+
+            if (!$isRequestValid) {
+                return;
+            }
+
+            $id    = $this->request->get("id");
+            $files = $this->request->getUploadedFiles();
+
+            $filepath = array_pop($this->storeFiles($files));
+
+            $query  = "UPDATE comun.tbl_mantenimientos SET txtarchivo = :filepath WHERE iid=:id";
+            $params = ["id" => $id, "filepath" => $filepath];
+
+            Db::execute($query, $params);
+        } catch (Exception $ex) {
+            $statusCode = 403;
+            $message = sizeof($this->errors) > 0 ? $this->errors : $ex->getMessage();
+        }
+
+        return array('message' => $message, 'statusCode' => $statusCode);
+    }
+
     ############################## Metodos Privados ##############################
     private function getParams(){
         $data  = $this->request->getJsonRawBody();
@@ -172,5 +202,24 @@ class MantenimientosController extends BaseController {
         
         if(sizeof($this->errors) > 0)
             throw new ValidatorBoomException(403, "Validaciones no aprobadas");
+    }
+
+    private function storeFiles($files) {
+        $directory = $this->config->app->appMantoFilesDir;
+
+        if (!is_dir($directory)) {
+            mkdir($directory, 0755, true);
+        }
+
+        $filepaths = [];
+
+        foreach ($files as $file) {
+            $filename = uniqid("", true) . "." . $file->getExtension();
+            $filepath = $directory . $filename;
+            $file->moveTo($filepath);
+            array_push($filepaths, $filepath);
+        }
+
+        return $filepaths;
     }
 }
